@@ -2,7 +2,7 @@ package database
 
 import (
 	dep "github.com/goatcms/goat-core/dependency"
-	"github.com/s3c0nDD/goatcms/services"
+	"github.com/goatcms/goatcms/services"
 )
 
 const (

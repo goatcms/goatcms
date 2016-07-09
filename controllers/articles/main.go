@@ -2,7 +2,7 @@ package articles
 
 import (
 	dep "github.com/goatcms/goat-core/dependency"
-	"github.com/s3c0nDD/goatcms/services"
+	"github.com/goatcms/goatcms/services"
 )
 
 // Init initialize the article controllers package

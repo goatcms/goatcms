@@ -2,8 +2,8 @@ package articlemodel
 
 import (
 	dep "github.com/goatcms/goat-core/dependency"
-	"github.com/s3c0nDD/goatcms/models"
-	"github.com/s3c0nDD/goatcms/services"
+	"github.com/goatcms/goatcms/models"
+	"github.com/goatcms/goatcms/services"
 )
 
 // Factory is a database depondency builder

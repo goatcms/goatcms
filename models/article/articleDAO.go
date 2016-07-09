@@ -4,8 +4,8 @@ import (
 	"log"
 	"strconv"
 
-	"github.com/s3c0nDD/goatcms/models"
-	"github.com/s3c0nDD/goatcms/services"
+	"github.com/goatcms/goatcms/models"
+	"github.com/goatcms/goatcms/services"
 )
 
 // ArticleDAO is describing entity of article

@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	gorillamux "github.com/gorilla/mux"
-	"github.com/s3c0nDD/goatcms/services"
+	"github.com/goatcms/goatcms/services"
 )
 
 //Mux is global routing provider

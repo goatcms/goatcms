@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/goatcms/goat-core/dependency"
-	"github.com/s3c0nDD/goatcms/services"
+	"github.com/goatcms/goatcms/services"
 )
 
 //HomepageController is main page endpoint
