@@ -1,0 +1,37 @@
+{{define "articleViewPage"}}
+<!doctype html>
+<html class="no-js" lang="">
+
+  {{template "head"}}
+
+<body>
+
+<div class="container">
+
+  {{template "header"}}
+
+  <div class="jumbotron">
+    <h1>Article view</h1>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-12">
+      <h2>{{.GetTitle}}</h2>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-12">
+      <p>{{.GetContent}}</h3>
+    </div>
+  </div>
+
+  {{template "footer"}}
+
+</div> <!-- /container -->
+
+{{template "scripts"}}
+
+</body>
+</html>
+{{end}}

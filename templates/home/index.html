@@ -1,0 +1,55 @@
+{{define "homePage"}}
+<!doctype html>
+<html class="no-js" lang="">
+
+  {{template "head"}}
+
+<body>
+
+<div class="container">
+
+  {{template "header"}}
+
+  <div class="jumbotron">
+    <h1>Welcome!</h1>
+    <p class="lead">This is a GoatCMS homepage.</p>
+    <p><a class="btn btn-lg btn-success" href="#" role="button">Learn more</a></p>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6 col-sm-12">
+      <h4>Make your web portal great again!</h4>
+      <p>With GoatCMS making your content will be easy as never.</p>
+
+      <h4>Ready for your needs!</h4>
+      <p>GoatCMS was made to perfectly fit your requirements.</p>
+
+      <h4>Give GoatCMS a try!</h4>
+      <p>You'll love it and never go back to your previous CMS.</p>
+    </div>
+
+    <div class="col-md-6 col-sm-12">
+      <h4>Try some actions:</h4>
+        <div class="row">
+          <p><a class="btn btn-md btn-primary btn-block"
+            href="/article/add" role="button">Click to add new article</a>
+          </p>
+        </div>
+        <div class="row">
+          <p><a class="btn btn-md btn-primary btn-block"
+            href="/article" role="button">Click to see article list</a>
+          </p>
+        </div>
+    </div>
+
+  </div>
+
+  {{template "footer"}}
+
+</div> <!-- /container -->
+
+{{template "scripts"}}
+
+</body>
+</html>
+{{end}}

@@ -1,0 +1,46 @@
+{{define "articleListPage"}}
+<!doctype html>
+<html class="no-js" lang="">
+
+  {{template "head"}}
+
+<body>
+
+<div class="container">
+
+  {{template "header"}}
+
+  <div class="jumbotron">
+    <h1>Articles list</h1>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-12">
+      <p>Number of articles: {{len .}}</p>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="list-group">
+
+        {{range .}}
+        <a href="/article/{{.GetID}}" class="list-group-item">
+          <h4 class="list-group-item-heading">{{.GetTitle}}</h4>
+          <p class="list-group-item-text">{{.GetContent}}</p>
+        </a>
+        {{end}}
+
+      </div>
+    </div>
+  </div>
+
+  {{template "footer"}}
+
+</div> <!-- /container -->
+
+{{template "scripts"}}
+
+</body>
+</html>
+{{end}}
