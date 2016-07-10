@@ -1,12 +1,12 @@
 package home
 
 import (
-	dep "github.com/goatcms/goat-core/dependency"
+	"github.com/goatcms/goat-core/dependency"
 	"github.com/goatcms/goatcms/services"
 )
 
 // Init initialize the homepage controller package
-func Init(dp dep.Provider) error {
+func Init(dp dependency.Provider) error {
 	muxIns, err := dp.Get(services.MuxID)
 	if err != nil {
 		return err

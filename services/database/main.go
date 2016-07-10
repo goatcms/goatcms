@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 
-	_ "github.com/mattn/go-sqlite3" // import sqlite3 adapter
+	_ "github.com/mattn/go-sqlite3" // import sqlite3 adapter as default db driver
 )
 
 // Database is global database connection provider
