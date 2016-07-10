@@ -5,7 +5,7 @@ import (
 	"github.com/goatcms/goatcms/services"
 )
 
-// Factory is a database depondency builder
+// Factory is a database dependency builder
 func Factory(dp dep.Provider) (dep.Instance, error) {
 	return NewTemplate()
 }

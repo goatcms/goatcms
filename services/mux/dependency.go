@@ -9,7 +9,7 @@ const (
 	defaultDatabasePath = "sqlite3.db"
 )
 
-//Factory is a database depondency builder
+//Factory is a database dependency builder
 func Factory(dp dep.Provider) (dep.Instance, error) {
 	return NewMux()
 }

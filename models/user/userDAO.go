@@ -1,4 +1,4 @@
-package useremodel
+package usermodel
 
 import (
 	"log"

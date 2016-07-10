@@ -1,4 +1,4 @@
-package useremodel
+package usermodel
 
 // UserDTO is describing entity of user
 type UserDTO struct {
