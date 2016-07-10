@@ -20,8 +20,8 @@ func NewArticleDAO(db services.Database) models.ArticleDAO {
 	})
 }
 
-// GetAll obtain all articles from database
-func (dao *ArticleDAO) GetAll() []models.ArticleDTO {
+// FindAll obtain all articles from database
+func (dao *ArticleDAO) FindAll() []models.ArticleDTO {
 	query := `
 		SELECT id, title, content FROM articles
 		`
@@ -43,11 +43,9 @@ func (dao *ArticleDAO) GetAll() []models.ArticleDTO {
 	return result
 }
 
-// GetOne obtain article of given ID from database
-func (dao *ArticleDAO) GetOne(id int) models.ArticleDTO {
+// FindByID obtain article of given ID from database
+func (dao *ArticleDAO) FindByID(id int) models.ArticleDTO {
 	idString := strconv.FormatInt(int64(id), 10)
-	// temp := idString + 100
-	// log.Println()
 	query := `
 		SELECT id, title, content FROM articles
 		WHERE id = ` + idString
@@ -69,7 +67,7 @@ func (dao *ArticleDAO) GetOne(id int) models.ArticleDTO {
 	return result
 }
 
-// PersistAll store given articles to database (only new ones)
+// PersistAll store given articles to database
 func (dao *ArticleDAO) PersistAll(items []models.ArticleDTO) {
 	query := `
 	INSERT OR REPLACE INTO articles(

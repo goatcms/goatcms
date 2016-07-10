@@ -2,7 +2,7 @@ package database
 
 import "testing"
 
-func TestShouldOpenConncetion(t *testing.T) {
+func TestShouldOpenConnection(t *testing.T) {
 	const dbpath = "test.db"
 
 	db, err := NewDatabase(dbpath)
@@ -11,14 +11,17 @@ func TestShouldOpenConncetion(t *testing.T) {
 		return
 	}
 	if err := db.Open(); err != nil {
-		t.Error("Can not open new conncetion", err)
+		t.Error("Can not open new connection", err)
 		return
 	}
 	defer db.Close()
+	// test doesn't create test.db file?
+	// should it?
 }
 
-func TestShouldScreateSchema(t *testing.T) {
+func TestShouldCreateSchema(t *testing.T) {
 	const dbpath = "test2.db"
+	// this test works
 
 	db, err := NewDatabase(dbpath)
 	if err != nil {
@@ -26,7 +29,7 @@ func TestShouldScreateSchema(t *testing.T) {
 		return
 	}
 	if err := db.Open(); err != nil {
-		t.Error("Can not open new conncetion", err)
+		t.Error("Can not open new connection", err)
 		return
 	}
 	defer db.Close()
@@ -35,4 +38,5 @@ func TestShouldScreateSchema(t *testing.T) {
 		t.Error("Can not create schema", err)
 		return
 	}
+	// maybe also delete test2.db file?
 }

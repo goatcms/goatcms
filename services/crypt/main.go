@@ -13,7 +13,7 @@ func NewCrypt(dp dependency.Provider) (*Crypt, error) {
 	return &Crypt{}, nil
 }
 
-// Hash - function which takes string and return bcrypted one as string
+// Hash take input string (f.e. password) and return bcrypted string
 func (c *Crypt) Hash(pass string) (string, error) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(pass), bcrypt.DefaultCost)
 	if err != nil {

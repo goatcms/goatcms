@@ -5,7 +5,7 @@ import (
 	"github.com/goatcms/goatcms/services"
 )
 
-// Init initialize the article controllers package
+// Init initialize the articles' controllers package
 func Init(dp dep.Provider) error {
 	muxIns, err := dp.Get(services.MuxID)
 	if err != nil {
@@ -17,9 +17,11 @@ func Init(dp dep.Provider) error {
 	if err != nil {
 		return err
 	}
+
 	mux.Get("/article/add", ctrl.AddArticle)
 	mux.Post("/article/add", ctrl.SaveArticle)
 	mux.Get("/article", ctrl.ListArticle)
 	mux.Get("/article/{id:[0-9]+}", ctrl.ViewArticle)
+
 	return nil
 }

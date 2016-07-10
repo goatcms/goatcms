@@ -20,9 +20,9 @@ func NewTemplate() (*Template, error) {
 	return t, nil
 }
 
-// Init inicjalize template instance
+// Init initialize template instance
 func (t *Template) Init(path string) error {
-	//t.tmpl = gotemplate.Must(gotemplate.ParseGlob(path))
+	//t.tmpl = gotemplate.Must(gotemplate.ParseGlob(path))	// <-- what is this?
 	t.tmpl = gotemplate.New("template")
 
 	filepath.Walk(path, func(path string, info os.FileInfo, err error) error {
@@ -36,7 +36,7 @@ func (t *Template) Init(path string) error {
 	return nil
 }
 
-// ExecuteTemplate run template for a data and send result to io.Writer
+// ExecuteTemplate execute template with given a data and send result to io.Writer
 func (t *Template) ExecuteTemplate(wr io.Writer, name string, data interface{}) error {
 	t.tmpl.ExecuteTemplate(wr, name, data)
 	return nil

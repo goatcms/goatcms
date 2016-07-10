@@ -6,7 +6,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func TestIfHashAndPassIsIdentical(t *testing.T) {
+func TestIfHashAndPassAreEqual(t *testing.T) {
 	const testPassword = "foobar"
 	cryptService := &Crypt{}
 	hashed, err := cryptService.Hash(testPassword)
@@ -18,13 +18,14 @@ func TestIfHashAndPassIsIdentical(t *testing.T) {
 		[]byte(hashed),
 		[]byte(testPassword),
 	) != nil {
-		t.Error("comparing hash and CORRECT pass should be true")
+		t.Error("comparing hash and CORRECT password: they should be identical")
 	}
 }
 
-func TestIfHashAndPassNotMatchingIsNotIdentical(t *testing.T) {
+func TestIfHashAndPassNotMatchingAreNotEqual(t *testing.T) {
+	const testPassword = "foobar"
 	cryptService := &Crypt{}
-	hashed, err := cryptService.Hash("foobar")
+	hashed, err := cryptService.Hash(testPassword)
 	if err != nil {
 		t.Error(err)
 		return
@@ -33,6 +34,6 @@ func TestIfHashAndPassNotMatchingIsNotIdentical(t *testing.T) {
 		[]byte(hashed),
 		[]byte("foobaz"),
 	) == nil {
-		t.Error("comparing hash and WRONG pass pass should not be identical")
+		t.Error("comparing hash and WRONG password: they should not be identical")
 	}
 }

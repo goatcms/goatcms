@@ -1,9 +1,9 @@
 package models
 
 const (
-	// ArticleDAOID is name used as article dao identyfier
+	// ArticleDAOID is name used as article dao identifier
 	ArticleDAOID = "articleDAO"
-	// UserDAOID is name used as users dao identyfier
+	// UserDAOID is name used as user dao identifier
 	UserDAOID = "userDAO"
 )
 
@@ -16,8 +16,8 @@ type ArticleDTO interface {
 
 // ArticleDAO provide api to article access
 type ArticleDAO interface {
-	GetAll() []ArticleDTO
-	GetOne(id int) ArticleDTO
+	FindAll() []ArticleDTO
+	FindByID(id int) ArticleDTO
 	PersistAll(items []ArticleDTO)
 }
 
@@ -30,6 +30,6 @@ type UserDTO interface {
 
 // UserDAO provide api to user access
 type UserDAO interface {
-	GetAll() []UserDTO
+	FindAll() []UserDTO
 	PersistAll(items []UserDTO)
 }
