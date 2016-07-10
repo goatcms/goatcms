@@ -39,7 +39,7 @@ func (db *Database) Close() error {
 	return db.instance.Close()
 }
 
-// Adapter return current database interface instance
+// Adapter return current golang database interface instance
 func (db *Database) Adapter() *sql.DB {
 	return db.instance
 }

@@ -15,8 +15,6 @@ func TestShouldOpenConnection(t *testing.T) {
 		return
 	}
 	defer db.Close()
-	// test doesn't create test.db file?
-	// should it?
 }
 
 func TestShouldCreateSchema(t *testing.T) {
@@ -38,5 +36,4 @@ func TestShouldCreateSchema(t *testing.T) {
 		t.Error("Can not create schema", err)
 		return
 	}
-	// maybe also delete test2.db file?
 }

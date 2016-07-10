@@ -5,7 +5,7 @@ import (
 	"github.com/goatcms/goatcms/services"
 )
 
-// Init initialize the homepage's controller package
+// Init initialize the homepage controller package
 func Init(dp dep.Provider) error {
 	muxIns, err := dp.Get(services.MuxID)
 	if err != nil {

@@ -22,7 +22,7 @@ func NewTemplate() (*Template, error) {
 
 // Init initialize template instance
 func (t *Template) Init(path string) error {
-	//t.tmpl = gotemplate.Must(gotemplate.ParseGlob(path))	// <-- what is this?
+	//t.tmpl = gotemplate.Must(gotemplate.ParseGlob(path))
 	t.tmpl = gotemplate.New("template")
 
 	filepath.Walk(path, func(path string, info os.FileInfo, err error) error {
