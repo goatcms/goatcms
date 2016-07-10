@@ -1,10 +1,10 @@
 Goatcms
 =======
-Goland cms system. Project is sill development. 
+Golang CMS system. Project is still in development. 
 
 TODO
 ====
-Crate documentation
+Create documentation
 
 Authors
 =======

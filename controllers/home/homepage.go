@@ -27,7 +27,7 @@ func NewHomepageController(dp dependency.Provider) (*HomepageController, error) 
 
 // Show is http get endpoint to serve home page
 func (c *HomepageController) Show(w http.ResponseWriter, r *http.Request) {
-	err := c.tmpl.ExecuteTemplate(w, "homePage", nil)
+	err := c.tmpl.ExecuteTemplate(w, "home/index", nil)
 	if err != nil {
 		log.Fatal("error rendering a template: ", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
