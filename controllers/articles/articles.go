@@ -39,7 +39,7 @@ func NewArticleController(dp dependency.Provider) (*ArticleController, error) {
 // AddArticle is handler to serve template where one can add new article
 func (c *ArticleController) AddArticle(w http.ResponseWriter, r *http.Request) {
 	log.Println("responding to", r.Method, r.URL)
-	err := c.tmpl.ExecuteTemplate(w, "addArticlePage", nil)
+	err := c.tmpl.ExecuteTemplate(w, "articles/new", nil)
 	if err != nil {
 		log.Fatal("error rendering a template: ", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -73,7 +73,7 @@ func (c *ArticleController) SaveArticle(w http.ResponseWriter, r *http.Request) 
 func (c *ArticleController) ListArticle(w http.ResponseWriter, r *http.Request) {
 	articles := c.articleDAO.FindAll()
 
-	err := c.tmpl.ExecuteTemplate(w, "articleListPage", articles)
+	err := c.tmpl.ExecuteTemplate(w, "articles/list", articles)
 	if err != nil {
 		log.Fatal("error rendering a template: ", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -95,7 +95,7 @@ func (c *ArticleController) ViewArticle(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	err := c.tmpl.ExecuteTemplate(w, "articleViewPage", article)
+	err := c.tmpl.ExecuteTemplate(w, "articles/view", article)
 	if err != nil {
 		log.Fatal("error rendering a template: ", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
