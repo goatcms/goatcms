@@ -8,12 +8,12 @@ import (
 	"github.com/goatcms/goatcms/services"
 )
 
-//HomepageController is main page endpoint
+// HomepageController is main page endpoint
 type HomepageController struct {
 	tmpl services.Template
 }
 
-//NewHomepageController create instance of a home controller
+// NewHomepageController create instance of a home controller
 func NewHomepageController(dp dependency.Provider) (*HomepageController, error) {
 	ctrl := &HomepageController{}
 	// load template service from dependency provider
@@ -25,7 +25,7 @@ func NewHomepageController(dp dependency.Provider) (*HomepageController, error) 
 	return ctrl, nil
 }
 
-//Show is http get endpoint to show homepage
+// Show is http get endpoint to serve home page
 func (c *HomepageController) Show(w http.ResponseWriter, r *http.Request) {
 	err := c.tmpl.ExecuteTemplate(w, "homePage", nil)
 	if err != nil {

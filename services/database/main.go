@@ -7,13 +7,13 @@ import (
 	_ "github.com/mattn/go-sqlite3" // import sqlite3 adapter as default db driver
 )
 
-//Database is global database connection provider
+// Database is global database connection provider
 type Database struct {
 	instance *sql.DB
 	filepath string
 }
 
-//NewDatabase create a database instance
+// NewDatabase create a database instance
 func NewDatabase(filepath string) (*Database, error) {
 	return &Database{
 		instance: nil,
@@ -21,7 +21,7 @@ func NewDatabase(filepath string) (*Database, error) {
 	}, nil
 }
 
-//Open inicjalize a database conncetion
+// Open initialize a database connection
 func (db *Database) Open() error {
 	var err error
 	db.instance, err = sql.Open("sqlite3", db.filepath)
@@ -34,17 +34,17 @@ func (db *Database) Open() error {
 	return nil
 }
 
-//Close conncetion
+// Close close a connection
 func (db *Database) Close() error {
 	return db.instance.Close()
 }
 
-//Adapter return current golang database interface instance
+// Adapter return current golang database interface instance
 func (db *Database) Adapter() *sql.DB {
 	return db.instance
 }
 
-//CreateTables build a database schema
+// CreateTables build a database schema
 func (db *Database) CreateTables() error {
 	query := `
 	CREATE TABLE IF NOT EXISTS users(

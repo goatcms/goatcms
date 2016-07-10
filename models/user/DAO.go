@@ -12,15 +12,15 @@ type UserDAO struct {
 	db services.Database
 }
 
-// NewUserDAO create new article DAO
+// NewUserDAO create new UserDAO
 func NewUserDAO(db services.Database) (models.UserDAO, error) {
 	return models.UserDAO(&UserDAO{
 		db: db,
 	}), nil
 }
 
-// GetAll obtains all users from database
-func (dao *UserDAO) GetAll() []models.UserDTO {
+// FindAll obtains all users from database
+func (dao *UserDAO) FindAll() []models.UserDTO {
 	query := `
 		SELECT id, email, pass_hash FROM users
 		`

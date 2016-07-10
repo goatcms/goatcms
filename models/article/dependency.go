@@ -17,7 +17,7 @@ func Factory(dp dep.Provider) (dep.Instance, error) {
 	return NewArticleDAO(db), nil
 }
 
-// InitDep inicjalize a new database dependency
+// InitDep initialize a new article model dependency
 func InitDep(prov dep.Provider) error {
 	if err := prov.AddService(models.ArticleDAOID, Factory); err != nil {
 		return err

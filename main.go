@@ -4,22 +4,24 @@ import (
 	"fmt"
 
 	dep "github.com/goatcms/goat-core/dependency"
+
 	"github.com/goatcms/goatcms/controllers/articles"
 	"github.com/goatcms/goatcms/controllers/home"
 	"github.com/goatcms/goatcms/models/article"
+	"github.com/goatcms/goatcms/models/user"
 	"github.com/goatcms/goatcms/services"
 	"github.com/goatcms/goatcms/services/crypt"
 	"github.com/goatcms/goatcms/services/database"
 	"github.com/goatcms/goatcms/services/mux"
-	"github.com/goatcms/goatcms/services/tempate"
+	"github.com/goatcms/goatcms/services/template"
 )
 
-//App represent an application
+// App represents an application
 type App struct {
 	dp dep.Provider
 }
 
-//NewApp create new instance of application
+// NewApp create new instance of application
 func NewApp() *App {
 	return &App{
 		dp: dep.NewProvider(),
@@ -69,10 +71,10 @@ func (app *App) initDatabase() error {
 	}
 	db := dbIns.(services.Database)
 	if err := db.Open(); err != nil {
-		fmt.Println("Can not open database ", err)
+		return err
 	}
 	if err := db.CreateTables(); err != nil {
-		fmt.Println("Can not create tables ", err)
+		return err
 	}
 	return nil
 }

@@ -7,9 +7,9 @@ import (
 )
 
 const (
-	// DBID is a name represents default database service
+	// DBID is a name representing default database service
 	DBID = "database"
-	// MuxID is a name represents default mux service
+	// MuxID is a name representing default mux service
 	MuxID = "mux"
 	// TemplateID is a name represents default template service
 	TemplateID = "template"
@@ -22,7 +22,7 @@ type Database interface {
 	Open() error
 	Close() error
 	CreateTables() error
-	// Deprecated: It shouldn't be use
+	// Deprecated: It shouldn't be use	// what shouldn't?
 	Adapter() *sql.DB
 }
 

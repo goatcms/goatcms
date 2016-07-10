@@ -6,19 +6,19 @@ import (
 	"strconv"
 
 	"github.com/goatcms/goat-core/dependency"
-	"github.com/gorilla/mux"
 	"github.com/goatcms/goatcms/models"
 	"github.com/goatcms/goatcms/models/article"
 	"github.com/goatcms/goatcms/services"
+	"github.com/gorilla/mux"
 )
 
-//ArticleController is main page endpoint
+// ArticleController is main page endpoint
 type ArticleController struct {
 	tmpl       services.Template
 	articleDAO models.ArticleDAO
 }
 
-//NewArticleController create instance of a articles controller
+// NewArticleController create instance of a articles controller
 func NewArticleController(dp dependency.Provider) (*ArticleController, error) {
 	ctrl := &ArticleController{}
 	// load template service from dependency provider
@@ -27,7 +27,7 @@ func NewArticleController(dp dependency.Provider) (*ArticleController, error) {
 		return nil, err
 	}
 	ctrl.tmpl = tmplIns.(services.Template)
-	// load template service from dependency provider
+	// load articleDAO service from dependency provider
 	daoIns, err := dp.Get(models.ArticleDAOID)
 	if err != nil {
 		return nil, err
@@ -36,9 +36,9 @@ func NewArticleController(dp dependency.Provider) (*ArticleController, error) {
 	return ctrl, nil
 }
 
-// AddArticle is handler which serves template when one can add new article
+// AddArticle is handler to serve template where one can add new article
 func (c *ArticleController) AddArticle(w http.ResponseWriter, r *http.Request) {
-	log.Println(" AddArticle rendering ")
+	log.Println("responding to", r.Method, r.URL)
 	err := c.tmpl.ExecuteTemplate(w, "addArticlePage", nil)
 	if err != nil {
 		log.Fatal("error rendering a template: ", err)
@@ -47,7 +47,7 @@ func (c *ArticleController) AddArticle(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// SaveArticle is handler which saves article from form obtained data
+// SaveArticle is handler to save article from form obtained data
 func (c *ArticleController) SaveArticle(w http.ResponseWriter, r *http.Request) {
 	// TODO: http://www.gorillatoolkit.org/pkg/schema
 	// like: err := decoder.Decode(person, r.PostForm)
@@ -62,17 +62,16 @@ func (c *ArticleController) SaveArticle(w http.ResponseWriter, r *http.Request) 
 	article := articlemodel.ArticleDTO{Title: title, Content: content}
 	// ...and save to database
 
-	var queryArticles []models.ArticleDTO //make slice, append article, send to DB
-	queryArticles = append(queryArticles, models.ArticleDTO(&article))
-	c.articleDAO.PersistAll(queryArticles)
-	//redirect
-	// log.Println("DB: add article [ " + title + " ] = " + content)
+	var articlesToAdd []models.ArticleDTO
+	articlesToAdd = append(articlesToAdd, models.ArticleDTO(&article))
+	c.articleDAO.PersistAll(articlesToAdd)
+	// redirect
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
-// ListArticle - handler serving template with list of articles
+// ListArticle is handler serving template with list of articles
 func (c *ArticleController) ListArticle(w http.ResponseWriter, r *http.Request) {
-	articles := c.articleDAO.GetAll()
+	articles := c.articleDAO.FindAll()
 
 	err := c.tmpl.ExecuteTemplate(w, "articleListPage", articles)
 	if err != nil {
@@ -82,16 +81,17 @@ func (c *ArticleController) ListArticle(w http.ResponseWriter, r *http.Request) 
 	}
 }
 
-// ViewArticle - handler serving template with list of articles
+// ViewArticle is handler serving template with list of articles
 func (c *ArticleController) ViewArticle(w http.ResponseWriter, r *http.Request) {
-	log.Println("ArticleViewHandler: responding to GET", r.URL)
+	log.Println("responding to", r.Method, r.URL)
 	vars := mux.Vars(r)
 
 	articleID, _ := strconv.Atoi(vars["id"])
-	article := c.articleDAO.GetOne(articleID)
+	article := c.articleDAO.FindByID(articleID)
 
 	if article == nil { // if fe. user gives id of non existent article
 		http.Error(w, http.StatusText(404), 403)
+		// TODO maybe handle above some better way?
 		return
 	}
 
