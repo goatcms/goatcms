@@ -6,7 +6,7 @@ import (
 	"github.com/goatcms/goatcms/services"
 )
 
-// Factory is an article model dependency builder
+// Factory is a database dependency builder
 func Factory(dp dep.Provider) (dep.Instance, error) {
 	dbIns, err := dp.Get(services.DBID)
 	if err != nil {
