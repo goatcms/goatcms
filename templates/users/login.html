@@ -1,4 +1,4 @@
-{{define "users/register"}}
+{{define "users/login"}}
 <!doctype html>
 <html class="no-js" lang="">
 
@@ -12,28 +12,26 @@
 
   <div class="row">
     <div class="col-md-6 col-md-offset-3">
-      <h1>Sign up</h1>
+      <h1>Login</h1>
       <br />
 
       {{if .Error}}
       <p class="text-danger">{{.Error}}</p>
       {{end}}
 
-      <form action="/register" method="post" enctype="application/x-www-form-urlencoded">
+      <form action="/login" method="post" enctype="application/x-www-form-urlencoded">
         <div class="form-group">
-          <label for="newEmail">Email:</label>
-          <input type="text" class="form-control" value="{{.GetEmail}}"
-                 id="newEmail" name="email">
+          <label for="email">Email:</label>
+          <input type="text" class="form-control" id="email" name="email">
         </div>
         <div class="form-group">
-          <label for="newPassword">Password:</label>
-          <input type="password" class="form-control"
-                 id="newPassword" name="password">
+          <label for="password">Password:</label>
+          <input type="password" class="form-control" id="password" name="password">
         </div>
         <br />
         <div class="form-group">
           <input type="submit" class="btn btn-lg btn-primary btn-block"
-                 value="Register"></input>
+                 value="Login"></input>
         </div>
       </form>
 

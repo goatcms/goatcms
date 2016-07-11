@@ -42,6 +42,29 @@ func (dao *UserDAO) FindAll() []models.UserDTO {
 	return result
 }
 
+// FindByEmail obtain user of given email from database
+func (dao *UserDAO) FindByEmail(email string) models.UserDTO {
+	query := `
+		SELECT id, email, pass_hash FROM users
+		WHERE email = "` + email + `"`
+	rows, err := dao.db.Adapter().Query(query)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+
+	var result models.UserDTO
+	for rows.Next() {
+		item := UserDTO{}
+		err2 := rows.Scan(&item.ID, &item.Email, &item.PassHash)
+		if err2 != nil {
+			log.Fatal(err2)
+		}
+		result = models.UserDTO(&item)
+	}
+	return result
+}
+
 // PersistAll store given users to database
 func (dao *UserDAO) PersistAll(items []models.UserDTO) {
 	query := `

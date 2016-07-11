@@ -18,8 +18,10 @@ func Init(dp dependency.Provider) error {
 		return err
 	}
 
-	mux.Get("/register", ctrl.AddUser)
-	mux.Post("/register", ctrl.SaveUser)
+	mux.Get("/register", ctrl.TemplateSignUp)
+	mux.Post("/register", ctrl.TryToSignUp)
+	mux.Get("/login", ctrl.TemplateLogin)
+	mux.Post("/login", ctrl.TryToLogin)
 
 	return nil
 }

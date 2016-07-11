@@ -62,7 +62,6 @@ func (c *ArticleController) SaveArticle(w http.ResponseWriter, r *http.Request) 
 	content := r.PostFormValue("content")
 	article := articlemodel.ArticleDTO{Title: title, Content: content}
 	// ...and save to database
-
 	var articlesToAdd []models.ArticleDTO
 	articlesToAdd = append(articlesToAdd, models.ArticleDTO(&article))
 	c.articleDAO.PersistAll(articlesToAdd)
@@ -86,11 +85,10 @@ func (c *ArticleController) ListArticle(w http.ResponseWriter, r *http.Request) 
 func (c *ArticleController) ViewArticle(w http.ResponseWriter, r *http.Request) {
 	log.Println("responding to", r.Method, r.URL)
 	vars := mux.Vars(r)
-
 	articleID, _ := strconv.Atoi(vars["id"])
+	// Find article in database by given id
 	article := c.articleDAO.FindByID(articleID)
-
-	if article == nil { // if fe. user gives id of non existent article
+	if article == nil { // if article of given ID doesn't exist
 		http.Error(w, http.StatusText(404), 403)
 		// TODO maybe handle above some better way?
 		return
