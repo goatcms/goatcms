@@ -6,8 +6,8 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func TestIfHashAndPassAreEqual(t *testing.T) {
-	const testPassword = "foobar"
+func TestIfHashAndGoodPassDoesMatch(t *testing.T) {
+	const testPassword = "goodpassword"
 	cryptService := &Crypt{}
 	hashed, err := cryptService.Hash(testPassword)
 	if err != nil {
@@ -22,18 +22,51 @@ func TestIfHashAndPassAreEqual(t *testing.T) {
 	}
 }
 
-func TestIfHashAndPassNotMatchingAreNotEqual(t *testing.T) {
-	const testPassword = "foobar"
+func TestIfHashAndWrongPassDontMatch(t *testing.T) {
+	cryptService := &Crypt{}
+	hashed, err := cryptService.Hash("goodpassword")
+	if err != nil {
+		t.Error(err)
+		// return
+	}
+	if bcrypt.CompareHashAndPassword(
+		[]byte(hashed),
+		[]byte("wrongpassword"),
+	) == nil {
+		t.Error("comparing hash and WRONG password: they should not be identical")
+	}
+}
+
+func TestCompareFuncWorksIfPassAndHashMatch(t *testing.T) {
+	const testPassword = "goodpassword"
 	cryptService := &Crypt{}
 	hashed, err := cryptService.Hash(testPassword)
 	if err != nil {
 		t.Error(err)
-		return
+		// return
 	}
-	if bcrypt.CompareHashAndPassword(
-		[]byte(hashed),
-		[]byte("foobaz"),
-	) == nil {
-		t.Error("comparing hash and WRONG password: they should not be identical")
+	eval, err := cryptService.Compare(hashed, testPassword)
+	if err != nil {
+		t.Error(err)
+	}
+	if eval != true {
+		t.Error("Compare func should be true ")
+	}
+}
+
+func TestCompareFuncWorksIfPassAndHashDoesntMatch(t *testing.T) {
+	cryptService := &Crypt{}
+	hashed, err := cryptService.Hash("wrongpassword")
+	if err != nil {
+		t.Error(err)
+		t.Log("elo3")
+		// return
+	}
+	eval, err := cryptService.Compare(hashed, "goodpassword")
+	if err == nil {
+		t.Error(err)
+	}
+	if eval == true {
+		t.Error("Compare func should not be true ")
 	}
 }

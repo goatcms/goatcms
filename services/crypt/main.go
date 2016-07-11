@@ -21,3 +21,12 @@ func (c *Crypt) Hash(pass string) (string, error) {
 	}
 	return string(hash), nil
 }
+
+// Compare take pass and hashedPass and return boolean if it's match or not
+func (c *Crypt) Compare(hashedPass, pass string) (bool, error) {
+	err := bcrypt.CompareHashAndPassword([]byte(hashedPass), []byte(pass))
+	if err != nil {
+		return false, err
+	}
+	return true, nil
+}
