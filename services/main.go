@@ -46,4 +46,5 @@ type Template interface {
 // Crypt is global elementary cryptographic interface
 type Crypt interface {
 	Hash(pass string) (string, error)
+	Compare(hashedPass, pass string) (bool, error)
 }
