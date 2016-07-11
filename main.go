@@ -7,6 +7,7 @@ import (
 
 	"github.com/goatcms/goatcms/controllers/articles"
 	"github.com/goatcms/goatcms/controllers/home"
+	"github.com/goatcms/goatcms/controllers/users"
 	"github.com/goatcms/goatcms/models/article"
 	"github.com/goatcms/goatcms/models/user"
 	"github.com/goatcms/goatcms/services"
@@ -59,6 +60,9 @@ func (app *App) initControllers() error {
 		return err
 	}
 	if err := home.Init(app.dp); err != nil {
+		return err
+	}
+	if err := users.Init(app.dp); err != nil {
 		return err
 	}
 	return nil

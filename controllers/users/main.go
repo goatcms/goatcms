@@ -1,11 +1,11 @@
-package articles
+package users
 
 import (
 	"github.com/goatcms/goat-core/dependency"
 	"github.com/goatcms/goatcms/services"
 )
 
-// Init initialize the article controllers package
+// Init initialize the user controller package
 func Init(dp dependency.Provider) error {
 	muxIns, err := dp.Get(services.MuxID)
 	if err != nil {
@@ -13,15 +13,13 @@ func Init(dp dependency.Provider) error {
 	}
 	mux := muxIns.(services.Mux)
 
-	ctrl, err := NewArticleController(dp)
+	ctrl, err := NewUserController(dp)
 	if err != nil {
 		return err
 	}
 
-	mux.Get("/article/add", ctrl.AddArticle)
-	mux.Post("/article/add", ctrl.SaveArticle)
-	mux.Get("/article", ctrl.ListArticle)
-	mux.Get("/article/{id:[0-9]+}", ctrl.ViewArticle)
+	mux.Get("/register", ctrl.AddUser)
+	mux.Post("/register", ctrl.SaveUser)
 
 	return nil
 }

@@ -12,7 +12,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// ArticleController is main page endpoint
+// ArticleController is article controller endpoint
 type ArticleController struct {
 	tmpl       services.Template
 	articleDAO models.ArticleDAO
@@ -49,6 +49,7 @@ func (c *ArticleController) AddArticle(w http.ResponseWriter, r *http.Request) {
 
 // SaveArticle is handler to save article from form obtained data
 func (c *ArticleController) SaveArticle(w http.ResponseWriter, r *http.Request) {
+	log.Println("responding to", r.Method, r.URL)
 	// TODO: http://www.gorillatoolkit.org/pkg/schema
 	// like: err := decoder.Decode(person, r.PostForm)
 	// By Sebastian
