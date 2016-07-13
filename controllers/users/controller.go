@@ -114,23 +114,7 @@ func (c *UserController) TryToLogin(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err2)
 	}
 	// validate form data
-	// var passMatch bool
-	// var err2 error
-
 	user := c.userDAO.FindByEmail(loginForm.Email) // try find user
-	// if user == nil {
-	// 	log.Println("no users found with email", loginForm.Email, "- login failure")
-	// } else {
-	// 	passMatch, err2 = c.crypt.Compare(user.GetPassHash(), loginForm.Password)
-	// 	if err2 != nil { // here error means: hash and pass are not matching
-	// 		log.Println("password wrong - login failure")
-	// 	}
-	// 	if passMatch == true { // if error == nil and compare == true
-	// 		log.Println("password correct - login success")
-	// 	}
-	// }
-
-	//, passMatch)
 	if result, errors := loginForm.Validate(user, c.crypt); result != true {
 		c.tmpl.ExecuteTemplate(w, "users/login", map[string]interface{}{
 			"Errors": errors,

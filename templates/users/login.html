@@ -16,11 +16,11 @@
       <br />
 
       {{if .Errors}}
-        {{range .Errors}}
-          <p class="text-danger">{{.}}</p>
-        {{end}}
-      {{end}}
-
+        {{ range $key, $value := .Errors.email }}
+            <p class="text-danger">{{ $value }}</p>
+        {{ end }}
+      {{ end }}
+      
       <form action="/login" method="post" enctype="application/x-www-form-urlencoded">
         <div class="form-group">
           <label for="email">Email:</label>

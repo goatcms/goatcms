@@ -17,7 +17,7 @@ var (
 	errNoPassword     = "You must supply a password"
 	errBadEmailFormat = "Email is not correct"
 	errPassTooShort   = "Password should be at least 6 characters"
-	errEmailOccupied  = "There is already a user with given email"
+	errEmailOccupied  = "There is already a user with email "
 )
 
 const (
@@ -25,28 +25,28 @@ const (
 )
 
 // Validate validate form and return bool how validation passed
-func (r RegisterForm) Validate(u models.UserDTO) (bool, []string) {
+func (r RegisterForm) Validate(u models.UserDTO) (bool, map[string][]string) {
 	validation := true
-	errors := []string{}
+	errors := make(map[string][]string)
 	// do validation
 	if u != nil {
-		errors = append(errors, errEmailOccupied)
-		validation = false
-	}
-	if r.Email == "" {
-		errors = append(errors, errNoEmail)
+		errors["email"] = append(errors["email"], errEmailOccupied+u.GetEmail())
 		validation = false
 	}
 	if validateEmail(r.Email) == false {
-		errors = append(errors, errBadEmailFormat)
+		errors["email"] = append(errors["email"], errBadEmailFormat)
 		validation = false
 	}
-	if r.Password == "" {
-		errors = append(errors, errNoPassword)
+	if r.Email == "" {
+		errors["email"] = []string{errNoEmail}
 		validation = false
 	}
 	if len(r.Password) < passwordLength {
-		errors = append(errors, errPassTooShort)
+		errors["pass"] = append(errors["pass"], errPassTooShort)
+		validation = false
+	}
+	if r.Password == "" {
+		errors["pass"] = []string{errNoPassword}
 		validation = false
 	}
 	return validation, errors
