@@ -46,8 +46,7 @@ func NewUserController(dp dependency.Provider) (*UserController, error) {
 // TemplateSignUp is handler to serve template where one can register new user
 func (c *UserController) TemplateSignUp(w http.ResponseWriter, r *http.Request) {
 	log.Println("responding to", r.Method, r.URL)
-	err := c.tmpl.ExecuteTemplate(w, "users/register", nil)
-	if err != nil {
+	if err := c.tmpl.ExecuteTemplate(w, "users/register", nil); err != nil {
 		log.Fatal("error rendering a template: ", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -68,7 +67,8 @@ func (c *UserController) TryToSignUp(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 	// validate form data
-	if result, errors := registerForm.Validate(); result != true {
+	isUser := c.userDAO.FindByEmail(registerForm.Email) // try find user
+	if result, errors := registerForm.Validate(isUser); result != true {
 		c.tmpl.ExecuteTemplate(w, "users/register", map[string]interface{}{
 			"Errors": errors,
 			"Email":  registerForm.Email,
@@ -93,8 +93,7 @@ func (c *UserController) TryToSignUp(w http.ResponseWriter, r *http.Request) {
 // TemplateLogin is handler to serve template where one can log in
 func (c *UserController) TemplateLogin(w http.ResponseWriter, r *http.Request) {
 	log.Println("responding to", r.Method, r.URL)
-	err := c.tmpl.ExecuteTemplate(w, "users/login", nil)
-	if err != nil {
+	if err := c.tmpl.ExecuteTemplate(w, "users/login", nil); err != nil {
 		log.Fatal("error rendering a template: ", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -109,23 +108,35 @@ func (c *UserController) TryToLogin(w http.ResponseWriter, r *http.Request) {
 		log.Fatal("error parsing a form: ", err)
 	}
 	// obtain data from login form...
-	// TODO: http://www.gorillatoolkit.org/pkg/schema
-	// like: err := decoder.Decode(person, r.PostForm)
-	// By Sebastian
-	email := r.PostFormValue("email")
-	passPlaintext := r.PostFormValue("password")
-	// ...and check if that user exist and compare pass with hash from DB
-	user := c.userDAO.FindByEmail(email)
-	if user == nil {
-		log.Println("no users found with email:", email)
-	} else {
-		result, err := c.crypt.Compare(user.GetPassHash(), passPlaintext)
-		if err != nil { // here error means: hash and pass are not matching
-			log.Println("password wrong - log in failure")
-		}
-		if result == true { // if error == nil and result == true
-			log.Println("password correct - log in success")
-		}
+	decoder := schema.NewDecoder()
+	loginForm := &forms.LoginForm{}
+	if err2 := decoder.Decode(loginForm, r.PostForm); err != nil {
+		log.Fatal(err2)
+	}
+	// validate form data
+	// var passMatch bool
+	// var err2 error
+
+	user := c.userDAO.FindByEmail(loginForm.Email) // try find user
+	// if user == nil {
+	// 	log.Println("no users found with email", loginForm.Email, "- login failure")
+	// } else {
+	// 	passMatch, err2 = c.crypt.Compare(user.GetPassHash(), loginForm.Password)
+	// 	if err2 != nil { // here error means: hash and pass are not matching
+	// 		log.Println("password wrong - login failure")
+	// 	}
+	// 	if passMatch == true { // if error == nil and compare == true
+	// 		log.Println("password correct - login success")
+	// 	}
+	// }
+
+	//, passMatch)
+	if result, errors := loginForm.Validate(user, c.crypt); result != true {
+		c.tmpl.ExecuteTemplate(w, "users/login", map[string]interface{}{
+			"Errors": errors,
+			"Email":  loginForm.Email,
+		})
+		return
 	}
 	// redirect
 	http.Redirect(w, r, "/", http.StatusSeeOther)

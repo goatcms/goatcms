@@ -1,6 +1,10 @@
 package forms
 
-import "regexp"
+import (
+	"regexp"
+
+	"github.com/goatcms/goatcms/models"
+)
 
 // RegisterForm is structure with register form values
 type RegisterForm struct {
@@ -13,6 +17,7 @@ var (
 	errNoPassword     = "You must supply a password"
 	errBadEmailFormat = "Email is not correct"
 	errPassTooShort   = "Password should be at least 6 characters"
+	errEmailOccupied  = "There is already a user with given email"
 )
 
 const (
@@ -20,10 +25,14 @@ const (
 )
 
 // Validate validate form and return bool how validation passed
-func (r RegisterForm) Validate() (bool, []string) {
+func (r RegisterForm) Validate(u models.UserDTO) (bool, []string) {
 	validation := true
 	errors := []string{}
 	// do validation
+	if u != nil {
+		errors = append(errors, errEmailOccupied)
+		validation = false
+	}
 	if r.Email == "" {
 		errors = append(errors, errNoEmail)
 		validation = false
