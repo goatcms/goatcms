@@ -1,6 +1,7 @@
 package users
 
 import (
+	"errors"
 	"log"
 	"net/http"
 
@@ -41,6 +42,49 @@ func NewUserController(dp dependency.Provider) (*UserController, error) {
 	return ctrl, nil
 }
 
+// ValidationError type for form validation errors
+type ValidationError error
+
+var (
+	errNoEmail      = ValidationError(errors.New("You must supply an email"))
+	errNoPassword   = ValidationError(errors.New("You must supply a password"))
+	errPassTooShort = ValidationError(errors.New("Password should be at least 8 characters"))
+)
+
+// IsValidationError check if given error is of type ValidationError
+func IsValidationError(err error) bool {
+	_, ok := err.(ValidationError)
+	return ok
+}
+
+const (
+	passwordLength = 6
+)
+
+func (c *UserController) newUser(email, pass string) (usermodel.UserDTO, error) {
+	user := usermodel.UserDTO{
+		Email:    email,
+		PassHash: pass,
+	}
+	if email == "" {
+		return user, errNoEmail
+	}
+	if pass == "" {
+		return user, errNoPassword
+	}
+	if len(pass) < passwordLength {
+		return user, errPassTooShort
+	}
+	// perform password hashing before returning UserDTO object
+	passHashed, err := c.crypt.Hash(pass)
+	if err != nil {
+		return user, err
+	}
+	user.PassHash = passHashed
+
+	return user, err
+}
+
 // TemplateSignUp is handler to serve template where one can register new user
 func (c *UserController) TemplateSignUp(w http.ResponseWriter, r *http.Request) {
 	log.Println("responding to", r.Method, r.URL)
@@ -61,17 +105,30 @@ func (c *UserController) TryToSignUp(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
 		log.Fatal("error parsing a form: ", err)
-	}
-	// obtain data from form...
-	email := r.PostFormValue("email")
-	passPlaintext := r.PostFormValue("password")
-	// encrypt password with bcrypt
-	passHashed, err := c.crypt.Hash(passPlaintext)
-	if err != nil {
-		log.Fatal("error crypting pass: ", err)
 		return
 	}
-	user := usermodel.UserDTO{Email: email, PassHash: passHashed}
+	// obtain data from form
+	email := r.PostFormValue("email")
+	passPlaintext := r.PostFormValue("password")
+	// validate inputs
+	user, err := c.newUser(email, passPlaintext)
+	if err != nil {
+		if IsValidationError(err) {
+			c.tmpl.ExecuteTemplate(w, "users/register", map[string]interface{}{
+				"Error": err.Error(),
+				"Email": user.GetEmail(),
+			})
+			return
+		}
+		panic(err)
+	}
+	// encrypt password with bcrypt
+	// passHashed, err := c.crypt.Hash(passPlaintext)
+	// if err != nil {
+	// 	log.Fatal("error crypting pass: ", err)
+	// 	return
+	// }
+	// user := usermodel.UserDTO{Email: email, PassHash: passHashed}
 	// ...and save to database
 	var userToAdd []models.UserDTO
 	userToAdd = append(userToAdd, models.UserDTO(&user))
