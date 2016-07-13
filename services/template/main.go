@@ -13,7 +13,7 @@ type Template struct {
 	tmpl *gotemplate.Template
 }
 
-// NewTemplate create a mux instance
+// NewTemplate create a template service instance
 func NewTemplate() (*Template, error) {
 	t := &Template{}
 	t.Init("templates")

@@ -11,6 +11,7 @@ import (
 	"github.com/goatcms/goatcms/models/article"
 	"github.com/goatcms/goatcms/models/user"
 	"github.com/goatcms/goatcms/services"
+	"github.com/goatcms/goatcms/services/auth"
 	"github.com/goatcms/goatcms/services/crypt"
 	"github.com/goatcms/goatcms/services/database"
 	"github.com/goatcms/goatcms/services/mux"
@@ -40,6 +41,9 @@ func (app *App) initDeps() error {
 		return err
 	}
 	if err := template.InitDep(app.dp); err != nil {
+		return err
+	}
+	if err := auth.InitDep(app.dp); err != nil {
 		return err
 	}
 	return nil

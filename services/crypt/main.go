@@ -8,7 +8,7 @@ import (
 // Crypt is global encrypting provider
 type Crypt struct{}
 
-// NewCrypt create a database instance
+// NewCrypt create a encrypting instance
 func NewCrypt(dp dependency.Provider) (*Crypt, error) {
 	return &Crypt{}, nil
 }

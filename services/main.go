@@ -11,10 +11,12 @@ const (
 	DBID = "database"
 	// MuxID is a name representing default mux service
 	MuxID = "mux"
-	// TemplateID is a name represents default template service
+	// TemplateID is a name representing default template service
 	TemplateID = "template"
-	// CryptID is a name represents default crypt service
+	// CryptID is a name representing default crypt service
 	CryptID = "crypt"
+	// AuthID is a name representing default authentification service
+	AuthID = "auth"
 )
 
 // Database is global elementary database interface
@@ -22,7 +24,7 @@ type Database interface {
 	Open() error
 	Close() error
 	CreateTables() error
-	// Deprecated: It shouldn't be use	// what shouldn't?
+	// Deprecated: It shouldn't be use
 	Adapter() *sql.DB
 }
 
@@ -47,4 +49,9 @@ type Template interface {
 type Crypt interface {
 	Hash(pass string) (string, error)
 	Compare(hashedPass, pass string) (bool, error)
+}
+
+// Auth is global elementary authentification interface
+type Auth interface {
+	GetCode(data string) string
 }
