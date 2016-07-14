@@ -22,6 +22,7 @@ func Init(dp dependency.Provider) error {
 	mux.Post("/register", ctrl.TryToSignUp)
 	mux.Get("/login", ctrl.TemplateLogin)
 	mux.Post("/login", ctrl.TryToLogin)
+	mux.Post("/logout", ctrl.TryToLogout)
 
 	return nil
 }

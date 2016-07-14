@@ -53,5 +53,9 @@ type Crypt interface {
 
 // Auth is global elementary authentification interface
 type Auth interface {
-	GetCode(data string) string
+	// GetCode(data string) string
+	GetUsername(r *http.Request) (username string)
+	SetSession(username string, w http.ResponseWriter)
+	ClearSession(w http.ResponseWriter)
+	ExecuteTemplateAuth(w http.ResponseWriter, r *http.Request, name string)
 }

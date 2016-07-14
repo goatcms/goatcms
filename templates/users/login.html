@@ -11,7 +11,7 @@
   {{template "navbar"}}
 
   <div class="row">
-    <div class="col-md-6 col-md-offset-3">
+    <div class="col-sm-6 col-sm-offset-3">
       <h1>Login</h1>
       <br />
 
@@ -20,7 +20,7 @@
             <p class="text-danger">{{ $value }}</p>
         {{ end }}
       {{ end }}
-      
+
       <form action="/login" method="post" enctype="application/x-www-form-urlencoded">
         <div class="form-group">
           <label for="email">Email:</label>

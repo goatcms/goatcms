@@ -17,6 +17,7 @@ type UserController struct {
 	tmpl    services.Template
 	userDAO models.UserDAO
 	crypt   services.Crypt
+	auth    services.Auth
 }
 
 // NewUserController create instance of a articles controller
@@ -40,6 +41,13 @@ func NewUserController(dp dependency.Provider) (*UserController, error) {
 		return nil, err
 	}
 	ctrl.crypt = cryptIns.(services.Crypt)
+	// load auth service from dependency provider
+	authIns, err := dp.Get(services.AuthID)
+	if err != nil {
+		return nil, err
+	}
+	ctrl.auth = authIns.(services.Auth)
+	// return
 	return ctrl, nil
 }
 
@@ -113,7 +121,7 @@ func (c *UserController) TryToLogin(w http.ResponseWriter, r *http.Request) {
 	if err2 := decoder.Decode(loginForm, r.PostForm); err != nil {
 		log.Fatal(err2)
 	}
-	// validate form data
+	// validate form data and check credentials
 	user := c.userDAO.FindByEmail(loginForm.Email) // try find user
 	if result, errors := loginForm.Validate(user, c.crypt); result != true {
 		c.tmpl.ExecuteTemplate(w, "users/login", map[string]interface{}{
@@ -122,6 +130,16 @@ func (c *UserController) TryToLogin(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	// redirect
+	// if validation ok then set session
+	c.auth.SetSession(loginForm.Email, w)
+	// log.Println(w.Header()) // DEBUG
+	// and redirect
+	c.auth.ExecuteTemplateAuth(w, r, "/") // middleware, if no session redir /login
+	// http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+// TryToLogout is handler to try logour from current user
+func (c *UserController) TryToLogout(w http.ResponseWriter, r *http.Request) {
+	c.auth.ClearSession(w)
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
