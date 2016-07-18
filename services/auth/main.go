@@ -2,79 +2,71 @@ package auth
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/goatcms/goat-core/dependency"
-	"github.com/gorilla/securecookie"
+	"github.com/goatcms/goatcms/services"
+)
+
+const (
+	// sessionLoginUserId is a key for user in session
+	sessionLoginUserID = "loginUserId"
 )
 
 // Auth is global auth provider
 type Auth struct {
-	cookie *securecookie.SecureCookie
+	sess services.Session
 }
 
 // NewAuth create a authentification service instance
 func NewAuth(dp dependency.Provider) (*Auth, error) {
-	var hashKey = []byte("very-secret")   // securecookie.GenerateRandomKey(64)
-	var blockKey = []byte("a-lot-secret") // securecookie.GenerateRandomKey(32)
-	// http://www.gorillatoolkit.org/pkg/securecookie
+	sessIns, err := dp.Get(services.SessionManagerID)
+	if err != nil {
+		return nil, err
+	}
+	sess := sessIns.(services.Session)
 	return &Auth{
-		cookie: securecookie.New(hashKey, blockKey),
+		sess: sess,
 	}, nil
 }
 
-// GetCode create HMAC for given string // obsolete as we have securecookie
-// func (a *Auth) GetCode(data string) string {
-// 	salt := "hereshouldbesomekey"
-// 	h := hmac.New(sha256.New, []byte(salt))
-// 	io.WriteString(h, data)
-// 	return fmt.Sprintf("%x", h.Sum(nil))
-// }
-
-// GetUsername retrieve username from cookie decoded by securecookie
-func (a *Auth) GetUsername(r *http.Request) (username string) {
-	if cookie, err := r.Cookie("session"); err == nil {
-		cookieValue := make(map[string]string)
-		if err = a.cookie.Decode("session", cookie.Value, &cookieValue); err == nil {
-			username = cookieValue["name"]
-		}
+// GetUserID retrieve user id from session
+func (a *Auth) GetUserID(sessid string) (string, error) {
+	id, err := a.sess.Get(sessid, sessionLoginUserID)
+	if err != nil {
+		return "", err
 	}
-	return username
+	if id == "" {
+		return "", fmt.Errorf("User session expired")
+	}
+	return id, nil
 }
 
-// SetSession put username in cookie encoded by securecookie
-func (a *Auth) SetSession(username string, w http.ResponseWriter) {
-	value := map[string]string{
-		"name": username,
+// Auth remember a user id to session
+func (a *Auth) Auth(sessid string, userid string) error {
+	if err := a.sess.Set(sessid, sessionLoginUserID, userid); err != nil {
+		return err
 	}
-	if encoded, err := a.cookie.Encode("session", value); err == nil {
-		cookie := &http.Cookie{
-			Name:  "session",
-			Value: encoded,
-			Path:  "/",
-		}
-		http.SetCookie(w, cookie)
-	}
+	return nil
 }
 
-// ClearSession set cookie age to -1, so client delete session info cookie
-func (a *Auth) ClearSession(w http.ResponseWriter) {
-	cookie := &http.Cookie{
-		Name:   "session",
-		Value:  "",
-		Path:   "/",
-		MaxAge: -1,
-	}
-	http.SetCookie(w, cookie)
+// Clear remove a user id from session
+func (a *Auth) Clear(sessid string) error {
+	return a.Auth(sessid, "")
 }
 
 // ExecuteTemplateAuth execute template with auth (redirect to login if no auth)
-func (a *Auth) ExecuteTemplateAuth(w http.ResponseWriter, r *http.Request, name string) {
-	username := a.GetUsername(r)
-	if username != "" {
-		fmt.Fprintf(w, name, username)
+func (a *Auth) ExecuteTemplateAuth(w http.ResponseWriter, r *http.Request, sessID string) error {
+	userid, err := a.GetUserID(sessID)
+	if err != nil {
+		return err
+	}
+	if userid != "" {
+		log.Println("current user is ", userid)
 		// t.tmpl.ExecuteTemplate(wr, name, data) // from template service
 	} else {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 	}
+	return nil
 }

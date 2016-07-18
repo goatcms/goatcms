@@ -17,6 +17,8 @@ const (
 	CryptID = "crypt"
 	// AuthID is a name representing default authentification service
 	AuthID = "auth"
+	// SessionManagerID is a name representing default session manager service
+	SessionManagerID = "session"
 )
 
 // Database is global elementary database interface
@@ -54,8 +56,15 @@ type Crypt interface {
 // Auth is global elementary authentification interface
 type Auth interface {
 	// GetCode(data string) string
-	GetUsername(r *http.Request) (username string)
-	SetSession(username string, w http.ResponseWriter)
-	ClearSession(w http.ResponseWriter)
-	ExecuteTemplateAuth(w http.ResponseWriter, r *http.Request, name string)
+	GetUserID(sessid string) (string, error)
+	Auth(sessid string, userid string) error
+	Clear(sessid string) error
+	ExecuteTemplateAuth(w http.ResponseWriter, r *http.Request, name string) error
+}
+
+// Session is global elementary session interface
+type Session interface {
+	Init(w http.ResponseWriter, r *http.Request) (string, error)
+	Get(string, string) (string, error)
+	Set(string, string, string) error
 }

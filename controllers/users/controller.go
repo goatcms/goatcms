@@ -18,6 +18,7 @@ type UserController struct {
 	userDAO models.UserDAO
 	crypt   services.Crypt
 	auth    services.Auth
+	sess    services.Session
 }
 
 // NewUserController create instance of a articles controller
@@ -47,7 +48,12 @@ func NewUserController(dp dependency.Provider) (*UserController, error) {
 		return nil, err
 	}
 	ctrl.auth = authIns.(services.Auth)
-	// return
+	// load session service from dependency provider
+	sessIns, err := dp.Get(services.SessionManagerID)
+	if err != nil {
+		return nil, err
+	}
+	ctrl.sess = sessIns.(services.Session)
 	return ctrl, nil
 }
 
@@ -101,6 +107,10 @@ func (c *UserController) TryToSignUp(w http.ResponseWriter, r *http.Request) {
 // TemplateLogin is handler to serve template where one can log in
 func (c *UserController) TemplateLogin(w http.ResponseWriter, r *http.Request) {
 	log.Println("responding to", r.Method, r.URL)
+	if sessID, err := c.sess.Init(w, r); err == nil {
+		userid, _ := c.auth.GetUserID(sessID)
+		log.Println("current user is: ", userid)
+	}
 	if err := c.tmpl.ExecuteTemplate(w, "users/login", nil); err != nil {
 		log.Fatal("error rendering a template: ", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -118,8 +128,9 @@ func (c *UserController) TryToLogin(w http.ResponseWriter, r *http.Request) {
 	// obtain data from login form...
 	decoder := schema.NewDecoder()
 	loginForm := &forms.LoginForm{}
-	if err2 := decoder.Decode(loginForm, r.PostForm); err != nil {
+	if err2 := decoder.Decode(loginForm, r.PostForm); err2 != nil {
 		log.Fatal(err2)
+		return
 	}
 	// validate form data and check credentials
 	user := c.userDAO.FindByEmail(loginForm.Email) // try find user
@@ -131,15 +142,31 @@ func (c *UserController) TryToLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// if validation ok then set session
-	c.auth.SetSession(loginForm.Email, w)
+	sessID, err := c.sess.Init(w, r)
+	if err != nil {
+		log.Fatal("error parsing a form: ", err)
+		return
+	}
+	c.auth.Auth(sessID, loginForm.Email)
 	// log.Println(w.Header()) // DEBUG
 	// and redirect
-	c.auth.ExecuteTemplateAuth(w, r, "/") // middleware, if no session redir /login
-	// http.Redirect(w, r, "/", http.StatusSeeOther)
+	if err := c.auth.ExecuteTemplateAuth(w, r, sessID); err != nil {
+		log.Println(err)
+		return
+	}
+	c.tmpl.ExecuteTemplate(w, "users/login", map[string]interface{}{
+		"Errors": nil,
+		"Email":  loginForm.Email,
+	})
 }
 
 // TryToLogout is handler to try logour from current user
 func (c *UserController) TryToLogout(w http.ResponseWriter, r *http.Request) {
-	c.auth.ClearSession(w)
+	sessID, err := c.sess.Init(w, r)
+	if err != nil {
+		log.Fatal("error parsing a form: ", err)
+		return
+	}
+	c.auth.Clear(sessID)
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }

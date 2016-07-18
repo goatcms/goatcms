@@ -15,6 +15,7 @@ import (
 	"github.com/goatcms/goatcms/services/crypt"
 	"github.com/goatcms/goatcms/services/database"
 	"github.com/goatcms/goatcms/services/mux"
+	"github.com/goatcms/goatcms/services/session"
 	"github.com/goatcms/goatcms/services/template"
 )
 
@@ -44,6 +45,9 @@ func (app *App) initDeps() error {
 		return err
 	}
 	if err := auth.InitDep(app.dp); err != nil {
+		return err
+	}
+	if err := session.InitDep(app.dp); err != nil {
 		return err
 	}
 	return nil
