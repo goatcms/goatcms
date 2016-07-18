@@ -27,7 +27,7 @@ func TestIfHashAndWrongPassDontMatch(t *testing.T) {
 	hashed, err := cryptService.Hash("goodpassword")
 	if err != nil {
 		t.Error(err)
-		// return
+		return
 	}
 	if bcrypt.CompareHashAndPassword(
 		[]byte(hashed),
@@ -43,7 +43,7 @@ func TestCompareFuncWorksIfPassAndHashMatch(t *testing.T) {
 	hashed, err := cryptService.Hash(testPassword)
 	if err != nil {
 		t.Error(err)
-		// return
+		return
 	}
 	eval, err := cryptService.Compare(hashed, testPassword)
 	if err != nil {
@@ -59,8 +59,7 @@ func TestCompareFuncWorksIfPassAndHashDoesntMatch(t *testing.T) {
 	hashed, err := cryptService.Hash("wrongpassword")
 	if err != nil {
 		t.Error(err)
-		t.Log("elo3")
-		// return
+		return
 	}
 	eval, err := cryptService.Compare(hashed, "goodpassword")
 	if err == nil {

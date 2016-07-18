@@ -30,7 +30,7 @@ func NewSessionManager() (*SessionManager, error) {
 }
 
 // Create build new session
-func (s *SessionManager) Create(w http.ResponseWriter) (string, error) {
+func (s *SessionManager) create(w http.ResponseWriter) (string, error) {
 	sessid := varutil.RandString(sessionCookieLen, varutil.StrongBytes)
 	s.sessions[sessid] = SessionData{}
 	expiration := time.Now().Add(sessionCookieLifetime * time.Hour)
@@ -44,14 +44,14 @@ func (s *SessionManager) Create(w http.ResponseWriter) (string, error) {
 	return sessid, nil
 }
 
-// Init build new session if a session don't exist
+// Init build new session if a session doesn't exist
 func (s *SessionManager) Init(w http.ResponseWriter, r *http.Request) (string, error) {
 	var (
 		cookie *http.Cookie
 		err    error
 	)
 	if cookie, err = r.Cookie(sessionCookieID); err != nil {
-		return s.Create(w)
+		return s.create(w)
 	}
 	return cookie.Value, nil
 }
@@ -60,11 +60,11 @@ func (s *SessionManager) Init(w http.ResponseWriter, r *http.Request) (string, e
 func (s *SessionManager) Get(id, name string) (string, error) {
 	sessionRow, ok := s.sessions[id]
 	if !ok {
-		return "", fmt.Errorf("Session " + id + " don't exist")
+		return "", fmt.Errorf("Session " + id + " doesn't exist")
 	}
 	value, ok := sessionRow[name]
 	if !ok {
-		return "", fmt.Errorf("Session key " + name + " don't exist")
+		return "", fmt.Errorf("Session key " + name + " doesn't exist")
 	}
 	return value, nil
 }
@@ -73,7 +73,7 @@ func (s *SessionManager) Get(id, name string) (string, error) {
 func (s *SessionManager) Set(id, name, value string) error {
 	sessionRow, ok := s.sessions[id]
 	if !ok {
-		return fmt.Errorf("Session " + id + " don't exist")
+		return fmt.Errorf("Session " + id + " doesn't exist")
 	}
 	sessionRow[name] = value
 	return nil

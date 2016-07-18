@@ -2,8 +2,6 @@ package auth
 
 import (
 	"fmt"
-	"log"
-	"net/http"
 
 	"github.com/goatcms/goat-core/dependency"
 	"github.com/goatcms/goatcms/services"
@@ -43,7 +41,7 @@ func (a *Auth) GetUserID(sessid string) (string, error) {
 	return id, nil
 }
 
-// Auth remember a user id to session
+// Auth save a user id into session
 func (a *Auth) Auth(sessid string, userid string) error {
 	if err := a.sess.Set(sessid, sessionLoginUserID, userid); err != nil {
 		return err
@@ -54,19 +52,4 @@ func (a *Auth) Auth(sessid string, userid string) error {
 // Clear remove a user id from session
 func (a *Auth) Clear(sessid string) error {
 	return a.Auth(sessid, "")
-}
-
-// ExecuteTemplateAuth execute template with auth (redirect to login if no auth)
-func (a *Auth) ExecuteTemplateAuth(w http.ResponseWriter, r *http.Request, sessID string) error {
-	userid, err := a.GetUserID(sessID)
-	if err != nil {
-		return err
-	}
-	if userid != "" {
-		log.Println("current user is ", userid)
-		// t.tmpl.ExecuteTemplate(wr, name, data) // from template service
-	} else {
-		http.Redirect(w, r, "/login", http.StatusSeeOther)
-	}
-	return nil
 }

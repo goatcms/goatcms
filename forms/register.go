@@ -12,7 +12,7 @@ type RegisterForm struct {
 	Password string `schema:"password"`
 }
 
-var (
+const (
 	errNoEmail        = "You must supply an email"
 	errNoPassword     = "You must supply a password"
 	errBadEmailFormat = "Email is not correct"

@@ -1,6 +1,7 @@
 package usermodel
 
 import (
+	"database/sql"
 	"log"
 
 	"github.com/goatcms/goatcms/models"
@@ -46,20 +47,17 @@ func (dao *UserDAO) FindAll() []models.UserDTO {
 func (dao *UserDAO) FindByEmail(email string) models.UserDTO {
 	query := `
 		SELECT id, email, pass_hash FROM users
-		WHERE email = "` + email + `"`
-	rows, err := dao.db.Adapter().Query(query)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer rows.Close()
-
+		WHERE email = "` + email + `" LIMIT 1`
 	var result models.UserDTO
-	for rows.Next() {
-		item := UserDTO{}
-		err2 := rows.Scan(&item.ID, &item.Email, &item.PassHash)
-		if err2 != nil {
-			log.Fatal(err2)
-		}
+	item := UserDTO{}
+	row := dao.db.Adapter().QueryRow(query)
+	err := row.Scan(&item.ID, &item.Email, &item.PassHash)
+	switch {
+	case err == sql.ErrNoRows:
+		log.Println("No users with email", email)
+	case err != nil:
+		log.Fatal(err)
+	default:
 		result = models.UserDTO(&item)
 	}
 	return result

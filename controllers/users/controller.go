@@ -59,7 +59,6 @@ func NewUserController(dp dependency.Provider) (*UserController, error) {
 
 // TemplateSignUp is handler to serve template where one can register new user
 func (c *UserController) TemplateSignUp(w http.ResponseWriter, r *http.Request) {
-	log.Println("responding to", r.Method, r.URL)
 	if err := c.tmpl.ExecuteTemplate(w, "users/register", nil); err != nil {
 		log.Fatal("error rendering a template: ", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -69,18 +68,16 @@ func (c *UserController) TemplateSignUp(w http.ResponseWriter, r *http.Request) 
 
 // TryToSignUp is handler to save user from form obtained data
 func (c *UserController) TryToSignUp(w http.ResponseWriter, r *http.Request) {
-	log.Println("responding to", r.Method, r.URL)
 	if err := r.ParseForm(); err != nil {
 		log.Fatal("error parsing a form: ", err)
 		return
 	}
-	// obtain data from form with gorilla schema decoder
+	// obtain data from form with gorilla schema decoder and validate
 	decoder := schema.NewDecoder()
 	registerForm := &forms.RegisterForm{}
 	if err := decoder.Decode(registerForm, r.PostForm); err != nil {
 		log.Fatal(err)
 	}
-	// validate form data
 	isUser := c.userDAO.FindByEmail(registerForm.Email) // try find user
 	if result, errors := registerForm.Validate(isUser); result != true {
 		c.tmpl.ExecuteTemplate(w, "users/register", map[string]interface{}{
@@ -89,24 +86,21 @@ func (c *UserController) TryToSignUp(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	// encrypt password with bcrypt
+	// encrypt password with bcrypt and save user
 	passHashed, err := c.crypt.Hash(registerForm.Password)
 	if err != nil {
 		log.Fatal("error crypting pass: ", err)
 		return
 	}
 	user := usermodel.UserDTO{Email: registerForm.Email, PassHash: passHashed}
-	// ...and save to database
 	var userToAdd []models.UserDTO
 	userToAdd = append(userToAdd, models.UserDTO(&user))
 	c.userDAO.PersistAll(userToAdd)
-	// redirect
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
 // TemplateLogin is handler to serve template where one can log in
 func (c *UserController) TemplateLogin(w http.ResponseWriter, r *http.Request) {
-	log.Println("responding to", r.Method, r.URL)
 	if sessID, err := c.sess.Init(w, r); err == nil {
 		userid, _ := c.auth.GetUserID(sessID)
 		log.Println("current user is: ", userid)
@@ -120,20 +114,18 @@ func (c *UserController) TemplateLogin(w http.ResponseWriter, r *http.Request) {
 
 // TryToLogin is handler to try sign in with given data in POST request
 func (c *UserController) TryToLogin(w http.ResponseWriter, r *http.Request) {
-	log.Println("responding to", r.Method, r.URL)
-	err := r.ParseForm()
-	if err != nil {
+	// obtain data from login form...
+	if err := r.ParseForm(); err != nil {
 		log.Fatal("error parsing a form: ", err)
 	}
-	// obtain data from login form...
 	decoder := schema.NewDecoder()
 	loginForm := &forms.LoginForm{}
-	if err2 := decoder.Decode(loginForm, r.PostForm); err2 != nil {
-		log.Fatal(err2)
+	if err := decoder.Decode(loginForm, r.PostForm); err != nil {
+		log.Fatal(err)
 		return
 	}
 	// validate form data and check credentials
-	user := c.userDAO.FindByEmail(loginForm.Email) // try find user
+	user := c.userDAO.FindByEmail(loginForm.Email)
 	if result, errors := loginForm.Validate(user, c.crypt); result != true {
 		c.tmpl.ExecuteTemplate(w, "users/login", map[string]interface{}{
 			"Errors": errors,
@@ -141,30 +133,26 @@ func (c *UserController) TryToLogin(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	// if validation ok then set session
+	// if validation went ok then set session
+	// TODO repair below, so successful login will invoke proper session
 	sessID, err := c.sess.Init(w, r)
 	if err != nil {
-		log.Fatal("error parsing a form: ", err)
+		log.Fatal(err)
 		return
 	}
-	c.auth.Auth(sessID, loginForm.Email)
-	// log.Println(w.Header()) // DEBUG
-	// and redirect
-	if err := c.auth.ExecuteTemplateAuth(w, r, sessID); err != nil {
-		log.Println(err)
+	err = c.auth.Auth(sessID, loginForm.Email)
+	if err != nil {
+		log.Fatal(err)
 		return
 	}
-	c.tmpl.ExecuteTemplate(w, "users/login", map[string]interface{}{
-		"Errors": nil,
-		"Email":  loginForm.Email,
-	})
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
 // TryToLogout is handler to try logour from current user
 func (c *UserController) TryToLogout(w http.ResponseWriter, r *http.Request) {
 	sessID, err := c.sess.Init(w, r)
 	if err != nil {
-		log.Fatal("error parsing a form: ", err)
+		log.Fatal(err)
 		return
 	}
 	c.auth.Clear(sessID)

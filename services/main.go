@@ -55,11 +55,9 @@ type Crypt interface {
 
 // Auth is global elementary authentification interface
 type Auth interface {
-	// GetCode(data string) string
 	GetUserID(sessid string) (string, error)
 	Auth(sessid string, userid string) error
 	Clear(sessid string) error
-	ExecuteTemplateAuth(w http.ResponseWriter, r *http.Request, name string) error
 }
 
 // Session is global elementary session interface

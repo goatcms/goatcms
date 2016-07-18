@@ -38,7 +38,6 @@ func NewArticleController(dp dependency.Provider) (*ArticleController, error) {
 
 // AddArticle is handler to serve template where one can add new article
 func (c *ArticleController) AddArticle(w http.ResponseWriter, r *http.Request) {
-	log.Println("responding to", r.Method, r.URL)
 	err := c.tmpl.ExecuteTemplate(w, "articles/new", nil)
 	if err != nil {
 		log.Fatal("error rendering a template: ", err)
@@ -49,12 +48,10 @@ func (c *ArticleController) AddArticle(w http.ResponseWriter, r *http.Request) {
 
 // SaveArticle is handler to save article from form obtained data
 func (c *ArticleController) SaveArticle(w http.ResponseWriter, r *http.Request) {
-	log.Println("responding to", r.Method, r.URL)
 	// TODO: http://www.gorillatoolkit.org/pkg/schema
 	// like: err := decoder.Decode(person, r.PostForm)
 	// By Sebastian
-	err := r.ParseForm()
-	if err != nil {
+	if err := r.ParseForm(); err != nil {
 		log.Fatal("error parsing a form: ", err)
 	}
 	// obtain data from form...
@@ -65,14 +62,12 @@ func (c *ArticleController) SaveArticle(w http.ResponseWriter, r *http.Request) 
 	var articlesToAdd []models.ArticleDTO
 	articlesToAdd = append(articlesToAdd, models.ArticleDTO(&article))
 	c.articleDAO.PersistAll(articlesToAdd)
-	// redirect
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
 // ListArticle is handler serving template with list of articles
 func (c *ArticleController) ListArticle(w http.ResponseWriter, r *http.Request) {
 	articles := c.articleDAO.FindAll()
-
 	err := c.tmpl.ExecuteTemplate(w, "articles/list", articles)
 	if err != nil {
 		log.Fatal("error rendering a template: ", err)
@@ -83,17 +78,13 @@ func (c *ArticleController) ListArticle(w http.ResponseWriter, r *http.Request) 
 
 // ViewArticle is handler serving template with list of articles
 func (c *ArticleController) ViewArticle(w http.ResponseWriter, r *http.Request) {
-	log.Println("responding to", r.Method, r.URL)
 	vars := mux.Vars(r)
 	articleID, _ := strconv.Atoi(vars["id"])
-	// Find article in database by given id
 	article := c.articleDAO.FindByID(articleID)
 	if article == nil { // if article of given ID doesn't exist
 		http.Error(w, http.StatusText(404), 403)
-		// TODO maybe handle above some better way?
 		return
 	}
-
 	err := c.tmpl.ExecuteTemplate(w, "articles/view", article)
 	if err != nil {
 		log.Fatal("error rendering a template: ", err)

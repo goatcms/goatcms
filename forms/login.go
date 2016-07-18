@@ -11,7 +11,7 @@ type LoginForm struct {
 	Password string `schema:"password"`
 }
 
-var (
+const (
 	errNoUser            = "Please give email for account you want to login"
 	errWrongLoginAttempt = "E-mail and password you entered are not correct"
 )
