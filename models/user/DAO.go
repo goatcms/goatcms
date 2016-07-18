@@ -47,10 +47,11 @@ func (dao *UserDAO) FindAll() []models.UserDTO {
 func (dao *UserDAO) FindByEmail(email string) models.UserDTO {
 	query := `
 		SELECT id, email, pass_hash FROM users
-		WHERE email = "` + email + `" LIMIT 1`
+		WHERE email = ? LIMIT 1
+		`
+	row := dao.db.Adapter().QueryRow(query, email)
 	var result models.UserDTO
 	item := UserDTO{}
-	row := dao.db.Adapter().QueryRow(query)
 	err := row.Scan(&item.ID, &item.Email, &item.PassHash)
 	switch {
 	case err == sql.ErrNoRows:
