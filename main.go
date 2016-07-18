@@ -7,12 +7,15 @@ import (
 
 	"github.com/goatcms/goatcms/controllers/articles"
 	"github.com/goatcms/goatcms/controllers/home"
+	"github.com/goatcms/goatcms/controllers/users"
 	"github.com/goatcms/goatcms/models/article"
 	"github.com/goatcms/goatcms/models/user"
 	"github.com/goatcms/goatcms/services"
+	"github.com/goatcms/goatcms/services/auth"
 	"github.com/goatcms/goatcms/services/crypt"
 	"github.com/goatcms/goatcms/services/database"
 	"github.com/goatcms/goatcms/services/mux"
+	"github.com/goatcms/goatcms/services/session"
 	"github.com/goatcms/goatcms/services/template"
 )
 
@@ -41,6 +44,12 @@ func (app *App) initDeps() error {
 	if err := template.InitDep(app.dp); err != nil {
 		return err
 	}
+	if err := auth.InitDep(app.dp); err != nil {
+		return err
+	}
+	if err := session.InitDep(app.dp); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -59,6 +68,9 @@ func (app *App) initControllers() error {
 		return err
 	}
 	if err := home.Init(app.dp); err != nil {
+		return err
+	}
+	if err := users.Init(app.dp); err != nil {
 		return err
 	}
 	return nil

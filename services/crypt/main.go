@@ -8,7 +8,7 @@ import (
 // Crypt is global encrypting provider
 type Crypt struct{}
 
-// NewCrypt create a database instance
+// NewCrypt create a encrypting instance
 func NewCrypt(dp dependency.Provider) (*Crypt, error) {
 	return &Crypt{}, nil
 }
@@ -20,4 +20,13 @@ func (c *Crypt) Hash(pass string) (string, error) {
 		return "", err
 	}
 	return string(hash), nil
+}
+
+// Compare take pass and hashedPass and return boolean if it's match or not
+func (c *Crypt) Compare(hashedPass, pass string) (bool, error) {
+	err := bcrypt.CompareHashAndPassword([]byte(hashedPass), []byte(pass))
+	if err != nil {
+		return false, err
+	}
+	return true, nil
 }

@@ -48,8 +48,8 @@ func (dao *ArticleDAO) FindByID(id int) models.ArticleDTO {
 	idString := strconv.FormatInt(int64(id), 10)
 	query := `
 		SELECT id, title, content FROM articles
-		WHERE id = ` + idString
-	rows, err := dao.db.Adapter().Query(query)
+		WHERE id = ?`
+	rows, err := dao.db.Adapter().Query(query, idString)
 	if err != nil {
 		log.Fatal(err)
 	}

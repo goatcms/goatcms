@@ -11,10 +11,14 @@ const (
 	DBID = "database"
 	// MuxID is a name representing default mux service
 	MuxID = "mux"
-	// TemplateID is a name represents default template service
+	// TemplateID is a name representing default template service
 	TemplateID = "template"
-	// CryptID is a name represents default crypt service
+	// CryptID is a name representing default crypt service
 	CryptID = "crypt"
+	// AuthID is a name representing default authentification service
+	AuthID = "auth"
+	// SessionManagerID is a name representing default session manager service
+	SessionManagerID = "session"
 )
 
 // Database is global elementary database interface
@@ -22,7 +26,7 @@ type Database interface {
 	Open() error
 	Close() error
 	CreateTables() error
-	// Deprecated: It shouldn't be use	// what shouldn't?
+	// Deprecated: It shouldn't be use
 	Adapter() *sql.DB
 }
 
@@ -46,4 +50,19 @@ type Template interface {
 // Crypt is global elementary cryptographic interface
 type Crypt interface {
 	Hash(pass string) (string, error)
+	Compare(hashedPass, pass string) (bool, error)
+}
+
+// Auth is global elementary authentification interface
+type Auth interface {
+	GetUserID(sessid string) (string, error)
+	Auth(sessid string, userid string) error
+	Clear(sessid string) error
+}
+
+// Session is global elementary session interface
+type Session interface {
+	Init(w http.ResponseWriter, r *http.Request) (string, error)
+	Get(string, string) (string, error)
+	Set(string, string, string) error
 }

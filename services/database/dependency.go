@@ -1,7 +1,7 @@
 package database
 
 import (
-	dep "github.com/goatcms/goat-core/dependency"
+	"github.com/goatcms/goat-core/dependency"
 	"github.com/goatcms/goatcms/services"
 )
 
@@ -10,12 +10,12 @@ const (
 )
 
 // Factory is a database dependency builder
-func Factory(dp dep.Provider) (dep.Instance, error) {
+func Factory(dp dependency.Provider) (dependency.Instance, error) {
 	return NewDatabase(defaultDatabasePath)
 }
 
 // InitDep initialize a new database dependency
-func InitDep(prov dep.Provider) error {
+func InitDep(prov dependency.Provider) error {
 	if err := prov.AddService(services.DBID, Factory); err != nil {
 		return err
 	}

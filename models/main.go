@@ -31,5 +31,6 @@ type UserDTO interface {
 // UserDAO provide api to user access
 type UserDAO interface {
 	FindAll() []UserDTO
+	FindByEmail(email string) UserDTO
 	PersistAll(items []UserDTO)
 }

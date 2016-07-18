@@ -8,40 +8,32 @@
 
 <div class="container">
 
-  {{template "header"}}
+  {{template "navbar"}}
 
   <div class="jumbotron">
     <h1>Add new article</h1>
   </div>
 
-  <form action="/article/add" method="post" enctype="application/x-www-form-urlencoded">
-    <div class="row">
-      <div class="col-lg-12">
-        <div class="form-group">
-          <label for="title">Name:</label>
-            <input type="text" class="form-control" id="title" name="title">
-        </div>
-      </div>
-    </div>
+  <div class="row">
+    <div class="col-lg-12">
 
-    <div class="row">
-      <div class="col-lg-12">
+      <form action="/article/add" method="post" enctype="application/x-www-form-urlencoded">
         <div class="form-group">
-          <label for="content">Comment:</label>
-            <textarea class="form-control" rows="5" id="content" name="content"></textarea>
+          <label for="title">Title:</label>
+          <input type="text" class="form-control" id="title" name="title">
         </div>
-      </div>
-    </div>
+        <div class="form-group">
+          <label for="content">Content:</label>
+          <textarea class="form-control" rows="5" id="content" name="content"></textarea>
+        </div>
+        <div class="form-group">
+          <input type="submit" value="Save article"
+                 class="btn btn-lg btn-primary btn-block"></input>
+        </div>
+      </form>
 
-    <div class="row">
-      <div class="col-lg-12">
-        <div class="form-group">
-            <input type="submit" class="btn btn-lg btn-primary btn-block"
-                   id="save-article" value="Save article"></input>
-        </div>
-      </div>
     </div>
-  </form>
+  </div>
 
   {{template "footer"}}
 
