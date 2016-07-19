@@ -6,6 +6,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/goatcms/goatcms/services/template/funcs"
 )
 
 // Template is global template provider
@@ -22,9 +24,8 @@ func NewTemplate() (*Template, error) {
 
 // Init initialize template instance
 func (t *Template) Init(path string) error {
-	//t.tmpl = gotemplate.Must(gotemplate.ParseGlob(path))
 	t.tmpl = gotemplate.New("template")
-
+	funcs.Init(t)
 	filepath.Walk(path, func(path string, info os.FileInfo, err error) error {
 		if strings.HasSuffix(path, ".html") {
 			if _, err := t.tmpl.ParseFiles(path); err != nil {
@@ -33,6 +34,12 @@ func (t *Template) Init(path string) error {
 		}
 		return nil
 	})
+	return nil
+}
+
+// Funcs adds the elements of the argument map to the template's function map.
+func (t *Template) Funcs(funcMap gotemplate.FuncMap) error {
+	t.tmpl.Funcs(funcMap)
 	return nil
 }
 

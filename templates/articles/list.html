@@ -27,7 +27,7 @@
         {{range .}}
         <a href="/article/{{.GetID}}" class="list-group-item">
           <h4 class="list-group-item-heading">{{.GetTitle}}</h4>
-          <p class="list-group-item-text">{{.GetContent}}</p>
+          <p class="list-group-item-text">{{.GetContent | CutText 400}}</p>
         </a>
         {{end}}
 
