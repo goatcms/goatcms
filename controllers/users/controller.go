@@ -4,7 +4,6 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/goatcms/goat-core/dependency"
 	"github.com/goatcms/goatcms/forms"
 	"github.com/goatcms/goatcms/models"
 	"github.com/goatcms/goatcms/models/user"
@@ -18,42 +17,35 @@ type UserController struct {
 	userDAO models.UserDAO
 	crypt   services.Crypt
 	auth    services.Auth
-	sess    services.Session
+	sess    services.SessionManager
 }
 
 // NewUserController create instance of a articles controller
-func NewUserController(dp dependency.Provider) (*UserController, error) {
+func NewUserController(dp services.Provider) (*UserController, error) {
+	var err error
 	ctrl := &UserController{}
-	// load template service from dependency provider
-	tmplIns, err := dp.Get(services.TemplateID)
+	ctrl.tmpl, err = dp.Template()
 	if err != nil {
 		return nil, err
 	}
-	ctrl.tmpl = tmplIns.(services.Template)
+	ctrl.crypt, err = dp.Crypt()
+	if err != nil {
+		return nil, err
+	}
+	ctrl.auth, err = dp.Auth()
+	if err != nil {
+		return nil, err
+	}
+	ctrl.sess, err = dp.SessionManager()
+	if err != nil {
+		return nil, err
+	}
 	// load userDAO service from dependency provider
 	daoIns, err := dp.Get(models.UserDAOID)
 	if err != nil {
 		return nil, err
 	}
 	ctrl.userDAO = daoIns.(models.UserDAO)
-	// load crypting service from dependency provider
-	cryptIns, err := dp.Get(services.CryptID)
-	if err != nil {
-		return nil, err
-	}
-	ctrl.crypt = cryptIns.(services.Crypt)
-	// load auth service from dependency provider
-	authIns, err := dp.Get(services.AuthID)
-	if err != nil {
-		return nil, err
-	}
-	ctrl.auth = authIns.(services.Auth)
-	// load session service from dependency provider
-	sessIns, err := dp.Get(services.SessionManagerID)
-	if err != nil {
-		return nil, err
-	}
-	ctrl.sess = sessIns.(services.Session)
 	return ctrl, nil
 }
 

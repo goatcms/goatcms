@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/goatcms/goat-core/dependency"
 	"github.com/goatcms/goatcms/models"
 	"github.com/goatcms/goatcms/models/article"
 	"github.com/goatcms/goatcms/services"
@@ -19,15 +18,13 @@ type ArticleController struct {
 }
 
 // NewArticleController create instance of a articles controller
-func NewArticleController(dp dependency.Provider) (*ArticleController, error) {
+func NewArticleController(dp services.Provider) (*ArticleController, error) {
+	var err error
 	ctrl := &ArticleController{}
-	// load template service from dependency provider
-	tmplIns, err := dp.Get(services.TemplateID)
+	ctrl.tmpl, err = dp.Template()
 	if err != nil {
 		return nil, err
 	}
-	ctrl.tmpl = tmplIns.(services.Template)
-	// load articleDAO service from dependency provider
 	daoIns, err := dp.Get(models.ArticleDAOID)
 	if err != nil {
 		return nil, err

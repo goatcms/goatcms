@@ -1,17 +1,13 @@
 package users
 
-import (
-	"github.com/goatcms/goat-core/dependency"
-	"github.com/goatcms/goatcms/services"
-)
+import "github.com/goatcms/goatcms/services"
 
 // Init initialize the user controller package
-func Init(dp dependency.Provider) error {
-	muxIns, err := dp.Get(services.MuxID)
+func Init(dp services.Provider) error {
+	mux, err := dp.Mux()
 	if err != nil {
 		return err
 	}
-	mux := muxIns.(services.Mux)
 
 	ctrl, err := NewUserController(dp)
 	if err != nil {
