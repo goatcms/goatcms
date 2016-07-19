@@ -78,7 +78,6 @@ func (dao *UserDAO) PersistAll(items []models.UserDTO) {
 	defer stmt.Close()
 
 	for _, item := range items {
-		// TODO store hashed passwords !
 		_, err2 := stmt.Exec(item.GetEmail(), item.GetPassHash())
 		if err2 != nil {
 			log.Fatal(err2)

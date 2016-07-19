@@ -51,12 +51,21 @@ func (db *Database) CreateTables() error {
 		id INTEGER PRIMARY KEY,
 		email TEXT NOT NULL,
 		pass_hash TEXT NOT NULL
-		);
+	);
 	CREATE TABLE IF NOT EXISTS articles(
 		id INTEGER PRIMARY KEY,
-		title TEXT NOT NULL,
-		content TEXT NOT NULL
-		);
+		title TEXT NOT NULL DEFAULT '',
+		content TEXT NOT NULL DEFAULT ''
+	);
+	CREATE TABLE IF NOT EXISTS images(
+		id INTEGER PRIMARY KEY,
+		article_id INTEGER NOT NULL,
+		name TEXT NOT NULL DEFAULT '',
+		location TEXT NOT NULL DEFAULT '',
+		description TEXT NOT NULL DEFAULT '',
+		size int(11) NOT NULL,
+		created_at datetime NOT NULL
+	);
 		`
 	_, err := db.instance.Exec(query)
 	if err != nil {

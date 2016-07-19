@@ -1,10 +1,14 @@
 package models
 
+import "time"
+
 const (
 	// ArticleDAOID is name used as article dao identifier
 	ArticleDAOID = "articleDAO"
 	// UserDAOID is name used as user dao identifier
 	UserDAOID = "userDAO"
+	// ImageDAOID is name user as image dao identifier
+	ImageDAOID = "imageDAO"
 )
 
 // ArticleDTO represents an article entity
@@ -33,4 +37,22 @@ type UserDAO interface {
 	FindAll() []UserDTO
 	FindByEmail(email string) UserDTO
 	PersistAll(items []UserDTO)
+}
+
+// ImageDTO represents an image entity
+type ImageDTO interface {
+	GetID() int
+	GetArticleID() int
+	GetName() string
+	GetLocation() string
+	GetSize() int64
+	GetCreatedAt() time.Time
+	GetDescription() string
+}
+
+// ImageDAO provide api to image access
+type ImageDAO interface {
+	FindAll() []ImageDTO
+	FindAllByArticleID(articleID int) []ImageDTO
+	PersistAll(items []ImageDTO)
 }

@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	dep "github.com/goatcms/goat-core/dependency"
+	"github.com/goatcms/goat-core/dependency"
 
 	"github.com/goatcms/goatcms/controllers/articles"
 	"github.com/goatcms/goatcms/controllers/home"
@@ -21,13 +21,13 @@ import (
 
 // App represents an application
 type App struct {
-	dp dep.Provider
+	dp dependency.Provider
 }
 
 // NewApp create new instance of application
 func NewApp() *App {
 	return &App{
-		dp: dep.NewProvider(),
+		dp: dependency.NewProvider(),
 	}
 }
 
