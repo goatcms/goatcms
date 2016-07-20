@@ -40,12 +40,10 @@ func NewUserController(dp services.Provider) (*UserController, error) {
 	if err != nil {
 		return nil, err
 	}
-	// load userDAO service from dependency provider
-	daoIns, err := dp.Get(models.UserDAOID)
+	ctrl.userDAO, err = dp.UserDAO()
 	if err != nil {
 		return nil, err
 	}
-	ctrl.userDAO = daoIns.(models.UserDAO)
 	return ctrl, nil
 }
 

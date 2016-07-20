@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/goatcms/goat-core/dependency"
+	"github.com/goatcms/goatcms/models"
 )
 
 const (
@@ -81,4 +82,6 @@ type Provider interface {
 	Crypt() (Crypt, error)
 	Auth() (Auth, error)
 	SessionManager() (SessionManager, error)
+	UserDAO() (models.UserDAO, error)
+	ArticleDAO() (models.ArticleDAO, error)
 }

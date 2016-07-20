@@ -25,11 +25,10 @@ func NewArticleController(dp services.Provider) (*ArticleController, error) {
 	if err != nil {
 		return nil, err
 	}
-	daoIns, err := dp.Get(models.ArticleDAOID)
+	ctrl.articleDAO, err = dp.ArticleDAO()
 	if err != nil {
 		return nil, err
 	}
-	ctrl.articleDAO = daoIns.(models.ArticleDAO)
 	return ctrl, nil
 }
 

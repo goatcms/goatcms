@@ -1,6 +1,9 @@
 package services
 
-import "github.com/goatcms/goat-core/dependency"
+import (
+	"github.com/goatcms/goat-core/dependency"
+	"github.com/goatcms/goatcms/models"
+)
 
 // DefaultProvider is external dependency provider implementation
 type DefaultProvider struct {
@@ -64,4 +67,22 @@ func (p *DefaultProvider) SessionManager() (SessionManager, error) {
 		return nil, err
 	}
 	return ins.(SessionManager), nil
+}
+
+// UserDAO return instance of default user dao
+func (p *DefaultProvider) UserDAO() (models.UserDAO, error) {
+	ins, err := p.Get(models.UserDAOID)
+	if err != nil {
+		return nil, err
+	}
+	return ins.(models.UserDAO), nil
+}
+
+// ArticleDAO return instance of default article dao
+func (p *DefaultProvider) ArticleDAO() (models.ArticleDAO, error) {
+	ins, err := p.Get(models.ArticleDAOID)
+	if err != nil {
+		return nil, err
+	}
+	return ins.(models.ArticleDAO), nil
 }
