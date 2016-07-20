@@ -1,6 +1,10 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"github.com/goatcms/goatcms/models"
+)
 
 const (
 	// ArticleDAOID is name used as article dao identifier
@@ -53,6 +57,8 @@ type ImageDTO interface {
 // ImageDAO provide api to image access
 type ImageDAO interface {
 	FindAll() []ImageDTO
+	FindByID(id int) (models.ImageDTO, error)
 	FindAllByArticleID(articleID int) []ImageDTO
+	PersistOne(item models.ImageDTO) error
 	PersistAll(items []ImageDTO)
 }

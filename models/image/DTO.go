@@ -8,9 +8,9 @@ type ImageDTO struct {
 	ArticleID   int       `json:"articleid"`
 	Name        string    `json:"name"`
 	Location    string    `json:"location"`
+	Description string    `json:"description"`
 	Size        int64     `json:"size"`
 	CreatedAt   time.Time `json:"createdat"`
-	Description string    `json:"description"`
 }
 
 // GetID returns image's id
@@ -33,6 +33,11 @@ func (i *ImageDTO) GetLocation() string {
 	return i.Location
 }
 
+// GetDescription returns image's description
+func (i *ImageDTO) GetDescription() string {
+	return i.Description
+}
+
 // GetSize returns image's size
 func (i *ImageDTO) GetSize() int64 {
 	return i.Size
@@ -41,9 +46,4 @@ func (i *ImageDTO) GetSize() int64 {
 // GetCreatedAt returns image's creation time
 func (i *ImageDTO) GetCreatedAt() time.Time {
 	return i.CreatedAt
-}
-
-// GetDescription returns image's description
-func (i *ImageDTO) GetDescription() string {
-	return i.Description
 }

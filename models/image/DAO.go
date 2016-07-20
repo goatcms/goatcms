@@ -47,7 +47,27 @@ func (dao *ImageDAO) FindAll() []models.ImageDTO {
 	return result
 }
 
-// FindAllByArticleID obtain all images of given article from database
+// FindByID obtaint image of given ID from database
+func (dao *ImageDAO) FindByID(id int) (models.ImageDTO, error) {
+	query := `
+	SELECT id, article_id, name, location, description, size, created_at
+	FROM images
+	WHERE id = ?
+	`
+	row := dao.db.Adapter().QueryRow(query, id)
+	image := models.ImageDTO{}
+	err := row.Scan(
+		&image.ID,
+		&image.ArticleID,
+		&image.Name,
+		&image.Location,
+		&image.Size,
+		&image.CreatedAt,
+	)
+	return &image, err
+}
+
+// FindAllByArticleID obtain all images of given article's ID from database
 func (dao *ImageDAO) FindAllByArticleID(articleID int) []models.ImageDTO {
 	artIDString := strconv.FormatInt(int64(articleID), 10)
 	query := `
@@ -76,7 +96,27 @@ func (dao *ImageDAO) FindAllByArticleID(articleID int) []models.ImageDTO {
 	return result
 }
 
-// PersistAll store given images to database`
+// PersistOne store given image to database (with ID given!)
+func (dao *ImageDAO) PersistOne(item models.ImageDTO) error {
+	query := `
+	REPLACE INTO images(
+		id, article_id, name, location, description, size, created_at
+	) values(?, ?, ?, ?, ?, ?, ?)
+	`
+	_, err := dao.db.Adapter().Exec(
+		query,
+		item.GetID(),
+		item.GetArticleID(),
+		item.GetName(),
+		item.GetLocation(),
+		item.GetDescription(),
+		item.GetSize(),
+		item.GetCreatedAt(),
+	)
+	return err
+}
+
+// PersistAll store given images to database
 func (dao *ImageDAO) PersistAll(items []models.ImageDTO) {
 	query := `
 	INSERT OR REPLACE INTO images(
