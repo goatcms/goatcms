@@ -1,6 +1,7 @@
 package imagemodel
 
 import (
+	"database/sql"
 	"log"
 	"strconv"
 
@@ -21,30 +22,30 @@ func NewImageDAO(db services.Database) (models.ImageDAO, error) {
 }
 
 // FindAll obtain all images from database
-func (dao *ImageDAO) FindAll() []models.ImageDTO {
+func (dao *ImageDAO) FindAll() ([]models.ImageDTO, error) {
 	query := `
 		SELECT id, article_id, name, location, description, size, created_at
-		FROM images
+		FROM images ORDER BY created_at DESC
 		`
 	rows, err := dao.db.Adapter().Query(query)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 	defer rows.Close()
 
-	var result []models.ImageDTO
+	result := []models.ImageDTO{}
 	for rows.Next() {
 		item := ImageDTO{}
-		err2 := rows.Scan(
+		err := rows.Scan(
 			&item.ID, &item.ArticleID, &item.Name, &item.Location,
 			&item.Description, &item.Size, &item.CreatedAt,
 		)
-		if err2 != nil {
-			log.Fatal(err2)
+		if err != nil {
+			return nil, err
 		}
 		result = append(result, models.ImageDTO(&item))
 	}
-	return result
+	return result, nil
 }
 
 // FindByID obtaint image of given ID from database
@@ -52,23 +53,29 @@ func (dao *ImageDAO) FindByID(id int) (models.ImageDTO, error) {
 	query := `
 	SELECT id, article_id, name, location, description, size, created_at
 	FROM images
-	WHERE id = ?
+	WHERE id = ? LIMIT 1
 	`
 	row := dao.db.Adapter().QueryRow(query, id)
-	image := models.ImageDTO{}
+	var result models.ImageDTO
+	item := ImageDTO{}
 	err := row.Scan(
-		&image.ID,
-		&image.ArticleID,
-		&image.Name,
-		&image.Location,
-		&image.Size,
-		&image.CreatedAt,
+		&item.ID, &item.ArticleID, &item.Name,
+		&item.Location, &item.Size, &item.CreatedAt,
 	)
-	return &image, err
+	switch {
+	case err == sql.ErrNoRows:
+		log.Println("No images with id", id)
+	case err != nil:
+		return nil, err
+	default:
+		result = models.ImageDTO(&item)
+	}
+	return result, err
 }
 
 // FindAllByArticleID obtain all images of given article's ID from database
-func (dao *ImageDAO) FindAllByArticleID(articleID int) []models.ImageDTO {
+func (dao *ImageDAO) FindAllByArticleID(articleID int) ([]models.ImageDTO, error) {
+	// TODO try to change method arg to models.ArticleDTO not it's ID
 	artIDString := strconv.FormatInt(int64(articleID), 10)
 	query := `
 		SELECT id, article_id, name, location, description, size, created_at
@@ -77,23 +84,23 @@ func (dao *ImageDAO) FindAllByArticleID(articleID int) []models.ImageDTO {
 		`
 	rows, err := dao.db.Adapter().Query(query, artIDString)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 	defer rows.Close()
 
 	var result []models.ImageDTO
 	for rows.Next() {
 		item := ImageDTO{}
-		err2 := rows.Scan(
+		err := rows.Scan(
 			&item.ID, &item.ArticleID, &item.Name, &item.Location,
 			&item.Description, &item.Size, &item.CreatedAt,
 		)
-		if err2 != nil {
-			log.Fatal(err2)
+		if err != nil {
+			return nil, err
 		}
 		result = append(result, models.ImageDTO(&item))
 	}
-	return result
+	return result, nil
 }
 
 // PersistOne store given image to database (with ID given!)
