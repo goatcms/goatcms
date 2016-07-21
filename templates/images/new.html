@@ -23,7 +23,7 @@
       </p>
       {{end}}
 
-      <form action="/image/add" method="post" enctype="multipart/form-data">
+      <form action="/image/add/{{.articleID}}" method="post" enctype="multipart/form-data">
         <div class="form-group">
           <label for="imageUrl">Upload from URL</label>
           <input type="text" class="form-control" id="imageUrl"

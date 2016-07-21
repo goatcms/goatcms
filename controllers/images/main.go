@@ -18,8 +18,8 @@ func Init(dp dependency.Provider) error {
 		return err
 	}
 
-	mux.Get("/image/add", ctrl.TemplateAddImage)
-	mux.Post("/image/add", ctrl.TrySaveImage)
+	mux.Get("/image/add/{id:[0-9]+}", ctrl.TemplateAddImage)
+	mux.Post("/image/add/{id:[0-9]+}", ctrl.TrySaveImage)
 
 	return nil
 }

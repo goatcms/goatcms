@@ -3,7 +3,6 @@ package images
 import (
 	"io"
 	"log"
-	"math/rand"
 	mp "mime/multipart"
 	"net/http"
 	"os"
@@ -16,6 +15,7 @@ import (
 	"github.com/goatcms/goatcms/models"
 	"github.com/goatcms/goatcms/models/image"
 	"github.com/goatcms/goatcms/services"
+	"github.com/gorilla/mux"
 )
 
 // ImageController is image controller endpoint
@@ -64,7 +64,7 @@ const (
 // newImage create new ImageDTO instance
 func (c *ImageController) newImage(articleID int) imagemodel.ImageDTO {
 	return imagemodel.ImageDTO{
-		ID:        rand.Intn(100000), // TODO better ID handling
+		// ID:        rand.Intn(100000), // TODO better ID handling
 		ArticleID: articleID,
 		CreatedAt: time.Now(),
 	}
@@ -72,9 +72,9 @@ func (c *ImageController) newImage(articleID int) imagemodel.ImageDTO {
 
 // createFromFile persist image from form given file
 func (c *ImageController) createFromFile(
-	f mp.File, h *mp.FileHeader, d string, id int,
+	f mp.File, h *mp.FileHeader, d string, articleID int,
 ) (*imagemodel.ImageDTO, error) {
-	image := c.newImage(id)
+	image := c.newImage(articleID)
 	image.Name = h.Filename
 	image.Description = d
 	// Move file to an appropriate place, with and appropriate name
@@ -83,6 +83,7 @@ func (c *ImageController) createFromFile(
 		"art"+strconv.Itoa(image.GetArticleID()),
 		imageIDlength,
 	)
+	image.Location = image.Location + filepath.Ext(h.Filename)
 	// Create dir for article's photos if not exists
 	artImgsPath := imagesFilePath + "article" + strconv.Itoa(image.GetArticleID()) + "/"
 	if _, err := os.Stat(artImgsPath); os.IsNotExist(err) {
@@ -111,7 +112,11 @@ func (c *ImageController) createFromFile(
 
 // TemplateAddImage is handler to serve template where one can add new image
 func (c *ImageController) TemplateAddImage(w http.ResponseWriter, r *http.Request) {
-	if err := c.tmpl.ExecuteTemplate(w, "images/new", nil); err != nil {
+	vars := mux.Vars(r)
+	arguments := map[string]interface{}{
+		"articleID": vars["id"],
+	}
+	if err := c.tmpl.ExecuteTemplate(w, "images/new", arguments); err != nil {
 		log.Fatal("error rendering a template: ", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -120,16 +125,19 @@ func (c *ImageController) TemplateAddImage(w http.ResponseWriter, r *http.Reques
 
 // TrySaveImage is handler to save image from form given source
 func (c *ImageController) TrySaveImage(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	articleID, _ := strconv.Atoi(vars["id"])
+	// 2 ways of uploading - by URL or from local file
 	if r.FormValue("url") != "" {
 		// upload file from given URL
 		return
 	}
-	c.handlerImageCreateFromFile(w, r)
+	c.handlerImageCreateFromFile(w, r, articleID)
 }
 
-func (c *ImageController) handlerImageCreateFromFile(w http.ResponseWriter, r *http.Request) {
-	articleID := 0 // temporarily hardcoded
-	// TODO here: properly get ArticleID above
+func (c *ImageController) handlerImageCreateFromFile(
+	w http.ResponseWriter, r *http.Request, articleID int,
+) {
 	description := r.FormValue("description")
 	file, headers, err := r.FormFile("file")
 	if file == nil { // if no file uploaded
@@ -160,5 +168,5 @@ func (c *ImageController) handlerImageCreateFromFile(w http.ResponseWriter, r *h
 		})
 		return
 	}
-	http.Redirect(w, r, "/?flash=Image+Uploaded+Succesfully", http.StatusFound)
+	http.Redirect(w, r, "/article/"+strconv.Itoa(articleID), http.StatusFound)
 }
