@@ -19,6 +19,8 @@ const (
 	AuthID = "auth"
 	// SessionManagerID is a name representing default session manager service
 	SessionManagerID = "session"
+	// RandomidID is a name representing default random id service
+	RandomidID = "randomid"
 )
 
 // Database is global elementary database interface
@@ -65,4 +67,9 @@ type Session interface {
 	Init(w http.ResponseWriter, r *http.Request) (string, error)
 	Get(string, string) (string, error)
 	Set(string, string, string) error
+}
+
+// RandomID is global elementary random id interface
+type RandomID interface {
+	GenerateID(prefix string, length int) (string, error)
 }

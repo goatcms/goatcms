@@ -7,14 +7,17 @@ import (
 
 	"github.com/goatcms/goatcms/controllers/articles"
 	"github.com/goatcms/goatcms/controllers/home"
+	"github.com/goatcms/goatcms/controllers/images"
 	"github.com/goatcms/goatcms/controllers/users"
 	"github.com/goatcms/goatcms/models/article"
+	"github.com/goatcms/goatcms/models/image"
 	"github.com/goatcms/goatcms/models/user"
 	"github.com/goatcms/goatcms/services"
 	"github.com/goatcms/goatcms/services/auth"
 	"github.com/goatcms/goatcms/services/crypt"
 	"github.com/goatcms/goatcms/services/database"
 	"github.com/goatcms/goatcms/services/mux"
+	"github.com/goatcms/goatcms/services/randomid"
 	"github.com/goatcms/goatcms/services/session"
 	"github.com/goatcms/goatcms/services/template"
 )
@@ -50,6 +53,9 @@ func (app *App) initDeps() error {
 	if err := session.InitDep(app.dp); err != nil {
 		return err
 	}
+	if err := randomid.InitDep(app.dp); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -58,6 +64,9 @@ func (app *App) initModels() error {
 		return err
 	}
 	if err := usermodel.InitDep(app.dp); err != nil {
+		return err
+	}
+	if err := imagemodel.InitDep(app.dp); err != nil {
 		return err
 	}
 	return nil
@@ -71,6 +80,9 @@ func (app *App) initControllers() error {
 		return err
 	}
 	if err := users.Init(app.dp); err != nil {
+		return err
+	}
+	if err := images.Init(app.dp); err != nil {
 		return err
 	}
 	return nil

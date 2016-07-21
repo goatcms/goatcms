@@ -106,13 +106,12 @@ func (dao *ImageDAO) FindAllByArticleID(articleID int) ([]models.ImageDTO, error
 // PersistOne store given image to database (with ID given!)
 func (dao *ImageDAO) PersistOne(item models.ImageDTO) error {
 	query := `
-	REPLACE INTO images(
-		id, article_id, name, location, description, size, created_at
-	) values(?, ?, ?, ?, ?, ?, ?)
+	INSERT OR REPLACE INTO images(
+		article_id, name, location, description, size, created_at
+	) values(?, ?, ?, ?, ?, ?)
 	`
 	_, err := dao.db.Adapter().Exec(
 		query,
-		item.GetID(),
 		item.GetArticleID(),
 		item.GetName(),
 		item.GetLocation(),
