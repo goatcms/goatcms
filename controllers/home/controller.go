@@ -4,7 +4,6 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/goatcms/goat-core/dependency"
 	"github.com/goatcms/goatcms/services"
 )
 
@@ -14,14 +13,13 @@ type HomepageController struct {
 }
 
 // NewHomepageController create instance of a home controller
-func NewHomepageController(dp dependency.Provider) (*HomepageController, error) {
+func NewHomepageController(dp services.Provider) (*HomepageController, error) {
+	var err error
 	ctrl := &HomepageController{}
-	// load template service from dependency provider
-	tmplIns, err := dp.Get(services.TemplateID)
+	ctrl.tmpl, err = dp.Template()
 	if err != nil {
 		return nil, err
 	}
-	ctrl.tmpl = tmplIns.(services.Template)
 	return ctrl, nil
 }
 

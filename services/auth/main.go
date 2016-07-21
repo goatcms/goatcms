@@ -3,7 +3,6 @@ package auth
 import (
 	"fmt"
 
-	"github.com/goatcms/goat-core/dependency"
 	"github.com/goatcms/goatcms/services"
 )
 
@@ -14,16 +13,15 @@ const (
 
 // Auth is global auth provider
 type Auth struct {
-	sess services.Session
+	sess services.SessionManager
 }
 
 // NewAuth create a authentification service instance
-func NewAuth(dp dependency.Provider) (*Auth, error) {
-	sessIns, err := dp.Get(services.SessionManagerID)
+func NewAuth(dp services.Provider) (*Auth, error) {
+	sess, err := dp.SessionManager()
 	if err != nil {
 		return nil, err
 	}
-	sess := sessIns.(services.Session)
 	return &Auth{
 		sess: sess,
 	}, nil

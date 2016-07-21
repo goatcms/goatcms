@@ -5,6 +5,9 @@ import (
 	"html/template"
 	"io"
 	"net/http"
+
+	"github.com/goatcms/goat-core/dependency"
+	"github.com/goatcms/goatcms/models"
 )
 
 const (
@@ -62,9 +65,23 @@ type Auth interface {
 	Clear(sessid string) error
 }
 
-// Session is global elementary session interface
-type Session interface {
+// SessionManager is global elementary session interface
+type SessionManager interface {
 	Init(w http.ResponseWriter, r *http.Request) (string, error)
 	Get(string, string) (string, error)
 	Set(string, string, string) error
+}
+
+// Provider is service dependency provider extension
+type Provider interface {
+	dependency.Provider
+
+	Database() (Database, error)
+	Mux() (Mux, error)
+	Template() (Template, error)
+	Crypt() (Crypt, error)
+	Auth() (Auth, error)
+	SessionManager() (SessionManager, error)
+	UserDAO() (models.UserDAO, error)
+	ArticleDAO() (models.ArticleDAO, error)
 }
