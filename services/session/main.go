@@ -14,25 +14,22 @@ const (
 	sessionCookieLifetime = 365 * 24
 )
 
-// SessionData is single record in sessions map (represent single session data)
-type SessionData map[string]string
-
 // SessionManager is global session provider
 type SessionManager struct {
-	sessions map[string]SessionData
+	sessions map[string]map[string]string
 }
 
 // NewSessionManager create a session manager instance
 func NewSessionManager() (*SessionManager, error) {
 	return &SessionManager{
-		sessions: map[string]SessionData{},
+		sessions: map[string]map[string]string{},
 	}, nil
 }
 
 // Create build new session
 func (s *SessionManager) create(w http.ResponseWriter) (string, error) {
 	sessid := varutil.RandString(sessionCookieLen, varutil.StrongBytes)
-	s.sessions[sessid] = SessionData{}
+	s.sessions[sessid] = map[string]string{}
 	expiration := time.Now().Add(sessionCookieLifetime * time.Hour)
 	cookie := http.Cookie{
 		Name:     sessionCookieID,
@@ -58,10 +55,7 @@ func (s *SessionManager) Init(w http.ResponseWriter, r *http.Request) (string, e
 
 // Get return value by name for session selected by session id
 func (s *SessionManager) Get(id, name string) (string, error) {
-	sessionRow, ok := s.sessions[id]
-	if !ok {
-		return "", fmt.Errorf("Session " + id + " doesn't exist")
-	}
+	sessionRow := s.getSession(id)
 	value, ok := sessionRow[name]
 	if !ok {
 		return "", fmt.Errorf("Session key " + name + " doesn't exist")
@@ -71,10 +65,17 @@ func (s *SessionManager) Get(id, name string) (string, error) {
 
 // Set return value by name for session selected by session id
 func (s *SessionManager) Set(id, name, value string) error {
-	sessionRow, ok := s.sessions[id]
-	if !ok {
-		return fmt.Errorf("Session " + id + " doesn't exist")
-	}
+	sessionRow := s.getSession(id)
 	sessionRow[name] = value
 	return nil
+}
+
+// getSession return session map by session id
+func (s *SessionManager) getSession(id string) map[string]string {
+	sessionRow, ok := s.sessions[id]
+	if !ok {
+		sessionRow = map[string]string{}
+		s.sessions[id] = sessionRow
+	}
+	return sessionRow
 }

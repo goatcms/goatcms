@@ -2,6 +2,7 @@ package services
 
 import (
 	"database/sql"
+	"html/template"
 	"io"
 	"net/http"
 )
@@ -47,6 +48,7 @@ type Mux interface {
 // Template is global elementary routing interface
 type Template interface {
 	ExecuteTemplate(wr io.Writer, name string, data interface{}) error
+	Funcs(funcMap template.FuncMap) error
 }
 
 // Crypt is global elementary cryptographic interface
