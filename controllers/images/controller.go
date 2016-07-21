@@ -64,7 +64,6 @@ const (
 // newImage create new ImageDTO instance
 func (c *ImageController) newImage(articleID int) imagemodel.ImageDTO {
 	return imagemodel.ImageDTO{
-		// ID:        rand.Intn(100000), // TODO better ID handling
 		ArticleID: articleID,
 		CreatedAt: time.Now(),
 	}
@@ -77,10 +76,9 @@ func (c *ImageController) createFromFile(
 	image := c.newImage(articleID)
 	image.Name = h.Filename
 	image.Description = d
-	// Move file to an appropriate place, with and appropriate name
-	// image.Location = "art" + strconv.Itoa(image.GetArticleID()) + "_" + image.GetName()
+	// Set file name (random identifier with prefix 'img_' )
 	image.Location, _ = c.randomID.GenerateID(
-		"art"+strconv.Itoa(image.GetArticleID()),
+		"img", /*+strconv.Itoa(image.GetArticleID())*/
 		imageIDlength,
 	)
 	image.Location = image.Location + filepath.Ext(h.Filename)
@@ -90,11 +88,7 @@ func (c *ImageController) createFromFile(
 		log.Println(artImgsPath, "does not exist")
 		os.Mkdir(artImgsPath, 0755) // so we create it
 	}
-	// if directory exists
-	if _, err := os.Stat(artImgsPath); err == nil {
-		log.Println(artImgsPath, "exists")
-	}
-	// Open a file at target location
+	// Create a file at target location, with appropriate name
 	savedFile, err := os.Create(artImgsPath + image.Location)
 	if err != nil {
 		return nil, err
@@ -127,12 +121,11 @@ func (c *ImageController) TemplateAddImage(w http.ResponseWriter, r *http.Reques
 func (c *ImageController) TrySaveImage(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	articleID, _ := strconv.Atoi(vars["id"])
-	// 2 ways of uploading - by URL or from local file
-	if r.FormValue("url") != "" {
-		// upload file from given URL
+	if r.FormValue("url") != "" { // upload file from given URL
+		// TODO uploading from url
 		return
 	}
-	c.handlerImageCreateFromFile(w, r, articleID)
+	c.handlerImageCreateFromFile(w, r, articleID) // upload file from local storage
 }
 
 func (c *ImageController) handlerImageCreateFromFile(
@@ -159,7 +152,7 @@ func (c *ImageController) handlerImageCreateFromFile(
 		panic(err)
 	}
 	defer file.Close()
-	// Create file and try to save, if errors reload site with them
+	// Create file and try to save it, if errors occure then reload site with them
 	image, err := c.createFromFile(file, headers, description, articleID)
 	if err != nil {
 		c.tmpl.ExecuteTemplate(w, "images/new", map[string]interface{}{
