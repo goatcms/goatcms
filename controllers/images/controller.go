@@ -3,14 +3,13 @@ package images
 import (
 	"io"
 	"log"
-	mp "mime/multipart"
+	"mime/multipart"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
 	"time"
 
-	"github.com/goatcms/goat-core/dependency"
 	"github.com/goatcms/goatcms/forms"
 	"github.com/goatcms/goatcms/models"
 	"github.com/goatcms/goatcms/models/image"
@@ -27,14 +26,13 @@ type ImageController struct {
 }
 
 // NewImageController create instance of a image controller
-func NewImageController(dp dependency.Provider) (*ImageController, error) {
+func NewImageController(dp services.Provider) (*ImageController, error) {
+	var err error
 	ctrl := &ImageController{}
-	// load template service from dependency provider
-	tmplIns, err := dp.Get(services.TemplateID)
+	ctrl.tmpl, err = dp.Template()
 	if err != nil {
 		return nil, err
 	}
-	ctrl.tmpl = tmplIns.(services.Template)
 	// load template service from dependency provider
 	randidIns, err := dp.Get(services.RandomidID)
 	if err != nil {
@@ -71,7 +69,7 @@ func (c *ImageController) newImage(articleID int) imagemodel.ImageDTO {
 
 // createFromFile persist image from form given file
 func (c *ImageController) createFromFile(
-	f mp.File, h *mp.FileHeader, d string, articleID int,
+	f multipart.File, h *multipart.FileHeader, d string, articleID int,
 ) (*imagemodel.ImageDTO, error) {
 	image := c.newImage(articleID)
 	image.Name = h.Filename

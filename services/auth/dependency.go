@@ -6,13 +6,16 @@ import (
 )
 
 // Factory is a authentification dependency builder
-func Factory(dp dependency.Provider) (dependency.Instance, error) {
+func Factory(dp services.Provider) (dependency.Instance, error) {
 	return NewAuth(dp)
 }
 
 // InitDep initialize a new authentification dependency
-func InitDep(prov dependency.Provider) error {
-	if err := prov.AddService(services.AuthID, Factory); err != nil {
+func InitDep(prov services.Provider) error {
+	err := prov.AddService(services.AuthID, func(dependency.Provider) (dependency.Instance, error) {
+		return NewAuth(prov)
+	})
+	if err != nil {
 		return err
 	}
 	return nil

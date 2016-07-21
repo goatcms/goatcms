@@ -3,8 +3,11 @@ package main
 import (
 	"fmt"
 
+<<<<<<< HEAD
 	"github.com/goatcms/goat-core/dependency"
 
+=======
+>>>>>>> master
 	"github.com/goatcms/goatcms/controllers/articles"
 	"github.com/goatcms/goatcms/controllers/home"
 	"github.com/goatcms/goatcms/controllers/images"
@@ -24,13 +27,21 @@ import (
 
 // App represents an application
 type App struct {
+<<<<<<< HEAD
 	dp dependency.Provider
+=======
+	dp services.Provider
+>>>>>>> master
 }
 
 // NewApp create new instance of application
 func NewApp() *App {
 	return &App{
+<<<<<<< HEAD
 		dp: dependency.NewProvider(),
+=======
+		dp: services.NewProvider(),
+>>>>>>> master
 	}
 }
 
@@ -89,11 +100,10 @@ func (app *App) initControllers() error {
 }
 
 func (app *App) initDatabase() error {
-	dbIns, err := app.dp.Get(services.DBID)
+	db, err := app.dp.Database()
 	if err != nil {
 		return err
 	}
-	db := dbIns.(services.Database)
 	if err := db.Open(); err != nil {
 		return err
 	}
@@ -104,11 +114,10 @@ func (app *App) initDatabase() error {
 }
 
 func (app *App) start() error {
-	muxIns, err := app.dp.Get(services.MuxID)
+	mux, err := app.dp.Mux()
 	if err != nil {
 		return err
 	}
-	mux := muxIns.(services.Mux)
 	mux.Start()
 	return nil
 }
