@@ -1,13 +1,14 @@
 package services
 
 import (
-	"database/sql"
 	"html/template"
 	"io"
 	"net/http"
 
 	"github.com/goatcms/goat-core/dependency"
+	"github.com/goatcms/goat-core/filesystem"
 	"github.com/goatcms/goatcms/models"
+	"github.com/jmoiron/sqlx"
 )
 
 const (
@@ -23,17 +24,19 @@ const (
 	AuthID = "auth"
 	// SessionManagerID is a name representing default session manager service
 	SessionManagerID = "session"
-	// RandomidID is a name representing default random id service
-	RandomidID = "randomid"
+	// FilesID is a name representing default files service
+	FilesID = "files"
+	// UploadFilespaceID is a name representing default filespace for upload files
+	UploadFilespaceID = "filespace.upload"
 )
 
 // Database is global elementary database interface
 type Database interface {
 	Open() error
 	Close() error
-	CreateTables() error
+	//CreateTables() error
 	// Deprecated: It shouldn't be use
-	Adapter() *sql.DB
+	Adapter() *sqlx.DB
 }
 
 // MuxHandler function for routing dispatcher
@@ -74,11 +77,11 @@ type SessionManager interface {
 	Set(string, string, string) error
 }
 
-<<<<<<< HEAD
-// RandomID is global elementary random id interface
-type RandomID interface {
-	GenerateID(prefix string, length int) (string, error)
-=======
+// Files is a files provider / persister
+type Files interface {
+	Filespace() filesystem.Filespace
+}
+
 // Provider is service dependency provider extension
 type Provider interface {
 	dependency.Provider
@@ -89,7 +92,8 @@ type Provider interface {
 	Crypt() (Crypt, error)
 	Auth() (Auth, error)
 	SessionManager() (SessionManager, error)
+	Files() (Files, error)
 	UserDAO() (models.UserDAO, error)
 	ArticleDAO() (models.ArticleDAO, error)
->>>>>>> master
+	ImageDAO() (models.ImageDAO, error)
 }

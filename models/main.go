@@ -1,28 +1,34 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"github.com/goatcms/goat-core/db"
+	"github.com/jmoiron/sqlx"
+)
 
 const (
 	// ArticleDAOID is name used as article dao identifier
-	ArticleDAOID = "articleDAO"
+	ArticleDAOID = "dao.article"
 	// UserDAOID is name used as user dao identifier
 	UserDAOID = "userDAO"
 	// ImageDAOID is name user as image dao identifier
 	ImageDAOID = "imageDAO"
 )
 
-// ArticleDTO represents an article entity
-type ArticleDTO interface {
-	GetID() int
-	GetTitle() string
-	GetContent() string
+// ArticleEntity is a entity represent single article
+type ArticleEntity struct {
+	ID      int64  `json:"id" db:"id"`
+	Title   string `json:"title" db:"title"`
+	Content string `json:"content" db:"content"`
+	Image   string `json:"image" db:"image"`
 }
 
 // ArticleDAO provide api to article access
 type ArticleDAO interface {
-	FindAll() []ArticleDTO
-	FindByID(id int) ArticleDTO
-	PersistAll(items []ArticleDTO)
+	db.DAO
+
+	ToEntities(rows *sqlx.Rows) ([]*ArticleEntity, error)
 }
 
 // UserDTO represents a user entity

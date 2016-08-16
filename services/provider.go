@@ -69,6 +69,15 @@ func (p *DefaultProvider) SessionManager() (SessionManager, error) {
 	return ins.(SessionManager), nil
 }
 
+// Files return instance of default files implementation
+func (p *DefaultProvider) Files() (Files, error) {
+	ins, err := p.Get(FilesID)
+	if err != nil {
+		return nil, err
+	}
+	return ins.(Files), nil
+}
+
 // UserDAO return instance of default user dao
 func (p *DefaultProvider) UserDAO() (models.UserDAO, error) {
 	ins, err := p.Get(models.UserDAOID)
@@ -85,4 +94,13 @@ func (p *DefaultProvider) ArticleDAO() (models.ArticleDAO, error) {
 		return nil, err
 	}
 	return ins.(models.ArticleDAO), nil
+}
+
+// ImageDAO return instance of default image dao
+func (p *DefaultProvider) ImageDAO() (models.ImageDAO, error) {
+	ins, err := p.Get(models.ImageDAOID)
+	if err != nil {
+		return nil, err
+	}
+	return ins.(models.ImageDAO), nil
 }

@@ -23,8 +23,8 @@ func NewHomepageController(dp services.Provider) (*HomepageController, error) {
 	return ctrl, nil
 }
 
-// Show is http get endpoint to serve home page
-func (c *HomepageController) Show(w http.ResponseWriter, r *http.Request) {
+// Get is http get endpoint to serve home page
+func (c *HomepageController) Get(w http.ResponseWriter, r *http.Request) {
 	err := c.tmpl.ExecuteTemplate(w, "home/index", nil)
 	if err != nil {
 		log.Fatal("error rendering a template: ", err)

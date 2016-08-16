@@ -13,8 +13,8 @@ func Factory(dp dep.Provider) (dep.Instance, error) {
 		return nil, err
 	}
 	db := dbIns.(services.Database)
-
-	return NewArticleDAO(db), nil
+	table := NewArticleTable()
+	return NewArticleDAO(db.Adapter(), table), nil
 }
 
 // InitDep initialize a new article model dependency
