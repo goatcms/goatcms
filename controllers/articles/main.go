@@ -1,7 +1,7 @@
 package articles
 
 import (
-	"github.com/goatcms/goat-core/types"
+	"github.com/goatcms/goat-core/http/post"
 	"github.com/goatcms/goatcms/models"
 	"github.com/goatcms/goatcms/models/article"
 	"github.com/goatcms/goatcms/services"
@@ -9,28 +9,44 @@ import (
 
 // Dependency is default set of dependency
 type Dependency struct {
-	DP          services.Provider
-	TMPL        services.Template
-	ArticleDAO  models.ArticleDAO
-	ArticleType types.CustomType
+	DP       services.Provider
+	Template services.Template
+	Mux      services.Mux
+	Database services.Database
+
+	ArticleDAO     models.ArticleDAO
+	ArticleDecoder *post.Decoder
 }
+
+const (
+	// InsertURL is url to insert page
+	InsertURL = "/article/add"
+	// ListURL is url to articles list page
+	ListURL = "/article"
+	// ViewURL is url to single article page
+	ViewURL = "/article/{id:[0-9]+}"
+)
 
 // NewDependency is default set of dependency
 func NewDependency(dp services.Provider) (*Dependency, error) {
-	var (
-		d   = &Dependency{}
-		err error
-	)
-	d.DP = dp
-	d.TMPL, err = dp.Template()
-	if err != nil {
+	var err error
+	d := &Dependency{
+		DP: dp,
+	}
+	if d.Template, err = dp.Template(); err != nil {
 		return nil, err
 	}
-	d.ArticleDAO, err = dp.ArticleDAO()
-	if err != nil {
+	if d.Mux, err = dp.Mux(); err != nil {
 		return nil, err
 	}
-	d.ArticleType = articlemodel.NewArticleType()
+	if d.Database, err = dp.Database(); err != nil {
+		return nil, err
+	}
+	if d.ArticleDAO, err = dp.ArticleDAO(); err != nil {
+		return nil, err
+	}
+	articleType := articlemodel.NewArticleType()
+	d.ArticleDecoder = post.NewDecoder(articleType)
 	return d, nil
 }
 
@@ -40,19 +56,12 @@ func Init(dp services.Provider) error {
 	if err != nil {
 		return err
 	}
-	insertCtrl := NewInsertArticleController(d)
-	listCtrl := NewListArticleController(d)
-	viewCtrl := NewViewArticleController(d)
-
-	mux, err := dp.Mux()
-	if err != nil {
-		return err
-	}
-
-	mux.Get("/article/add", insertCtrl.Get)
-	mux.Post("/article/add", insertCtrl.Post)
-	mux.Get("/article", listCtrl.Get)
-	mux.Get("/article/{id:[0-9]+}", viewCtrl.Get)
-
+	insertCtrl := NewInsertCtrl(d)
+	listCtrl := NewListCtrl(d)
+	viewCtrl := NewViewCtrl(d)
+	d.Mux.Get(InsertURL, insertCtrl.Get)
+	d.Mux.Post(InsertURL, insertCtrl.Post)
+	d.Mux.Get(ListURL, listCtrl.Get)
+	d.Mux.Get(ViewURL, viewCtrl.Get)
 	return nil
 }

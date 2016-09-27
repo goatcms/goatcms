@@ -4,44 +4,45 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/goatcms/goat-core/http/post"
+	"github.com/goatcms/goat-core/db"
 	"github.com/goatcms/goatcms/models"
 	"github.com/goatcms/goatcms/services"
 )
 
-// InsertArticleController is a controler to create new article
-type InsertArticleController struct {
+// InsertCtrl is a controler to create new article
+type InsertCtrl struct {
 	d *Dependency
 }
 
-// NewInsertArticleController create instance of a insert articles controller
-func NewInsertArticleController(d *Dependency) *InsertArticleController {
-	return &InsertArticleController{d}
+// NewInsertCtrl create instance of a insert articles controller
+func NewInsertCtrl(d *Dependency) *InsertCtrl {
+	return &InsertCtrl{d}
 }
 
 // Get is handler to serve template where one can add new article
-func (c *InsertArticleController) Get(scope services.RequestScope) {
-	err := c.d.TMPL.ExecuteTemplate(scope.Response(), "articles/new", nil)
-	if err != nil {
+func (c *InsertCtrl) Get(scope services.RequestScope) {
+	if err := c.d.Template.ExecuteTemplate(scope.Response(), "articles/new", nil); err != nil {
 		scope.Error(err)
 		return
 	}
 }
 
 // Post is handler to save article from form obtained data
-func (c *InsertArticleController) Post(scope services.RequestScope) {
+func (c *InsertCtrl) Post(scope services.RequestScope) {
+	var (
+		tx  db.TX
+		err error
+	)
 	article := &models.ArticleEntity{}
-	decoder := post.NewDecoder(c.d.ArticleType)
-	if err := decoder.Decode(article, scope.Request()); err != nil {
+	if err := c.d.ArticleDecoder.Decode(article, scope.Request()); err != nil {
 		fmt.Println(err)
 		return
 	}
-	tx, err := scope.TX()
-	if err != nil {
+	if tx, err = scope.TX(); err != nil {
 		scope.Error(err)
 		return
 	}
 	c.d.ArticleDAO.Insert(tx, article)
-	tx.Commit()
-	http.Redirect(scope.Response(), scope.Request(), "/", http.StatusSeeOther)
+	scope.Commit()
+	http.Redirect(scope.Response(), scope.Request(), ListURL, http.StatusSeeOther)
 }

@@ -1,10 +1,10 @@
 package articlemodel
 
 import (
+	"github.com/goatcms/goat-core/db"
 	"github.com/goatcms/goat-core/db/entityChan"
 	"github.com/goatcms/goat-core/scope"
 	"github.com/goatcms/goatcms/models"
-	"github.com/jmoiron/sqlx"
 )
 
 func newArticle() interface{} {
@@ -12,6 +12,8 @@ func newArticle() interface{} {
 }
 
 // NewArticleChan create new article converter chan
-func NewArticleChan(scope scope.Scope, rows *sqlx.Rows) *entityChan.ChanCorverter {
-	return entityChan.NewChanCorverter(scope, rows, newArticle)
+func NewArticleChan(scope scope.Scope, rows db.Rows) entityChan.EntityChan {
+	converter := entityChan.NewChanCorverter(scope, rows, newArticle)
+	go converter.Go()
+	return converter.Chan
 }

@@ -1,41 +1,33 @@
 package articles
 
 import (
+	"github.com/goatcms/goat-core/db"
 	"github.com/goatcms/goatcms/models/article"
 	"github.com/goatcms/goatcms/services"
 )
 
-// ListArticleController is a controler to show a list of article
-type ListArticleController struct {
+// ListCtrl is a controler to show a list of article
+type ListCtrl struct {
 	d *Dependency
 }
 
-// NewListArticleController create instance of a list articles controller
-func NewListArticleController(d *Dependency) *ListArticleController {
-	return &ListArticleController{d}
+// NewListCtrl create instance of a list articles controller
+func NewListCtrl(d *Dependency) *ListCtrl {
+	return &ListCtrl{d}
 }
 
 // Get is handler to serve template where one can add new article
-func (c *ListArticleController) Get(scope services.RequestScope) {
-	database, err := c.d.DP.Database()
-	if err != nil {
-		scope.Error(err)
-		return
-	}
-	rows, err := c.d.ArticleDAO.FindAll(database.Adapter())
-	if err != nil {
+func (c *ListCtrl) Get(scope services.RequestScope) {
+	var (
+		rows db.Rows
+		err  error
+	)
+	if rows, err = c.d.ArticleDAO.FindAll(c.d.Database.Adapter()); err != nil {
 		scope.Error(err)
 		return
 	}
 	articleChan := articlemodel.NewArticleChan(scope, rows)
-	go articleChan.Go()
-	//articles, err := c.d.ArticleDAO.ToEntities(rows)
-	if err != nil {
-		scope.Error(err)
-		return
-	}
-	err = c.d.TMPL.ExecuteTemplate(scope.Response(), "articles/list", articleChan.Chan)
-	if err != nil {
+	if err = c.d.Template.ExecuteTemplate(scope.Response(), "articles/list", articleChan); err != nil {
 		scope.Error(err)
 		return
 	}

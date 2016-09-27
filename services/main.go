@@ -82,6 +82,8 @@ type RequestScope interface {
 	TX() (*sqlx.Tx, error)
 	Request() *http.Request
 	Response() http.ResponseWriter
+	Commit() error
+	Rollback() error
 	Error(err error)
 	Fatal(err error)
 }

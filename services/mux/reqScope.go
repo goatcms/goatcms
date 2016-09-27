@@ -51,6 +51,28 @@ func (rs *RequestScope) Response() http.ResponseWriter {
 	return rs.res
 }
 
+// Commit persist scope data
+func (rs *RequestScope) Commit() error {
+	if err := rs.Scope.Trigger(scope.CommitEvent); err != nil {
+		return err
+	}
+	if rs.tx != nil {
+		return rs.tx.Commit()
+	}
+	return nil
+}
+
+// Rollback remove changes
+func (rs *RequestScope) Rollback() error {
+	if err := rs.Scope.Trigger(scope.RollbackEvent); err != nil {
+		return err
+	}
+	if rs.tx != nil {
+		return rs.tx.Rollback()
+	}
+	return nil
+}
+
 // Error notice error and show user error page
 func (rs *RequestScope) Error(err error) {
 	rs.Set(scope.Error, err)
