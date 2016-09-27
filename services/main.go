@@ -1,13 +1,14 @@
 package services
 
 import (
-	"database/sql"
 	"html/template"
 	"io"
 	"net/http"
 
 	"github.com/goatcms/goat-core/dependency"
+	"github.com/goatcms/goat-core/scope"
 	"github.com/goatcms/goatcms/models"
+	"github.com/jmoiron/sqlx"
 )
 
 const (
@@ -23,19 +24,21 @@ const (
 	AuthID = "auth"
 	// SessionManagerID is a name representing default session manager service
 	SessionManagerID = "session"
+	// UploadFilespaceID is a name representing default filespace for upload files
+	UploadFilespaceID = "filespace.upload"
 )
 
 // Database is global elementary database interface
 type Database interface {
 	Open() error
 	Close() error
-	CreateTables() error
+	//CreateTables() error
 	// Deprecated: It shouldn't be use
-	Adapter() *sql.DB
+	Adapter() *sqlx.DB
 }
 
 // MuxHandler function for routing dispatcher
-type MuxHandler func(http.ResponseWriter, *http.Request)
+type MuxHandler func(RequestScope)
 
 // Mux is global elementary routing interface
 type Mux interface {
@@ -72,6 +75,17 @@ type SessionManager interface {
 	Set(string, string, string) error
 }
 
+// RequestScope is rexuest scope interface
+type RequestScope interface {
+	scope.Scope
+
+	TX() (*sqlx.Tx, error)
+	Request() *http.Request
+	Response() http.ResponseWriter
+	Error(err error)
+	Fatal(err error)
+}
+
 // Provider is service dependency provider extension
 type Provider interface {
 	dependency.Provider
@@ -84,4 +98,5 @@ type Provider interface {
 	SessionManager() (SessionManager, error)
 	UserDAO() (models.UserDAO, error)
 	ArticleDAO() (models.ArticleDAO, error)
+	ImageDAO() (models.ImageDAO, error)
 }

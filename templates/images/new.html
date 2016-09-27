@@ -1,0 +1,59 @@
+{{define "images/new"}}
+<!doctype html>
+<html class="no-js" lang="">
+
+  {{template "head"}}
+
+<body>
+
+<div class="container">
+
+  {{template "navbar"}}
+
+  <div class="jumbotron">
+    <h1>Add an image</h1>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6 col-md-offset-3">
+
+      {{if .Error}}
+      <p class="text-danger">
+        {{.Error}}
+      </p>
+      {{end}}
+
+      <form action="/image/add/{{.articleID}}" method="post" enctype="multipart/form-data">
+        <div class="form-group">
+          <label for="imageUrl">Upload from URL</label>
+          <input type="text" class="form-control" id="imageUrl"
+                 name="url" value="{{.ImageUrl}}">
+        </div>
+        <div class="form-group">
+          <label for="imageUpload">Upload from file</label>
+          <input type="file" class="form-control" id="imageUpload"
+                 name="file">
+        </div>
+        <div class="form-group">
+          <label for="description">Description</label>
+          <textarea class="form-control" id="description"
+                    name="description">{{.Image.Description}}</textarea>
+        </div>
+        <div class="form-group">
+          <input type="submit" value="Add"
+                 class="btn btn-lg btn-primary btn-block"></input>
+        </div>
+      </form>
+
+    </div>
+  </div>
+
+  {{template "footer"}}
+
+</div> <!-- /container -->
+
+{{template "scripts"}}
+
+</body>
+</html>
+{{end}}

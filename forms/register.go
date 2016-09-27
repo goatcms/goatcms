@@ -25,7 +25,7 @@ const (
 )
 
 // Validate validate form and return bool how validation passed
-func (r RegisterForm) Validate(u models.UserDTO) (bool, map[string][]string) {
+func (f RegisterForm) Validate(u models.UserDTO) (bool, map[string][]string) {
 	validation := true
 	errors := make(map[string][]string)
 	// do validation
@@ -33,19 +33,19 @@ func (r RegisterForm) Validate(u models.UserDTO) (bool, map[string][]string) {
 		errors["email"] = append(errors["email"], errEmailOccupied+u.GetEmail())
 		validation = false
 	}
-	if validateEmail(r.Email) == false {
+	if validateEmail(f.Email) == false {
 		errors["email"] = append(errors["email"], errBadEmailFormat)
 		validation = false
 	}
-	if r.Email == "" {
+	if f.Email == "" {
 		errors["email"] = []string{errNoEmail}
 		validation = false
 	}
-	if len(r.Password) < passwordLength {
+	if len(f.Password) < passwordLength {
 		errors["pass"] = append(errors["pass"], errPassTooShort)
 		validation = false
 	}
-	if r.Password == "" {
+	if f.Password == "" {
 		errors["pass"] = []string{errNoPassword}
 		validation = false
 	}

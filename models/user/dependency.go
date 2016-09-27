@@ -1,13 +1,13 @@
 package usermodel
 
 import (
-	dep "github.com/goatcms/goat-core/dependency"
+	"github.com/goatcms/goat-core/dependency"
 	"github.com/goatcms/goatcms/models"
 	"github.com/goatcms/goatcms/services"
 )
 
 // Factory is a user model dependency builder
-func Factory(dp dep.Provider) (dep.Instance, error) {
+func Factory(dp dependency.Provider) (dependency.Instance, error) {
 	dbIns, err := dp.Get(services.DBID)
 	if err != nil {
 		return nil, err
@@ -17,7 +17,7 @@ func Factory(dp dep.Provider) (dep.Instance, error) {
 }
 
 // InitDep initialize a new user model dependency
-func InitDep(prov dep.Provider) error {
+func InitDep(prov dependency.Provider) error {
 	if err := prov.AddService(models.UserDAOID, Factory); err != nil {
 		return err
 	}

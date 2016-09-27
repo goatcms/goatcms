@@ -17,7 +17,7 @@ const (
 )
 
 // Validate validate form and return bool how validation passed
-func (r LoginForm) Validate(u models.UserDTO, c services.Crypt) (bool, map[string][]string) {
+func (f LoginForm) Validate(u models.UserDTO, c services.Crypt) (bool, map[string][]string) {
 	validation := true
 	errors := make(map[string][]string)
 	// do validation
@@ -27,7 +27,7 @@ func (r LoginForm) Validate(u models.UserDTO, c services.Crypt) (bool, map[strin
 		validation = false
 	}
 	if u != nil { // if there is user with given email
-		passMatch, err2 := c.Compare(u.GetPassHash(), r.Password)
+		passMatch, err2 := c.Compare(u.GetPassHash(), f.Password)
 		if err2 != nil { // here error means: hash and pass are not matching
 			// log.Println("FAIL LOGIN: password wrong")
 			errors["email"] = []string{errWrongLoginAttempt}
@@ -38,11 +38,11 @@ func (r LoginForm) Validate(u models.UserDTO, c services.Crypt) (bool, map[strin
 			validation = true
 		}
 	}
-	if r.Password == "" {
+	if f.Password == "" {
 		errors["email"] = []string{errWrongLoginAttempt}
 		validation = false
 	}
-	if r.Email == "" {
+	if f.Email == "" {
 		errors["email"] = []string{errNoUser}
 		validation = false
 	}

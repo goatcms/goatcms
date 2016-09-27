@@ -14,7 +14,7 @@ func Init(dp services.Provider) error {
 		return err
 	}
 
-	mux.Get("/", homepage.Show)
+	mux.Get("/", homepage.Get)
 
 	return nil
 }

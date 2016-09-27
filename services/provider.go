@@ -86,3 +86,12 @@ func (p *DefaultProvider) ArticleDAO() (models.ArticleDAO, error) {
 	}
 	return ins.(models.ArticleDAO), nil
 }
+
+// ImageDAO return instance of default image dao
+func (p *DefaultProvider) ImageDAO() (models.ImageDAO, error) {
+	ins, err := p.Get(models.ImageDAOID)
+	if err != nil {
+		return nil, err
+	}
+	return ins.(models.ImageDAO), nil
+}
