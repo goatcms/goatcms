@@ -82,6 +82,8 @@ type RequestScope interface {
 	TX() (*sqlx.Tx, error)
 	Request() *http.Request
 	Response() http.ResponseWriter
+	Error(err error)
+	Fatal(err error)
 }
 
 // Provider is service dependency provider extension

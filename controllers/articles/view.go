@@ -1,9 +1,6 @@
 package articles
 
 import (
-	"fmt"
-	"log"
-	"net/http"
 	"strconv"
 
 	"github.com/goatcms/goatcms/models"
@@ -26,28 +23,24 @@ func (c *ViewArticleController) Get(scope services.RequestScope) {
 	vars := mux.Vars(scope.Request())
 	id, err := strconv.ParseInt(vars["id"], 10, 64)
 	if err != nil {
-		log.Fatal("parse int fail: ", err)
-		http.Error(scope.Response(), err.Error(), http.StatusInternalServerError)
+		scope.Error(err)
 		return
 	}
 	database, err := c.d.DP.Database()
 	if err != nil {
-		fmt.Println("error rendering a template: ", err)
-		http.Error(scope.Response(), err.Error(), http.StatusInternalServerError)
+		scope.Error(err)
 		return
 	}
 	row := c.d.ArticleDAO.FindByID(database.Adapter(), id)
 	if row.Err() != nil {
-		log.Fatal("find article fail: ", row.Err())
-		http.Error(scope.Response(), row.Err().Error(), http.StatusInternalServerError)
+		scope.Error(err)
 		return
 	}
 	article := &models.ArticleEntity{}
 	row.StructScan(article)
 	err = c.d.TMPL.ExecuteTemplate(scope.Response(), "articles/view", article)
 	if err != nil {
-		log.Fatal("error rendering a template: ", err)
-		http.Error(scope.Response(), err.Error(), http.StatusInternalServerError)
+		scope.Error(err)
 		return
 	}
 }

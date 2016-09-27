@@ -1,6 +1,7 @@
 package mux
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/goatcms/goat-core/dependency"
@@ -48,4 +49,22 @@ func (rs *RequestScope) Request() *http.Request {
 // Response return current response
 func (rs *RequestScope) Response() http.ResponseWriter {
 	return rs.res
+}
+
+// Error notice error and show user error page
+func (rs *RequestScope) Error(err error) {
+	rs.Set(scope.Error, err)
+	rs.Trigger(scope.ErrorEvent)
+	log.Println(err)
+	http.Error(rs.Response(), err.Error(), http.StatusInternalServerError)
+	return
+}
+
+// Fatal notice error and kill scope
+func (rs *RequestScope) Fatal(err error) {
+	rs.Set(scope.Error, err)
+	rs.Trigger(scope.ErrorEvent)
+	log.Fatal(err)
+	http.Error(rs.Response(), err.Error(), http.StatusInternalServerError)
+	rs.Trigger(scope.KillEvent)
 }

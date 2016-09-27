@@ -1,11 +1,6 @@
 package home
 
-import (
-	"log"
-	"net/http"
-
-	"github.com/goatcms/goatcms/services"
-)
+import "github.com/goatcms/goatcms/services"
 
 // HomepageController is main page endpoint
 type HomepageController struct {
@@ -27,8 +22,7 @@ func NewHomepageController(dp services.Provider) (*HomepageController, error) {
 func (c *HomepageController) Get(scope services.RequestScope) {
 	err := c.tmpl.ExecuteTemplate(scope.Response(), "home/index", nil)
 	if err != nil {
-		log.Fatal("error rendering a template: ", err)
-		http.Error(scope.Response(), err.Error(), http.StatusInternalServerError)
+		scope.Error(err)
 		return
 	}
 }

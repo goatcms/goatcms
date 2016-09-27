@@ -50,8 +50,7 @@ func NewUserController(dp services.Provider) (*UserController, error) {
 // TemplateSignUp is handler to serve template where one can register new user
 func (c *UserController) TemplateSignUp(scope services.RequestScope) {
 	if err := c.tmpl.ExecuteTemplate(scope.Response(), "users/register", nil); err != nil {
-		log.Fatal("error rendering a template: ", err)
-		http.Error(scope.Response(), err.Error(), http.StatusInternalServerError)
+		scope.Error(err)
 		return
 	}
 }
@@ -59,14 +58,15 @@ func (c *UserController) TemplateSignUp(scope services.RequestScope) {
 // TryToSignUp is handler to save user from form obtained data
 func (c *UserController) TryToSignUp(scope services.RequestScope) {
 	if err := scope.Request().ParseForm(); err != nil {
-		log.Fatal("error parsing a form: ", err)
+		scope.Error(err)
 		return
 	}
 	// obtain data from form with gorilla schema decoder and validate
 	decoder := schema.NewDecoder()
 	registerForm := &forms.RegisterForm{}
 	if err := decoder.Decode(registerForm, scope.Request().PostForm); err != nil {
-		log.Fatal(err)
+		scope.Error(err)
+		return
 	}
 	isUser := c.userDAO.FindByEmail(registerForm.Email) // try find user
 	if result, errors := registerForm.Validate(isUser); result != true {
@@ -106,12 +106,13 @@ func (c *UserController) TemplateLogin(scope services.RequestScope) {
 func (c *UserController) TryToLogin(scope services.RequestScope) {
 	// obtain data from login form...
 	if err := scope.Request().ParseForm(); err != nil {
-		log.Fatal("error parsing a form: ", err)
+		scope.Error(err)
+		return
 	}
 	decoder := schema.NewDecoder()
 	loginForm := &forms.LoginForm{}
 	if err := decoder.Decode(loginForm, scope.Request().PostForm); err != nil {
-		log.Fatal(err)
+		scope.Error(err)
 		return
 	}
 	// validate form data and check credentials
@@ -127,12 +128,12 @@ func (c *UserController) TryToLogin(scope services.RequestScope) {
 	// TODO repair below, so successful login will invoke proper session
 	sessID, err := c.sess.Init(scope.Response(), scope.Request())
 	if err != nil {
-		log.Fatal(err)
+		scope.Error(err)
 		return
 	}
 	err = c.auth.Auth(sessID, loginForm.Email)
 	if err != nil {
-		log.Fatal(err)
+		scope.Error(err)
 		return
 	}
 	http.Redirect(scope.Response(), scope.Request(), "/", http.StatusSeeOther)
@@ -142,7 +143,7 @@ func (c *UserController) TryToLogin(scope services.RequestScope) {
 func (c *UserController) TryToLogout(scope services.RequestScope) {
 	sessID, err := c.sess.Init(scope.Response(), scope.Request())
 	if err != nil {
-		log.Fatal(err)
+		scope.Error(err)
 		return
 	}
 	c.auth.Clear(sessID)
