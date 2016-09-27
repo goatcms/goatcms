@@ -1,14 +1,18 @@
 package articles
 
 import (
+	"github.com/goatcms/goat-core/types"
 	"github.com/goatcms/goatcms/models"
+	"github.com/goatcms/goatcms/models/article"
 	"github.com/goatcms/goatcms/services"
 )
 
 // Dependency is default set of dependency
 type Dependency struct {
-	TMPL       services.Template
-	ArticleDAO models.ArticleDAO
+	DP          services.Provider
+	TMPL        services.Template
+	ArticleDAO  models.ArticleDAO
+	ArticleType types.CustomType
 }
 
 // NewDependency is default set of dependency
@@ -17,6 +21,7 @@ func NewDependency(dp services.Provider) (*Dependency, error) {
 		d   = &Dependency{}
 		err error
 	)
+	d.DP = dp
 	d.TMPL, err = dp.Template()
 	if err != nil {
 		return nil, err
@@ -25,6 +30,7 @@ func NewDependency(dp services.Provider) (*Dependency, error) {
 	if err != nil {
 		return nil, err
 	}
+	d.ArticleType = articlemodel.NewArticleType()
 	return d, nil
 }
 

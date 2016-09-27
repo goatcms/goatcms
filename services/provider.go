@@ -69,15 +69,6 @@ func (p *DefaultProvider) SessionManager() (SessionManager, error) {
 	return ins.(SessionManager), nil
 }
 
-// Files return instance of default files implementation
-func (p *DefaultProvider) Files() (Files, error) {
-	ins, err := p.Get(FilesID)
-	if err != nil {
-		return nil, err
-	}
-	return ins.(Files), nil
-}
-
 // UserDAO return instance of default user dao
 func (p *DefaultProvider) UserDAO() (models.UserDAO, error) {
 	ins, err := p.Get(models.UserDAOID)

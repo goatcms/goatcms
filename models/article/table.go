@@ -1,10 +1,6 @@
 package articlemodel
 
-import (
-	"github.com/goatcms/goat-core/db/orm"
-	"github.com/goatcms/goat-core/types"
-	"github.com/goatcms/goat-core/types/simpletype"
-)
+import "github.com/goatcms/goat-core/db/orm"
 
 // ArticleTable describe table structure and simple queries
 type ArticleTable struct {
@@ -14,10 +10,6 @@ type ArticleTable struct {
 // NewArticleTable create new article table
 func NewArticleTable() *ArticleTable {
 	return &ArticleTable{
-		BaseTable: orm.NewBaseTable("articles", map[string]types.CustomType{
-			"title":   simpletype.NewTitleType([]string{types.NotNull}),
-			"content": simpletype.NewContentType([]string{types.NotNull}),
-			"image":   simpletype.NewImageType([]string{}),
-		}),
+		BaseTable: orm.NewBaseTable("articles", NewArticleType().GetSubTypes()),
 	}
 }

@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/goatcms/goat-core/dependency"
-	"github.com/goatcms/goat-core/filesystem"
+	"github.com/goatcms/goat-core/scope"
 	"github.com/goatcms/goatcms/models"
 	"github.com/jmoiron/sqlx"
 )
@@ -24,8 +24,6 @@ const (
 	AuthID = "auth"
 	// SessionManagerID is a name representing default session manager service
 	SessionManagerID = "session"
-	// FilesID is a name representing default files service
-	FilesID = "files"
 	// UploadFilespaceID is a name representing default filespace for upload files
 	UploadFilespaceID = "filespace.upload"
 )
@@ -40,7 +38,7 @@ type Database interface {
 }
 
 // MuxHandler function for routing dispatcher
-type MuxHandler func(http.ResponseWriter, *http.Request)
+type MuxHandler func(RequestScope)
 
 // Mux is global elementary routing interface
 type Mux interface {
@@ -77,9 +75,13 @@ type SessionManager interface {
 	Set(string, string, string) error
 }
 
-// Files is a files provider / persister
-type Files interface {
-	Filespace() filesystem.Filespace
+// RequestScope is rexuest scope interface
+type RequestScope interface {
+	scope.Scope
+
+	TX() (*sqlx.Tx, error)
+	Request() *http.Request
+	Response() http.ResponseWriter
 }
 
 // Provider is service dependency provider extension
@@ -92,7 +94,6 @@ type Provider interface {
 	Crypt() (Crypt, error)
 	Auth() (Auth, error)
 	SessionManager() (SessionManager, error)
-	Files() (Files, error)
 	UserDAO() (models.UserDAO, error)
 	ArticleDAO() (models.ArticleDAO, error)
 	ImageDAO() (models.ImageDAO, error)

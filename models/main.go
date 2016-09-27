@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/goatcms/goat-core/db"
-	"github.com/jmoiron/sqlx"
 )
 
 const (
@@ -18,17 +17,20 @@ const (
 
 // ArticleEntity is a entity represent single article
 type ArticleEntity struct {
-	ID      int64  `json:"id" db:"id"`
-	Title   string `json:"title" db:"title"`
-	Content string `json:"content" db:"content"`
-	Image   string `json:"image" db:"image"`
+	ID      int64  `json:"id" db:"id" schema:"id"`
+	Title   string `json:"title" db:"title" schema:"title"`
+	Content string `json:"content" db:"content" schema:"content"`
+	Image   string `json:"image" db:"image" schema:"image"`
+}
+
+// NewArticleEntity build a instance of ArticleEntity
+func NewArticleEntity() *ArticleEntity {
+	return &ArticleEntity{}
 }
 
 // ArticleDAO provide api to article access
 type ArticleDAO interface {
 	db.DAO
-
-	ToEntities(rows *sqlx.Rows) ([]*ArticleEntity, error)
 }
 
 // UserDTO represents a user entity

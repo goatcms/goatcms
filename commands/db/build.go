@@ -27,6 +27,16 @@ func (command *BuildCommand) Run(c *cli.Context) error {
 		dao    db.DAO
 		err    error
 	)
+	database, err := command.dp.Database()
+	if err != nil {
+		return err
+	}
+
+	tx, err := database.Adapter().Beginx()
+	if err != nil {
+		return err
+	}
+
 	builders := command.dp.GetAll()
 	for name, builder := range builders {
 		if strings.HasPrefix(name, "dao.") {
@@ -35,7 +45,7 @@ func (command *BuildCommand) Run(c *cli.Context) error {
 				return err
 			}
 			dao = daoIns.(db.DAO)
-			err = dao.CreateTable()
+			err = dao.CreateTable(tx)
 			if err != nil {
 				return err
 			}
@@ -43,5 +53,5 @@ func (command *BuildCommand) Run(c *cli.Context) error {
 		}
 	}
 	fmt.Println("Create alltables")
-	return nil
+	return tx.Commit()
 }

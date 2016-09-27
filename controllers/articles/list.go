@@ -1,8 +1,11 @@
 package articles
 
 import (
-	"log"
+	"fmt"
 	"net/http"
+
+	"github.com/goatcms/goatcms/models/article"
+	"github.com/goatcms/goatcms/services"
 )
 
 // ListArticleController is a controler to show a list of article
@@ -16,23 +19,31 @@ func NewListArticleController(d *Dependency) *ListArticleController {
 }
 
 // Get is handler to serve template where one can add new article
-func (c *ListArticleController) Get(w http.ResponseWriter, r *http.Request) {
-	rows, err := c.d.ArticleDAO.FindAll()
+func (c *ListArticleController) Get(scope services.RequestScope) {
+	database, err := c.d.DP.Database()
 	if err != nil {
-		log.Fatal("error findAll articles: ", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		fmt.Println("error rendering a template: ", err)
+		http.Error(scope.Response(), err.Error(), http.StatusInternalServerError)
 		return
 	}
-	articles, err := c.d.ArticleDAO.ToEntities(rows)
+	rows, err := c.d.ArticleDAO.FindAll(database.Adapter())
 	if err != nil {
-		log.Fatal("error scan articles rows: ", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		fmt.Println("error findAll articles: ", err)
+		http.Error(scope.Response(), err.Error(), http.StatusInternalServerError)
 		return
 	}
-	err = c.d.TMPL.ExecuteTemplate(w, "articles/list", articles)
+	articleChan := articlemodel.NewArticleChan(scope, rows)
+	go articleChan.Go()
+	//articles, err := c.d.ArticleDAO.ToEntities(rows)
 	if err != nil {
-		log.Fatal("error rendering a template: ", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		fmt.Println("error scan articles rows: ", err)
+		http.Error(scope.Response(), err.Error(), http.StatusInternalServerError)
+		return
+	}
+	err = c.d.TMPL.ExecuteTemplate(scope.Response(), "articles/list", articleChan.Chan)
+	if err != nil {
+		fmt.Println("error rendering a template: ", err)
+		http.Error(scope.Response(), err.Error(), http.StatusInternalServerError)
 		return
 	}
 }
