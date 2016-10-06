@@ -2,6 +2,7 @@ package articles
 
 import (
 	"github.com/goatcms/goat-core/http/post"
+	"github.com/goatcms/goat-core/types"
 	"github.com/goatcms/goatcms/models"
 	"github.com/goatcms/goatcms/models/article"
 	"github.com/goatcms/goatcms/services"
@@ -14,6 +15,7 @@ type Dependency struct {
 	Mux      services.Mux
 	Database services.Database
 
+	ArticleType    types.CustomType
 	ArticleDAO     models.ArticleDAO
 	ArticleDecoder *post.Decoder
 }
@@ -45,8 +47,8 @@ func NewDependency(dp services.Provider) (*Dependency, error) {
 	if d.ArticleDAO, err = dp.ArticleDAO(); err != nil {
 		return nil, err
 	}
-	articleType := articlemodel.NewArticleType()
-	d.ArticleDecoder = post.NewDecoder(articleType)
+	d.ArticleType = articlemodel.NewArticleType()
+	d.ArticleDecoder = post.NewDecoder(d.ArticleType)
 	return d, nil
 }
 

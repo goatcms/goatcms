@@ -35,7 +35,7 @@ func Init(dp services.Provider) error {
 	if err != nil {
 		return err
 	}
-	home := NewHomeCTRL(d)
+	home := NewMainCTRL(d)
 	d.Mux.Get(HomeURL, home.Get)
 	return nil
 }

@@ -7,6 +7,7 @@ import (
 	"github.com/goatcms/goat-core/types/abstracttype"
 	"github.com/goatcms/goat-core/types/simpletype"
 	"github.com/goatcms/goat-core/types/validator"
+	"github.com/goatcms/goatcms/models"
 )
 
 var (
@@ -16,15 +17,19 @@ var (
 // ArticleType is type for articles
 type ArticleType struct {
 	abstracttype.MetaType
-	abstracttype.ObjectConverter
-	validator.EmptyValidator
+	abstracttype.FilespaceConverter
+	validator.ObjectValidator
 }
 
 // NewArticleType create new instance of article type
 func newArticleType() types.CustomType {
-	var ptr *string
-	return &abstracttype.ObjectCustomType{
-		SingleCustomType: &ArticleType{
+	/*var ptr *string
+	types := map[string]types.CustomType{
+		"title":   simpletype.NewTitleType(map[string]string{types.Required: "true"}),
+		"content": simpletype.NewContentType(map[string]string{types.Required: "true"}),
+	}
+	return &ArticleType{
+		ObjectCustomType: &abstracttype.ObjectCustomType{
 			MetaType: abstracttype.MetaType{
 				SQLTypeName:  "text",
 				HTMLTypeName: "text",
@@ -32,9 +37,25 @@ func newArticleType() types.CustomType {
 				Attributes:   map[string]string{},
 			},
 		},
-		Types: map[string]types.CustomType{
-			"title":   simpletype.NewTitleType(map[string]string{types.Required: "true"}),
-			"content": simpletype.NewContentType(map[string]string{types.Required: "true"}),
+		ObjectValidator: validator.ObjectValidator{
+			Types: types,
+		},
+	}*/
+	var ptr *models.ArticleDAO
+	types := map[string]types.CustomType{
+		"title":   simpletype.NewTitleType(map[string]string{types.Required: "true"}),
+		"content": simpletype.NewContentType(map[string]string{types.Required: "true"}),
+	}
+	return &abstracttype.ObjectCustomType{
+		SingleCustomType: &ArticleType{
+			MetaType: abstracttype.MetaType{
+				SQLTypeName:  "varchar(500)",
+				HTMLTypeName: "file",
+				GoTypeRef:    reflect.TypeOf(ptr).Elem(),
+			},
+		},
+		Validator: validator.ObjectValidator{
+			Types: types,
 		},
 	}
 }
