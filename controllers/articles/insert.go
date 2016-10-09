@@ -1,7 +1,6 @@
 package articles
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/goatcms/goat-core/db"
@@ -45,8 +44,6 @@ func (c *InsertCtrl) Post(scope services.RequestScope) {
 		scope.Error(err)
 		return
 	}
-	fmt.Println("loaded value ", article)
-	fmt.Println("valid msgs ", mesgs)
 	if len(mesgs.GetAll()) != 0 {
 		if err = c.d.Template.ExecuteTemplate(scope.Response(), "articles/new", mesgs); err != nil {
 			scope.Error(err)
