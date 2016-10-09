@@ -132,7 +132,7 @@ func (app *App) start() error {
 }
 
 func main() {
-	fmt.Println("GoatCMS v0.01@dev")
+	//fmt.Println("GoatCMS v0.01@dev")
 	app := NewApp()
 	if err := app.initFilespaces(); err != nil {
 		fmt.Println(err)

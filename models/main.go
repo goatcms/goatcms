@@ -18,9 +18,9 @@ const (
 // ArticleEntity is a entity represent single article
 type ArticleEntity struct {
 	ID      int64  `json:"id" db:"id" schema:"id"`
-	Title   string `json:"title" db:"title" schema:"title"`
-	Content string `json:"content" db:"content" schema:"content"`
-	Image   string `json:"image" db:"image" schema:"image"`
+	Title   string `json:"title" db:"Title" schema:"Title"`
+	Content string `json:"content" db:"Content" schema:"Content"`
+	Image   string `json:"image" db:"Image" schema:"Image"`
 }
 
 // NewArticleEntity build a instance of ArticleEntity
