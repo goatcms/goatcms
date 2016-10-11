@@ -58,9 +58,9 @@ func (app *App) initDeps() error {
 	if err := session.InitDep(app.dp); err != nil {
 		return err
 	}
-	/*if err := randomid.InitDep(app.dp); err != nil {
+	if err := services.InitDep(app.dp); err != nil {
 		return err
-	}*/
+	}
 	return nil
 }
 
@@ -132,7 +132,7 @@ func (app *App) start() error {
 }
 
 func main() {
-	//fmt.Println("GoatCMS v0.01@dev")
+	fmt.Println("GoatCMS v0.01@dev")
 	app := NewApp()
 	if err := app.initFilespaces(); err != nil {
 		fmt.Println(err)

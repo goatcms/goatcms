@@ -4,20 +4,19 @@ import (
 	"github.com/goatcms/goat-core/http/post"
 	"github.com/goatcms/goat-core/types"
 	"github.com/goatcms/goatcms/models"
-	"github.com/goatcms/goatcms/models/article"
 	"github.com/goatcms/goatcms/services"
 )
 
 // Dependency is default set of dependency
 type Dependency struct {
-	DP       services.Provider
-	Template services.Template
-	Mux      services.Mux
-	Database services.Database
+	DP       services.Provider `inject:"provider"`
+	Template services.Template `inject:"template"`
+	Mux      services.Mux      `inject:"mux"`
+	Database services.Database `inject:"database"`
 
-	ArticleType    types.CustomType
-	ArticleDAO     models.ArticleDAO
-	ArticleDecoder *post.Decoder
+	ArticleType    types.CustomType  `inject:"type.article"`
+	ArticleDAO     models.ArticleDAO `inject:"dao.article"`
+	ArticleDecoder *post.Decoder     `inject:"decoder.article"`
 }
 
 const (
@@ -31,24 +30,10 @@ const (
 
 // NewDependency is default set of dependency
 func NewDependency(dp services.Provider) (*Dependency, error) {
-	var err error
-	d := &Dependency{
-		DP: dp,
-	}
-	if d.Template, err = dp.Template(); err != nil {
+	d := &Dependency{}
+	if err := dp.InjectTo(d); err != nil {
 		return nil, err
 	}
-	if d.Mux, err = dp.Mux(); err != nil {
-		return nil, err
-	}
-	if d.Database, err = dp.Database(); err != nil {
-		return nil, err
-	}
-	if d.ArticleDAO, err = dp.ArticleDAO(); err != nil {
-		return nil, err
-	}
-	d.ArticleType = articlemodel.NewArticleType()
-	d.ArticleDecoder = post.NewDecoder(d.ArticleType)
 	return d, nil
 }
 

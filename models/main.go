@@ -9,10 +9,14 @@ import (
 const (
 	// ArticleDAOID is name used as article dao identifier
 	ArticleDAOID = "dao.article"
+	// ArticleTypeID is article type
+	ArticleTypeID = "type.article"
+	// ArticleDecoderID is article decoder
+	ArticleDecoderID = "decoder.article"
 	// UserDAOID is name used as user dao identifier
-	UserDAOID = "userDAO"
+	UserDAOID = "dao~useruser"
 	// ImageDAOID is name user as image dao identifier
-	ImageDAOID = "imageDAO"
+	ImageDAOID = "dao~image"
 )
 
 // ArticleEntity is a entity represent single article

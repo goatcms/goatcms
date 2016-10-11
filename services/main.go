@@ -12,6 +12,8 @@ import (
 )
 
 const (
+	// ProviderID is service dependency provider name
+	ProviderID = "provider"
 	// DBID is a name representing default database service
 	DBID = "database"
 	// MuxID is a name representing default mux service
