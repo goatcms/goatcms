@@ -1,0 +1,52 @@
+{{define "users/login"}}
+<!doctype html>
+<html class="no-js" lang="">
+
+  {{template "head"}}
+
+<body>
+
+<div class="container">
+
+  {{template "navbar"}}
+
+  <div class="row">
+    <div class="col-sm-6 col-sm-offset-3">
+      <h1>Login</h1>
+      <br />
+
+      {{if .Errors}}
+        {{ range $key, $value := .Errors }}
+            <p class="text-danger">{{ $value }}</p>
+        {{ end }}
+      {{ end }}
+
+      <form action="/login" method="post" enctype="application/x-www-form-urlencoded">
+        <div class="form-group">
+          <label for="Username">Username:</label>
+          <input type="text" class="form-control" id="Username" name="Username" value="{{.Email}}">
+        </div>
+        <div class="form-group">
+          <label for="password">Password:</label>
+          <input type="password" class="form-control" id="Password" name="Password">
+        </div>
+        <br />
+        <div class="form-group">
+          <input type="submit" class="btn btn-lg btn-primary btn-block"
+                 value="Login"></input>
+        </div>
+      </form>
+
+    </div>
+  </div>
+
+
+  {{template "footer"}}
+
+</div> <!-- /container -->
+
+{{template "scripts"}}
+
+</body>
+</html>
+{{end}}
