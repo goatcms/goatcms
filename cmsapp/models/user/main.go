@@ -15,8 +15,6 @@ const (
 
 func RegisterDependencies(dp dependency.Provider, dsql db.DSQL) error {
 	var entityPtr *models.User
-
-	//Default queries
 	table := orm.NewTable(UserTable, reflect.TypeOf(entityPtr).Elem())
 
 	loginQuery, err := NewLogin(table, dsql)

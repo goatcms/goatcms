@@ -1,11 +1,12 @@
 package user
 
 import (
+	"reflect"
+
 	"github.com/goatcms/goat-core/db"
 	"github.com/goatcms/goat-core/db/orm"
 	"github.com/goatcms/goat-core/dependency"
-	"github.com/goatcms/goat-core/types"
-	"github.com/goatcms/goat-core/types/simpletype"
+	"github.com/goatcms/goatcms/cmsapp/models"
 )
 
 const (
@@ -13,10 +14,8 @@ const (
 )
 
 func RegisterDependencies(dp dependency.Provider, dsql db.DSQL) error {
-	table := orm.NewTable(FragmentTable, map[string]types.CustomType{
-		"Key":   simpletype.NewTitleType(map[string]string{types.Required: "true"}),
-		"Value": simpletype.NewContentType(map[string]string{types.Required: "true"}),
-	})
+	var entityPtr *models.User
+	table := orm.NewTable(FragmentTable, reflect.TypeOf(entityPtr).Elem())
 
 	createTableQuery, err := orm.NewCreateTable(table, dsql)
 	if err != nil {

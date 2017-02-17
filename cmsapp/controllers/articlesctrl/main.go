@@ -1,23 +1,9 @@
-package articles
+package articlectrl
 
 import (
-	"github.com/goatcms/goat-core/http/post"
-	"github.com/goatcms/goat-core/types"
-	"github.com/goatcms/goatcms/models"
-	"github.com/goatcms/goatcms/services"
+	"github.com/goatcms/goat-core/app"
+	"github.com/goatcms/goatcms/cmsapp/services"
 )
-
-// Dependency is default set of dependency
-type Dependency struct {
-	DP       services.Provider `inject:"provider"`
-	Template services.Template `inject:"template"`
-	Mux      services.Mux      `inject:"mux"`
-	Database services.Database `inject:"database"`
-
-	ArticleType    types.CustomType  `inject:"type.article"`
-	ArticleDAO     models.ArticleDAO `inject:"dao.article"`
-	ArticleDecoder *post.Decoder     `inject:"decoder.article"`
-}
 
 const (
 	// InsertURL is url to insert page
@@ -28,27 +14,30 @@ const (
 	ViewURL = "/article/{id:[0-9]+}"
 )
 
-// NewDependency is default set of dependency
-func NewDependency(dp services.Provider) (*Dependency, error) {
-	d := &Dependency{}
-	if err := dp.InjectTo(d); err != nil {
-		return nil, err
+// InitDependencies initialize the article controllers
+func InitDependencies(a app.App) error {
+	var deps struct {
+		Router services.Router `dependency:"RouterService"`
 	}
-	return d, nil
-}
-
-// Init initialize the article controllers package
-func Init(dp services.Provider) error {
-	d, err := NewDependency(dp)
+	dp := a.DependencyProvider()
+	if err := dp.InjectTo(&deps); err != nil {
+		return err
+	}
+	insertCtrl, err := NewInsertCtrl(dp)
 	if err != nil {
 		return err
 	}
-	insertCtrl := NewInsertCtrl(d)
-	listCtrl := NewListCtrl(d)
-	viewCtrl := NewViewCtrl(d)
-	d.Mux.Get(InsertURL, insertCtrl.Get)
-	d.Mux.Post(InsertURL, insertCtrl.Post)
-	d.Mux.Get(ListURL, listCtrl.Get)
-	d.Mux.Get(ViewURL, viewCtrl.Get)
+	listCtrl, err := NewListCtrl(dp)
+	if err != nil {
+		return err
+	}
+	viewCtrl, err := NewViewCtrl(dp)
+	if err != nil {
+		return err
+	}
+	deps.Router.OnGet(InsertURL, insertCtrl.Get)
+	deps.Router.OnPost(InsertURL, insertCtrl.Post)
+	deps.Router.OnGet(ListURL, listCtrl.Get)
+	deps.Router.OnGet(ViewURL, viewCtrl.Get)
 	return nil
 }

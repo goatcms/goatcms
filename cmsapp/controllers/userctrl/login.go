@@ -2,10 +2,12 @@ package userctrl
 
 import (
 	"fmt"
+	"html/template"
 	"net/http"
 
 	"github.com/goatcms/goat-core/app"
 	"github.com/goatcms/goat-core/dependency"
+	"github.com/goatcms/goat-core/goathtml"
 	"github.com/goatcms/goatcms/cmsapp/services"
 )
 
@@ -14,12 +16,18 @@ type UserLoginController struct {
 	deps struct {
 		Template services.Template `dependency:"TemplateService"`
 	}
+	view *template.Template
 }
 
 // NewUserLoginController create instance of a register form controller
 func NewUserLoginController(dp dependency.Provider) (*UserLoginController, error) {
+	var err error
 	ctrl := &UserLoginController{}
-	if err := dp.InjectTo(&ctrl.deps); err != nil {
+	if err = dp.InjectTo(&ctrl.deps); err != nil {
+		return nil, err
+	}
+	ctrl.view, err = ctrl.deps.Template.View(goathtml.DefaultLayout, "users/login", nil)
+	if err != nil {
 		return nil, err
 	}
 	return ctrl, nil
@@ -34,7 +42,7 @@ func (c *UserLoginController) Get(requestScope app.Scope) {
 		fmt.Println(err)
 		return
 	}
-	if err := c.deps.Template.ExecuteTemplate(requestDeps.Response, "users/login", nil); err != nil {
+	if err := c.view.Execute(requestDeps.Response, nil); err != nil {
 		requestDeps.RequestError.Error(312, err)
 		return
 	}
@@ -44,7 +52,6 @@ func (c *UserLoginController) Post(requestScope app.Scope) {
 	var requestDeps struct {
 		Request      *http.Request         `request:"Request"`
 		Response     http.ResponseWriter   `request:"Response"`
-		Template     services.Template     `dependency:"TemplateService"`
 		RequestAuth  services.RequestAuth  `request:"RequestAuthService"`
 		RequestError services.RequestError `request:"RequestErrorService"`
 		Username     string                `form:"Username"`
@@ -59,7 +66,7 @@ func (c *UserLoginController) Post(requestScope app.Scope) {
 		http.Redirect(requestDeps.Response, requestDeps.Request, "/", http.StatusSeeOther)
 		return
 	}
-	if err := requestDeps.Template.ExecuteTemplate(requestDeps.Response, "users/login", map[string]interface{}{
+	if err := c.view.Execute(requestDeps.Response, map[string]interface{}{
 		"Errors": []string{"Username or password incorrect"},
 	}); err != nil {
 		requestDeps.RequestError.Error(312, err)

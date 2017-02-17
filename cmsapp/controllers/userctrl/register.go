@@ -2,10 +2,12 @@ package userctrl
 
 import (
 	"fmt"
+	"html/template"
 	"net/http"
 
 	"github.com/goatcms/goat-core/app"
 	"github.com/goatcms/goat-core/dependency"
+	"github.com/goatcms/goat-core/goathtml"
 	"github.com/goatcms/goat-core/messages/msgcollection"
 	"github.com/goatcms/goatcms/cmsapp/forms/user/registerform"
 	"github.com/goatcms/goatcms/cmsapp/models"
@@ -19,12 +21,18 @@ type UserRegisterController struct {
 		RegisterQuery models.UserRegisterQuery `dependency:"db.query.user.RegisterQuery"`
 		Crypt         services.Crypt           `dependency:"CryptService"`
 	}
+	view *template.Template
 }
 
 // NewUserRegisterController create instance of a register form controller
 func NewUserRegisterController(dp dependency.Provider) (*UserRegisterController, error) {
+	var err error
 	ctrl := &UserRegisterController{}
-	if err := dp.InjectTo(&ctrl.deps); err != nil {
+	if err = dp.InjectTo(&ctrl.deps); err != nil {
+		return nil, err
+	}
+	ctrl.view, err = ctrl.deps.Template.View(goathtml.DefaultLayout, "users/register", nil)
+	if err != nil {
 		return nil, err
 	}
 	return ctrl, nil
@@ -39,7 +47,7 @@ func (c *UserRegisterController) Get(requestScope app.Scope) {
 		fmt.Println(err)
 		return
 	}
-	if err := c.deps.Template.ExecuteTemplate(requestDeps.Response, "users/register", nil); err != nil {
+	if err := c.view.Execute(requestDeps.Response, nil); err != nil {
 		requestDeps.RequestError.Error(312, err)
 		return
 	}
@@ -81,7 +89,7 @@ func (c *UserRegisterController) Post(requestScope app.Scope) {
 		}
 		http.Redirect(requestDeps.Response, requestDeps.Request, "/", http.StatusSeeOther)
 	} else {
-		if err := c.deps.Template.ExecuteTemplate(requestDeps.Response, "users/register", map[string]interface{}{
+		if err := c.view.Execute(requestDeps.Response, map[string]interface{}{
 			"formMessages": validResult.GetAll(),
 		}); err != nil {
 			requestDeps.RequestError.Error(312, err)

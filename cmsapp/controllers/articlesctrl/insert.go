@@ -1,67 +1,109 @@
-package articles
+package articlectrl
 
 import (
+	"fmt"
+	"html/template"
 	"net/http"
 
+	"github.com/goatcms/goat-core/app"
 	"github.com/goatcms/goat-core/db"
-	"github.com/goatcms/goat-core/types"
-	"github.com/goatcms/goatcms/models"
-	"github.com/goatcms/goatcms/services"
+	"github.com/goatcms/goat-core/dependency"
+	"github.com/goatcms/goat-core/goathtml"
+	"github.com/goatcms/goat-core/messages/msgcollection"
+	"github.com/goatcms/goatcms/cmsapp/forms/article/articleform"
+	"github.com/goatcms/goatcms/cmsapp/services"
 )
 
 // InsertCtrl is a controler to create new article
 type InsertCtrl struct {
-	d *Dependency
+	deps struct {
+		Template    services.Template `dependency:"TemplateService"`
+		InsertQuery db.Insert         `dependency:"db.query.article.Insert"`
+	}
+	view *template.Template
 }
 
 // NewInsertCtrl create instance of a insert articles controller
-func NewInsertCtrl(d *Dependency) *InsertCtrl {
-	return &InsertCtrl{d}
+func NewInsertCtrl(dp dependency.Provider) (*InsertCtrl, error) {
+	var err error
+	ctrl := &InsertCtrl{}
+	if err = dp.InjectTo(&ctrl.deps); err != nil {
+		return nil, err
+	}
+	ctrl.view, err = ctrl.deps.Template.View(goathtml.DefaultLayout, "articles/insert", nil)
+	if err != nil {
+		return nil, err
+	}
+	return ctrl, nil
 }
 
 // Get is handler to serve template where one can add new article
-func (c *InsertCtrl) Get(scope services.RequestScope) {
-	if err := c.d.Template.ExecuteTemplate(scope.Response(), "articles/new", nil); err != nil {
-		scope.Error(err)
+func (c *InsertCtrl) Get(requestScope app.Scope) {
+	var requestDeps struct {
+		RequestError services.RequestError `request:"RequestErrorService"`
+		Response     http.ResponseWriter   `request:"Response"`
+	}
+	if err := requestScope.InjectTo(&requestDeps); err != nil {
+		fmt.Println(err)
+		return
+	}
+	if err := c.view.Execute(requestDeps.Response, map[string]interface{}{
+		"Valid": msgcollection.NewMessageMap(),
+	}); err != nil {
+		requestDeps.RequestError.Error(312, err)
 		return
 	}
 }
 
 // Post is handler to save article from form obtained data
-func (c *InsertCtrl) Post(scope services.RequestScope) {
+func (c *InsertCtrl) Post(requestScope app.Scope) {
 	var (
-		tx    db.TX
-		err   error
-		mesgs types.MessageMap
+		tx          db.TX
+		requestDeps struct {
+			RequestDB    services.RequestDB    `request:"RequestDBService"`
+			RequestError services.RequestError `request:"RequestErrorService"`
+			Request      *http.Request         `request:"Request"`
+			Response     http.ResponseWriter   `request:"Response"`
+		}
 	)
-	article := &models.ArticleEntity{}
-	if err = c.d.ArticleDecoder.Decode(article, scope.Request()); err != nil {
-		scope.Error(err)
+	if err := requestScope.InjectTo(&requestDeps); err != nil {
+		fmt.Println(err)
 		return
 	}
-	mesgs, err = c.d.ArticleType.Valid(article)
+	form, err := articleform.NewForm(requestScope)
 	if err != nil {
-		scope.Error(err)
+		requestDeps.RequestError.Error(312, err)
 		return
 	}
-	if len(mesgs.GetAll()) != 0 {
-		if err = c.d.Template.ExecuteTemplate(scope.Response(), "articles/new", mesgs); err != nil {
-			scope.Error(err)
+	if err = requestScope.InjectTo(form); err != nil {
+		fmt.Println(err)
+		return
+	}
+	validResult := msgcollection.NewMessageMap()
+	if err = form.Valid("", validResult); err != nil {
+		requestDeps.RequestError.Error(312, err)
+		return
+	}
+	if len(validResult.GetAll()) != 0 {
+		if err = c.view.Execute(requestDeps.Response, map[string]interface{}{
+			"Valid": validResult,
+		}); err != nil {
+			requestDeps.RequestError.Error(312, err)
 			return
 		}
 		return
 	}
-	if tx, err = scope.TX(); err != nil {
-		scope.Error(err)
+	if tx, err = requestDeps.RequestDB.TX(); err != nil {
+		requestDeps.RequestError.Error(312, err)
 		return
 	}
-	if _, err = c.d.ArticleDAO.Insert(tx, article); err != nil {
-		scope.Error(err)
+	if _, err = c.deps.InsertQuery(tx, form); err != nil {
+		requestDeps.RequestError.Error(312, err)
 		return
 	}
-	if err = scope.Commit(); err != nil {
-		scope.Error(err)
+	if err = tx.Commit(); err != nil {
+		requestDeps.RequestError.Error(312, err)
 		return
 	}
-	http.Redirect(scope.Response(), scope.Request(), ListURL, http.StatusSeeOther)
+	http.Redirect(requestDeps.Response, requestDeps.Request, ListURL, http.StatusSeeOther)
 }

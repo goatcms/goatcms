@@ -1,5 +1,6 @@
 package services
 
 const (
-	CutTextTF = "CutText"
+	CutTextTF  = "CutText"
+	MessagesTF = "Messages"
 )

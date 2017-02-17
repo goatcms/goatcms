@@ -1,15 +1,4 @@
-{{define "articles/view"}}
-<!doctype html>
-<html class="no-js" lang="">
-
-  {{template "head"}}
-
-<body>
-
-<div class="container">
-
-  {{template "navbar"}}
-
+{{define "content"}}
   <div class="jumbotron">
     <h1>Article view</h1>
   </div>
@@ -36,13 +25,4 @@
       <p>{{.Content}}</h3>
     </div>
   </div>
-
-  {{template "footer"}}
-
-</div> <!-- /container -->
-
-{{template "scripts"}}
-
-</body>
-</html>
 {{end}}

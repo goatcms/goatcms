@@ -2,80 +2,64 @@ package template
 
 import (
 	"fmt"
-	gotemplate "html/template"
-	"io"
-	"os"
-	"path/filepath"
-	"strings"
+	"html/template"
+	"sync"
 
+	"github.com/goatcms/goat-core/app"
 	"github.com/goatcms/goat-core/dependency"
+	"github.com/goatcms/goat-core/filesystem"
+	"github.com/goatcms/goat-core/goathtml"
+	"github.com/goatcms/goat-core/goathtml/ghprovider"
 	"github.com/goatcms/goatcms/cmsapp/services"
 )
 
 // TemplateProvider is global template provider
 type TemplateProvider struct {
 	deps struct {
-		Path string `config:"?template.path"`
+		Filespace filesystem.Filespace `filespace:"template"`
 	}
-	tmpl    *gotemplate.Template
-	funcMap gotemplate.FuncMap
-	inited  bool
+	providerMutex sync.Mutex
+	provider      *ghprovider.Provider
+	funcs         template.FuncMap
 }
 
 // TemplateProviderFactory create new template provider
 func TemplateProviderFactory(dp dependency.Provider) (interface{}, error) {
 	t := &TemplateProvider{
-		funcMap: gotemplate.FuncMap{},
-		inited:  false,
+		funcs: template.FuncMap{},
 	}
 	if err := dp.InjectTo(&t.deps); err != nil {
 		return nil, err
-	}
-	if t.deps.Path == "" {
-		t.deps.Path = services.DefaultTemplatePath
 	}
 	return services.Template(t), nil
 }
 
 // Init initialize template instance
-func (t *TemplateProvider) Init() error {
-	if t.inited == true {
-		return fmt.Errorf("template service can be inited only once")
+func (t *TemplateProvider) init() {
+	t.providerMutex.Lock()
+	defer t.providerMutex.Unlock()
+	if t.provider != nil {
+		return
 	}
-	t.tmpl = gotemplate.New("template")
-	t.tmpl.Funcs(t.funcMap)
-	if err := filepath.Walk(t.deps.Path, func(path string, info os.FileInfo, err error) error {
-		if strings.HasSuffix(path, ".html") {
-			if _, err := t.tmpl.ParseFiles(path); err != nil {
-				return err
-			}
-		}
-		return nil
-	}); err != nil {
-		return err
-	}
-	t.inited = true
-	return nil
+	t.provider = ghprovider.NewProvider(t.deps.Filespace, goathtml.LayoutPath, goathtml.ViewPath, t.funcs)
 }
 
 // Funcs adds the elements of the argument map to the template's function map.
 func (t *TemplateProvider) AddFunc(name string, f interface{}) error {
-	if t.inited == true {
-		return fmt.Errorf("TemplateProvider.AddFunc: Add functions to template after init is illegal")
+	if t.provider != nil {
+		return fmt.Errorf("TemplateProvider.AddFunc: Add functions to template after init template provider")
 	}
-	if _, ok := t.funcMap[name]; ok {
-		return fmt.Errorf("TemplateProvider.AddFunc: Can not add function for name %s twice", name)
+	if _, ok := t.funcs[name]; ok {
+		return fmt.Errorf("TemplateProvider.AddFunc: Can not add function for the same name %s twice", name)
 	}
-	t.funcMap[name] = f
+	t.funcs[name] = f
 	return nil
 }
 
-// ExecuteTemplate execute template with given data and send result to io.Writer
-func (t *TemplateProvider) ExecuteTemplate(wr io.Writer, name string, data interface{}) error {
-	if !t.inited {
-		if err := t.Init(); err != nil {
-			return err
-		}
+// Execute execute template with given data and send result to io.Writer
+func (t *TemplateProvider) View(layoutName, viewName string, eventScope app.EventScope) (*template.Template, error) {
+	if t.provider == nil {
+		t.init()
 	}
-	return t.tmpl.ExecuteTemplate(wr, name, data)
+	return t.provider.View(layoutName, viewName, eventScope)
 }

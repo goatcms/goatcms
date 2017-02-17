@@ -1,11 +1,12 @@
-package user
+package article
 
 import (
+	"reflect"
+
 	"github.com/goatcms/goat-core/db"
 	"github.com/goatcms/goat-core/db/orm"
 	"github.com/goatcms/goat-core/dependency"
-	"github.com/goatcms/goat-core/types"
-	"github.com/goatcms/goat-core/types/simpletype"
+	"github.com/goatcms/goatcms/cmsapp/models"
 )
 
 const (
@@ -13,10 +14,8 @@ const (
 )
 
 func RegisterDependencies(dp dependency.Provider, dsql db.DSQL) error {
-	table := orm.NewTable(ArticleTable, map[string]types.CustomType{
-		"Title":   simpletype.NewTitleType(map[string]string{types.Required: "true"}),
-		"Content": simpletype.NewContentType(map[string]string{types.Required: "true"}),
-	})
+	var entityPtr *models.Article
+	table := orm.NewTable(ArticleTable, reflect.TypeOf(entityPtr).Elem())
 
 	createTableQuery, err := orm.NewCreateTable(table, dsql)
 	if err != nil {

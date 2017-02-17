@@ -7,8 +7,10 @@ import (
 	"github.com/goatcms/goatcms/cmsapp/commands/dbbuildc"
 	"github.com/goatcms/goatcms/cmsapp/commands/dbloadc"
 	"github.com/goatcms/goatcms/cmsapp/commands/servec"
+	"github.com/goatcms/goatcms/cmsapp/controllers/articlesctrl"
 	"github.com/goatcms/goatcms/cmsapp/controllers/homectrl"
 	"github.com/goatcms/goatcms/cmsapp/controllers/userctrl"
+	"github.com/goatcms/goatcms/cmsapp/models/article"
 	"github.com/goatcms/goatcms/cmsapp/models/user"
 	"github.com/goatcms/goatcms/cmsapp/services/crypt"
 	"github.com/goatcms/goatcms/cmsapp/services/database"
@@ -19,6 +21,11 @@ import (
 	"github.com/goatcms/goatcms/cmsapp/services/router"
 	"github.com/goatcms/goatcms/cmsapp/services/session"
 	"github.com/goatcms/goatcms/cmsapp/services/template"
+)
+
+const (
+	TemplateFilespace = "template"
+	TemplatePath      = "templates"
 )
 
 // CMSAppModule is module contains all services
@@ -32,6 +39,10 @@ func NewModule() app.Module {
 
 // RegisterDependency is init callback to register module dependencies
 func (m *CMSAppModule) RegisterDependencies(a app.App) error {
+	// filespaces
+	if err := m.registerFilesystems(a); err != nil {
+		return err
+	}
 	// commands
 	if err := m.registerCommands(a); err != nil {
 		return err
@@ -58,6 +69,9 @@ func (m *CMSAppModule) RegisterDependencies(a app.App) error {
 	if err := user.RegisterDependencies(dp, dsql); err != nil {
 		return err
 	}
+	if err := article.RegisterDependencies(dp, dsql); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -75,6 +89,16 @@ func (m *CMSAppModule) registerCommands(a app.App) error {
 	commandScope.Set("help.dbbuild", commands.DBLoadHelp)
 	commandScope.Set("command.dbload", dbloadc.Run)
 	commandScope.Set("command.dbl", dbloadc.Run)
+	return nil
+}
+
+func (m *CMSAppModule) registerFilesystems(a app.App) error {
+	root := a.RootFilespace()
+	templateFS, err := root.Filespace(TemplatePath)
+	if err != nil {
+		return err
+	}
+	a.FilespaceScope().Set(TemplateFilespace, templateFS)
 	return nil
 }
 
@@ -99,6 +123,9 @@ func (m *CMSAppModule) InitDependencies(a app.App) error {
 	}
 	// controllers
 	if err := userctrl.InitDependencies(a); err != nil {
+		return err
+	}
+	if err := articlectrl.InitDependencies(a); err != nil {
 		return err
 	}
 	if err := homectrl.InitDependencies(a); err != nil {

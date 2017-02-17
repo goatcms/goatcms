@@ -1,7 +1,7 @@
 package services
 
 import (
-	"io"
+	"html/template"
 	"net/http"
 
 	"github.com/goatcms/goat-core/app"
@@ -94,7 +94,7 @@ type SessionManager interface {
 
 type Template interface {
 	AddFunc(name string, f interface{}) error
-	ExecuteTemplate(wr io.Writer, name string, data interface{}) error
+	View(layoutName, viewName string, eventScope app.EventScope) (*template.Template, error)
 }
 
 type Crypt interface {
