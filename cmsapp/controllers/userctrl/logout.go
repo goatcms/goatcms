@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/goatcms/goat-core/app"
-	"github.com/goatcms/goat-core/dependency"
+	"github.com/goatcms/goatcore/app"
+	"github.com/goatcms/goatcore/dependency"
 	"github.com/goatcms/goatcms/cmsapp/services"
 )
 

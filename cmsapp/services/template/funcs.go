@@ -4,7 +4,7 @@ import (
 	"html/template"
 	"strings"
 
-	"github.com/goatcms/goat-core/messages"
+	"github.com/goatcms/goatcore/messages"
 	"github.com/goatcms/goatcms/cmsapp/services"
 )
 

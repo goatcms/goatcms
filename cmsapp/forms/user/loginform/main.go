@@ -1,10 +1,10 @@
 package loginform
 
 import (
-	"github.com/goatcms/goat-core/dependency"
-	"github.com/goatcms/goat-core/messages"
-	"github.com/goatcms/goat-core/messages/msgcollection"
-	"github.com/goatcms/goat-core/varutil/validator"
+	"github.com/goatcms/goatcore/dependency"
+	"github.com/goatcms/goatcore/messages"
+	"github.com/goatcms/goatcore/messages/msgcollection"
+	"github.com/goatcms/goatcore/varutil/validator"
 )
 
 const (

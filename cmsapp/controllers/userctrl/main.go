@@ -1,7 +1,7 @@
 package userctrl
 
 import (
-	"github.com/goatcms/goat-core/app"
+	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcms/cmsapp/services"
 )
 

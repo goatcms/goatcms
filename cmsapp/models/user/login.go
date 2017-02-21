@@ -1,7 +1,7 @@
 package user
 
 import (
-	"github.com/goatcms/goat-core/db"
+	"github.com/goatcms/goatcore/db"
 	"github.com/goatcms/goatcms/cmsapp/models"
 )
 

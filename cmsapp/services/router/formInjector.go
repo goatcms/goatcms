@@ -8,10 +8,10 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/goatcms/goat-core/app"
-	"github.com/goatcms/goat-core/filesystem"
-	"github.com/goatcms/goat-core/filesystem/file"
-	"github.com/goatcms/goat-core/varutil/r"
+	"github.com/goatcms/goatcore/app"
+	"github.com/goatcms/goatcore/filesystem"
+	"github.com/goatcms/goatcore/filesystem/file"
+	"github.com/goatcms/goatcore/varutil/r"
 )
 
 type FormInjector struct {

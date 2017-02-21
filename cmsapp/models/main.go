@@ -1,6 +1,6 @@
 package models
 
-import "github.com/goatcms/goat-core/db"
+import "github.com/goatcms/goatcore/db"
 
 const (
 	UserLogin    = "UserLoginQuery"

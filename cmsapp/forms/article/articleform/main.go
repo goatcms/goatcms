@@ -1,9 +1,9 @@
 package articleform
 
 import (
-	"github.com/goatcms/goat-core/dependency"
-	"github.com/goatcms/goat-core/messages"
-	"github.com/goatcms/goat-core/varutil/validator"
+	"github.com/goatcms/goatcore/dependency"
+	"github.com/goatcms/goatcore/messages"
+	"github.com/goatcms/goatcore/varutil/validator"
 	"github.com/goatcms/goatcms/cmsapp/models"
 )
 

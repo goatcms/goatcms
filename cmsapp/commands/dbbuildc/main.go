@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/goatcms/goat-core/app"
-	"github.com/goatcms/goat-core/db"
+	"github.com/goatcms/goatcore/app"
+	"github.com/goatcms/goatcore/db"
 	"github.com/goatcms/goatcms/cmsapp/services"
 )
 

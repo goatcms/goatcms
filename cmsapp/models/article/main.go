@@ -3,9 +3,9 @@ package article
 import (
 	"reflect"
 
-	"github.com/goatcms/goat-core/db"
-	"github.com/goatcms/goat-core/db/orm"
-	"github.com/goatcms/goat-core/dependency"
+	"github.com/goatcms/goatcore/db"
+	"github.com/goatcms/goatcore/db/orm"
+	"github.com/goatcms/goatcore/dependency"
 	"github.com/goatcms/goatcms/cmsapp/models"
 )
 

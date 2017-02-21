@@ -5,11 +5,11 @@ import (
 	"html/template"
 	"net/http"
 
-	"github.com/goatcms/goat-core/app"
-	"github.com/goatcms/goat-core/db"
-	"github.com/goatcms/goat-core/dependency"
-	"github.com/goatcms/goat-core/goathtml"
-	"github.com/goatcms/goat-core/messages/msgcollection"
+	"github.com/goatcms/goatcore/app"
+	"github.com/goatcms/goatcore/db"
+	"github.com/goatcms/goatcore/dependency"
+	"github.com/goatcms/goatcore/goathtml"
+	"github.com/goatcms/goatcore/messages/msgcollection"
 	"github.com/goatcms/goatcms/cmsapp/forms/article/articleform"
 	"github.com/goatcms/goatcms/cmsapp/services"
 )

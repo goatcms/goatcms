@@ -5,10 +5,10 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/goatcms/goat-core/app"
-	"github.com/goatcms/goat-core/app/scope"
-	"github.com/goatcms/goat-core/dependency"
-	"github.com/goatcms/goat-core/varutil"
+	"github.com/goatcms/goatcore/app"
+	"github.com/goatcms/goatcore/app/scope"
+	"github.com/goatcms/goatcore/dependency"
+	"github.com/goatcms/goatcore/varutil"
 	"github.com/goatcms/goatcms/cmsapp/services"
 )
 

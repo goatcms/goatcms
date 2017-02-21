@@ -3,7 +3,7 @@ package reqauth
 import (
 	"fmt"
 
-	"github.com/goatcms/goat-core/dependency"
+	"github.com/goatcms/goatcore/dependency"
 	"github.com/goatcms/goatcms/cmsapp/models"
 	"github.com/goatcms/goatcms/cmsapp/services"
 )

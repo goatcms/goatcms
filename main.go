@@ -4,9 +4,9 @@ import (
 	"log"
 	"os"
 
-	"github.com/goatcms/goat-core/app/bootstrap"
-	"github.com/goatcms/goat-core/app/goatapp"
-	"github.com/goatcms/goat-core/app/modules/terminal"
+	"github.com/goatcms/goatcore/app/bootstrap"
+	"github.com/goatcms/goatcore/app/goatapp"
+	"github.com/goatcms/goatcore/app/modules/terminal"
 	"github.com/goatcms/goatcms/cmsapp"
 )
 
