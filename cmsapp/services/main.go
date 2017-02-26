@@ -4,10 +4,10 @@ import (
 	"html/template"
 	"net/http"
 
+	"github.com/goatcms/goatcms/cmsapp/models"
 	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/db"
 	"github.com/goatcms/goatcore/dependency"
-	"github.com/goatcms/goatcms/cmsapp/models"
 )
 
 const (
@@ -36,6 +36,8 @@ const (
 	RequestErrorService = "RequestErrorService"
 	// RequestErrorService provide error system
 	RequestDBService = "RequestDBService"
+	// MailerService provide mail system
+	MailerService = "MailerService"
 
 	// SessionCookieID is default name of session cookie
 	SessionCookieID = "session"
@@ -115,4 +117,8 @@ type RequestError interface {
 
 type RequestDB interface {
 	TX() (db.TX, error)
+}
+
+type Mailer interface {
+	Send(to, templateName string, data interface{}) error
 }
