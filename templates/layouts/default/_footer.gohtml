@@ -1,6 +1,7 @@
 {{define "footer"}}
-<br />
-<footer class="footer">
-  <p>&copy; 2016 GoatCMS Team</p>
-</footer>
+  {{$prefix:=(print .Lang ".layout.")}}
+  <br />
+  <footer class="footer">
+    <p>{{ TranslateFor "footer" $prefix }} Created with <a href="http://goatcms.org">&copy; 2016 GoatCMS</a></p>
+  </footer>
 {{end}}

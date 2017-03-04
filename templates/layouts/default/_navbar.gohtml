@@ -1,17 +1,18 @@
 {{define "navbar"}}
-<nav class="navbar navbar-default" role="navigation">
-  <div class="container-fluid">
-    <div class="navbar-header">
-      <a class="navbar-brand" href="/">GoatCMS</a>
+  {{$prefix:=(print .Lang ".layout.navbar.")}}
+  <nav class="navbar navbar-default" role="navigation">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="/">{{ TranslateFor "home" $prefix }}</a>
+      </div>
+      <div class="collapse navbar-collapse">
+        <p class="navbar-text navbar-right">
+          <a href="/user/register" role="button" class="btn btn-default">{{ TranslateFor "sing_up" $prefix }}</a>
+        </p>
+        <p class="navbar-text navbar-right">
+          <a href="/user/login" role="button" class="btn btn-primary">{{ TranslateFor "sing_in" $prefix }}</a>
+        </p>
+      </div>
     </div>
-    <div class="collapse navbar-collapse">
-      <p class="navbar-text navbar-right">
-        <a href="/user/register" role="button" class="btn btn-default">Sign up</a>
-      </p>
-      <p class="navbar-text navbar-right">
-        <a href="/user/login" role="button" class="btn btn-primary">Sign in</a>
-      </p>
-    </div>
-  </div>
-</nav>
+  </nav>
 {{end}}
