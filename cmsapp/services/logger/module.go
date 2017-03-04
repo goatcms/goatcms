@@ -1,4 +1,4 @@
-package session
+package logger
 
 import (
 	"github.com/goatcms/goatcms/cmsapp/services"
@@ -7,7 +7,7 @@ import (
 
 // RegisterDependencies is init callback to register module dependencies
 func RegisterDependencies(dp dependency.Provider) error {
-	if err := dp.AddDefaultFactory(services.MailerService, MailerFactory); err != nil {
+	if err := dp.AddDefaultFactory(services.LoggerService, LoggerFactory); err != nil {
 		return err
 	}
 	return nil

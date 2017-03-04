@@ -1,16 +1,10 @@
 package registerform
 
 import (
+	"github.com/goatcms/goatcms/cmsapp/forms/user/userform"
 	"github.com/goatcms/goatcore/dependency"
 	"github.com/goatcms/goatcore/messages"
 	"github.com/goatcms/goatcore/varutil/validator"
-	"github.com/goatcms/goatcms/cmsapp/forms/user/userform"
-)
-
-const (
-	passwordMinLength = 8
-	IDKey             = "id"
-	PasswordKey       = "password"
 )
 
 // RegisterForm is structure with register form values
@@ -22,6 +16,9 @@ type RegisterForm struct {
 
 func NewForm(dp dependency.Injector) (*RegisterForm, error) {
 	var err error
+	if err != nil {
+		return nil, err
+	}
 	form := &RegisterForm{}
 	if err = dp.InjectTo(form); err != nil {
 		return nil, err
@@ -33,7 +30,7 @@ func (f *RegisterForm) Valid(basekey string, mm messages.MessageMap) error {
 	if err := f.User.Valid("User.", mm); err != nil {
 		return err
 	}
-	if err := validator.MinStringValid(f.Password, PasswordKey, mm, passwordMinLength); err != nil {
+	if err := validator.MinStringValid(f.Password, "Password", mm, 8); err != nil {
 		return err
 	}
 	return nil

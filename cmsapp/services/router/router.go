@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/goatcms/goatcms/cmsapp/services"
 	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/dependency"
 	"github.com/goatcms/goatcore/filesystem"
-	"github.com/goatcms/goatcms/cmsapp/services"
 	"github.com/gorilla/mux"
 )
 
@@ -20,6 +20,7 @@ type Router struct {
 		EventScope   app.Scope            `dependency:"EngineScope"`
 		AppScope     app.Scope            `dependency:"AppScope"`
 		Host         string               `config:"?mux.host"`
+		ArgHost      string               `argument:"?host"`
 		TmpFilespace filesystem.Filespace `filespace:"tmp"`
 	}
 	dependencyFactories map[string]dependency.Factory
@@ -28,15 +29,21 @@ type Router struct {
 }
 
 func RouterFactory(dp dependency.Provider) (interface{}, error) {
-	m := &Router{
+	router := &Router{
 		dependencyFactories: map[string]dependency.Factory{},
 		grouter:             mux.NewRouter(),
 		dp:                  dp,
 	}
-	if err := dp.InjectTo(&m.deps); err != nil {
+	if err := dp.InjectTo(&router.deps); err != nil {
 		return nil, err
 	}
-	return services.Router(m), nil
+	if router.deps.ArgHost != "" {
+		router.deps.Host = router.deps.ArgHost
+	}
+	if router.deps.Host == "" {
+		router.deps.Host = DefaultHost
+	}
+	return services.Router(router), nil
 }
 
 // Get append http get routing to global pool
@@ -66,16 +73,13 @@ func (router *Router) On(methods []string, path string, handler services.ScopeHa
 
 // Host return current host value
 func (router *Router) Host() string {
-	if router.deps.Host != "" {
-		return router.deps.Host
-	}
-	return DefaultHost
+	return router.deps.Host
 }
 
 // Start add routing to global pool
 func (router *Router) Start() error {
 	http.Handle("/", router.grouter)
-	if err := http.ListenAndServe(router.Host(), nil); err != nil {
+	if err := http.ListenAndServe(router.deps.Host, nil); err != nil {
 		return err
 	}
 	return nil

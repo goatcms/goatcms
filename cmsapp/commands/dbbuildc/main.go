@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/goatcms/goatcms/cmsapp/services"
 	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/db"
-	"github.com/goatcms/goatcms/cmsapp/services"
 )
 
 func Run(a app.App) error {
@@ -26,7 +26,7 @@ func Run(a app.App) error {
 		return err
 	}
 	for _, key := range keys {
-		if strings.HasPrefix(key, "db.query.") && strings.HasSuffix(key, ".CreateTable") {
+		if strings.HasSuffix(key, "CreateTable") {
 			createTableIns, err := deps.DependencyScope.Get(key)
 			if err != nil {
 				return err

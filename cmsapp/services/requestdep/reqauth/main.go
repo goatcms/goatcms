@@ -3,9 +3,10 @@ package reqauth
 import (
 	"fmt"
 
-	"github.com/goatcms/goatcore/dependency"
 	"github.com/goatcms/goatcms/cmsapp/models"
 	"github.com/goatcms/goatcms/cmsapp/services"
+	"github.com/goatcms/goatcms/cmsapp/services/requestdep"
+	"github.com/goatcms/goatcore/dependency"
 )
 
 const (
@@ -18,17 +19,17 @@ type RequestAuth struct {
 	deps struct {
 		SessionManager services.SessionManager `request:"SessionManagerService"`
 		Database       services.Database       `dependency:"DatabaseService"`
-		LoginQuery     models.UserLoginQuery   `dependency:"db.query.user.LoginQuery"`
+		Login          models.UserLogin        `dependency:"UserLogin"`
 	}
 }
 
 // RequestAuthFactory create an authentification service instance
-func RequestAuthFactory(dp dependency.Provider) (interface{}, error) {
+func AuthFactory(dp dependency.Provider) (interface{}, error) {
 	auth := &RequestAuth{}
 	if err := dp.InjectTo(&auth.deps); err != nil {
 		return nil, err
 	}
-	return services.RequestAuth(auth), nil
+	return requestdep.Auth(auth), nil
 }
 
 // UserID get logged user id from current session
@@ -49,7 +50,7 @@ func (a *RequestAuth) Login(name, password string) (*models.User, error) {
 	if err != nil {
 		return nil, err
 	}
-	row, err := a.deps.LoginQuery(tx, name, password)
+	row, err := a.deps.Login(tx, name, password)
 	if err != nil {
 		return nil, err
 	}

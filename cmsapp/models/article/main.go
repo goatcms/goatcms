@@ -3,10 +3,10 @@ package article
 import (
 	"reflect"
 
+	"github.com/goatcms/goatcms/cmsapp/models"
 	"github.com/goatcms/goatcore/db"
 	"github.com/goatcms/goatcore/db/orm"
 	"github.com/goatcms/goatcore/dependency"
-	"github.com/goatcms/goatcms/cmsapp/models"
 )
 
 const (
@@ -17,47 +17,47 @@ func RegisterDependencies(dp dependency.Provider, dsql db.DSQL) error {
 	var entityPtr *models.Article
 	table := orm.NewTable(ArticleTable, reflect.TypeOf(entityPtr).Elem())
 
-	createTableQuery, err := orm.NewCreateTable(table, dsql)
+	createTable, err := orm.NewCreateTable(table, dsql)
 	if err != nil {
 		return err
 	}
-	dp.SetDefault("db.query.article.CreateTable", createTableQuery)
+	dp.SetDefault("ArticleCreateTable", createTable)
 
-	insertQuery, err := orm.NewInsert(table, dsql)
+	insert, err := orm.NewInsert(table, dsql)
 	if err != nil {
 		return err
 	}
-	dp.SetDefault("db.query.article.Insert", insertQuery)
+	dp.SetDefault("ArticleInsert", insert)
 
-	insertWithIDQuery, err := orm.NewInsertWithID(table, dsql)
+	insertWithID, err := orm.NewInsertWithID(table, dsql)
 	if err != nil {
 		return err
 	}
-	dp.SetDefault("db.query.article.InsertWithID", insertWithIDQuery)
+	dp.SetDefault("ArticleInsertWithID", insertWithID)
 
-	updateQuery, err := orm.NewUpdate(table, dsql)
+	update, err := orm.NewUpdate(table, dsql)
 	if err != nil {
 		return err
 	}
-	dp.SetDefault("db.query.article.Update", updateQuery)
+	dp.SetDefault("ArticleUpdate", update)
 
-	deleteQuery, err := orm.NewDelete(table, dsql)
+	delete, err := orm.NewDelete(table, dsql)
 	if err != nil {
 		return err
 	}
-	dp.SetDefault("db.query.article.Delete", deleteQuery)
+	dp.SetDefault("ArticleDelete", delete)
 
-	findAllQuery, err := orm.NewFindAll(table, dsql)
+	findAll, err := orm.NewFindAll(table, dsql)
 	if err != nil {
 		return err
 	}
-	dp.SetDefault("db.query.article.FindAll", findAllQuery)
+	dp.SetDefault("ArticleFindAll", findAll)
 
-	findByIDQuery, err := orm.NewFindByID(table, dsql)
+	findByID, err := orm.NewFindByID(table, dsql)
 	if err != nil {
 		return err
 	}
-	dp.SetDefault("db.query.article.FindByID", findByIDQuery)
+	dp.SetDefault("ArticleFindByID", findByID)
 
 	return nil
 }

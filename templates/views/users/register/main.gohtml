@@ -4,27 +4,25 @@
       <h1>Sign up</h1>
       <br />
 
-      <form action="/register" method="post" enctype="application/x-www-form-urlencoded">
+      <form method="post" enctype="application/x-www-form-urlencoded">
+        {{Messages .Valid "error" "User.Email"}}
         <div class="form-group">
-          <label for="newEmail">Email:</label>
-          <input type="text" class="form-control" value="{{.Email}}"
-                 id="newEmail" name="email">
+          <label for="Email">Email:</label>
+          <input type="text" class="form-control" value="{{.User.Email}}"
+                 id="Email" name="User.Email">
         </div>
-        {{if .Errors}}
-          {{ range $key, $value := .Errors.email }}
-              <p class="text-danger">{{ $value }}</p>
-          {{ end }}
-        {{ end }}
+        {{Messages .Valid "error" "Password"}}
         <div class="form-group">
-          <label for="newPassword">Password:</label>
+          <label for="Password">Password:</label>
           <input type="password" class="form-control"
-                 id="newPassword" name="password">
+                 id="Password" name="Password">
         </div>
-        {{if .Errors}}
-          {{ range $key, $value := .Errors.pass }}
-              <p class="text-danger">{{ $value }}</p>
-          {{ end }}
-        {{ end }}
+        {{Messages .Valid "error" "RepeatPassword"}}
+        <div class="form-group">
+          <label for="RepeatPassword">RepeatPassword:</label>
+          <input type="password" class="form-control"
+                 id="RepeatPassword" name="RepeatPassword">
+        </div>
         <br />
         <div class="form-group">
           <input type="submit" class="btn btn-lg btn-primary btn-block"

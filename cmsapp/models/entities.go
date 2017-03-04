@@ -1,8 +1,8 @@
 package models
 
 type User struct {
-	ID           int    `json:"id" db:"id" sqltype:"!int!primary!auto"`
-	Email        string `json:"email" db:"Email" sqltype:"!char(400)"`
+	ID           int64  `json:"id" db:"id" sqltype:"!int!primary!auto" form:"?ID"`
+	Email        string `json:"email" db:"Email" sqltype:"!char(400)" form:"Email"`
 	PasswordHash string `json:"passwordHash" db:"PasswordHash" sqltype:"!char(400)"`
 }
 

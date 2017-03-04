@@ -4,20 +4,13 @@ import (
 	"html/template"
 	"net/http"
 
-	"github.com/goatcms/goatcms/cmsapp/models"
 	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/db"
 	"github.com/goatcms/goatcore/dependency"
+	"github.com/goatcms/goatcore/goatmail"
 )
 
 const (
-	CreateRequestScope = 1000
-
-	// RequestTagName is a tag name used for a request injection
-	RequestTagName = "request"
-	// RequestTagName is a tag name used for a request injection
-	FormTagName = "form"
-
 	// DatabaseService is a key to access database storage service
 	DatabaseService = "DatabaseService"
 	// RouterKey is a key to access router service
@@ -30,31 +23,12 @@ const (
 	TemplateService = "TemplateService"
 	// CryptProviderService is a key to access crypting/encrypting manager service
 	CryptService = "CryptService"
-	// RequestAuthService provide authentication for request
-	RequestAuthService = "RequestAuthService"
-	// RequestErrorService provide error system
-	RequestErrorService = "RequestErrorService"
-	// RequestErrorService provide error system
-	RequestDBService = "RequestDBService"
 	// MailerService provide mail system
 	MailerService = "MailerService"
-
-	// SessionCookieID is default name of session cookie
-	SessionCookieID = "session"
-	// SessionCookieLength is default length of session id (storaged by cookie)
-	SessionIDLength = 128
-	// SessionCookieLifetime is a lifetime of cookie
-	SessionLifetime = 365 * 24
-	// SessionExpire is key to read expire time from session
-	SessionExpireKey = "session.expire"
-
-	// DefaultTemplatePath is a default path for temapates
-	DefaultTemplatePath = "./cmsapp/templates"
-
-	// DefaultDatabaseEngine is default engine for database
-	DefaultDatabaseEngine = "sqlite3"
-	// DefaultDatabaseUrl is default url/path for database
-	DefaultDatabaseUrl = "./database/sqlite3_database.db"
+	// LoggerService provide logger
+	LoggerService = "LoggerService"
+	// LoggerService provide logger
+	TranslateService = "TranslateService"
 )
 
 // MuxHandler is function for standard mux input
@@ -104,21 +78,19 @@ type Crypt interface {
 	Compare(hashedPass, pass string) (bool, error)
 }
 
-type RequestAuth interface {
-	UserID() (string, error)
-	Login(name, password string) (*models.User, error)
-	Clear() error
-}
-
-type RequestError interface {
-	Errorf(httpCode int, msgKey string, params ...interface{}) error
-	Error(httpCode int, err error)
-}
-
-type RequestDB interface {
-	TX() (db.TX, error)
-}
-
 type Mailer interface {
-	Send(to, templateName string, data interface{}) error
+	Send(to, name string, data interface{}, attachments []goatmail.Attachment, scope app.Scope)
+}
+
+type Logger interface {
+	DevLog(format string, data ...interface{})
+	TestLog(format string, data ...interface{})
+	ProdLog(format string, data ...interface{})
+}
+
+type Translate interface {
+	Translate(key string, values ...interface{}) (string, error)
+	TranslateFor(key, prefix string, values ...interface{}) (string, error)
+	Langs() []string
+	Default() string
 }

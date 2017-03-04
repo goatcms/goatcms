@@ -3,9 +3,9 @@ package reqerror
 import (
 	"fmt"
 
+	"github.com/goatcms/goatcms/cmsapp/services/requestdep"
 	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/dependency"
-	"github.com/goatcms/goatcms/cmsapp/services"
 )
 
 // RequestError is error manager for request
@@ -15,13 +15,13 @@ type RequestError struct {
 	}
 }
 
-// RequestErrorFactory create an RequestError service instance
-func RequestErrorFactory(dp dependency.Provider) (interface{}, error) {
+// ErrorFactory create an RequestError service instance
+func ErrorFactory(dp dependency.Provider) (interface{}, error) {
 	instance := &RequestError{}
 	if err := dp.InjectTo(&instance.deps); err != nil {
 		return nil, err
 	}
-	return services.RequestError(instance), nil
+	return requestdep.Error(instance), nil
 }
 
 // Errorf print request errror

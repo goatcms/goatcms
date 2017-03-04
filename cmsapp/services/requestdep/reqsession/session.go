@@ -5,9 +5,10 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/goatcms/goatcms/cmsapp/services"
+	"github.com/goatcms/goatcms/cmsapp/services/requestdep"
 	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/dependency"
-	"github.com/goatcms/goatcms/cmsapp/services"
 )
 
 // SessionManager provide session manager for reques (current user)
@@ -21,8 +22,8 @@ type SessionManager struct {
 	dataScope app.DataScope
 }
 
-// SessionManagerFactory create a session manager instance
-func SessionManagerFactory(dp dependency.Provider) (interface{}, error) {
+// SessionFactory create a session manager instance
+func SessionFactory(dp dependency.Provider) (interface{}, error) {
 	s := &SessionManager{}
 	if err := dp.InjectTo(&s.deps); err != nil {
 		return nil, err
@@ -30,7 +31,7 @@ func SessionManagerFactory(dp dependency.Provider) (interface{}, error) {
 	if s.deps.SessionCookieID == "" {
 		s.deps.SessionCookieID = services.SessionCookieID
 	}
-	return services.SessionManager(s), nil
+	return requestdep.Session(s), nil
 }
 
 // Init build new session if a session doesn't exist

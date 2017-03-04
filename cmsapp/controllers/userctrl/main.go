@@ -1,8 +1,8 @@
 package userctrl
 
 import (
-	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcms/cmsapp/services"
+	"github.com/goatcms/goatcore/app"
 )
 
 // InitDependencies init all dependency modules
@@ -13,23 +13,23 @@ func InitDependencies(a app.App) error {
 	if err := a.DependencyProvider().InjectTo(&deps); err != nil {
 		return err
 	}
-	register, err := NewUserRegisterController(a.DependencyProvider())
+	register, err := NewRegister(a.DependencyProvider())
 	if err != nil {
 		return err
 	}
-	login, err := NewUserLoginController(a.DependencyProvider())
+	login, err := NewLogin(a.DependencyProvider())
 	if err != nil {
 		return err
 	}
-	logout, err := NewUserLogoutController(a.DependencyProvider())
+	logout, err := NewLogout(a.DependencyProvider())
 	if err != nil {
 		return err
 	}
-	deps.Router.OnGet("/register", register.Get)
-	deps.Router.OnPost("/register", register.Post)
-	deps.Router.OnGet("/login", login.Get)
-	deps.Router.OnPost("/login", login.Post)
-	deps.Router.OnGet("/logout", logout.All)
-	deps.Router.OnPost("/logout", logout.All)
+	deps.Router.OnGet("/user/register", register.Get)
+	deps.Router.OnPost("/user/register", register.Post)
+	deps.Router.OnGet("/user/login", login.Get)
+	deps.Router.OnPost("/user/login", login.Post)
+	deps.Router.OnGet("/user/logout", logout.Do)
+	deps.Router.OnPost("/user/logout", logout.Do)
 	return nil
 }

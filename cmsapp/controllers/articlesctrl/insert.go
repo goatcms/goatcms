@@ -5,20 +5,21 @@ import (
 	"html/template"
 	"net/http"
 
+	"github.com/goatcms/goatcms/cmsapp/forms/article/articleform"
+	"github.com/goatcms/goatcms/cmsapp/services"
+	"github.com/goatcms/goatcms/cmsapp/services/requestdep"
 	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/db"
 	"github.com/goatcms/goatcore/dependency"
 	"github.com/goatcms/goatcore/goathtml"
 	"github.com/goatcms/goatcore/messages/msgcollection"
-	"github.com/goatcms/goatcms/cmsapp/forms/article/articleform"
-	"github.com/goatcms/goatcms/cmsapp/services"
 )
 
 // InsertCtrl is a controler to create new article
 type InsertCtrl struct {
 	deps struct {
-		Template    services.Template `dependency:"TemplateService"`
-		InsertQuery db.Insert         `dependency:"db.query.article.Insert"`
+		Template services.Template `dependency:"TemplateService"`
+		Insert   db.Insert         `dependency:"ArticleInsert"`
 	}
 	view *template.Template
 }
@@ -40,14 +41,14 @@ func NewInsertCtrl(dp dependency.Provider) (*InsertCtrl, error) {
 // Get is handler to serve template where one can add new article
 func (c *InsertCtrl) Get(requestScope app.Scope) {
 	var requestDeps struct {
-		RequestError services.RequestError `request:"RequestErrorService"`
-		Response     http.ResponseWriter   `request:"Response"`
+		RequestError requestdep.Error     `request:"ErrorService"`
+		Responser    requestdep.Responser `request:"ResponserService"`
 	}
 	if err := requestScope.InjectTo(&requestDeps); err != nil {
 		fmt.Println(err)
 		return
 	}
-	if err := c.view.Execute(requestDeps.Response, map[string]interface{}{
+	if err := requestDeps.Responser.Execute(c.view, map[string]interface{}{
 		"Valid": msgcollection.NewMessageMap(),
 	}); err != nil {
 		requestDeps.RequestError.Error(312, err)
@@ -60,10 +61,10 @@ func (c *InsertCtrl) Post(requestScope app.Scope) {
 	var (
 		tx          db.TX
 		requestDeps struct {
-			RequestDB    services.RequestDB    `request:"RequestDBService"`
-			RequestError services.RequestError `request:"RequestErrorService"`
-			Request      *http.Request         `request:"Request"`
-			Response     http.ResponseWriter   `request:"Response"`
+			RequestDB    requestdep.DB        `request:"DBService"`
+			RequestError requestdep.Error     `request:"ErrorService"`
+			Responser    requestdep.Responser `request:"ResponserService"`
+			Request      *http.Request        `request:"Request"`
 		}
 	)
 	if err := requestScope.InjectTo(&requestDeps); err != nil {
@@ -76,7 +77,7 @@ func (c *InsertCtrl) Post(requestScope app.Scope) {
 		return
 	}
 	if err = requestScope.InjectTo(form); err != nil {
-		fmt.Println(err)
+		requestDeps.RequestError.Error(312, err)
 		return
 	}
 	validResult := msgcollection.NewMessageMap()
@@ -85,7 +86,8 @@ func (c *InsertCtrl) Post(requestScope app.Scope) {
 		return
 	}
 	if len(validResult.GetAll()) != 0 {
-		if err = c.view.Execute(requestDeps.Response, map[string]interface{}{
+		// valid error
+		if err = requestDeps.Responser.Execute(c.view, map[string]interface{}{
 			"Valid": validResult,
 		}); err != nil {
 			requestDeps.RequestError.Error(312, err)
@@ -93,11 +95,12 @@ func (c *InsertCtrl) Post(requestScope app.Scope) {
 		}
 		return
 	}
+	// valid success
 	if tx, err = requestDeps.RequestDB.TX(); err != nil {
 		requestDeps.RequestError.Error(312, err)
 		return
 	}
-	if _, err = c.deps.InsertQuery(tx, form); err != nil {
+	if _, err = c.deps.Insert(tx, form); err != nil {
 		requestDeps.RequestError.Error(312, err)
 		return
 	}
@@ -105,5 +108,5 @@ func (c *InsertCtrl) Post(requestScope app.Scope) {
 		requestDeps.RequestError.Error(312, err)
 		return
 	}
-	http.Redirect(requestDeps.Response, requestDeps.Request, ListURL, http.StatusSeeOther)
+	requestDeps.Responser.Redirect(ListURL)
 }

@@ -3,9 +3,9 @@ package models
 import "github.com/goatcms/goatcore/db"
 
 const (
-	UserLogin    = "UserLoginQuery"
-	UserRegister = "UserRegisterQuery"
+	UserLoginService    = "UserLogin"
+	UserRegisterService = "UserRegister"
 )
 
-type UserLoginQuery func(tx db.TX, name, password string) (db.Row, error)
-type UserRegisterQuery func(tx db.TX, user *User) (int64, error)
+type UserLogin func(tx db.TX, name, password string) (db.Row, error)
+type UserRegister func(tx db.TX, user *User, password string) (int64, error)

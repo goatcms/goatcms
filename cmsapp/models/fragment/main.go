@@ -3,10 +3,10 @@ package user
 import (
 	"reflect"
 
+	"github.com/goatcms/goatcms/cmsapp/models"
 	"github.com/goatcms/goatcore/db"
 	"github.com/goatcms/goatcore/db/orm"
 	"github.com/goatcms/goatcore/dependency"
-	"github.com/goatcms/goatcms/cmsapp/models"
 )
 
 const (
@@ -17,47 +17,47 @@ func RegisterDependencies(dp dependency.Provider, dsql db.DSQL) error {
 	var entityPtr *models.User
 	table := orm.NewTable(FragmentTable, reflect.TypeOf(entityPtr).Elem())
 
-	createTableQuery, err := orm.NewCreateTable(table, dsql)
+	createTable, err := orm.NewCreateTable(table, dsql)
 	if err != nil {
 		return err
 	}
-	dp.SetDefault("db.query.fragment.CreateTable", createTableQuery)
+	dp.SetDefault("FragmentCreateTable", createTable)
 
-	insertQuery, err := orm.NewInsert(table, dsql)
+	insert, err := orm.NewInsert(table, dsql)
 	if err != nil {
 		return err
 	}
-	dp.SetDefault("db.query.fragment.Insert", insertQuery)
+	dp.SetDefault("FragmentInsert", insert)
 
-	insertWithIDQuery, err := orm.NewInsertWithID(table, dsql)
+	insertWithID, err := orm.NewInsertWithID(table, dsql)
 	if err != nil {
 		return err
 	}
-	dp.SetDefault("db.query.fragment.InsertWithID", insertWithIDQuery)
+	dp.SetDefault("FragmentInsertWithID", insertWithID)
 
-	updateQuery, err := orm.NewUpdate(table, dsql)
+	update, err := orm.NewUpdate(table, dsql)
 	if err != nil {
 		return err
 	}
-	dp.SetDefault("db.query.fragment.Update", updateQuery)
+	dp.SetDefault("FragmentUpdate", update)
 
-	deleteQuery, err := orm.NewDelete(table, dsql)
+	delete, err := orm.NewDelete(table, dsql)
 	if err != nil {
 		return err
 	}
-	dp.SetDefault("db.query.fragment.Delete", deleteQuery)
+	dp.SetDefault("FragmentDelete", delete)
 
-	findAllQuery, err := orm.NewFindAll(table, dsql)
+	findAll, err := orm.NewFindAll(table, dsql)
 	if err != nil {
 		return err
 	}
-	dp.SetDefault("db.query.fragment.FindAll", findAllQuery)
+	dp.SetDefault("FragmentFindAll", findAll)
 
-	findByIDQuery, err := orm.NewFindByID(table, dsql)
+	findByID, err := orm.NewFindByID(table, dsql)
 	if err != nil {
 		return err
 	}
-	dp.SetDefault("db.query.fragment.FindByID", findByIDQuery)
+	dp.SetDefault("FragmentFindByID", findByID)
 
 	return nil
 }

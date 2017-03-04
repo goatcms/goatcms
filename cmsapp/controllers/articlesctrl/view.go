@@ -6,12 +6,13 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/goatcms/goatcms/cmsapp/models"
+	"github.com/goatcms/goatcms/cmsapp/services"
+	"github.com/goatcms/goatcms/cmsapp/services/requestdep"
 	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/db"
 	"github.com/goatcms/goatcore/dependency"
 	"github.com/goatcms/goatcore/goathtml"
-	"github.com/goatcms/goatcms/cmsapp/models"
-	"github.com/goatcms/goatcms/cmsapp/services"
 	"github.com/gorilla/mux"
 )
 
@@ -19,7 +20,7 @@ import (
 type ViewCtrl struct {
 	deps struct {
 		Template services.Template `dependency:"TemplateService"`
-		FindByID db.FindByID       `dependency:"db.query.article.FindByID"`
+		FindByID db.FindByID       `dependency:"ArticleFindByID"`
 	}
 	view *template.Template
 }
@@ -41,10 +42,10 @@ func (c *ViewCtrl) Get(requestScope app.Scope) {
 		tx          db.TX
 		err         error
 		requestDeps struct {
-			RequestDB    services.RequestDB    `request:"RequestDBService"`
-			RequestError services.RequestError `request:"RequestErrorService"`
-			Request      *http.Request         `request:"Request"`
-			Response     http.ResponseWriter   `request:"Response"`
+			RequestDB    requestdep.DB        `request:"DBService"`
+			RequestError requestdep.Error     `request:"ErrorService"`
+			Responser    requestdep.Responser `request:"ResponserService"`
+			Request      *http.Request        `request:"Request"`
 		}
 	)
 	if err = requestScope.InjectTo(&requestDeps); err != nil {
@@ -72,8 +73,7 @@ func (c *ViewCtrl) Get(requestScope app.Scope) {
 	}
 	article := &models.Article{}
 	row.StructScan(article)
-	err = c.view.Execute(requestDeps.Response, article)
-	if err != nil {
+	if err = requestDeps.Responser.Execute(c.view, article); err != nil {
 		requestDeps.RequestError.Error(312, err)
 		return
 	}

@@ -5,20 +5,21 @@ import (
 	"html/template"
 	"net/http"
 
+	"github.com/goatcms/goatcms/cmsapp/models"
+	"github.com/goatcms/goatcms/cmsapp/services"
+	"github.com/goatcms/goatcms/cmsapp/services/requestdep"
 	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/db"
 	"github.com/goatcms/goatcore/db/entitychan"
 	"github.com/goatcms/goatcore/dependency"
 	"github.com/goatcms/goatcore/goathtml"
-	"github.com/goatcms/goatcms/cmsapp/models"
-	"github.com/goatcms/goatcms/cmsapp/services"
 )
 
 // ListCtrl is a controler to show a list of article
 type ListCtrl struct {
 	deps struct {
 		Template services.Template `dependency:"TemplateService"`
-		FindAll  db.FindAll        `dependency:"db.query.article.FindAll"`
+		FindAll  db.FindAll        `dependency:"ArticleFindAll"`
 	}
 	view *template.Template
 }
@@ -44,10 +45,10 @@ func (c *ListCtrl) Get(requestScope app.Scope) {
 		rows        db.Rows
 		err         error
 		requestDeps struct {
-			RequestDB    services.RequestDB    `request:"RequestDBService"`
-			RequestError services.RequestError `request:"RequestErrorService"`
-			Request      *http.Request         `request:"Request"`
-			Response     http.ResponseWriter   `request:"Response"`
+			RequestDB    requestdep.DB        `request:"DBService"`
+			RequestError requestdep.Error     `request:"ErrorService"`
+			Responser    requestdep.Responser `request:"ResponserService"`
+			Request      *http.Request        `request:"Request"`
 		}
 	)
 	if err = requestScope.InjectTo(&requestDeps); err != nil {
@@ -64,7 +65,7 @@ func (c *ListCtrl) Get(requestScope app.Scope) {
 	}
 	articleChan := entitychan.NewChanCorverter(requestScope, rows, models.ArticleFactory)
 	articleChan.Go()
-	if err = c.view.Execute(requestDeps.Response, articleChan.Chan); err != nil {
+	if err = requestDeps.Responser.Execute(c.view, articleChan.Chan); err != nil {
 		requestDeps.RequestError.Error(312, err)
 		return
 	}

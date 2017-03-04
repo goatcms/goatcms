@@ -1,9 +1,10 @@
 package reqdb
 
 import (
+	"github.com/goatcms/goatcms/cmsapp/services"
+	"github.com/goatcms/goatcms/cmsapp/services/requestdep"
 	"github.com/goatcms/goatcore/db"
 	"github.com/goatcms/goatcore/dependency"
-	"github.com/goatcms/goatcms/cmsapp/services"
 )
 
 // RequestDB provide request database transaction
@@ -14,13 +15,13 @@ type RequestDB struct {
 	tx db.TX
 }
 
-// AuthFactory create an authentification service instance
+// RequestDBFactory create an database service instance
 func RequestDBFactory(dp dependency.Provider) (interface{}, error) {
 	instance := &RequestDB{}
 	if err := dp.InjectTo(&instance.deps); err != nil {
 		return nil, err
 	}
-	return services.RequestDB(instance), nil
+	return requestdep.DB(instance), nil
 }
 
 // TX return request transaction request scope singleton

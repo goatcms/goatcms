@@ -11,14 +11,14 @@
           <label for="Title">Title:</label>
           <input type="text" class="form-control" id="Title" name="Title">
           <div class="errors">
-            {{Messages .Valid "error" "Title"}}
+            {{Messages .Data.Valid "error" "Title"}}
           </div>
         </div>
         <div class="form-group">
           <label for="Content">Content:</label>
           <textarea class="form-control" rows="5" id="Content" name="Content"></textarea>
           <div class="errors">
-            {{Messages .Valid "error" "Content"}}
+            {{Messages .Data.Valid "error" "Content"}}
           </div>
         </div>
         <div class="form-group">
