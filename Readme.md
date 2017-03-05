@@ -8,5 +8,5 @@ Golang CMS system. Project is still in development.
 Create documentation
 
 # Authors
-Sebastian Pozoga <sebastian@pozoga.eu> - Founder
-s3c0nDD (https://github.com/s3c0nDD) - Internship
+* Sebastian Pozoga <sebastian@pozoga.eu> - Founder
+* s3c0nDD (https://github.com/s3c0nDD) - Internship
