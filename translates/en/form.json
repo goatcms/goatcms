@@ -1,0 +1,9 @@
+{
+  "en": {
+    "valid": {
+      "validator.email": "Wrong email address",
+      "validator.length.max": "The text exceeds the maximum length",
+      "validator.length.min": "The text is too short"
+    }
+  }
+}

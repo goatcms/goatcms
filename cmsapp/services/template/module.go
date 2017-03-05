@@ -1,9 +1,9 @@
 package template
 
 import (
+	"github.com/goatcms/goatcms/cmsapp/services"
 	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/dependency"
-	"github.com/goatcms/goatcms/cmsapp/services"
 )
 
 // RegisterDependencies is init callback to register module dependencies
@@ -16,11 +16,10 @@ func RegisterDependencies(dp dependency.Provider) error {
 
 // InitDependencies is init callback to inject dependencies inside module
 func InitDependencies(a app.App) error {
-	ins, err := a.DependencyProvider().Get(services.TemplateService)
+	df, err := NewDefaultFuncs(a.DependencyProvider())
 	if err != nil {
 		return err
 	}
-	templateProvider := ins.(services.Template)
-	AddDefaultTemplateFunctions(templateProvider)
+	df.Register()
 	return nil
 }

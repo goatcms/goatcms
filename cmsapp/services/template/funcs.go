@@ -4,12 +4,33 @@ import (
 	"html/template"
 	"strings"
 
-	"github.com/goatcms/goatcore/messages"
 	"github.com/goatcms/goatcms/cmsapp/services"
+	"github.com/goatcms/goatcore/dependency"
+	"github.com/goatcms/goatcore/messages"
 )
 
+type DefaultFuncs struct {
+	Translate services.Translate `dependency:"TranslateService"`
+	Template  services.Template  `dependency:"TemplateService"`
+	Logger    services.Logger    `dependency:"LoggerService"`
+}
+
+func NewDefaultFuncs(di dependency.Injector) (*DefaultFuncs, error) {
+	df := &DefaultFuncs{}
+	if err := di.InjectTo(df); err != nil {
+		return nil, err
+	}
+	return df, nil
+}
+
+// Init inicjalize default teplate function
+func (df *DefaultFuncs) Register() {
+	df.Template.AddFunc(services.CutTextTF, df.CutText)
+	df.Template.AddFunc(services.MessagesTF, df.Messages)
+}
+
 // CutText cut text to max length
-func CutText(max int, text string) string {
+func (dt *DefaultFuncs) CutText(max int, text string) string {
 	text = strings.Trim(text, " \t")
 	if len(text) < max {
 		return text
@@ -23,37 +44,36 @@ func CutText(max int, text string) string {
 }
 
 // Messages view a messages list
-func Messages(messages messages.MessageMap, class string, fields ...string) template.HTML {
+func (dt *DefaultFuncs) Messages(messages messages.MessageMap, langPrefix, class string, fields ...string) template.HTML {
 	if messages == nil || len(messages.GetAll()) == 0 {
 		return ""
 	}
+	dt.Logger.DevLog("template.DefaultFun.Messages render for %v %v %v %v", messages, langPrefix, class, fields)
 	out := template.HTML("<div class=\"messages " + class + "\">")
 	if fields == nil || len(fields) == 0 {
 		for _, list := range messages.GetAll() {
-			out += messageLists(list, "")
+			out += dt.messageLists(list, langPrefix, "")
 		}
 	} else {
 		for _, fieldName := range fields {
 			list := messages.Get(fieldName)
-			out += messageLists(list, "")
+			out += dt.messageLists(list, langPrefix, "")
 		}
 	}
 	return out + "</ul>"
 }
 
-func messageLists(list messages.MessageList, class string) template.HTML {
+func (dt *DefaultFuncs) messageLists(list messages.MessageList, langPrefix, class string) template.HTML {
 	if list == nil || len(list.GetAll()) == 0 {
 		return ""
 	}
 	out := template.HTML("<ul class=\"messages " + class + "\">")
 	for _, msg := range list.GetAll() {
-		out += template.HTML("<li>" + msg + "</li>")
+		tmsg, err := dt.Translate.Translate(langPrefix + msg)
+		if err != nil {
+			dt.Logger.DevLog("template.DefaultFun.messageLists error: %v", err)
+		}
+		out += template.HTML("<li>" + tmsg + "</li>")
 	}
 	return out + "</ul>"
-}
-
-// Init inicjalize default teplate function
-func AddDefaultTemplateFunctions(t services.Template) {
-	t.AddFunc(services.CutTextTF, CutText)
-	t.AddFunc(services.MessagesTF, Messages)
 }

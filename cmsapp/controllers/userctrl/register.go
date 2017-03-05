@@ -109,6 +109,7 @@ func (c *Register) Post(requestScope app.Scope) {
 		c.deps.Logger.DevLog("Register user valid error: %v %v %v", form, form.User, validResult.GetAll())
 		if err := requestDeps.Responser.Execute(c.view, map[string]interface{}{
 			"Valid": validResult,
+			"Form":  form,
 		}); err != nil {
 			requestDeps.RequestError.Error(312, err)
 			return
