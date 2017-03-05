@@ -1,0 +1,12 @@
+{
+  "en": {
+    "view": {
+      "article": {
+        "list": {
+            "title": "Articles",
+            "description": "",
+        }
+      }
+    }
+  }
+}

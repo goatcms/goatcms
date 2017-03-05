@@ -1,0 +1,14 @@
+{
+  "pl": {
+    "view": {
+      "user": {
+        "login":{
+            "title": "Logowanie",
+            "description": "Witamy ponownie :-)",
+            "login_fail": "Błędny użytkownik lub hasło",
+            "submit": "zaloguj"
+        }
+      }
+    }
+  }
+}

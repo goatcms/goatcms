@@ -1,0 +1,11 @@
+{
+  "pl": {
+    "form": {
+      "valid": {
+        "email": "Niepoprawny format adresu email",
+        "length_max": "Tekst przekracza maksymalną długość",
+        "length_min": "Tekst jest zbyt krótki"
+      }
+    }
+  }
+}

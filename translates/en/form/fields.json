@@ -1,0 +1,13 @@
+{
+  "en": {
+    "form": {
+      "fields": {
+        "username": "Username",
+        "password": "Password",
+        "repeat_password": "Repeat password",
+        "title": "Title",
+        "content": "Content"
+      }
+    }
+  }
+}

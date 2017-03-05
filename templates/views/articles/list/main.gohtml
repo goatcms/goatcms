@@ -1,25 +1,22 @@
 {{define "content"}}
-  <div class="jumbotron">
-    <h1>Articles list</h1>
-  </div>
+  {{$prefix:=(print .Lang ".view.article.list.")}}
+  {{$validPrefix:=(print .Lang ".form.valid.")}}
+  {{$formPrefix:=(print .Lang ".form.fields.")}}
 
-  <div class="row">
-    <div class="col-lg-12">
-      <p>Number of articles: {{/*len .*/}}</p>
-    </div>
+  <div class="jumbotron">
+    <h1>{{TranslateFor "title" $prefix}}</h1>
+    {{TranslateFor "description" $prefix}}
   </div>
 
   <div class="row">
     <div class="col-lg-12">
       <div class="list-group">
-
         {{range .Data}}
         <a href="/article/{{.ID}}" class="list-group-item">
           <h4 class="list-group-item-heading">{{.Title}}</h4>
           <p class="list-group-item-text">{{.Content | CutText 400}}</p>
         </a>
         {{end}}
-
       </div>
     </div>
   </div>

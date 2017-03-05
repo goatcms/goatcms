@@ -17,7 +17,7 @@ const (
 // RequestAuth is global auth provider
 type RequestAuth struct {
 	deps struct {
-		SessionManager services.SessionManager `request:"SessionManagerService"`
+		SessionManager services.SessionManager `request:"SessionService"`
 		Database       services.Database       `dependency:"DatabaseService"`
 		Login          models.UserLogin        `dependency:"UserLogin"`
 	}
@@ -50,12 +50,8 @@ func (a *RequestAuth) Login(name, password string) (*models.User, error) {
 	if err != nil {
 		return nil, err
 	}
-	row, err := a.deps.Login(tx, name, password)
+	user, err := a.deps.Login(tx, name, password)
 	if err != nil {
-		return nil, err
-	}
-	user := &models.User{}
-	if err = row.StructScan(user); err != nil {
 		return nil, err
 	}
 	if err := a.deps.SessionManager.Set(UserID, user.ID); err != nil {

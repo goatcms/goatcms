@@ -16,6 +16,7 @@ import (
 type Login struct {
 	deps struct {
 		Template services.Template `dependency:"TemplateService"`
+		Logger   services.Logger   `dependency:"LoggerService"`
 	}
 	view *template.Template
 }
@@ -43,7 +44,9 @@ func (c *Login) Get(requestScope app.Scope) {
 		fmt.Println(err)
 		return
 	}
-	if err := requestDeps.Responser.Execute(c.view, nil); err != nil {
+	if err := requestDeps.Responser.Execute(c.view, map[string]interface{}{
+		"Error": false,
+	}); err != nil {
 		requestDeps.RequestError.Error(312, err)
 		return
 	}
@@ -67,8 +70,9 @@ func (c *Login) Post(requestScope app.Scope) {
 		requestDeps.Responser.Redirect("/")
 		return
 	}
+	c.deps.Logger.DevLog("Login.Post controller error: %v", err)
 	if err := requestDeps.Responser.Execute(c.view, map[string]interface{}{
-		"Errors": []string{"Username or password incorrect"},
+		"Error": true,
 	}); err != nil {
 		requestDeps.RequestError.Error(312, err)
 		return

@@ -1,0 +1,14 @@
+{
+  "pl": {
+    "form": {
+      "fields": {
+        "username": "Nazwa użytkownika",
+        "password": "Hasło",
+        "repeat_password": "Powtórz hasło",
+        "email": "Email",
+        "title": "Tytuł",
+        "content": "Treść"
+      }
+    }
+  }
+}

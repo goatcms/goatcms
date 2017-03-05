@@ -1,0 +1,13 @@
+{
+  "pl": {
+    "view": {
+      "user": {
+        "register":{
+            "title": "Rejestracja",
+            "description": "Zapraszamy. Dołącz do nas.",
+            "submit": "Dołącz",
+        }
+      }
+    }
+  }
+}

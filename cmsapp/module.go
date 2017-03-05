@@ -82,6 +82,7 @@ func (m *CMSAppModule) RegisterDependencies(a app.App) error {
 	}
 	// models
 	dsql := sqliteDSQL.NewDSQL()
+	dp.SetDefault("DSQL", dsql)
 	if err := user.RegisterDependencies(dp, dsql); err != nil {
 		return err
 	}

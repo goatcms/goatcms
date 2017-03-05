@@ -1,0 +1,13 @@
+{
+  "en": {
+    "view": {
+      "article": {
+        "view": {
+            "title": "Article",
+            "description": "",
+            "return_to_list": "Return to article list"
+        }
+      }
+    }
+  }
+}

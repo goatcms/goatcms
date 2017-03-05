@@ -1,0 +1,13 @@
+{
+  "pl": {
+    "view": {
+      "article": {
+        "view": {
+            "title": "Artykuł",
+            "description": "",
+            "return_to_list": "Lista"
+        }
+      }
+    }
+  }
+}

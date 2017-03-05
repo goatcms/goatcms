@@ -3,11 +3,11 @@ package database
 import (
 	"fmt"
 
+	"github.com/goatcms/goatcms/cmsapp/services"
 	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/db"
 	"github.com/goatcms/goatcore/db/adapter"
 	"github.com/goatcms/goatcore/dependency"
-	"github.com/goatcms/goatcms/cmsapp/services"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3" // import sqlite3 adapter as default db driver
 )

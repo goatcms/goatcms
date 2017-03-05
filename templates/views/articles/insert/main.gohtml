@@ -1,6 +1,11 @@
 {{define "content"}}
+  {{$prefix:=(print .Lang ".view.article.insert.")}}
+  {{$validPrefix:=(print .Lang ".form.valid.")}}
+  {{$formPrefix:=(print .Lang ".form.fields.")}}
+  
   <div class="jumbotron">
-    <h1>Add new article</h1>
+    <h1>{{TranslateFor "title" $prefix}}</h1>
+    {{TranslateFor "description" $prefix}}
   </div>
 
   <div class="row">
@@ -8,21 +13,21 @@
 
       <form action="/article/add" method="post" enctype="application/x-www-form-urlencoded">
         <div class="form-group">
-          <label for="Title">Title:</label>
+          <label for="Title">{{TranslateFor "title" $formPrefix}}:</label>
           <input type="text" class="form-control" id="Title" name="Title">
           <div class="errors">
-            {{Messages .Data.Valid "error" "Title"}}
+            {{Messages .Data.Valid $validPrefix "error" "Title"}}
           </div>
         </div>
         <div class="form-group">
-          <label for="Content">Content:</label>
+          <label for="Content">{{TranslateFor "content" $formPrefix}}:</label>
           <textarea class="form-control" rows="5" id="Content" name="Content"></textarea>
           <div class="errors">
-            {{Messages .Data.Valid "error" "Content"}}
+            {{Messages .Data.Valid $validPrefix "error" "Content"}}
           </div>
         </div>
         <div class="form-group">
-          <input type="submit" value="Save article"
+          <input type="submit" value='{{TranslateFor "submit" $prefix}}'
                  class="btn btn-lg btn-primary btn-block"></input>
         </div>
       </form>

@@ -1,9 +1,0 @@
-{
-  "pl": {
-    "valid": {
-      "validator.email": "Niepoprawny format adresu email",
-      "validator.length.max": "Tekst przekracza maksymalną długość",
-      "validator.length.min": "Tekst jest zbyt krótki"
-    }
-  }
-}

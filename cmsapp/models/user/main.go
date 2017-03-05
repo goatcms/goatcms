@@ -16,15 +16,11 @@ const (
 func RegisterDependencies(dp dependency.Provider, dsql db.DSQL) error {
 	var entityPtr *models.User
 	table := orm.NewTable(UserTable, reflect.TypeOf(entityPtr).Elem())
+	dp.Set("UserTable", table)
 
 	//extended queries
 	dp.AddDefaultFactory("UserRegister", RegisterFactory)
-
-	login, err := NewLogin(table, dsql)
-	if err != nil {
-		return err
-	}
-	dp.SetDefault("UserLogin", login)
+	dp.AddDefaultFactory("UserLogin", LoginFactory)
 
 	createTable, err := orm.NewCreateTable(table, dsql)
 	if err != nil {
