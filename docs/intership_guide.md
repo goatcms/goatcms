@@ -16,8 +16,6 @@ https://golang.org/doc/install
 * Install docker (https://docs.docker.com/engine/installation/)
 * Install [atom](https://atom.io/) with [go-plus plugin](https://atom.io/packages/go-plus)
 * Installing Missing Tools
-
-### Get project
 ```
 go get -u golang.org/x/tools/cmd/goimports
 go get -u golang.org/x/tools/cmd/gorename
@@ -28,6 +26,8 @@ go get -u github.com/zmb3/gogetdoc
 go get -u github.com/rogpeppe/godef
 go get -u golang.org/x/tools/cmd/guru
 ```
+
+### Get project
 * Get project
 ```
 go get github.com/goatcms/goatcore
