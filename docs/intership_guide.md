@@ -8,11 +8,36 @@ Next send me your username.
 ## For backend developers
 
 ### Install software
+* Install gcc
+  * Windows
+    * Install [mingw64](http://mingw-w64.org/doku.php/download)
+    * [Set system environments](https://superuser.com/questions/949560/how-do-i-set-system-environment-variables-in-windows-10) example:
+      * Set C_INCLUDE_PATH
+      ```
+      C:\Program Files\mingw-w64\x86_64-6.3.0-posix-seh-rt_v5-rev1\mingw64\include
+      C:\Program Files\mingw-w64\x86_64-6.3.0-posix-seh-rt_v5-rev1\mingw64\lib\gcc\mingw32\4.5.1\include
+      ```
+      * Set CPLUS_INCLUDE_PATH
+      ```
+      C:\Program Files\mingw-w64\x86_64-6.3.0-posix-seh-rt_v5-rev1\mingw64\include
+      C:\Program Files\mingw-w64\x86_64-6.3.0-posix-seh-rt_v5-rev1\mingw64\lib\gcc\mingw32\4.5.1\include
+      C:\Program Files\mingw-w64\x86_64-6.3.0-posix-seh-rt_v5-rev1\mingw64\lib\gcc\mingw32\4.5.1\include\c++
+      C:\Program Files\mingw-w64\x86_64-6.3.0-posix-seh-rt_v5-rev1\mingw64\x86_64-w64-mingw32\include
+      ```
+      * Add to Path
+      ```
+      C:\Program Files\mingw-w64\x86_64-6.3.0-posix-seh-rt_v5-rev1\mingw64\bin
+      C:\Program Files\mingw-w64\x86_64-6.3.0-posix-seh-rt_v5-rev1\mingw64\libexec\gcc\x86_64-w64-mingw32\6.2.0
+      ```
+  * Ubuntu
+    ```
+    sudo apt-get install build-essential
+    ```
 * Install golang
 https://golang.org/doc/install
 * Install git
-  * For wirndows: https://desktop.github.com/
-  * For ubuntu: `sudo apt-get install git`
+  * Windows: https://desktop.github.com/
+  * Ubuntu: `sudo apt-get install git`
 * Install docker (https://docs.docker.com/engine/installation/)
 * Install [atom](https://atom.io/) with [go-plus plugin](https://atom.io/packages/go-plus)
 * Installing Missing Tools
