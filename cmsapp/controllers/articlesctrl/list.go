@@ -10,7 +10,7 @@ import (
 	"github.com/goatcms/goatcms/cmsapp/services/requestdep"
 	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/db"
-	"github.com/goatcms/goatcore/db/entitychan"
+	"github.com/goatcms/goatcore/db/entityChan"
 	"github.com/goatcms/goatcore/dependency"
 	"github.com/goatcms/goatcore/goathtml"
 )
