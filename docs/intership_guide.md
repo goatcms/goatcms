@@ -6,7 +6,7 @@ If you don't have a github, you must [sing up](https://github.com/join?source=he
 Next send me your username.
 
 ## Docker
-Try [start with docker image](docs/intership_guide.md)
+Try [start with docker image](start/docker.md)
 
 ## For backend developers
 
