@@ -1,0 +1,16 @@
+{
+  "mailer": {
+    "smtp": {
+      "addr": "smtp.gmail.com:465",
+      "auth": {
+        "username": "yourname@gmail.com",
+        "password": "*******",
+        "identity": ""
+      }
+    }
+  },
+  "translate": {
+    "langs": "pl, en",
+    "default": "pl"
+  }
+}
