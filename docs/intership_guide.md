@@ -78,3 +78,8 @@ Learn [react-redux-starter-kit](https://github.com/davezuko/react-redux-starter-
 ### Install software for frontend developers
 * Install [node and npm](https://nodejs.org/)
 * Install [Yarn](https://yarnpkg.com/lang/en/docs/install/)
+
+### Build frontend
+```
+npm run deploy
+```

@@ -1,6 +1,6 @@
 sqlite3.db
 sqlite3.db-journal
-/assets/images
+assets/images
 main
 npm-debug.log
 *.test
@@ -15,3 +15,12 @@ config/config_stage.json
 database/sqlite3_database.db
 database/sqlite3_database.db-journal
 *.db
+*.db-journal
+
+web/.DS_STORE
+web/node_modules
+web/dist
+web/coverage
+
+.idea/
+*.log

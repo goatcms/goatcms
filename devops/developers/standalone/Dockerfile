@@ -4,7 +4,12 @@ EXPOSE 5555
 
 MAINTAINER Sebastian Pożoga <sebastian@pozoga.eu>
 RUN apt-get update
-RUN apt-get install -y wget git build-essential
+RUN apt-get install -y wget curl git build-essential nodejs npm
+RUN npm install --global n
+RUN n stable
+RUN npm install --global yarn
+RUN npm --version
+RUN yarn --version
 RUN wget https://storage.googleapis.com/golang/go1.8.linux-amd64.tar.gz
 RUN tar -C /usr/local -xzf go1.8.linux-amd64.tar.gz
 
@@ -25,4 +30,5 @@ COPY devops/developers/standalone/config_test.json /root/go/src/github.com/goatc
 COPY devops/developers/standalone/config_prod.json /root/go/src/github.com/goatcms/goatcms/config/config_prod.json
 
 ADD . /root/go/src/github.com/goatcms/goatcms
-RUN mkdir /root/go/src/github.com/goatcms/goatcms/tmp
+RUN cd /root/go/src/github.com/goatcms/goatcms && go build /root/go/src/github.com/goatcms/goatcms/main.go
+RUN cd /root/go/src/github.com/goatcms/goatcms && ./main dbbuild

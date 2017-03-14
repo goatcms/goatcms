@@ -12,14 +12,18 @@ import (
 )
 
 const (
-	DefaultHost = ":5555"
+	DefaultHost         = ":5555"
+	DefaultStaticPath   = "./web/dist/"
+	DefaultStaticPrefix = "/static/"
 )
 
 type Router struct {
 	deps struct {
 		EventScope   app.Scope            `dependency:"EngineScope"`
 		AppScope     app.Scope            `dependency:"AppScope"`
-		Host         string               `config:"?mux.host"`
+		Host         string               `config:"?router.host"`
+		StaticPrefix string               `config:"?router.static.prefix"`
+		StaticPath   string               `config:"?router.static.path"`
 		ArgHost      string               `argument:"?host"`
 		TmpFilespace filesystem.Filespace `filespace:"tmp"`
 	}
@@ -43,6 +47,15 @@ func RouterFactory(dp dependency.Provider) (interface{}, error) {
 	if router.deps.Host == "" {
 		router.deps.Host = DefaultHost
 	}
+	if router.deps.StaticPath == "" {
+		router.deps.StaticPath = DefaultStaticPath
+	}
+	if router.deps.StaticPrefix == "" {
+		router.deps.StaticPrefix = DefaultStaticPrefix
+	}
+	fs := http.FileServer(http.Dir(router.deps.StaticPath))
+	s := http.StripPrefix(router.deps.StaticPrefix, fs)
+	router.grouter.PathPrefix(router.deps.StaticPrefix).Handler(s)
 	return services.Router(router), nil
 }
 
