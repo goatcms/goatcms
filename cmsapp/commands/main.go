@@ -1,9 +1,10 @@
 package commands
 
 const (
-	RunHelp     = "run server on port"
-	DBBuildHelp = "create all tables"
-	DBLoadHelp  = "load all sql file from path (--path=database/fixtures)"
+	RunHelp      = "run server on port"
+	DBBuildHelp  = "create all tables"
+	DBExportHelp = "print all create table sql queries"
+	DBLoadHelp   = "load all sql file from path (--path=database/fixtures)"
 
 	EnvArg    = "set app environment (env=prod|test|dev, prod by default)"
 	LoglvlArg = "set app log level (loglvl=prod|test|dev, prod by default)"

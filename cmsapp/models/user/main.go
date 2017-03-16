@@ -22,12 +22,6 @@ func RegisterDependencies(dp dependency.Provider, dsql db.DSQL) error {
 	dp.AddDefaultFactory("UserRegister", RegisterFactory)
 	dp.AddDefaultFactory("UserLogin", LoginFactory)
 
-	createTable, err := orm.NewCreateTable(table, dsql)
-	if err != nil {
-		return err
-	}
-	dp.SetDefault("UserCreateTable", createTable)
-
 	insert, err := orm.NewInsert(table, dsql)
 	if err != nil {
 		return err

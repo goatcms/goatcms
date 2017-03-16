@@ -4,6 +4,7 @@ import (
 	"github.com/goatcms/goatcms/cmsapp/commands"
 	"github.com/goatcms/goatcms/cmsapp/commands/dbbuildc"
 	"github.com/goatcms/goatcms/cmsapp/commands/dbloadc"
+	"github.com/goatcms/goatcms/cmsapp/commands/dbsexportc"
 	"github.com/goatcms/goatcms/cmsapp/commands/servec"
 	"github.com/goatcms/goatcms/cmsapp/controllers/articlesctrl"
 	"github.com/goatcms/goatcms/cmsapp/controllers/homectrl"
@@ -25,7 +26,9 @@ import (
 	"github.com/goatcms/goatcms/cmsapp/services/template"
 	"github.com/goatcms/goatcms/cmsapp/services/translate"
 	"github.com/goatcms/goatcore/app"
-	"github.com/goatcms/goatcore/db/dsql/sqliteDSQL"
+	"github.com/goatcms/goatcore/db/dsql/pgDSQL"
+	_ "github.com/lib/pq"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 const (
@@ -81,7 +84,7 @@ func (m *CMSAppModule) RegisterDependencies(a app.App) error {
 		return err
 	}
 	// models
-	dsql := sqliteDSQL.NewDSQL()
+	dsql := pgDSQL.NewDSQL()
 	dp.SetDefault("DSQL", dsql)
 	if err := user.RegisterDependencies(dp, dsql); err != nil {
 		return err
@@ -100,6 +103,9 @@ func (m *CMSAppModule) registerCommands(a app.App) error {
 	// dbbuild
 	commandScope.Set("help.command.dbbuild", commands.DBBuildHelp)
 	commandScope.Set("command.dbbuild", dbbuildc.Run)
+	// dbbuild
+	commandScope.Set("help.command.dbsexport", commands.DBExportHelp)
+	commandScope.Set("command.db_schema_exprt", dbsexportc.Run)
 	// dbload
 	commandScope.Set("help.command.dbload", commands.DBLoadHelp)
 	commandScope.Set("command.dbload", dbloadc.Run)

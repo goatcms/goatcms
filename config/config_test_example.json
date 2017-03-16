@@ -17,6 +17,11 @@
     "host": ":5555",
     "static": {
       "path": "./web/dist/",
-      "prefix": "/static/",
+      "prefix": "/static/"
     }
+  },
+  "database": {
+    "engine": "postgres",
+    "url": "postgres://testuser:testpass@db/testdb?sslmode=disable"
+  }
 }

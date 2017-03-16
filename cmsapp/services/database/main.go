@@ -9,7 +9,6 @@ import (
 	"github.com/goatcms/goatcore/db/adapter"
 	"github.com/goatcms/goatcore/dependency"
 	"github.com/jmoiron/sqlx"
-	_ "github.com/mattn/go-sqlite3" // import sqlite3 adapter as default db driver
 )
 
 // Database is global database connection provider

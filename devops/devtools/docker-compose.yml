@@ -1,0 +1,37 @@
+version: '2'
+
+services:
+  web:
+    build:
+      dockerfile: devops/containers/webapp/Dockerfile
+      context: ../..
+    ports:
+     - "5555:5555"
+    depends_on:
+      - "db"
+    command: "/root/go/src/github.com/goatcms/goatcms/main dbbuild"
+    command: "/root/go/src/github.com/goatcms/goatcms/main run --loglvl=dev"
+  db:
+    build:
+      dockerfile: Dockerfile
+      context: ../containers/db
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=testuser
+      - POSTGRES_PASSWORD=testpass
+      - POSTGRES_DB=testdb
+  pgadmin:
+    build:
+      dockerfile: Dockerfile
+      context: ../containers/pgadmin
+    restart: always
+    depends_on:
+     - "db"
+    ports:
+      - "5050:5050"
+    environment:
+      - POSTGRES_USER=testuser
+      - POSTGRES_PASSWORD=testpass
+      - POSTGRES_DB=testdb

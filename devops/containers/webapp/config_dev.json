@@ -12,5 +12,16 @@
   "translate": {
     "langs": "pl, en",
     "default": "pl"
+  },
+  "router": {
+    "host": ":5555",
+    "static": {
+      "path": "./web/dist/",
+      "prefix": "/static/"
+    }
+  },
+  "database": {
+    "engine": "postgres",
+    "url": "postgres://testuser:testpass@db/testdb?sslmode=disable"
   }
 }

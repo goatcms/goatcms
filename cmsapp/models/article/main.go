@@ -16,12 +16,7 @@ const (
 func RegisterDependencies(dp dependency.Provider, dsql db.DSQL) error {
 	var entityPtr *models.Article
 	table := orm.NewTable(ArticleTable, reflect.TypeOf(entityPtr).Elem())
-
-	createTable, err := orm.NewCreateTable(table, dsql)
-	if err != nil {
-		return err
-	}
-	dp.SetDefault("ArticleCreateTable", createTable)
+	dp.Set("ArticleTable", table)
 
 	insert, err := orm.NewInsert(table, dsql)
 	if err != nil {

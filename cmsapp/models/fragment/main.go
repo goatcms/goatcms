@@ -16,12 +16,7 @@ const (
 func RegisterDependencies(dp dependency.Provider, dsql db.DSQL) error {
 	var entityPtr *models.User
 	table := orm.NewTable(FragmentTable, reflect.TypeOf(entityPtr).Elem())
-
-	createTable, err := orm.NewCreateTable(table, dsql)
-	if err != nil {
-		return err
-	}
-	dp.SetDefault("FragmentCreateTable", createTable)
+	dp.Set("FragmentTable", table)
 
 	insert, err := orm.NewInsert(table, dsql)
 	if err != nil {
