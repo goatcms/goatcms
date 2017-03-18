@@ -9,7 +9,6 @@ services:
      - "5555:5555"
     depends_on:
       - "db"
-    command: "/root/go/src/github.com/goatcms/goatcms/main dbbuild"
     command: "/root/go/src/github.com/goatcms/goatcms/main run --loglvl=dev"
   db:
     build:

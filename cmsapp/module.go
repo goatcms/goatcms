@@ -105,7 +105,7 @@ func (m *CMSAppModule) registerCommands(a app.App) error {
 	commandScope.Set("command.dbbuild", dbbuildc.Run)
 	// dbbuild
 	commandScope.Set("help.command.dbsexport", commands.DBExportHelp)
-	commandScope.Set("command.db_schema_exprt", dbsexportc.Run)
+	commandScope.Set("command.db_schema_export", dbsexportc.Run)
 	// dbload
 	commandScope.Set("help.command.dbload", commands.DBLoadHelp)
 	commandScope.Set("command.dbload", dbloadc.Run)

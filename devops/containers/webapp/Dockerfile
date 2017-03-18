@@ -27,10 +27,10 @@ RUN go install github.com/lib/pq
 RUN go get golang.org/x/crypto/bcrypt
 RUN go get github.com/buger/jsonparser
 
+ADD . /root/go/src/github.com/goatcms/goatcms
 COPY devops/containers/webapp/config_dev.json /root/go/src/github.com/goatcms/goatcms/config/config_dev.json
 COPY devops/containers/webapp/config_test.json /root/go/src/github.com/goatcms/goatcms/config/config_test.json
 COPY devops/containers/webapp/config_prod.json /root/go/src/github.com/goatcms/goatcms/config/config_prod.json
 
-ADD . /root/go/src/github.com/goatcms/goatcms
 RUN cd /root/go/src/github.com/goatcms/goatcms && go build /root/go/src/github.com/goatcms/goatcms/main.go
 WORKDIR /root/go/src/github.com/goatcms/goatcms
