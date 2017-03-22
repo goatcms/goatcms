@@ -63,7 +63,7 @@ func (c *ListCtrl) Get(requestScope app.Scope) {
 		requestDeps.RequestError.Error(312, err)
 		return
 	}
-	articleChan := entitychan.NewChanCorverter(requestScope, rows, models.ArticleFactory)
+	articleChan := entitychan.NewChanConverter(requestScope, rows, models.ArticleFactory)
 	requestScope.On(app.ErrorEvent, func(erri interface{}) error {
 		scopeErr := erri.(error)
 		requestDeps.RequestError.Errorf(403, "%s", scopeErr.Error())
