@@ -9,9 +9,9 @@ type User struct {
 // Article is a entity represent single article
 type Article struct {
 	ID      int64  `json:"id" db:"id" sqltype:"!id" form:"?ID"`
-	Title   string `json:"title" db:"Title" sqltype:"!char(400)" form:"Title"`
-	Content string `json:"content" db:"Content" sqltype:"!char(400)" form:"Content"`
-	Image   string `json:"image" db:"Image" sqltype:"!char(400)"`
+	Title   string `json:"title" db:"title" sqltype:"!char(400)" form:"Title"`
+	Content string `json:"content" db:"content" sqltype:"!char(400)" form:"Content"`
+	Image   string `json:"image" db:"image" sqltype:"!char(400)"`
 }
 
 func ArticleFactory() interface{} {
