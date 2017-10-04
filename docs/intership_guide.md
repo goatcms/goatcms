@@ -2,8 +2,8 @@
 # Internship guide
 
 ## github
-If you don't have a github, you must [sing up](https://github.com/join?source=header-home)
-Next send me your username.
+If you don't have a github, you have to [sing up](https://github.com/join?source=header-home)
+Then please send me your username.
 
 ## Docker
 Try [start with docker image](start/docker.md)
@@ -42,7 +42,7 @@ https://golang.org/doc/install
   * Windows: https://desktop.github.com/
   * Ubuntu: `sudo apt-get install git`
 * Install docker (https://docs.docker.com/engine/installation/)
-* Install [atom](https://atom.io/) with [go-plus plugin](https://atom.io/packages/go-plus)
+* Install [atom](https://atom.io/) with [go-plus plugin](https://atom.io/packages/go-plus) or another IDE of choice.
 * Installing Missing Tools
 ```
 go get -u golang.org/x/tools/cmd/goimports
