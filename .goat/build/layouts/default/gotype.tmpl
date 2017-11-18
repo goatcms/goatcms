@@ -1,0 +1,13 @@
+{{- define "gotype" -}}
+
+{{- if eq . "text" -}}
+  string
+{{- else if eq . "string" -}}
+  string
+{{- else if eq . "int" -}}
+  int
+{{- else -}}
+  {{- error (print "bad type" .) -}}
+{{- end -}}
+
+{{- end -}}

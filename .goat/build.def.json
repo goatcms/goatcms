@@ -1,0 +1,24 @@
+[{
+  "to":"config",
+  "layout":"default",
+  "template":"config",
+},{
+  "to":"cmsapp/entities",
+  "layout":"default",
+  "template":"entity",
+  "properties": {
+    "package":"entities"
+  },
+  "afterBuild": "gofmt -w {{argument.cwd}}cmsapp/entities/",
+},{
+  "to":"cmsapp/dao/sqlite",
+  "layout":"default",
+  "template":"dao/sqlitedao",
+  "properties": {
+    "package":"sqlitedao",
+    "path":"github.com/goatcms/goatcms/cmsapp/dao/sqlite",
+    "entities_path":"github.com/goatcms/goatcms/cmsapp/entities",
+    "interfaces_path":"github.com/goatcms/goatcms/cmsapp/dao"
+  },
+  "afterBuild": "gofmt -w {{argument.cwd}}cmsapp/dao/sqlite/",
+}]

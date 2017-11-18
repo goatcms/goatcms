@@ -1,0 +1,65 @@
+{{define "dao.schema" -}}
+{{- $ctx := . -}}
+{{- $name := (index $ctx.Data (print .From ".entity")) -}}
+{{- $entityName := (camelcaseuf $name) -}}
+{{- $typeName := (print $entityName "CreateTable") -}}
+{{- $fieldsBaseKey := (print .From ".fields.") -}}
+
+package {{lower $name}}dao
+
+import (
+	"github.com/goatcms/goatcore/app"
+	"github.com/goatcms/goatcore/varutil"
+	sqlitebase "{{index $ctx.Properties.Build "path"}}"
+	maindef "{{index $ctx.Properties.Build "interfaces_path"}}"
+)
+
+// {{$typeName}} is a Data Access Object for {{lower $name}} entity
+type {{$typeName}} struct {
+  deps struct{
+    DB *sql.DB `dependency:"sqlitedb"`
+  }
+}
+
+func New{{$typeName}}(di dependency.Injector) (*{{$typeName}}, error) {
+  instance := &{{$typeName}}{}
+  if err := di.InjectTo(&instance.deps); err != nil {
+    return nil, err
+  }
+  return instance, nil
+}
+
+func {{$typeName}}Factory(dp dependency.Provider) (interface{}, error) {
+	instance, err := New{{$typeName}}(dp)
+	if err != nil {
+		return nil, err
+	}
+	return maindef.CreateTable(instance), nil
+}
+
+func (dao {{$typeName}}) CreateTable(scope app.Scope) error {
+	var (
+		err   error
+		tx *sql.Tx
+	)
+	if tx, err = sqlitebase.TX(scope, dao.deps.DB); err != nil {
+		return err
+	}
+	tx.MustExec(dao.SQL())
+	return nil
+}
+
+func (dao {{$typeName}}) SQL() string {
+  return `CREATE TABLE {{camelcaseuf $name}} ({{- range $index, $field := (keys .Data $fieldsBaseKey) -}}
+    {{- $key := (print $fieldsBaseKey $field) -}}
+    {{- $fieldName := (index $ctx.Data (print $key ".name")) -}}
+    {{- $fieldType := (index $ctx.Data (print $key ".type")) -}}
+
+    {{- if $index -}}
+      {{- ", " -}}
+    {{- end -}}
+    {{camelcaseuf $fieldName}} {{template "sqltype" $fieldType}}
+  {{- end -}})`
+}
+
+{{- end -}}

@@ -1,0 +1,69 @@
+{{- $ctx := . -}}
+
+{{- range $index, $key := (keys .Data "model.") -}}
+
+  {{- /* CreateTable */ -}}
+  {{- $createtablePath := (print $ctx.To "/" $key "/createtable.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $createtablePath) -}}
+    {{- $ctx.Out.File $createtablePath -}}
+      {{- template "dao.schema" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{/* Delete */}}
+  {{- $deletePath := (print $ctx.To "/" $key "/delete.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $deletePath) -}}
+    {{- $ctx.Out.File $deletePath -}}
+      {{- template "dao.delete" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{- /* Drop table */ -}}
+  {{- $dropTablePath := (print $ctx.To "/" $key "/droptable.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $dropTablePath) -}}
+    {{- $ctx.Out.File $dropTablePath -}}
+      {{- template "dao.droptable" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{- /* Find all */ -}}
+  {{- $findAllPath := (print $ctx.To "/" $key "/findall.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $findAllPath) -}}
+    {{- $ctx.Out.File $findAllPath -}}
+      {{- template "dao.findall" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{- /* Find by id */ -}}
+  {{- $findByIdPath := (print $ctx.To "/" $key "/findbyid.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $findByIdPath) -}}
+    {{- $ctx.Out.File $findByIdPath -}}
+      {{- template "dao.findbyid" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{- /* Insert */ -}}
+  {{- $insertPath := (print $ctx.To "/" $key "/insert.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $insertPath) -}}
+    {{- $ctx.Out.File $insertPath -}}
+      {{- template "dao.insert" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{- /* Update */ -}}
+  {{- $updatePath := (print $ctx.To "/" $key "/update.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $updatePath) -}}
+    {{- $ctx.Out.File $updatePath -}}
+      {{- template "dao.update" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{- /* Module */ -}}
+  {{- $modulePath := (print $ctx.To "/" $key "/module.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $modulePath) -}}
+    {{- $ctx.Out.File $modulePath -}}
+      {{- template "dao.module" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+{{- end -}}

@@ -1,0 +1,41 @@
+{{define "dao" -}}
+{{- $ctx := . -}}
+{{- $name := (index $ctx.Data (print .From ".entity")) -}}
+{{- $entityName := (camelcaseuf $name) -}}
+{{- $typeName := (print $entityName "DAO") -}}
+{{- $fieldsBaseKey := (print .From ".fields.") -}}
+
+package {{index $ctx.Properties.Build "package"}}
+
+// {{$typeName}} is a Data Access Object for {{lower $name}} data
+type {{$typeName}} struct {
+  deps struct{}
+{{- /* End of type*/ -}}
+}
+
+func New{{$typeName}}(di dependency.Injector) (*{{$typeName}}, error) {
+  instance := &{{$typeName}}{}
+  if err := di.InjectTo(&instance.deps); err != nil {
+    return nil, err
+  }
+  return instance, nil
+}
+
+func (dao {{$typeName}}) Create(e entity.{{$entityName}}) input {
+  return nil
+}
+
+func (dao {{$typeName}}) CreateTableSQL() string {
+  return `CREATE TABLE {{camelcaseuf $name}} ({{- range $index, $field := (keys .Data $fieldsBaseKey) -}}
+    {{- $key := (print $fieldsBaseKey $field) -}}
+    {{- $fieldName := (index $ctx.Data (print $key ".name")) -}}
+    {{- $fieldType := (index $ctx.Data (print $key ".type")) -}}
+
+    {{- if $index -}}
+      {{- ", " -}}
+    {{- end -}}
+    {{camelcaseuf $fieldName}} {{template "sqltype" $fieldType}}
+  {{- end -}})`
+}
+
+{{- end -}}

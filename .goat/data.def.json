@@ -1,0 +1,51 @@
+[{
+  "type":"model",
+  "properties":[{
+    "prompt":"insert single entity name",
+    "key":"entity",
+    "type":"line",
+    "min":1,
+    "max":30,
+    "pattern": "^[a-zA-z]+[a-zA-Z0-9]*$"
+  }],
+  "collections":[{
+    "key": "fields",
+    "type": "array",
+    "prompt": "Insert entity fields",
+    "properties": [{
+      "prompt":"Insert field name",
+      "key":"name",
+      "type":"line",
+      "min":1,
+      "max":25,
+      "pattern": "^[A-Za-z]+$"
+    },{
+      "prompt":"Insert field type",
+      "key":"type",
+      "type":"line",
+      "min":1,
+      "max":25,
+      "pattern": "^(string|text|int)$"
+    },{
+      "prompt":"The field is unique? (y/n)",
+      "key":"unique",
+      "type":"line",
+      "min":1,
+      "max":4,
+      "pattern": "^(y|n)$"
+    }]
+  }]
+},{
+  "type":"lang",
+  "collections":[{
+    "type": "map",
+    "prompt": "Insert translates",
+    "properties": [{
+      "prompt":"Insert translate",
+      "key":"text",
+      "type":"line",
+      "min":1,
+      "max":1024
+    }]
+  }]
+}]

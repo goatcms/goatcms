@@ -22,5 +22,9 @@ web/node_modules
 web/dist
 web/coverage
 
+.goat\properties.json
+
 .idea/
 *.log
+
+debug

@@ -1,0 +1,1 @@
+{"model":{"translation":{"entity":"translation","fields":{"0":{"name":"key","type":"string","unique":"y"},"1":{"name":"value","type":"text","unique":"n"}}}}}

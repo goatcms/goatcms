@@ -26,9 +26,8 @@ import (
 	"github.com/goatcms/goatcms/cmsapp/services/template"
 	"github.com/goatcms/goatcms/cmsapp/services/translate"
 	"github.com/goatcms/goatcore/app"
-	"github.com/goatcms/goatcore/db/dsql/pgDSQL"
-	_ "github.com/lib/pq"
-	_ "github.com/mattn/go-sqlite3"
+	"github.com/goatcms/goatcore/db/dbdrive"
+	_ "github.com/goatcms/goatcore/db/dbdrive/pgdrive"
 )
 
 const (
@@ -84,12 +83,16 @@ func (m *CMSAppModule) RegisterDependencies(a app.App) error {
 		return err
 	}
 	// models
-	dsql := pgDSQL.NewDSQL()
-	dp.SetDefault("DSQL", dsql)
-	if err := user.RegisterDependencies(dp, dsql); err != nil {
+	drive, err := dbdrive.Drive("postgres")
+	if err != nil {
 		return err
 	}
-	if err := article.RegisterDependencies(dp, dsql); err != nil {
+	dp.SetDefault("DBDrive", drive)
+	dp.SetDefault("DSQL", drive.DSQL())
+	if err := user.RegisterDependencies(dp, drive); err != nil {
+		return err
+	}
+	if err := article.RegisterDependencies(dp, drive); err != nil {
 		return err
 	}
 	return nil

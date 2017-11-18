@@ -1,0 +1,34 @@
+{{define "dao.helpers" -}}
+{{- $ctx := . -}}
+{{- $name := (index $ctx.Data (print .From ".entity")) -}}
+{{- $entityName := (camelcaseuf $name) -}}
+{{- $typeName := (print $entityName "DAO") -}}
+{{- $fieldsBaseKey := (print .From ".fields.") -}}
+
+package {{index $ctx.Properties.Build "package"}}
+
+import (
+  "database/sql"
+	"github.com/goatcms/goatcore/app"
+)
+
+const (
+  TXKey = "_dbtx"
+)
+
+func TX(scope app.Scope, db *sql.DB) (tx *sql.Tx, err error) {
+	var ins interface{}
+	ins, err = scope.Get(TXKey)
+	if err != nil || ins == nil {
+		tx, err = db.Begin()
+    if err != nil {
+      retun nil, err
+    }
+		scope.Set(TXKey, tx)
+	} else {
+		tx = ins.(*sql.Tx)
+	}
+	return tx, nil
+}
+
+{{- end -}}

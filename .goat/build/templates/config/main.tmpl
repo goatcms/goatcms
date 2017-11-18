@@ -1,0 +1,21 @@
+{{$devPath := (print .To "/config_dev.json")}}
+{{$testPath := (print .To "/config_test.json")}}
+{{$prodPath := (print .To "/config_prod.json")}}
+
+{{if not (.Filesystem.IsFile $devPath)}}
+  {{.Out.File $devPath -}}
+    {{template "config" .}}
+  {{.Out.EOF}}
+{{end}}
+
+{{if not (.Filesystem.IsFile $testPath)}}
+  {{.Out.File $testPath -}}
+    {{template "config" .}}
+  {{.Out.EOF}}
+{{end}}
+
+{{if not (.Filesystem.IsFile $prodPath)}}
+  {{.Out.File $prodPath -}}
+    {{template "config" .}}
+  {{.Out.EOF}}
+{{end}}

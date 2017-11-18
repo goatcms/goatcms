@@ -1,0 +1,13 @@
+{{- define "sqltype" -}}
+
+{{- if eq . "text" -}}
+  TEXT
+{{- else if eq . "string" -}}
+  TEXT
+{{- else if eq . "int" -}}
+  INTEGER
+{{- else -}}
+  {{- error (print "bad SQL type" .) -}}
+{{- end -}}
+
+{{- end -}}
