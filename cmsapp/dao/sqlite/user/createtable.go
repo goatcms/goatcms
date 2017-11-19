@@ -43,5 +43,5 @@ func (dao UserCreateTable) CreateTable(scope app.Scope) error {
 }
 
 func (dao UserCreateTable) SQL() string {
-	return `CREATE TABLE User (Firstname TEXT, Lastname TEXT)`
+	return `CREATE TABLE User (Lastname TEXT, Firstname TEXT)`
 }

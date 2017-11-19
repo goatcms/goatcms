@@ -56,7 +56,7 @@ func (dao TranslationUpdate) Update(scope app.Scope, entity interface{}, fields 
 }
 
 func (dao TranslationUpdate) SQL(fields []string) (string, error) {
-	sql := "UPDATE " + table + " SET "
+	sql := "UPDATE Translation SET "
 	for i, row := range fields {
 		if i == 0 {
 			sql += row + " = :" + row

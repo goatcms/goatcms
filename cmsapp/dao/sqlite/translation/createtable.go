@@ -43,5 +43,5 @@ func (dao TranslationCreateTable) CreateTable(scope app.Scope) error {
 }
 
 func (dao TranslationCreateTable) SQL() string {
-	return `CREATE TABLE Translation (Key TEXT, Value TEXT)`
+	return `CREATE TABLE Translation (Value TEXT, Key TEXT)`
 }
