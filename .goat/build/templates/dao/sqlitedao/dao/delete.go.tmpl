@@ -8,9 +8,11 @@
 package {{lower $name}}dao
 
 import (
+	"fmt"
 	"database/sql"
 	"github.com/goatcms/goatcore/app"
-	"github.com/goatcms/goatcms/cmsapp/services"
+	"github.com/jmoiron/sqlx"
+	"github.com/goatcms/goatcore/dependency"
 	sqlitebase "{{index $ctx.Properties.Build "path"}}"
 	maindef "{{index $ctx.Properties.Build "interfaces_path"}}"
 )
@@ -18,7 +20,7 @@ import (
 // {{$typeName}} is a Data Access Object for {{lower $name}} entity
 type {{$typeName}} struct {
   deps struct{
-    DB *sql.DB `dependency:"sqlitedb"`
+    DB *sqlx.DB `dependency:"sqlitedb"`
   }
 }
 
@@ -44,10 +46,11 @@ func (dao {{$typeName}}) Delete(scope app.Scope, id int64) error {
 		err   error
 		count int64
 		idContainer struct {
-			ID int64 `db:"id"` = id
+			ID int64 `db:"id"`
 		}
-		tx *sql.Tx
+		tx *sqlx.Tx
 	)
+	idContainer.ID = id
 	if tx, err = sqlitebase.TX(scope, dao.deps.DB); err != nil {
 		return err
 	}
@@ -56,7 +59,7 @@ func (dao {{$typeName}}) Delete(scope app.Scope, id int64) error {
 		return fmt.Errorf("%s: %s", err.Error(), sql)
 	}
 	if count, err = res.RowsAffected(); err != nil {
-		return fmt.Errorf("%s: %s", err.Error(), q.query)
+		return fmt.Errorf("%s: %s", err.Error(), sql)
 	}
 	if count != 1 {
 		return fmt.Errorf("Delete more than one record (%v records deleted)", count)

@@ -4,12 +4,15 @@ import (
 	maindef "github.com/goatcms/goatcms/cmsapp/dao"
 	sqlitebase "github.com/goatcms/goatcms/cmsapp/dao/sqlite"
 	"github.com/goatcms/goatcore/app"
+	"github.com/goatcms/goatcore/dependency"
+	"github.com/jmoiron/sqlx"
+	"strconv"
 )
 
 // TranslationFindByID is a Data Access Object for translation entity
 type TranslationFindByID struct {
 	deps struct {
-		DB *sql.DB `dependency:"sqlitedb"`
+		DB *sqlx.DB `dependency:"sqlitedb"`
 	}
 }
 
@@ -26,27 +29,25 @@ func TranslationFindByIDFactory(dp dependency.Provider) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	return maindef.FindById(instance), nil
+	return maindef.FindByID(instance), nil
 }
 
 func (dao TranslationFindByID) Find(scope app.Scope, fields []string, id int64) (row maindef.Row, err error) {
 	var (
 		sql string
-		tx  *sql.Tx
+		tx  *sqlx.Tx
 	)
 	if tx, err = sqlitebase.TX(scope, dao.deps.DB); err != nil {
-		return err
-	}
-	if sql, err := dao.SQL(fields, id); err != nil {
 		return nil, err
 	}
-	if row, err := tx.QueryRowx(sql); err != nil {
+	if sql, err = dao.SQL(fields, id); err != nil {
 		return nil, err
 	}
-	return row.(maindef.Row), nil
+	row = tx.QueryRowx(sql)
+	return row, nil
 }
 
-func (dao TranslationFindByID) SQL(fields []string, id int) (string, error) {
+func (dao TranslationFindByID) SQL(fields []string, id int64) (string, error) {
 	sql := "SELECT "
 	i := 0
 	for _, row := range fields {

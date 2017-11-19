@@ -8,8 +8,11 @@
 package {{lower $name}}dao
 
 import (
+	"fmt"
+	"database/sql"
 	"github.com/goatcms/goatcore/app"
-	"github.com/goatcms/goatcore/varutil"
+	"github.com/jmoiron/sqlx"
+	"github.com/goatcms/goatcore/dependency"
 	sqlitebase "{{index $ctx.Properties.Build "path"}}"
 	maindef "{{index $ctx.Properties.Build "interfaces_path"}}"
 )
@@ -18,7 +21,7 @@ import (
 // {{$typeName}} is a Data Access Object for {{lower $name}} entity
 type {{$typeName}} struct {
   deps struct{
-    DB *sql.DB `dependency:"sqlitedb"`
+    DB *sqlx.DB `dependency:"sqlitedb"`
   }
 }
 
@@ -43,13 +46,13 @@ func (dao {{$typeName}}) Update(scope app.Scope, entity interface{}, fields []st
 		res   sql.Result
 		count int64
 		sql string
-		tx  *sql.Tx
+		tx  *sqlx.Tx
 	)
 	if tx, err = sqlitebase.TX(scope, dao.deps.DB); err != nil {
 		return err
 	}
 	if sql, err = dao.SQL(fields); err != nil {
-		return nil, err
+		return err
 	}
 	if res, err = tx.NamedExec(sql, entity); err != nil {
 		return fmt.Errorf("%s: %s", err.Error(), sql)

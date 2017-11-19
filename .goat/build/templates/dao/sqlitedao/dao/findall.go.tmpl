@@ -8,7 +8,10 @@
 package {{lower $name}}dao
 
 import (
+	"fmt"
 	"github.com/goatcms/goatcore/app"
+	"github.com/jmoiron/sqlx"
+	"github.com/goatcms/goatcore/dependency"
 	sqlitebase "{{index $ctx.Properties.Build "path"}}"
 	maindef "{{index $ctx.Properties.Build "interfaces_path"}}"
 )
@@ -16,7 +19,7 @@ import (
 // {{$typeName}} is a Data Access Object for {{lower $name}} entity
 type {{$typeName}} struct {
   deps struct{
-    DB *sql.DB `dependency:"sqlitedb"`
+    DB *sqlx.DB `dependency:"sqlitedb"`
   }
 }
 
@@ -39,16 +42,16 @@ func {{$typeName}}Factory(dp dependency.Provider) (interface{}, error) {
 func (dao {{$typeName}}) Find(scope app.Scope, fields []string) (rows maindef.Rows, err error) {
 	var (
 		sql string
-		tx  *sql.Tx
+		tx  *sqlx.Tx
 	)
 	if tx, err = sqlitebase.TX(scope, dao.deps.DB); err != nil {
-		return err
+		return nil, err
 	}
 	if sql, err = dao.SQL(fields); err != nil {
 		return nil, err
 	}
 	if rows, err = tx.Queryx(sql); err != nil {
-		return nil, fmt.Errorf("%s: %s", err.Error(), q.query)
+		return nil, fmt.Errorf("%s: %s", err.Error(), sql)
 	}
 	return rows.(maindef.Rows), nil
 }

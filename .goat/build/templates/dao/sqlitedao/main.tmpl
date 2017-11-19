@@ -1,12 +1,28 @@
 {{- $ctx := . -}}
 
+{{- /* Helpers */ -}}
+{{- $helpersPath := (print $ctx.To "/helpers.go") -}}
+{{- if not ($ctx.Filesystem.IsFile $helpersPath) -}}
+  {{- $ctx.Out.File $helpersPath -}}
+    {{- template "helpers" $ctx -}}
+  {{- $ctx.Out.EOF -}}
+{{- end -}}
+
 {{- range $index, $key := (keys .Data "model.") -}}
 
   {{- /* CreateTable */ -}}
   {{- $createtablePath := (print $ctx.To "/" $key "/createtable.go") -}}
   {{- if not ($ctx.Filesystem.IsFile $createtablePath) -}}
     {{- $ctx.Out.File $createtablePath -}}
-      {{- template "dao.schema" (ctx $ctx (print "model." $key) "") -}}
+      {{- template "dao.createtable" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{/* CreateTable test */}}
+  {{- $testCreateTablePath := (print $ctx.To "/" $key "/createtable_test.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $testCreateTablePath) -}}
+    {{- $ctx.Out.File $testCreateTablePath -}}
+      {{- template "dao.createtable_test" (ctx $ctx (print "model." $key) "") -}}
     {{- $ctx.Out.EOF -}}
   {{- end -}}
 

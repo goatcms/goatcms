@@ -1,16 +1,20 @@
 package articledao
 
 import (
+	"fmt"
 	maindef "github.com/goatcms/goatcms/cmsapp/dao"
 	sqlitebase "github.com/goatcms/goatcms/cmsapp/dao/sqlite"
 	"github.com/goatcms/goatcore/app"
+	"github.com/goatcms/goatcore/dependency"
 	"github.com/goatcms/goatcore/varutil"
+	"github.com/jmoiron/sqlx"
+	"math/rand"
 )
 
 // ArticleInsert is a Data Access Object for article entity
 type ArticleInsert struct {
 	deps struct {
-		DB *sql.DB `dependency:"sqlitedb"`
+		DB *sqlx.DB `dependency:"sqlitedb"`
 	}
 }
 
@@ -33,13 +37,13 @@ func ArticleInsertFactory(dp dependency.Provider) (interface{}, error) {
 func (dao ArticleInsert) Insert(scope app.Scope, entity interface{}, fields []string) (id int64, err error) {
 	var (
 		sql string
-		tx  *sql.Tx
+		tx  *sqlx.Tx
 	)
 	if tx, err = sqlitebase.TX(scope, dao.deps.DB); err != nil {
-		return err
+		return -1, err
 	}
 	if sql, err = dao.SQL(fields); err != nil {
-		return nil, err
+		return -1, err
 	}
 	id = rand.Int63()
 	if err = varutil.SetField(entity, "ID", id); err != nil {

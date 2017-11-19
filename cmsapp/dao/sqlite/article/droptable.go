@@ -4,12 +4,14 @@ import (
 	maindef "github.com/goatcms/goatcms/cmsapp/dao"
 	sqlitebase "github.com/goatcms/goatcms/cmsapp/dao/sqlite"
 	"github.com/goatcms/goatcore/app"
+	"github.com/goatcms/goatcore/dependency"
+	"github.com/jmoiron/sqlx"
 )
 
 // ArticleDropTable is a Data Access Object for article entity
 type ArticleDropTable struct {
 	deps struct {
-		DB *sql.DB `dependency:"sqlitedb"`
+		DB *sqlx.DB `dependency:"sqlitedb"`
 	}
 }
 
@@ -32,7 +34,7 @@ func ArticleDropTableFactory(dp dependency.Provider) (interface{}, error) {
 func (dao ArticleDropTable) DropTable(scope app.Scope) error {
 	var (
 		err error
-		tx  *sql.Tx
+		tx  *sqlx.Tx
 	)
 	if tx, err = sqlitebase.TX(scope, dao.deps.DB); err != nil {
 		return err

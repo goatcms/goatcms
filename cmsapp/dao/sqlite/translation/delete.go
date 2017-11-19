@@ -2,25 +2,27 @@ package translationdao
 
 import (
 	"database/sql"
-	"github.com/goatcms/goatcore/app"
-	"github.com/goatcms/goatcms/cmsapp/services"
-	sqlitebase "github.com/goatcms/goatcms/cmsapp/dao/sqlite"
+	"fmt"
 	maindef "github.com/goatcms/goatcms/cmsapp/dao"
+	sqlitebase "github.com/goatcms/goatcms/cmsapp/dao/sqlite"
+	"github.com/goatcms/goatcore/app"
+	"github.com/goatcms/goatcore/dependency"
+	"github.com/jmoiron/sqlx"
 )
 
 // TranslationDelete is a Data Access Object for translation entity
 type TranslationDelete struct {
-  deps struct{
-    DB *sql.DB `dependency:"sqlitedb"`
-  }
+	deps struct {
+		DB *sqlx.DB `dependency:"sqlitedb"`
+	}
 }
 
 func NewTranslationDelete(di dependency.Injector) (*TranslationDelete, error) {
-  instance := &TranslationDelete{}
-  if err := di.InjectTo(&instance.deps); err != nil {
-    return nil, err
-  }
-  return instance, nil
+	instance := &TranslationDelete{}
+	if err := di.InjectTo(&instance.deps); err != nil {
+		return nil, err
+	}
+	return instance, nil
 }
 
 func TranslationDeleteFactory(dp dependency.Provider) (interface{}, error) {
@@ -33,14 +35,15 @@ func TranslationDeleteFactory(dp dependency.Provider) (interface{}, error) {
 
 func (dao TranslationDelete) Delete(scope app.Scope, id int64) error {
 	var (
-		res   sql.Result
-		err   error
-		count int64
+		res         sql.Result
+		err         error
+		count       int64
 		idContainer struct {
-			ID int64 `db:"id"` = id
+			ID int64 `db:"id"`
 		}
-		tx *sql.Tx
+		tx *sqlx.Tx
 	)
+	idContainer.ID = id
 	if tx, err = sqlitebase.TX(scope, dao.deps.DB); err != nil {
 		return err
 	}
@@ -49,7 +52,7 @@ func (dao TranslationDelete) Delete(scope app.Scope, id int64) error {
 		return fmt.Errorf("%s: %s", err.Error(), sql)
 	}
 	if count, err = res.RowsAffected(); err != nil {
-		return fmt.Errorf("%s: %s", err.Error(), q.query)
+		return fmt.Errorf("%s: %s", err.Error(), sql)
 	}
 	if count != 1 {
 		return fmt.Errorf("Delete more than one record (%v records deleted)", count)

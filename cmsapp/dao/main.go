@@ -8,8 +8,8 @@ import (
 
 // CreateTable describe create table action as DAO separated service
 type CreateTable interface {
-	Insert(scope app.Scope, entity interface{}, fields []string) (id int64, err error)
-	SQL(fields []string) (string, error)
+	CreateTable(scope app.Scope) error
+	SQL() string
 }
 
 // Delete describe delete action as DAO separated service
@@ -33,7 +33,7 @@ type FindAll interface {
 // FindByID describe find by id action as DAO separated service
 type FindByID interface {
 	Find(scope app.Scope, fields []string, id int64) (row Row, err error)
-	SQL(fields []string, id int) (string, error)
+	SQL(fields []string, id int64) (string, error)
 }
 
 // Insert describe insert action as DAO separated service
@@ -44,7 +44,7 @@ type Insert interface {
 
 // Update describe update action as DAO separated service
 type Update interface {
-	Insert(scope app.Scope, entity interface{}, fields []string) (id int64, err error)
+	Update(scope app.Scope, entity interface{}, fields []string) (err error)
 	SQL(fields []string) (string, error)
 }
 

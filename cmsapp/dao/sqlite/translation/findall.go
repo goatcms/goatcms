@@ -1,15 +1,18 @@
 package translationdao
 
 import (
+	"fmt"
 	maindef "github.com/goatcms/goatcms/cmsapp/dao"
 	sqlitebase "github.com/goatcms/goatcms/cmsapp/dao/sqlite"
 	"github.com/goatcms/goatcore/app"
+	"github.com/goatcms/goatcore/dependency"
+	"github.com/jmoiron/sqlx"
 )
 
 // TranslationFindAll is a Data Access Object for translation entity
 type TranslationFindAll struct {
 	deps struct {
-		DB *sql.DB `dependency:"sqlitedb"`
+		DB *sqlx.DB `dependency:"sqlitedb"`
 	}
 }
 
@@ -32,16 +35,16 @@ func TranslationFindAllFactory(dp dependency.Provider) (interface{}, error) {
 func (dao TranslationFindAll) Find(scope app.Scope, fields []string) (rows maindef.Rows, err error) {
 	var (
 		sql string
-		tx  *sql.Tx
+		tx  *sqlx.Tx
 	)
 	if tx, err = sqlitebase.TX(scope, dao.deps.DB); err != nil {
-		return err
+		return nil, err
 	}
 	if sql, err = dao.SQL(fields); err != nil {
 		return nil, err
 	}
 	if rows, err = tx.Queryx(sql); err != nil {
-		return nil, fmt.Errorf("%s: %s", err.Error(), q.query)
+		return nil, fmt.Errorf("%s: %s", err.Error(), sql)
 	}
 	return rows.(maindef.Rows), nil
 }

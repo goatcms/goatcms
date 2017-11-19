@@ -1,16 +1,19 @@
 package translationdao
 
 import (
+	"database/sql"
+	"fmt"
 	maindef "github.com/goatcms/goatcms/cmsapp/dao"
 	sqlitebase "github.com/goatcms/goatcms/cmsapp/dao/sqlite"
 	"github.com/goatcms/goatcore/app"
-	"github.com/goatcms/goatcore/varutil"
+	"github.com/goatcms/goatcore/dependency"
+	"github.com/jmoiron/sqlx"
 )
 
 // TranslationUpdate is a Data Access Object for translation entity
 type TranslationUpdate struct {
 	deps struct {
-		DB *sql.DB `dependency:"sqlitedb"`
+		DB *sqlx.DB `dependency:"sqlitedb"`
 	}
 }
 
@@ -35,13 +38,13 @@ func (dao TranslationUpdate) Update(scope app.Scope, entity interface{}, fields 
 		res   sql.Result
 		count int64
 		sql   string
-		tx    *sql.Tx
+		tx    *sqlx.Tx
 	)
 	if tx, err = sqlitebase.TX(scope, dao.deps.DB); err != nil {
 		return err
 	}
 	if sql, err = dao.SQL(fields); err != nil {
-		return nil, err
+		return err
 	}
 	if res, err = tx.NamedExec(sql, entity); err != nil {
 		return fmt.Errorf("%s: %s", err.Error(), sql)

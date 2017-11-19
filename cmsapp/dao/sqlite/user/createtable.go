@@ -4,13 +4,14 @@ import (
 	maindef "github.com/goatcms/goatcms/cmsapp/dao"
 	sqlitebase "github.com/goatcms/goatcms/cmsapp/dao/sqlite"
 	"github.com/goatcms/goatcore/app"
-	"github.com/goatcms/goatcore/varutil"
+	"github.com/goatcms/goatcore/dependency"
+	"github.com/jmoiron/sqlx"
 )
 
 // UserCreateTable is a Data Access Object for user entity
 type UserCreateTable struct {
 	deps struct {
-		DB *sql.DB `dependency:"sqlitedb"`
+		DB *sqlx.DB `dependency:"sqlitedb"`
 	}
 }
 
@@ -33,7 +34,7 @@ func UserCreateTableFactory(dp dependency.Provider) (interface{}, error) {
 func (dao UserCreateTable) CreateTable(scope app.Scope) error {
 	var (
 		err error
-		tx  *sql.Tx
+		tx  *sqlx.Tx
 	)
 	if tx, err = sqlitebase.TX(scope, dao.deps.DB); err != nil {
 		return err
@@ -43,5 +44,5 @@ func (dao UserCreateTable) CreateTable(scope app.Scope) error {
 }
 
 func (dao UserCreateTable) SQL() string {
-	return `CREATE TABLE User (Lastname TEXT, Firstname TEXT)`
+	return `CREATE TABLE User (Firstname TEXT, Lastname TEXT)`
 }
