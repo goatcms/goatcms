@@ -9,12 +9,12 @@ import (
 	"testing"
 )
 
-func TestFindByIDStory(t *testing.T) {
+func TestUpdateStory(t *testing.T) {
 	t.Parallel()
-	doFindByIDStory(t)
+	doUpdateStory(t)
 }
 
-func doFindByIDStory(t *testing.T) (bool, *sqlx.DB) {
+func doUpdateStory(t *testing.T) (bool, *sqlx.DB) {
 	var (
 		row            maindef.Row
 		ok             bool
@@ -23,13 +23,22 @@ func doFindByIDStory(t *testing.T) (bool, *sqlx.DB) {
 		expectedEntity *entities.Translation
 		entity         *entities.Translation
 	)
-	if ok, db, expectedEntity = doInsertStory(t); !ok {
+	expectedEntity = NewMockEntity2()
+	if ok, db, entity = doInsertStory(t); !ok {
 		return false, nil
 	}
+	entity.Value = expectedEntity.Value
+	entity.Key = expectedEntity.Key
 	s := scope.NewScope("tag")
+	updater := TranslationUpdate{}
+	updater.deps.DB = db
+	if err = updater.Update(s, entity, entities.TranslationMainFields); err != nil {
+		t.Error(err)
+		return false, db
+	}
 	finder := TranslationFindByID{}
 	finder.deps.DB = db
-	if row, err = finder.Find(s, entities.TranslationMainFields, expectedEntity.ID); err != nil {
+	if row, err = finder.Find(s, entities.TranslationMainFields, entity.ID); err != nil {
 		t.Error(err)
 		return false, db
 	}
@@ -39,12 +48,12 @@ func doFindByIDStory(t *testing.T) (bool, *sqlx.DB) {
 		t.Error(err)
 		return false, db
 	}
-	if expectedEntity.Value != entity.Value {
-		t.Errorf("Returned field should contains inserted entity value for Value field and it is %v (expeted %v)", entity.Value, expectedEntity.Value)
-		return false, db
-	}
 	if expectedEntity.Key != entity.Key {
 		t.Errorf("Returned field should contains inserted entity value for Key field and it is %v (expeted %v)", entity.Key, expectedEntity.Key)
+		return false, db
+	}
+	if expectedEntity.Value != entity.Value {
+		t.Errorf("Returned field should contains inserted entity value for Value field and it is %v (expeted %v)", entity.Value, expectedEntity.Value)
 		return false, db
 	}
 	return true, db

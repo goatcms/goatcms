@@ -130,4 +130,12 @@
     {{- $ctx.Out.EOF -}}
   {{- end -}}
 
+  {{/* update story test */}}
+  {{- $testUpdatePath := (print $ctx.To "/" $key "/update_story_test.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $testUpdatePath) -}}
+    {{- $ctx.Out.File $testUpdatePath -}}
+      {{- template "dao.update_story_test" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
 {{- end -}}
