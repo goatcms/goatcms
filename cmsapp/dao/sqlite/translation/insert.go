@@ -1,14 +1,15 @@
 package translationdao
 
 import (
+	"database/sql"
 	"fmt"
+
 	maindef "github.com/goatcms/goatcms/cmsapp/dao"
 	sqlitebase "github.com/goatcms/goatcms/cmsapp/dao/sqlite"
 	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/dependency"
 	"github.com/goatcms/goatcore/varutil"
 	"github.com/jmoiron/sqlx"
-	"math/rand"
 )
 
 // TranslationInsert is a Data Access Object for translation entity
@@ -36,21 +37,24 @@ func TranslationInsertFactory(dp dependency.Provider) (interface{}, error) {
 
 func (dao TranslationInsert) Insert(scope app.Scope, entity interface{}, fields []string) (id int64, err error) {
 	var (
-		sql string
-		tx  *sqlx.Tx
+		sqlq   string
+		tx     *sqlx.Tx
+		result sql.Result
 	)
 	if tx, err = sqlitebase.TX(scope, dao.deps.DB); err != nil {
 		return -1, err
 	}
-	if sql, err = dao.SQL(fields); err != nil {
+	if sqlq, err = dao.SQL(fields); err != nil {
 		return -1, err
 	}
-	id = rand.Int63()
-	if err = varutil.SetField(entity, "ID", id); err != nil {
-		return -1, fmt.Errorf("%s: %s", err.Error(), sql)
+	if result, err = tx.NamedExec(sqlq, entity); err != nil {
+		return -1, fmt.Errorf("%s: %s", err.Error(), sqlq)
 	}
-	if _, err = tx.NamedExec(sql, entity); err != nil {
-		return -1, fmt.Errorf("%s: %s", err.Error(), sql)
+	if id, err = result.LastInsertId(); err != nil {
+		return -1, fmt.Errorf("%s: %s", err.Error(), sqlq)
+	}
+	if err = varutil.SetField(entity, "ID", id); err != nil {
+		return -1, fmt.Errorf("%s: %s", err.Error(), sqlq)
 	}
 	return id, nil
 }

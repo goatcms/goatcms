@@ -51,15 +51,12 @@ func (dao {{$typeName}}) CreateTable(scope app.Scope) error {
 }
 
 func (dao {{$typeName}}) SQL() string {
-  return `CREATE TABLE {{camelcaseuf $name}} ({{- range $index, $field := (keys .Data $fieldsBaseKey) -}}
+  return `CREATE TABLE {{camelcaseuf $name}} (ID INTEGER PRIMARY KEY
+	{{- range $index, $field := (keys .Data $fieldsBaseKey) -}}
     {{- $key := (print $fieldsBaseKey $field) -}}
     {{- $fieldName := (index $ctx.Data (print $key ".name")) -}}
     {{- $fieldType := (index $ctx.Data (print $key ".type")) -}}
-
-    {{- if $index -}}
-      {{- ", " -}}
-    {{- end -}}
-    {{camelcaseuf $fieldName}} {{template "sqltype" $fieldType}}
+    , {{camelcaseuf $fieldName}} {{template "sqltype" $fieldType}}
   {{- end -}})`
 }
 

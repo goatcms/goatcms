@@ -1,7 +1,11 @@
 package entities
 
+// TranslationMainFields is a array object contains list of all Translation fields without ID
+var TranslationMainFields = []string{"Value", "Key"}
+
 // Translation storages translation data
 type Translation struct {
-	Key   string `json:"key" db:"key"`
-	Value string `json:"value" db:"value"`
+	ID    int64  `json:"id"`
+	Value string `json:"value" db:"Value"`
+	Key   string `json:"key" db:"Key"`
 }

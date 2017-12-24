@@ -1,4 +1,4 @@
-package userdao
+package translationdao
 
 import (
 	sqlitebase "github.com/goatcms/goatcms/cmsapp/dao/sqlite"
@@ -10,19 +10,28 @@ import (
 
 func TestCreateTable(t *testing.T) {
 	t.Parallel()
+	doCreateTable(t)
+}
+
+func doCreateTable(t *testing.T) (bool, *sqlx.DB) {
 	var (
 		db  *sqlx.DB
 		err error
 	)
 	if db, err = sqlitebase.NewMemoryDB(); err != nil {
 		t.Error(err)
-		return
+		return false, db
 	}
-	createTable := UserCreateTable{}
+	createTable := TranslationCreateTable{}
 	createTable.deps.DB = db
 	s := scope.NewScope("testtag")
-	if err = createTable.CreateTable(s); err != nil {
+	if err := createTable.CreateTable(s); err != nil {
 		t.Error(err)
-		return
+		return false, db
 	}
+	if _, err = sqlitebase.Commit(s); err != nil {
+		t.Error(err)
+		return false, db
+	}
+	return true, db
 }

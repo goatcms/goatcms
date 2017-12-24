@@ -1,0 +1,63 @@
+{{define "dao.insert_story_test" -}}
+{{- $ctx := . -}}
+{{- $name := (index $ctx.Data (print .From ".entity")) -}}
+{{- $entityName := (camelcaseuf $name) -}}
+{{- $fieldsBaseKey := (print .From ".fields.") -}}
+
+package {{lower $name}}dao
+
+import (
+	"testing"
+	"github.com/jmoiron/sqlx"
+	"github.com/goatcms/goatcore/app/scope"
+	entities "{{index $ctx.Properties.Build "entities_path"}}"
+	sqlitebase "{{index $ctx.Properties.Build "path"}}"
+	_ "github.com/mattn/go-sqlite3"
+)
+
+
+func TestInsertStory(t *testing.T) {
+	t.Parallel()
+	doInsertStory(t)
+}
+
+func doInsertStory(t *testing.T) (bool, *sqlx.DB, *entities.{{$entityName}}) {
+	var (
+		resultID int64
+		ok       bool
+		db       *sqlx.DB
+		err      error
+		entity   *entities.{{$entityName}}
+	)
+	if ok, db = doCreateTable(t); !ok {
+		return false, nil, nil
+	}
+	entity = NewMockEntity1()
+	s := scope.NewScope("tag")
+	persister := {{$entityName}}Insert{}
+	persister.deps.DB = db
+	if resultID, err = persister.Insert(s, entity, entities.{{$entityName}}MainFields); err != nil {
+		t.Error(err)
+		return false, db, entity
+	}
+	// expected set a new entity id
+	if entity.ID == 0 {
+		t.Errorf("the entity id should contains database ID and it is %v", entity.ID)
+		return false, db, entity
+	}
+	if resultID == 0 {
+		t.Errorf("id returned by fuction should contains database id and it is %v", resultID)
+		return false, db, entity
+	}
+	if resultID != entity.ID {
+		t.Errorf("id returned by fuction should and entity.ID are the same database id and must be equals. They are (%v != %v)", resultID, entity.ID)
+		return false, db, entity
+	}
+	if _, err = sqlitebase.Commit(s); err != nil {
+		t.Error(err)
+		return false, db, entity
+	}
+	return true, db, entity
+}
+
+{{- end -}}

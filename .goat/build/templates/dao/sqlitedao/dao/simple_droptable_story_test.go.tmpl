@@ -1,4 +1,4 @@
-{{define "dao.createtable_test" -}}
+{{define "dao.droptable_story_test" -}}
 {{- $ctx := . -}}
 {{- $name := (index $ctx.Data (print .From ".entity")) -}}
 {{- $entityName := (camelcaseuf $name) -}}
@@ -16,23 +16,32 @@ import (
 )
 
 
-func TestCreateTable(t *testing.T) {
+func TestDropTable(t *testing.T) {
 	t.Parallel()
+	doDropTable(t)
+}
+
+func doDropTable(t *testing.T) (bool, *sqlx.DB) {
 	var (
 		db  *sqlx.DB
 		err error
+		ok  bool
 	)
-	if db, err = sqlitebase.NewMemoryDB(); err != nil {
-		t.Error(err)
-		return
+	if ok, db = doCreateTable(t); !ok {
+		return false, nil
 	}
-	createTable := {{$typeName}}{}
-	createTable.deps.DB = db
+	dropTable := {{$entityName}}DropTable{}
+	dropTable.deps.DB = db
 	s := scope.NewScope("testtag")
-	if err = createTable.CreateTable(s); err != nil {
+	if err := dropTable.DropTable(s); err != nil {
 		t.Error(err)
-		return
+		return false, db
 	}
+	if _, err = sqlitebase.Commit(s); err != nil {
+		t.Error(err)
+		return false, db
+	}
+	return true, db
 }
 
 {{- end -}}

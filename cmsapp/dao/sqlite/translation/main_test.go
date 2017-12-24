@@ -1,0 +1,11 @@
+package translationdao
+
+import (
+	entities "github.com/goatcms/goatcms/cmsapp/entities"
+)
+
+func NewMockEntity1() *entities.Translation {
+	return &entities.Translation{
+		Value: "DG2UWUcrn8EUsBBEEAFzhWjOXljeYGo1Eydi9arVfdbuwgZtuK85uAVjSO QUY9Z5WLXFPWYCwuLt4jl4RQwuicFjmob0V0brT11sInMebLqesoOV2eE973ALZWyPeHLNbIYsnDOtPbTwTmtNP0BdGOCBkdhJb6SsF6XDgt mAMe Z50KZKysJ5HETUqgg7RjWBt9cGxEW0sTEotgo0cBo95EnLLbwoW5svpic7nLSkRnyzAVceDK YuN3AqfE5MEuuXRx1oNB3rOErT5QgpDtdbYdQ10odKgHodbMlcmUjnaORwVgrPs7j55ZNEcUI4MzgcfmnBp0MAQuVICrZUHmA PJXrOhmBYwTexsGQue1a5c7b4xlp65jEPbz9j8vS9neGWU4NpYlGl09f",
+		Key:   "eT7nRRQ2WHsHuPazobxq57OY6LMZSiXPC6FLrj3tjxtN"}
+}

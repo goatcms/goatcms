@@ -1,0 +1,38 @@
+{{define "dao.delete_story_test" -}}
+{{- $ctx := . -}}
+{{- $name := (index $ctx.Data (print .From ".entity")) -}}
+{{- $entityName := (camelcaseuf $name) -}}
+{{- $typeName := (print $entityName "CreateTable") -}}
+{{- $fieldsBaseKey := (print .From ".fields.") -}}
+
+package {{lower $name}}dao
+
+import (
+	"testing"
+	"github.com/jmoiron/sqlx"
+	"github.com/goatcms/goatcore/app/scope"
+	_ "github.com/mattn/go-sqlite3"
+)
+
+
+func TestDeleteEntityStory(t *testing.T) {
+	t.Parallel()
+	doDeleteEntityStory(t)
+}
+
+func doDeleteEntityStory(t *testing.T) (bool, *sqlx.DB) {
+	ok, db, entity := doInsertStory(t)
+	if !ok {
+		return false, db
+	}
+	deleteSeervice := {{$entityName}}Delete{}
+	deleteSeervice.deps.DB = db
+	s := scope.NewScope("testtag")
+	if err := deleteSeervice.Delete(s, entity.ID); err != nil {
+		t.Error(err)
+		return false, db
+	}
+	return true, db
+}
+
+{{- end -}}

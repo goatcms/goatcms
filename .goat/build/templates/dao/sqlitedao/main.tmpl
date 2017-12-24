@@ -18,14 +18,6 @@
     {{- $ctx.Out.EOF -}}
   {{- end -}}
 
-  {{/* CreateTable test */}}
-  {{- $testCreateTablePath := (print $ctx.To "/" $key "/createtable_test.go") -}}
-  {{- if not ($ctx.Filesystem.IsFile $testCreateTablePath) -}}
-    {{- $ctx.Out.File $testCreateTablePath -}}
-      {{- template "dao.createtable_test" (ctx $ctx (print "model." $key) "") -}}
-    {{- $ctx.Out.EOF -}}
-  {{- end -}}
-
   {{/* Delete */}}
   {{- $deletePath := (print $ctx.To "/" $key "/delete.go") -}}
   {{- if not ($ctx.Filesystem.IsFile $deletePath) -}}
@@ -79,6 +71,54 @@
   {{- if not ($ctx.Filesystem.IsFile $modulePath) -}}
     {{- $ctx.Out.File $modulePath -}}
       {{- template "dao.module" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{/* Main test */}}
+  {{- $mainTestPath := (print $ctx.To "/" $key "/main_test.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $mainTestPath) -}}
+    {{- $ctx.Out.File $mainTestPath -}}
+      {{- template "dao.main_test" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{/* CreateTable story test */}}
+  {{- $testCreateTablePath := (print $ctx.To "/" $key "/create_table_story_test.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $testCreateTablePath) -}}
+    {{- $ctx.Out.File $testCreateTablePath -}}
+      {{- template "dao.create_table_story_test" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{/* DropTable story test */}}
+  {{- $testDropTablePath := (print $ctx.To "/" $key "/droptable_story_test.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $testDropTablePath) -}}
+    {{- $ctx.Out.File $testDropTablePath -}}
+      {{- template "dao.droptable_story_test" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{/* Delete story test */}}
+  {{- $testCreateTablePath := (print $ctx.To "/" $key "/delete_story_test.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $testCreateTablePath) -}}
+    {{- $ctx.Out.File $testCreateTablePath -}}
+      {{- template "dao.delete_story_test" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{/* insert story test */}}
+  {{- $testInsertPath := (print $ctx.To "/" $key "/insert_story_test.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $testInsertPath) -}}
+    {{- $ctx.Out.File $testInsertPath -}}
+      {{- template "dao.insert_story_test" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{/* find all story test */}}
+  {{- $testFindAllPath := (print $ctx.To "/" $key "/findall_story_test.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $testFindAllPath) -}}
+    {{- $ctx.Out.File $testFindAllPath -}}
+      {{- template "dao.findall_story_test" (ctx $ctx (print "model." $key) "") -}}
     {{- $ctx.Out.EOF -}}
   {{- end -}}
 

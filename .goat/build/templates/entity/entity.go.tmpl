@@ -5,17 +5,25 @@
 
 package {{index $ctx.Properties.Build "package"}}
 
+// {{camelcaseuf $name}}MainFields is a array object contains list of all {{camelcaseuf $name}} fields without ID
+var {{camelcaseuf $name}}MainFields = []string{
+{{- range $index, $field := (keys .Data $fieldsBaseKey) -}}
+  {{- $key := (print $fieldsBaseKey $field) -}}
+  {{- $fieldName := (index $ctx.Data (print $key ".name")) -}}
+  {{- if not (eq $index 0) -}},{{- end -}}
+  "{{camelcaseuf $fieldName}}"
+{{- end -}}
+}
+
 // {{camelcaseuf $name}} storages {{lower $name}} data
 type {{camelcaseuf $name}} struct {
-
+  ID int64 `json:"id"`
 {{- range $index, $field := (keys .Data $fieldsBaseKey) -}}
   {{- $key := (print $fieldsBaseKey $field) -}}
   {{- $fieldName := (index $ctx.Data (print $key ".name")) -}}
   {{- $fieldType := (index $ctx.Data (print $key ".type")) }}
-  {{camelcaseuf $fieldName}} {{template "gotype" $fieldType}} `json:"{{camelcaself $fieldName}}" db:"{{camelcaself $fieldName}}"`
+  {{camelcaseuf $fieldName}} {{template "gotype" $fieldType}} `json:"{{camelcaself $fieldName}}" db:"{{camelcaseuf $fieldName}}"`
 {{- end -}}
-
-{{/* End of type*/}}
 }
 
 {{- end -}}
