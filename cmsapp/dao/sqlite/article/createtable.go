@@ -44,5 +44,5 @@ func (dao ArticleCreateTable) CreateTable(scope app.Scope) error {
 }
 
 func (dao ArticleCreateTable) SQL() string {
-	return `CREATE TABLE Article (ID INTEGER PRIMARY KEY, Title TEXT, Content TEXT)`
+	return `CREATE TABLE Article (ID INTEGER PRIMARY KEY, Content TEXT, Title TEXT)`
 }

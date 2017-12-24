@@ -83,10 +83,10 @@
   {{- end -}}
 
   {{/* CreateTable story test */}}
-  {{- $testCreateTablePath := (print $ctx.To "/" $key "/create_table_story_test.go") -}}
+  {{- $testCreateTablePath := (print $ctx.To "/" $key "/createtable_story_test.go") -}}
   {{- if not ($ctx.Filesystem.IsFile $testCreateTablePath) -}}
     {{- $ctx.Out.File $testCreateTablePath -}}
-      {{- template "dao.create_table_story_test" (ctx $ctx (print "model." $key) "") -}}
+      {{- template "dao.createtable_story_test" (ctx $ctx (print "model." $key) "") -}}
     {{- $ctx.Out.EOF -}}
   {{- end -}}
 
@@ -119,6 +119,14 @@
   {{- if not ($ctx.Filesystem.IsFile $testFindAllPath) -}}
     {{- $ctx.Out.File $testFindAllPath -}}
       {{- template "dao.findall_story_test" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{/* find by id story test */}}
+  {{- $testFindByIDPath := (print $ctx.To "/" $key "/findbyid_story_test.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $testFindByIDPath) -}}
+    {{- $ctx.Out.File $testFindByIDPath -}}
+      {{- template "dao.findbyid_story_test" (ctx $ctx (print "model." $key) "") -}}
     {{- $ctx.Out.EOF -}}
   {{- end -}}
 

@@ -6,6 +6,6 @@ import (
 
 func NewMockEntity1() *entities.User {
 	return &entities.User{
-		Firstname: "nLAS1Pu9jfjI80OmcSx6ym3RNxgl0BlxkeXsebqriuui",
-		Lastname:  "zp4QDyQTt18rwkLLvFxhrIanJmlrUGdI0fOpREUOWwQr"}
+		Lastname:  "CBR61NKnC9mGzHRUj9rqthYYJtcVl4obehfj9YojFHX1",
+		Firstname: "qdYGxotcc19ryo9PcNGQaLBgyYvYOWcI3ExshPJCwp1n"}
 }
