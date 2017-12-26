@@ -1,0 +1,23 @@
+{{define "module" -}}
+{{- $ctx := . -}}
+
+package {{index $ctx.Properties.Build "package"}}
+
+import (
+	"github.com/goatcms/goatcore/dependency"
+	{{- range $index, $key := (keys .Data "model.") }}
+	{{$key}} "{{index $ctx.Properties.Build "path"}}/dao/{{$key}}"
+	{{- end -}}
+)
+
+func RegisterDependencies(dp dependency.Provider) error {
+	{{- range $index, $key := (keys .Data "model.") }}
+	if err := {{$key}}.RegisterDependencies(dp); err != nil {
+		return err
+	}
+	{{- end }}
+	return nil
+}
+
+
+{{- end -}}

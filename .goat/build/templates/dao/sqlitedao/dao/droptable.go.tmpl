@@ -11,7 +11,7 @@ import (
 	"github.com/goatcms/goatcore/app"
 	"github.com/jmoiron/sqlx"
 	"github.com/goatcms/goatcore/dependency"
-	sqlitebase "{{index $ctx.Properties.Build "path"}}"
+	helpers "{{index $ctx.Properties.Build "path"}}/helpers"
 	maindef "{{index $ctx.Properties.Build "interfaces_path"}}"
 )
 
@@ -43,7 +43,7 @@ func (dao {{$typeName}}) DropTable(scope app.Scope) error {
 		err   error
 		tx *sqlx.Tx
 	)
-	if tx, err = sqlitebase.TX(scope, dao.deps.DB); err != nil {
+	if tx, err = helpers.TX(scope, dao.deps.DB); err != nil {
 		return err
 	}
 	tx.MustExec(dao.SQL())

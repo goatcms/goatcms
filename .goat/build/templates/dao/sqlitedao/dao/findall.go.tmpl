@@ -12,7 +12,7 @@ import (
 	"github.com/goatcms/goatcore/app"
 	"github.com/jmoiron/sqlx"
 	"github.com/goatcms/goatcore/dependency"
-	sqlitebase "{{index $ctx.Properties.Build "path"}}"
+	helpers "{{index $ctx.Properties.Build "path"}}/helpers"
 	maindef "{{index $ctx.Properties.Build "interfaces_path"}}"
 )
 
@@ -44,7 +44,7 @@ func (dao {{$typeName}}) Find(scope app.Scope, fields []string) (rows maindef.Ro
 		sql string
 		tx  *sqlx.Tx
 	)
-	if tx, err = sqlitebase.TX(scope, dao.deps.DB); err != nil {
+	if tx, err = helpers.TX(scope, dao.deps.DB); err != nil {
 		return nil, err
 	}
 	if sql, err = dao.SQL(fields); err != nil {

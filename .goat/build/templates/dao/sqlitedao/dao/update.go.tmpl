@@ -13,7 +13,7 @@ import (
 	"github.com/goatcms/goatcore/app"
 	"github.com/jmoiron/sqlx"
 	"github.com/goatcms/goatcore/dependency"
-	sqlitebase "{{index $ctx.Properties.Build "path"}}"
+	helpers "{{index $ctx.Properties.Build "path"}}/helpers"
 	maindef "{{index $ctx.Properties.Build "interfaces_path"}}"
 )
 
@@ -48,7 +48,7 @@ func (dao {{$typeName}}) Update(scope app.Scope, entity interface{}, fields []st
 		sql string
 		tx  *sqlx.Tx
 	)
-	if tx, err = sqlitebase.TX(scope, dao.deps.DB); err != nil {
+	if tx, err = helpers.TX(scope, dao.deps.DB); err != nil {
 		return err
 	}
 	if sql, err = dao.SQL(fields); err != nil {

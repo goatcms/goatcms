@@ -1,20 +1,12 @@
-{{define "dao.droptable_story_test" -}}
-{{- $ctx := . -}}
-{{- $name := (index $ctx.Data (print .From ".entity")) -}}
-{{- $entityName := (camelcaseuf $name) -}}
-{{- $typeName := (print $entityName "CreateTable") -}}
-{{- $fieldsBaseKey := (print .From ".fields.") -}}
-
-package {{lower $name}}dao
+package translationdao
 
 import (
-	"testing"
-	"github.com/jmoiron/sqlx"
+	helpers "github.com/goatcms/goatcms/cmsapp/dao/sqlite/helpers"
 	"github.com/goatcms/goatcore/app/scope"
-	helpers "{{index $ctx.Properties.Build "path"}}/helpers"
+	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
+	"testing"
 )
-
 
 func TestDropTable(t *testing.T) {
 	t.Parallel()
@@ -30,7 +22,7 @@ func doDropTable(t *testing.T) (bool, *sqlx.DB) {
 	if ok, db = doCreateTable(t); !ok {
 		return false, nil
 	}
-	dropTable := {{$entityName}}DropTable{}
+	dropTable := TranslationDropTable{}
 	dropTable.deps.DB = db
 	s := scope.NewScope("testtag")
 	if err := dropTable.DropTable(s); err != nil {
@@ -43,5 +35,3 @@ func doDropTable(t *testing.T) (bool, *sqlx.DB) {
 	}
 	return true, db
 }
-
-{{- end -}}

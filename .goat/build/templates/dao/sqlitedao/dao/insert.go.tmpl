@@ -15,7 +15,7 @@ import (
 	"github.com/goatcms/goatcore/varutil"
 	"github.com/jmoiron/sqlx"
 	"github.com/goatcms/goatcore/dependency"
-	sqlitebase "{{index $ctx.Properties.Build "path"}}"
+	helpers "{{index $ctx.Properties.Build "path"}}/helpers"
 	maindef "{{index $ctx.Properties.Build "interfaces_path"}}"
 )
 
@@ -48,7 +48,7 @@ func (dao {{$typeName}}) Insert(scope app.Scope, entity interface{}, fields []st
 		tx     *sqlx.Tx
 		result sql.Result
 	)
-	if tx, err = sqlitebase.TX(scope, dao.deps.DB); err != nil {
+	if tx, err = helpers.TX(scope, dao.deps.DB); err != nil {
 		return -1, err
 	}
 	if sqlq, err = dao.SQL(fields); err != nil {

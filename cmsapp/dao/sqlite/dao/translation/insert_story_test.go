@@ -1,42 +1,35 @@
-{{define "dao.insert_story_test" -}}
-{{- $ctx := . -}}
-{{- $name := (index $ctx.Data (print .From ".entity")) -}}
-{{- $entityName := (camelcaseuf $name) -}}
-{{- $fieldsBaseKey := (print .From ".fields.") -}}
-
-package {{lower $name}}dao
+package translationdao
 
 import (
-	"testing"
-	"github.com/jmoiron/sqlx"
+	helpers "github.com/goatcms/goatcms/cmsapp/dao/sqlite/helpers"
+	entities "github.com/goatcms/goatcms/cmsapp/entities"
 	"github.com/goatcms/goatcore/app/scope"
-	entities "{{index $ctx.Properties.Build "entities_path"}}"
-	helpers "{{index $ctx.Properties.Build "path"}}/helpers"
+	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
+	"testing"
 )
-
 
 func TestInsertStory(t *testing.T) {
 	t.Parallel()
 	doInsertStory(t)
 }
 
-func doInsertStory(t *testing.T) (bool, *sqlx.DB, *entities.{{$entityName}}) {
+func doInsertStory(t *testing.T) (bool, *sqlx.DB, *entities.Translation) {
 	var (
 		resultID int64
 		ok       bool
 		db       *sqlx.DB
 		err      error
-		entity   *entities.{{$entityName}}
+		entity   *entities.Translation
 	)
 	if ok, db = doCreateTable(t); !ok {
 		return false, nil, nil
 	}
 	entity = NewMockEntity1()
 	s := scope.NewScope("tag")
-	persister := {{$entityName}}Insert{}
+	persister := TranslationInsert{}
 	persister.deps.DB = db
-	if resultID, err = persister.Insert(s, entity, entities.{{$entityName}}MainFields); err != nil {
+	if resultID, err = persister.Insert(s, entity, entities.TranslationMainFields); err != nil {
 		t.Error(err)
 		return false, db, entity
 	}
@@ -59,5 +52,3 @@ func doInsertStory(t *testing.T) (bool, *sqlx.DB, *entities.{{$entityName}}) {
 	}
 	return true, db, entity
 }
-
-{{- end -}}

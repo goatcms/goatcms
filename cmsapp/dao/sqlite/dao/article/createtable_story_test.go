@@ -1,20 +1,12 @@
-{{define "dao.createtable_story_test" -}}
-{{- $ctx := . -}}
-{{- $name := (index $ctx.Data (print .From ".entity")) -}}
-{{- $entityName := (camelcaseuf $name) -}}
-{{- $typeName := (print $entityName "CreateTable") -}}
-{{- $fieldsBaseKey := (print .From ".fields.") -}}
-
-package {{lower $name}}dao
+package articledao
 
 import (
-	"testing"
-	"github.com/jmoiron/sqlx"
+	helpers "github.com/goatcms/goatcms/cmsapp/dao/sqlite/helpers"
 	"github.com/goatcms/goatcore/app/scope"
-	helpers "{{index $ctx.Properties.Build "path"}}/helpers"
+	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
+	"testing"
 )
-
 
 func TestCreateTable(t *testing.T) {
 	t.Parallel()
@@ -30,7 +22,7 @@ func doCreateTable(t *testing.T) (bool, *sqlx.DB) {
 		t.Error(err)
 		return false, db
 	}
-	createTable := {{$entityName}}CreateTable{}
+	createTable := ArticleCreateTable{}
 	createTable.deps.DB = db
 	s := scope.NewScope("testtag")
 	if err := createTable.CreateTable(s); err != nil {
@@ -43,5 +35,3 @@ func doCreateTable(t *testing.T) (bool, *sqlx.DB) {
 	}
 	return true, db
 }
-
-{{- end -}}
