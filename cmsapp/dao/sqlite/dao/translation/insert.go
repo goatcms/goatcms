@@ -15,7 +15,7 @@ import (
 // TranslationInsert is a Data Access Object for translation entity
 type TranslationInsert struct {
 	deps struct {
-		DB *sqlx.DB `dependency:"sqlitedb"`
+		DB *sqlx.DB `dependency:"sqlitedb0"`
 	}
 }
 

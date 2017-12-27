@@ -12,7 +12,7 @@ import (
 // ArticleFindByID is a Data Access Object for article entity
 type ArticleFindByID struct {
 	deps struct {
-		DB *sqlx.DB `dependency:"sqlitedb"`
+		DB *sqlx.DB `dependency:"sqlitedb0"`
 	}
 }
 

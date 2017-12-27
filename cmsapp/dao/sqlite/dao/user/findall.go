@@ -12,7 +12,7 @@ import (
 // UserFindAll is a Data Access Object for user entity
 type UserFindAll struct {
 	deps struct {
-		DB *sqlx.DB `dependency:"sqlitedb"`
+		DB *sqlx.DB `dependency:"sqlitedb0"`
 	}
 }
 

@@ -1,0 +1,59 @@
+{{- define "module_test" -}}
+{{- $ctx := . -}}
+
+package {{index $ctx.Properties.Build "package"}}
+
+import (
+	"bytes"
+	"strings"
+	"testing"
+
+	maindef "{{index $ctx.Properties.Build "interfaces_path"}}"
+	"github.com/goatcms/goatcore/app"
+	"github.com/goatcms/goatcore/app/gio"
+	"github.com/goatcms/goatcore/app/mockupapp"
+	"github.com/goatcms/goatcore/app/scope"
+	"github.com/jmoiron/sqlx"
+)
+
+func TestModule(t *testing.T) {
+	var (
+		err  error
+		mapp app.App
+	)
+	t.Parallel()
+	// prepare mockup application
+	configScope := scope.NewScope(app.ConfigTagName)
+	configScope.Set("database.url", ":memory:")
+	if mapp, err = mockupapp.NewApp(mockupapp.MockupOptions{
+		Input:       gio.NewInput(strings.NewReader("")),
+		Output:      gio.NewOutput(new(bytes.Buffer)),
+		ConfigScope: configScope,
+	}); err != nil {
+		t.Error(err)
+		return
+	}
+	if err = RegisterDependencies(mapp.DependencyProvider()); err != nil {
+		t.Error(err)
+		return
+	}
+	// test
+	var deps struct {
+		DB *sqlx.DB `dependency:"sqlitedb0"`
+		{{- range $index, $key := (keys .Data "model.") }}
+		{{camelcaseuf $key}}CreateTable maindef.CreateTable `dependency:"{{camelcaseuf $key}}CreateTable"`
+		{{camelcaseuf $key}}Delete maindef.Delete `dependency:"{{camelcaseuf $key}}Delete"`
+		{{camelcaseuf $key}}DropTable maindef.DropTable `dependency:"{{camelcaseuf $key}}DropTable"`
+		{{camelcaseuf $key}}FindAll maindef.FindAll `dependency:"{{camelcaseuf $key}}FindAll"`
+		{{camelcaseuf $key}}FindByID maindef.FindByID `dependency:"{{camelcaseuf $key}}FindByID"`
+		{{camelcaseuf $key}}Insert maindef.Insert `dependency:"{{camelcaseuf $key}}Insert"`
+		{{camelcaseuf $key}}Update maindef.Update `dependency:"{{camelcaseuf $key}}Update"`
+		{{- end -}}
+	}
+	if err = mapp.DependencyProvider().InjectTo(&deps); err != nil {
+		t.Error(err)
+		return
+	}
+}
+
+{{- end -}}

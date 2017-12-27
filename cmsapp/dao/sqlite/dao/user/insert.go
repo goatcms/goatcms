@@ -15,7 +15,7 @@ import (
 // UserInsert is a Data Access Object for user entity
 type UserInsert struct {
 	deps struct {
-		DB *sqlx.DB `dependency:"sqlitedb"`
+		DB *sqlx.DB `dependency:"sqlitedb0"`
 	}
 }
 

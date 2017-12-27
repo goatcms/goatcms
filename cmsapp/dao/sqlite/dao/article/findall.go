@@ -12,7 +12,7 @@ import (
 // ArticleFindAll is a Data Access Object for article entity
 type ArticleFindAll struct {
 	deps struct {
-		DB *sqlx.DB `dependency:"sqlitedb"`
+		DB *sqlx.DB `dependency:"sqlitedb0"`
 	}
 }
 

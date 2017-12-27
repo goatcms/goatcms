@@ -44,12 +44,12 @@ func doFindAllStory(t *testing.T) (bool, *sqlx.DB) {
 			t.Error(err)
 			return false, db
 		}
-		if expectedEntity.Title != e.Title {
-			t.Errorf("Returned field should contains inserted entity value for Title field and it is %v (expeted %v)", e.Title, expectedEntity.Title)
-			return false, db
-		}
 		if expectedEntity.Content != e.Content {
 			t.Errorf("Returned field should contains inserted entity value for Content field and it is %v (expeted %v)", e.Content, expectedEntity.Content)
+			return false, db
+		}
+		if expectedEntity.Title != e.Title {
+			t.Errorf("Returned field should contains inserted entity value for Title field and it is %v (expeted %v)", e.Title, expectedEntity.Title)
 			return false, db
 		}
 	}

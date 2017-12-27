@@ -13,7 +13,7 @@ import (
 // UserUpdate is a Data Access Object for user entity
 type UserUpdate struct {
 	deps struct {
-		DB *sqlx.DB `dependency:"sqlitedb"`
+		DB *sqlx.DB `dependency:"sqlitedb0"`
 	}
 }
 
