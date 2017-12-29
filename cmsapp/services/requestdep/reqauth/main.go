@@ -3,10 +3,11 @@ package reqauth
 import (
 	"fmt"
 
+	"github.com/goatcms/goatcms/cmsapp/dao"
 	"github.com/goatcms/goatcms/cmsapp/entities"
 	"github.com/goatcms/goatcms/cmsapp/services"
 	"github.com/goatcms/goatcms/cmsapp/services/requestdep"
-	"github.com/goatcms/goatcms2/cmsapp/models"
+	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/dependency"
 )
 
@@ -19,8 +20,8 @@ const (
 type RequestAuth struct {
 	deps struct {
 		SessionManager services.SessionManager `request:"SessionService"`
-		Database       services.Database       `dependency:"DatabaseService"`
-		Login          models.UserLogin        `dependency:"UserLogin"`
+		Scope          app.Scope               `request:"RequestScope"`
+		LoginQuery     dao.UserLoginQuery      `dependency:"UserLoginQuery"`
 	}
 }
 
@@ -45,14 +46,19 @@ func (a *RequestAuth) UserID() (string, error) {
 	return id.(string), nil
 }
 
-// RequestAuth save a user id into session
-func (a *RequestAuth) Login(name, password string) (*entities.User, error) {
-	tx, err := a.deps.Database.TX()
-	if err != nil {
+func (a *RequestAuth) Login(name, password string) (user *entities.User, err error) {
+	var (
+		row dao.Row
+	)
+	if row, err = a.deps.LoginQuery.Login(a.deps.Scope, []string{"id"}, &dao.UserLoginQueryParams{
+		Login:    name,
+		Email:    name,
+		Password: password,
+	}); err != nil {
 		return nil, err
 	}
-	user, err := a.deps.Login(tx, name, password)
-	if err != nil {
+	user = &entities.User{}
+	if err := row.StructScan(user); err != nil {
 		return nil, err
 	}
 	if err := a.deps.SessionManager.Set(UserID, user.ID); err != nil {
