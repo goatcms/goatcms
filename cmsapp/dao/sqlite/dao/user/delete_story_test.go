@@ -1,4 +1,4 @@
-package userdao
+package dao
 
 import (
 	"github.com/goatcms/goatcore/app/scope"

@@ -1,13 +1,14 @@
-{{define "module" -}}
+{{define "sqlite.module" -}}
 {{- $ctx := . -}}
 
 package {{index $ctx.Properties.Build "package"}}
 
 import (
 	"github.com/goatcms/goatcore/dependency"
-	database "{{index $ctx.Properties.Build "path"}}/database"
+	database "{{index $ctx.Properties.Build "path"}}/sqlite/database"
 	{{- range $index, $key := (keys .Data "model.") }}
-	{{$key}} "{{index $ctx.Properties.Build "path"}}/dao/{{$key}}"
+	{{$key}} "{{index $ctx.Properties.Build "path"}}/sqlite/dao/{{$key}}"
+	{{$key}}q "{{index $ctx.Properties.Build "path"}}/sqlite/dao/{{$key}}/queries"
 	{{- end -}}
 )
 
@@ -17,6 +18,9 @@ func RegisterDependencies(dp dependency.Provider) error {
 	}
 	{{- range $index, $key := (keys .Data "model.") }}
 	if err := {{$key}}.RegisterDependencies(dp); err != nil {
+		return err
+	}
+	if err := {{$key}}q.RegisterDependencies(dp); err != nil {
 		return err
 	}
 	{{- end }}

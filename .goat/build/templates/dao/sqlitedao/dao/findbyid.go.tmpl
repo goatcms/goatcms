@@ -1,19 +1,19 @@
-{{define "dao.findbyid" -}}
+{{define "sqlite.dao.findbyid" -}}
 {{- $ctx := . -}}
 {{- $name := (index $ctx.Data (print .From ".entity")) -}}
 {{- $entityName := (camelcaseuf $name) -}}
 {{- $typeName := (print $entityName "FindByID") -}}
 {{- $fieldsBaseKey := (print .From ".fields.") -}}
 
-package {{lower $name}}dao
+package dao
 
 import (
 	"strconv"
 	"github.com/goatcms/goatcore/app"
 	"github.com/jmoiron/sqlx"
 	"github.com/goatcms/goatcore/dependency"
-	helpers "{{index $ctx.Properties.Build "path"}}/helpers"
-	maindef "{{index $ctx.Properties.Build "interfaces_path"}}"
+	helpers "{{index $ctx.Properties.Build "path"}}/sqlite/helpers"
+	maindef "{{index $ctx.Properties.Build "path"}}"
 )
 
 

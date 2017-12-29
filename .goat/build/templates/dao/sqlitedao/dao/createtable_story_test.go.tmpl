@@ -1,17 +1,17 @@
-{{define "dao.createtable_story_test" -}}
+{{define "sqlite.dao.createtable_story_test" -}}
 {{- $ctx := . -}}
 {{- $name := (index $ctx.Data (print .From ".entity")) -}}
 {{- $entityName := (camelcaseuf $name) -}}
 {{- $typeName := (print $entityName "CreateTable") -}}
 {{- $fieldsBaseKey := (print .From ".fields.") -}}
 
-package {{lower $name}}dao
+package dao
 
 import (
 	"testing"
 	"github.com/jmoiron/sqlx"
 	"github.com/goatcms/goatcore/app/scope"
-	helpers "{{index $ctx.Properties.Build "path"}}/helpers"
+	helpers "{{index $ctx.Properties.Build "path"}}/sqlite/helpers"
 	_ "github.com/mattn/go-sqlite3"
 )
 

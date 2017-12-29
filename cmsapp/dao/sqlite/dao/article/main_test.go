@@ -1,4 +1,4 @@
-package articledao
+package dao
 
 import (
 	entities "github.com/goatcms/goatcms/cmsapp/entities"
@@ -6,12 +6,12 @@ import (
 
 func NewMockEntity1() *entities.Article {
 	return &entities.Article{
-		Title:   "KQc2VajZLKmaPJlxq02hyqni84myEOUCtjCm2KGVt2jd",
-		Content: "JAk0AG3usiBE1NgVkIOFEUW402bnBMVRP9jO7mJkqdyH"}
+		Title:   "TVBHlBbMYAPcOsexBfPT1wasYSmOpTPaMHLRso9MSxAD",
+		Content: "sHawAYvPBl35EBTxPM3oXi3ro2JlXEBOazkl3YsaWynP"}
 }
 
 func NewMockEntity2() *entities.Article {
 	return &entities.Article{
-		Title:   "nJ1NDgo0mMwLmjeTdf7oycGRDfuyy0lJKEQtCJ1X8lKn",
-		Content: "zciE6xwQMbL66e7cGDsDTfeI5rZCXhXfaEBLSSw0FK1I"}
+		Content: "9dfAov9McIwqpMUAxV15C12ZrBf6GmsRB7ua0nnmSmnq",
+		Title:   "R5p6xKBwipUqDvdYC8nWGYKMYFgz8BKUNT1THc7xX7As"}
 }

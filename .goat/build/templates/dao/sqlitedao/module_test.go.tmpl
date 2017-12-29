@@ -1,4 +1,4 @@
-{{- define "module_test" -}}
+{{- define "sqlite.module_test" -}}
 {{- $ctx := . -}}
 
 package {{index $ctx.Properties.Build "package"}}
@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	maindef "{{index $ctx.Properties.Build "interfaces_path"}}"
+	maindef "{{index $ctx.Properties.Build "path"}}"
 	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/app/gio"
 	"github.com/goatcms/goatcore/app/mockupapp"

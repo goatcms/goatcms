@@ -1,4 +1,4 @@
-package sqlitedao_database
+package database
 
 import (
 	"github.com/goatcms/goatcore/app"

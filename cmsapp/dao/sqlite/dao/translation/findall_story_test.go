@@ -1,4 +1,4 @@
-package translationdao
+package dao
 
 import (
 	maindef "github.com/goatcms/goatcms/cmsapp/dao"
@@ -44,12 +44,12 @@ func doFindAllStory(t *testing.T) (bool, *sqlx.DB) {
 			t.Error(err)
 			return false, db
 		}
-		if expectedEntity.Value != e.Value {
-			t.Errorf("Returned field should contains inserted entity value for Value field and it is %v (expeted %v)", e.Value, expectedEntity.Value)
-			return false, db
-		}
 		if expectedEntity.Key != e.Key {
 			t.Errorf("Returned field should contains inserted entity value for Key field and it is %v (expeted %v)", e.Key, expectedEntity.Key)
+			return false, db
+		}
+		if expectedEntity.Value != e.Value {
+			t.Errorf("Returned field should contains inserted entity value for Value field and it is %v (expeted %v)", e.Value, expectedEntity.Value)
 			return false, db
 		}
 	}

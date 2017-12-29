@@ -1,10 +1,10 @@
-{{define "dao.module" -}}
+{{define "sqlite.dao.module" -}}
 {{- $ctx := . -}}
 {{- $name := (index $ctx.Data (print .From ".entity")) -}}
 {{- $entityName := (camelcaseuf $name) -}}
 {{- $fieldsBaseKey := (print .From ".fields.") -}}
 
-package {{lower $name}}dao
+package dao
 
 import (
 	"github.com/goatcms/goatcore/dependency"

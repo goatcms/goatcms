@@ -3,9 +3,10 @@ package reqauth
 import (
 	"fmt"
 
-	"github.com/goatcms/goatcms/cmsapp/models"
+	"github.com/goatcms/goatcms/cmsapp/entities"
 	"github.com/goatcms/goatcms/cmsapp/services"
 	"github.com/goatcms/goatcms/cmsapp/services/requestdep"
+	"github.com/goatcms/goatcms2/cmsapp/models"
 	"github.com/goatcms/goatcore/dependency"
 )
 
@@ -45,7 +46,7 @@ func (a *RequestAuth) UserID() (string, error) {
 }
 
 // RequestAuth save a user id into session
-func (a *RequestAuth) Login(name, password string) (*models.User, error) {
+func (a *RequestAuth) Login(name, password string) (*entities.User, error) {
 	tx, err := a.deps.Database.TX()
 	if err != nil {
 		return nil, err

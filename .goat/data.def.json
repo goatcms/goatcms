@@ -36,6 +36,43 @@
     }]
   }]
 },{
+  "type":"query",
+  "properties":[{
+    "prompt":"query name",
+    "key":"name",
+    "type":"line",
+    "min":1,
+    "max":30,
+    "pattern": "^[a-zA-z]+[a-zA-Z0-9]*$"
+  },{
+    "prompt":"related model",
+    "key":"model",
+    "type":"line",
+    "min":1,
+    "max":30,
+    "pattern": "^[a-zA-z]+[a-zA-Z0-9]*$"
+  },{
+    "prompt":"is it a single result query?",
+    "key":"isSingleResult",
+    "type":"line",
+    "min":1,
+    "max":1,
+    "pattern": "^(y|n)$"
+  }],
+  "collections":[{
+    "key": "fit",
+    "type": "array",
+    "prompt": "mathed fields (insert fields separated with spaces)",
+    "properties": [{
+      "prompt":"OR (field1 AND field2 AND field3 AND ...)",
+      "key":"fields",
+      "type":"line",
+      "min":1,
+      "max":2000,
+      "pattern": "^[A-Za-z]+[A-Za-z\s]*$"
+    }]
+  }]
+},{
   "type":"lang",
   "collections":[{
     "type": "map",

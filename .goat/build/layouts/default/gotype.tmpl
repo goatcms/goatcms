@@ -7,7 +7,7 @@
 {{- else if eq . "int" -}}
   int
 {{- else -}}
-  {{- error (print "bad type" .) -}}
+  {{- error (print "bad type " .) -}}
 {{- end -}}
 
 {{- end -}}

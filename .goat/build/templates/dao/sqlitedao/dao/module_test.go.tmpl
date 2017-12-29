@@ -1,18 +1,18 @@
-{{define "dao.module_test" -}}
+{{define "sqlite.dao.module_test" -}}
 {{- $ctx := . -}}
 {{- $name := (index $ctx.Data (print .From ".entity")) -}}
 {{- $entityName := (camelcaseuf $name) -}}
 {{- $fieldsBaseKey := (print .From ".fields.") -}}
 
-package {{lower $name}}dao
+package dao
 
 import (
 	"bytes"
 	"strings"
 	"testing"
 
-	maindef "{{index $ctx.Properties.Build "interfaces_path"}}"
-	database "{{index $ctx.Properties.Build "path"}}/database"
+	maindef "{{index $ctx.Properties.Build "path"}}"
+	database "{{index $ctx.Properties.Build "path"}}/sqlite/database"
 	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/app/gio"
 	"github.com/goatcms/goatcore/app/mockupapp"

@@ -1,0 +1,39 @@
+{{define "queries" -}}
+{{- $ctx := . -}}
+
+package {{index $ctx.Properties.Build "package"}}
+
+import (
+	"github.com/goatcms/goatcore/app"
+)
+
+{{ range $qi, $querykey := (keys $ctx.Data "query.") -}}
+	{{- $queryModel := (index $ctx.Data (print "query." $querykey ".model")) -}}
+	{{- $queryName := (index $ctx.Data (print "query." $querykey ".name")) -}}
+	{{- $isSingleResult := (index $ctx.Data (print "query." $querykey ".isSingleResult")) -}}
+	{{- $fieldsets := (valuesFor (print "^query." $querykey ".fit.[A-Za-z0-9]+.fields$") $ctx.Data) -}}
+	{{- $fields := (uniqueReduce (split (join $fieldsets " ") " ")) -}}
+
+type {{camelcaseuf $queryModel}}{{camelcaseuf $queryName}}QueryParams struct {
+{{- $modelkey := (print "model." (findRow "model." "^[A-Za-z0-9]+$" ".entity" $queryModel $ctx.Data)) -}}
+
+{{- range $fi, $field := $fields -}}
+	{{- $modelFieldKey := (print $modelkey ".fields." (findRow (print $modelkey ".fields.") "^[A-Za-z0-9]+$" ".name" $field $ctx.Data)) -}}
+	{{- $fieldType := (index $ctx.Data (print $modelFieldKey ".type")) }}
+	{{camelcaseuf $field}} {{template "gotype" $fieldType}}
+{{- end }}
+}
+
+type {{camelcaseuf $queryModel}}{{camelcaseuf $queryName}}Query interface {
+	{{camelcaseuf $queryName}}(scope app.Scope, fields []string, params *{{camelcaseuf $queryModel}}{{camelcaseuf $queryName}}QueryParams) (
+		{{- if eq $isSingleResult "y" -}}
+			Row
+		{{- else -}}
+			Rows
+		{{- end -}}
+	, error)
+}
+
+{{- end -}}
+
+{{- end -}}

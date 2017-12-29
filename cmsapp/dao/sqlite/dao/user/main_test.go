@@ -1,4 +1,4 @@
-package userdao
+package dao
 
 import (
 	entities "github.com/goatcms/goatcms/cmsapp/entities"
@@ -6,12 +6,16 @@ import (
 
 func NewMockEntity1() *entities.User {
 	return &entities.User{
-		Firstname: "rwUfihXRfSpPBC4OY5NM3HzLvLMupnBbytSi8p9A4nAA",
-		Lastname:  "16QRNYNeTj5a8WBD0UdZy2DmcaiouWYho0jjldTrZQ11"}
+		Firstname: "IBRvb5zAgc3XExv5msDRb0CyhM0yeglpihcmBV64Xi1g",
+		Password:  "Ugb9OzWXjcxUztcrLEJPNKMEHrdLhjNN6P5WouFLQ7tk",
+		Login:     "vWb26tBuQxDJK8TN9QGUBGUXJ8Pte3t6IcU1hMoB0XAL",
+		Email:     "eSAf9gf0XfxEQ8bvWBNjsk701hGm2Znp9ZBEC4mLd0TI"}
 }
 
 func NewMockEntity2() *entities.User {
 	return &entities.User{
-		Lastname:  "hqKUxjdaOe4EbH7y8RmvZ4o10rDcsobcf4TE9OSrDQgZ",
-		Firstname: "MYhVJUYgTp5k46XenfaGVyuv9H7d72gDOOsbwH6GwrqQ"}
+		Firstname: "WZxJ7r5F98bnJlZe7hGuht2rCsXoQ0TjbR8ppm1Sr1uo",
+		Login:     "1K9OW1jjh6vHBDYZ4ZOJLnz4Vn5gQCXLHqSJYqV87UWg",
+		Email:     "0Feq0Yw5OrgLeTrGJRcvGSW4MY74f6sg8HNuXNInDUx1",
+		Password:  "VS475fBANWdzu9auAwYq4XtLYus0fZVnd9U0YNazHx6Z"}
 }

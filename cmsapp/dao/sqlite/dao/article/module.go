@@ -1,4 +1,4 @@
-package articledao
+package dao
 
 import (
 	"github.com/goatcms/goatcore/dependency"

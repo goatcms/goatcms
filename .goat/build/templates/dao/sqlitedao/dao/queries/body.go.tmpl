@@ -1,0 +1,138 @@
+{{define "sqlite.dao.query.body" -}}
+{{- $ctx := . -}}
+{{- $queryNameUF := (camelcaseuf (index $ctx.Data (print .From ".name"))) -}}
+{{- $modelName   := (index $ctx.Data (print .From ".model")) -}}
+{{- $modelNameUF := (camelcaseuf $modelName) -}}
+{{- $typeName    := (print $modelNameUF $queryNameUF "Query") -}}
+{{- $isSingleResult := (index $ctx.Data (print .From ".isSingleResult")) -}}
+{{- $modelKey := (print "model." (findRow "model." "^[A-Za-z0-9]+$" ".entity" $modelName $ctx.Data)) -}}
+
+
+package queries
+
+import (
+	"strconv"
+	"fmt"
+	"github.com/goatcms/goatcore/app"
+	"github.com/jmoiron/sqlx"
+	"github.com/goatcms/goatcore/app"
+	"github.com/goatcms/goatcore/dependency"
+	helpers "{{index $ctx.Properties.Build "path"}}/sqlite/helpers"
+	maindef "{{index $ctx.Properties.Build "path"}}"
+)
+
+// {{$typeName}} is a query object for
+type {{$typeName}} struct {
+  deps struct{
+    DB *sqlx.DB `dependency:"sqlitedb0"`
+  }
+}
+
+func New{{$typeName}}(di dependency.Injector) (*{{$typeName}}, error) {
+  instance := &{{$typeName}}{}
+  if err := di.InjectTo(&instance.deps); err != nil {
+    return nil, err
+  }
+  return instance, nil
+}
+
+func {{$typeName}}Factory(dp dependency.Provider) (interface{}, error) {
+	instance, err := New{{$typeName}}(dp)
+	if err != nil {
+		return nil, err
+	}
+	return maindef.{{$typeName}}(instance), nil
+}
+
+func (dao {{$typeName}}) {{$queryNameUF}}(scope app.Scope, fields []string, params *maindef.{{$typeName}}Params) (
+	{{- if eq $isSingleResult "y" -}}
+		row maindef.Row
+	{{- else -}}
+		rows maindef.Rows
+	{{- end -}}
+, err error) {
+	var (
+		sql string
+		tx  *sqlx.Tx
+	)
+	if tx, err = helpers.TX(scope, dao.deps.DB); err != nil {
+		return nil, err
+	}
+	sql = dao.SQL(fields, params)
+	{{ if eq $isSingleResult "y" -}}
+		row = tx.QueryRowx(sql)
+		if row.Err() != nil {
+			return nil, fmt.Errorf("%v: %v", row.Err(), sql)
+		}
+		return row, nil
+	{{- else -}}
+		if rows, err = tx.Queryx(sql); err != nil {
+			return nil, fmt.Errorf("%s: %s", err.Error(), sql)
+		}
+		return rows, nil
+	{{- end }}
+}
+
+func (dao {{$typeName}}) SQL(fields []string, params *maindef.{{$typeName}}Params) string {
+	sql := "SELECT "
+	// selected fields
+	i := 0
+	for _, row := range fields {
+		if i > 0 {
+			sql += ", "
+		}
+		sql += row
+		i++
+	}
+	// fields
+	sql += " FROM {{camelcaseuf $modelName}} WHERE ";
+	{{- $fieldsets := (valuesFor (print "^" .From  ".fit.[A-Za-z0-9]+.fields$") $ctx.Data) -}}
+	{{- $fields := (uniqueReduce (split (join $fieldsets " ") " ")) -}}
+
+	{{- range $fis, $fieldstr := $fieldsets -}}
+		{{- $fields := (uniqueReduce (split $fieldstr " ")) }}
+		if {{range $fi, $field := $fields -}}
+			{{- $modelFieldKey := (print $modelKey ".fields." (findRow (print $modelKey ".fields.") "^[A-Za-z0-9]+$" ".name" $field $ctx.Data)) -}}
+			{{- $fieldType := (index $ctx.Data (print $modelFieldKey ".type")) }}
+			{{- if eq (lower $fieldType) "text" "string" -}}
+				{{- if ne $fi 0 }} || {{ end -}}
+				params.{{camelcaseuf $field}} != ""
+			{{- else if (lower $fieldType) "int" -}}
+				{{- if ne $fi 0 }} || {{ end -}}
+				params.{{camelcaseuf $field}} != 0
+			{{- else -}}
+			  {{- error (print "bad type" $fieldType) -}}
+			{{- end -}}
+		{{- end }} {
+			sql += {{range $fi, $field := $fields -}}
+				{{- $modelFieldKey := (print $modelKey ".fields." (findRow (print $modelKey ".fields.") "^[A-Za-z0-9]+$" ".name" $field $ctx.Data)) -}}
+				{{- $fieldType := (index $ctx.Data (print $modelFieldKey ".type")) }}
+
+				{{- if eq (lower $fieldType) "text" "string" -}}
+					{{- if eq $fi 0 -}}
+						"{{- if eq $fis 0 -}} ( {{- else -}} ) OR ( {{- end -}}  {{camelcaseuf $field}}="
+					{{- else -}}
+						+ " AND {{camelcaseuf $field}}="
+					{{- end }} + strconv.Quote(params.{{camelcaseuf $field}})
+				{{- else if (lower $fieldType) "int" -}}
+					{{- if eq $fi 0 -}}
+						"{{- if eq $fis 0 -}} ( {{- else -}} ) OR ( {{- end -}} {{camelcaseuf $field}}="
+					{{- else -}}
+						+ " AND {{camelcaseuf $field}}="
+					{{- end }} + strconv.Itoa(params.{{camelcaseuf $field}})
+				{{- else -}}
+					{{- error (print "bad type" $fieldType) -}}
+				{{- end -}}
+			{{- end }}
+		}
+	{{- end -}}
+
+	{{- if eq $isSingleResult "y" }}
+		sql += ") LIMIT 1"
+	{{- else }}
+		sql += ")"
+	{{- end }}
+	return sql
+}
+
+{{- end -}}

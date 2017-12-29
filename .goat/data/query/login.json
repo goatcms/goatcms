@@ -1,0 +1,1 @@
+{"query":{"login":{"fit":{"0":{"fields":"login password"},"1":{"fields":"email password"}},"isSingleResult":"y","model":"user","name":"login"}}}

@@ -1,4 +1,4 @@
-package articledao
+package dao
 
 import (
 	maindef "github.com/goatcms/goatcms/cmsapp/dao"
@@ -27,8 +27,8 @@ func doUpdateStory(t *testing.T) (bool, *sqlx.DB) {
 	if ok, db, entity = doInsertStory(t); !ok {
 		return false, nil
 	}
-	entity.Content = expectedEntity.Content
 	entity.Title = expectedEntity.Title
+	entity.Content = expectedEntity.Content
 	s := scope.NewScope("tag")
 	updater := ArticleUpdate{}
 	updater.deps.DB = db

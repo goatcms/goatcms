@@ -1,4 +1,4 @@
-package translationdao
+package dao
 
 import (
 	maindef "github.com/goatcms/goatcms/cmsapp/dao"
@@ -27,8 +27,8 @@ func doUpdateStory(t *testing.T) (bool, *sqlx.DB) {
 	if ok, db, entity = doInsertStory(t); !ok {
 		return false, nil
 	}
-	entity.Key = expectedEntity.Key
 	entity.Value = expectedEntity.Value
+	entity.Key = expectedEntity.Key
 	s := scope.NewScope("tag")
 	updater := TranslationUpdate{}
 	updater.deps.DB = db

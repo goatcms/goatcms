@@ -1,7 +1,7 @@
-{{- define "database" -}}
+{{- define "sqlite.database" -}}
 {{- $ctx := . -}}
 
-package {{index $ctx.Properties.Build "package"}}_database
+package database
 
 import (
 	"github.com/goatcms/goatcore/app"

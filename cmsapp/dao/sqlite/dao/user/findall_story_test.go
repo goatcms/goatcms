@@ -1,4 +1,4 @@
-package userdao
+package dao
 
 import (
 	maindef "github.com/goatcms/goatcms/cmsapp/dao"
@@ -44,8 +44,16 @@ func doFindAllStory(t *testing.T) (bool, *sqlx.DB) {
 			t.Error(err)
 			return false, db
 		}
-		if expectedEntity.Lastname != e.Lastname {
-			t.Errorf("Returned field should contains inserted entity value for Lastname field and it is %v (expeted %v)", e.Lastname, expectedEntity.Lastname)
+		if expectedEntity.Password != e.Password {
+			t.Errorf("Returned field should contains inserted entity value for Password field and it is %v (expeted %v)", e.Password, expectedEntity.Password)
+			return false, db
+		}
+		if expectedEntity.Email != e.Email {
+			t.Errorf("Returned field should contains inserted entity value for Email field and it is %v (expeted %v)", e.Email, expectedEntity.Email)
+			return false, db
+		}
+		if expectedEntity.Login != e.Login {
+			t.Errorf("Returned field should contains inserted entity value for Login field and it is %v (expeted %v)", e.Login, expectedEntity.Login)
 			return false, db
 		}
 		if expectedEntity.Firstname != e.Firstname {

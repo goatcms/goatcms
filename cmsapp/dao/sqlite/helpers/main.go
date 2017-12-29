@@ -32,6 +32,7 @@ func Commit(scope app.Scope) (isCommited bool, err error) {
 		return false, nil
 	}
 	tx := ins.(*sqlx.Tx)
+	scope.Set(TXKey, nil)
 	return true, tx.Commit()
 }
 

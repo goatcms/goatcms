@@ -1,4 +1,7 @@
-package dao
+{{- define "interfaces" -}}
+{{- $ctx := . -}}
+
+package {{index $ctx.Properties.Build "package"}}
 
 import (
 	"database/sql"
@@ -72,3 +75,6 @@ type Row interface {
 	Columns() ([]string, error)
 	Err() error
 }
+
+
+{{- end -}}

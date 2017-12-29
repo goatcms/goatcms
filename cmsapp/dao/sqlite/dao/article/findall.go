@@ -1,4 +1,4 @@
-package articledao
+package dao
 
 import (
 	"fmt"

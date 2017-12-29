@@ -1,4 +1,4 @@
-package translationdao
+package dao
 
 import (
 	maindef "github.com/goatcms/goatcms/cmsapp/dao"

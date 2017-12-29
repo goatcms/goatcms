@@ -1,17 +1,17 @@
-{{define "dao.findall_story_test" -}}
+{{define "sqlite.dao.findall_story_test" -}}
 {{- $ctx := . -}}
 {{- $name := (index $ctx.Data (print .From ".entity")) -}}
 {{- $entityName := (camelcaseuf $name) -}}
 {{- $fieldsBaseKey := (print .From ".fields.") -}}
 
-package {{lower $name}}dao
+package dao
 
 import (
 	"testing"
 	"github.com/jmoiron/sqlx"
 	"github.com/goatcms/goatcore/app/scope"
 	entities "{{index $ctx.Properties.Build "entities_path"}}"
-	maindef "{{index $ctx.Properties.Build "interfaces_path"}}"
+	maindef "{{index $ctx.Properties.Build "path"}}"
 	_ "github.com/mattn/go-sqlite3"
 )
 

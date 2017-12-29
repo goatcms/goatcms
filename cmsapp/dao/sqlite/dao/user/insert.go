@@ -1,4 +1,4 @@
-package userdao
+package dao
 
 import (
 	"database/sql"

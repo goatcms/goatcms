@@ -1,4 +1,4 @@
-package translationdao
+package dao
 
 import (
 	"fmt"

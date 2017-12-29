@@ -1,4 +1,4 @@
-package userdao
+package dao
 
 import (
 	helpers "github.com/goatcms/goatcms/cmsapp/dao/sqlite/helpers"

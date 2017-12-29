@@ -1,0 +1,20 @@
+{{- $ctx := . -}}
+
+{{- /* sqlite */ -}}
+{{- template "sqlite.main" $ctx -}}
+
+{{- /* queries */ -}}
+{{- $path := (print $ctx.To "/queries.go") -}}
+{{- if not ($ctx.Filesystem.IsFile $path) -}}
+  {{- $ctx.Out.File $path -}}
+    {{- template "queries" $ctx -}}
+  {{- $ctx.Out.EOF -}}
+{{- end -}}
+
+{{- /* interfaces */ -}}
+{{- $path := (print $ctx.To "/interfaces.go") -}}
+{{- if not ($ctx.Filesystem.IsFile $path) -}}
+  {{- $ctx.Out.File $path -}}
+    {{- template "interfaces" $ctx -}}
+  {{- $ctx.Out.EOF -}}
+{{- end -}}

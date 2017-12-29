@@ -1,10 +1,10 @@
-{{define "dao.main_test" -}}
+{{define "sqlite.dao.main_test" -}}
 {{- $ctx := . -}}
 {{- $name := (index $ctx.Data (print .From ".entity")) -}}
 {{- $entityName := (camelcaseuf $name) -}}
 {{- $fieldsBaseKey := (print .From ".fields.") -}}
 
-package {{lower $name}}dao
+package dao
 
 import (
 	entities "{{index $ctx.Properties.Build "entities_path"}}"

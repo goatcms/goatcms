@@ -1,27 +1,27 @@
-{{define "dao.findbyid_story_test" -}}
+{{define "sqlite.dao.update_story_test" -}}
 {{- $ctx := . -}}
 {{- $name := (index $ctx.Data (print .From ".entity")) -}}
 {{- $entityName := (camelcaseuf $name) -}}
 {{- $fieldsBaseKey := (print .From ".fields.") -}}
 
-package {{lower $name}}dao
+package dao
 
 import (
 	"testing"
 	"github.com/jmoiron/sqlx"
 	"github.com/goatcms/goatcore/app/scope"
 	entities "{{index $ctx.Properties.Build "entities_path"}}"
-	maindef "{{index $ctx.Properties.Build "interfaces_path"}}"
+	maindef "{{index $ctx.Properties.Build "path"}}"
 	_ "github.com/mattn/go-sqlite3"
 )
 
 
-func TestFindByIDStory(t *testing.T) {
+func TestUpdateStory(t *testing.T) {
 	t.Parallel()
-	doFindByIDStory(t)
+	doUpdateStory(t)
 }
 
-func doFindByIDStory(t *testing.T) (bool, *sqlx.DB) {
+func doUpdateStory(t *testing.T) (bool, *sqlx.DB) {
 	var (
 		row            maindef.Row
 		ok             bool
@@ -30,13 +30,26 @@ func doFindByIDStory(t *testing.T) (bool, *sqlx.DB) {
 		expectedEntity *entities.{{$entityName}}
 		entity         *entities.{{$entityName}}
 	)
-	if ok, db, expectedEntity = doInsertStory(t); !ok {
+	expectedEntity = NewMockEntity2()
+	if ok, db, entity = doInsertStory(t); !ok {
 		return false, nil
 	}
+	{{- range $index, $field := (keys .Data $fieldsBaseKey) -}}
+	  {{- $key := (print $fieldsBaseKey $field) -}}
+	  {{- $fieldName := (index $ctx.Data (print $key ".name")) -}}
+		{{- print "\n" -}}
+		entity.{{camelcaseuf $fieldName}} = expectedEntity.{{camelcaseuf $fieldName}}
+	{{- end }}
 	s := scope.NewScope("tag")
+	updater := {{$entityName}}Update{}
+	updater.deps.DB = db
+	if err = updater.Update(s, entity, entities.{{$entityName}}MainFields); err != nil {
+		t.Error(err)
+		return false, db
+	}
 	finder := {{$entityName}}FindByID{}
 	finder.deps.DB = db
-	if row, err = finder.Find(s, entities.{{$entityName}}MainFields, expectedEntity.ID); err != nil {
+	if row, err = finder.Find(s, entities.{{$entityName}}MainFields, entity.ID); err != nil {
 		t.Error(err)
 		return false, db
 	}

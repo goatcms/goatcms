@@ -1,4 +1,4 @@
-package userdao
+package dao
 
 import (
 	maindef "github.com/goatcms/goatcms/cmsapp/dao"
@@ -28,7 +28,9 @@ func doUpdateStory(t *testing.T) (bool, *sqlx.DB) {
 		return false, nil
 	}
 	entity.Firstname = expectedEntity.Firstname
-	entity.Lastname = expectedEntity.Lastname
+	entity.Email = expectedEntity.Email
+	entity.Password = expectedEntity.Password
+	entity.Login = expectedEntity.Login
 	s := scope.NewScope("tag")
 	updater := UserUpdate{}
 	updater.deps.DB = db
@@ -48,12 +50,20 @@ func doUpdateStory(t *testing.T) (bool, *sqlx.DB) {
 		t.Error(err)
 		return false, db
 	}
+	if expectedEntity.Email != entity.Email {
+		t.Errorf("Returned field should contains inserted entity value for Email field and it is %v (expeted %v)", entity.Email, expectedEntity.Email)
+		return false, db
+	}
+	if expectedEntity.Login != entity.Login {
+		t.Errorf("Returned field should contains inserted entity value for Login field and it is %v (expeted %v)", entity.Login, expectedEntity.Login)
+		return false, db
+	}
 	if expectedEntity.Firstname != entity.Firstname {
 		t.Errorf("Returned field should contains inserted entity value for Firstname field and it is %v (expeted %v)", entity.Firstname, expectedEntity.Firstname)
 		return false, db
 	}
-	if expectedEntity.Lastname != entity.Lastname {
-		t.Errorf("Returned field should contains inserted entity value for Lastname field and it is %v (expeted %v)", entity.Lastname, expectedEntity.Lastname)
+	if expectedEntity.Password != entity.Password {
+		t.Errorf("Returned field should contains inserted entity value for Password field and it is %v (expeted %v)", entity.Password, expectedEntity.Password)
 		return false, db
 	}
 	return true, db

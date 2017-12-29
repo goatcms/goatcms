@@ -1,0 +1,36 @@
+{{define "sqlite.dao.query.main_test" -}}
+{{- $ctx := . -}}
+{{- $name := (index $ctx.Data (print .From ".entity")) -}}
+{{- $entityName := (camelcaseuf $name) -}}
+{{- $typeName := (print $entityName "Delete") -}}
+{{- $fieldsBaseKey := (print .From ".fields.") -}}
+
+package queries
+
+import (
+	entities "{{index $ctx.Properties.Build "entities_path"}}"
+)
+
+func NewMockEntity1() *entities.{{$entityName}} {
+	return &entities.{{$entityName}} {
+		{{- range $index, $field := (keys .Data $fieldsBaseKey) -}}
+	    {{- $key := (print $fieldsBaseKey $field) -}}
+	    {{- $fieldName := (index $ctx.Data (print $key ".name")) -}}
+	    {{- $fieldType := (index $ctx.Data (print $key ".type")) }}
+			{{camelcaseuf $fieldName}}: {{template "mockvalue" $fieldType}},
+	  {{- end -}}
+	}
+}
+
+func NewMockEntity2() *entities.{{$entityName}} {
+	return &entities.{{$entityName}} {
+		{{- range $index, $field := (keys .Data $fieldsBaseKey) -}}
+	    {{- $key := (print $fieldsBaseKey $field) -}}
+	    {{- $fieldName := (index $ctx.Data (print $key ".name")) -}}
+	    {{- $fieldType := (index $ctx.Data (print $key ".type")) }}
+			{{camelcaseuf $fieldName}}: {{template "mockvalue" $fieldType}},
+	  {{- end -}}
+	}
+}
+
+{{- end -}}

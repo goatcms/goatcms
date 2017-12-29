@@ -1,0 +1,17 @@
+package queries
+
+import (
+	entities "github.com/goatcms/goatcms/cmsapp/entities"
+)
+
+func NewMockEntity1() *entities.Translation {
+	return &entities.Translation{
+		Key:   "qGzTGDsrbk1v9HgdgiZtPnonvQIO7Ubbp7qk398NJztw",
+		Value: "8JFHoEaBNqqC2yoxuYzwANf4Z0GaLklCQFsAWbG0ez2OU  ydt7k4kDbo5kkeMr3gHNvvWEXExulEBNTjdQs6SboUyByZ5nH5JMMmBKYcrDn 1k4iRvN337OdM0MYQxMwZjwFnxHOSfVYX xfoEmtEcPfXDypfkKBzlxRw3 pUQ2PbmfAWCEGcf5w7ttOOc9HI3KJNMo2WniCfNPE5eFh UEA2ocpErPyAJIDtrFiycpiZlX0i2y9HCI6T4c0Tgg1RiHSxn682N9Ox20VUpgUHv5ZxVhnrFHjS7NMnJFyJs0bHCPTpyfGWJxvpjAl95Pm5kxxA57p394tWnuzoU2J3vtC7su5uWQU6sVMoY4hjVXqdf1Mqdu1qlDUw97MmuZSIia9cyc yBiPBXJ"}
+}
+
+func NewMockEntity2() *entities.Translation {
+	return &entities.Translation{
+		Value: "6vbpQ0ywe7lY9obe8ZXFzG4rFSFT6n 591IhotlXRk mpzOaqYz7KqeMxIx43TWwPIaiVDnY6m9LsaGQuhAUd2JA RTjgxEUbqbH2Iod0T7AVB9hG3U5i3kCpj F90Ypa8eAHNk6Gskfas6fv9 leV hIGgxKg3xLRGiuCaCF4LxIFWgOgLUXnazoCwRhDBWBFI6kTjmN87vMoPlZX6peQ7qwPl5w1b0P5n7abdUL8jr3oJfrr89FUoP2zpcuMy5V3N2nkT7yjJyCsyDdVEzUEaZI12kbAT6rGv0B HcJfeft7u NYuxBYzZdqfxAlqTfKJadh2V8WypWUmSDtCnf3ONfuP4l8slehTJzg7iXvJq4BjGpXaflqyJMqylZOJAMpWRwKt1tqkJZMN2",
+		Key:   "b0FJ30zlD1dr0kMF70omzF5159fqvw8pIFEZtUgiUUrN"}
+}

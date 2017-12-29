@@ -1,19 +1,19 @@
-{{define "dao.findall" -}}
+{{define "sqlite.dao.findall" -}}
 {{- $ctx := . -}}
 {{- $name := (index $ctx.Data (print .From ".entity")) -}}
 {{- $entityName := (camelcaseuf $name) -}}
 {{- $typeName := (print $entityName "FindAll") -}}
 {{- $fieldsBaseKey := (print .From ".fields.") -}}
 
-package {{lower $name}}dao
+package dao
 
 import (
 	"fmt"
 	"github.com/goatcms/goatcore/app"
 	"github.com/jmoiron/sqlx"
 	"github.com/goatcms/goatcore/dependency"
-	helpers "{{index $ctx.Properties.Build "path"}}/helpers"
-	maindef "{{index $ctx.Properties.Build "interfaces_path"}}"
+	helpers "{{index $ctx.Properties.Build "path"}}/sqlite/helpers"
+	maindef "{{index $ctx.Properties.Build "path"}}"
 )
 
 // {{$typeName}} is a Data Access Object for {{lower $name}} entity
