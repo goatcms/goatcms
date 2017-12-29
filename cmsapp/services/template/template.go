@@ -5,12 +5,12 @@ import (
 	"html/template"
 	"sync"
 
+	"github.com/goatcms/goatcms/cmsapp/services"
 	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/dependency"
 	"github.com/goatcms/goatcore/filesystem"
 	"github.com/goatcms/goatcore/goathtml"
 	"github.com/goatcms/goatcore/goathtml/ghprovider"
-	"github.com/goatcms/goatcms/cmsapp/services"
 )
 
 // TemplateProvider is global template provider
@@ -41,7 +41,7 @@ func (t *TemplateProvider) init() {
 	if t.provider != nil {
 		return
 	}
-	t.provider = ghprovider.NewProvider(t.deps.Filespace, goathtml.LayoutPath, goathtml.ViewPath, t.funcs)
+	t.provider = ghprovider.NewProvider(t.deps.Filespace, goathtml.LayoutPath, goathtml.ViewPath, goathtml.FileExtension, t.funcs)
 }
 
 // Funcs adds the elements of the argument map to the template's function map.
