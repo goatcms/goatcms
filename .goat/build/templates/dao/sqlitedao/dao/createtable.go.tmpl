@@ -11,7 +11,7 @@ import (
 	"github.com/goatcms/goatcore/app"
 	"github.com/jmoiron/sqlx"
 	"github.com/goatcms/goatcore/dependency"
-	helpers "{{index $ctx.Properties.Build "path"}}/sqlite/helpers"
+	helpers "{{index $ctx.Properties.Build "path"}}/sqlitedao/helpers"
 	maindef "{{index $ctx.Properties.Build "path"}}"
 )
 
@@ -46,8 +46,8 @@ func (dao {{$typeName}}) CreateTable(scope app.Scope) error {
 	if tx, err = helpers.TX(scope, dao.deps.DB); err != nil {
 		return err
 	}
-	tx.MustExec(dao.SQL())
-	return nil
+	_, err = tx.Exec(dao.SQL())
+	return err
 }
 
 func (dao {{$typeName}}) SQL() string {

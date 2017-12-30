@@ -1,23 +1,23 @@
-{{- define "controller.model.list" -}}
+{{- define "admin.controllers.model.list" -}}
 {{- $ctx := . -}}
 {{- $name := (index $ctx.Data (print .From ".entity")) -}}
 {{- $entityName := (camelcaseuf $name) -}}
 {{- $typeName := (print $entityName "CreateTable") -}}
 {{- $fieldsBaseKey := (print .From ".fields.") -}}
 
-package {{lower $name}}ctrl
+package {{lower $name}}
 
 import (
 	"fmt"
 	"html/template"
 	"net/http"
 
-	"github.com/goatcms/goatcms/cmsapp/models"
+	"github.com/goatcms/goatcms/cmsapp/dao"
+	"github.com/goatcms/goatcms/cmsapp/entities"
 	"github.com/goatcms/goatcms/cmsapp/services"
 	"github.com/goatcms/goatcms/cmsapp/services/requestdep"
 	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/db"
-	"github.com/goatcms/goatcore/db/entityChan"
 	"github.com/goatcms/goatcore/dependency"
 	"github.com/goatcms/goatcore/goathtml"
 )
@@ -26,7 +26,7 @@ import (
 type List struct {
 	deps struct {
 		Template services.Template `dependency:"TemplateService"`
-		FindAll  db.FindAll        `dependency:"{{$entityName}}FindAll"`
+		Finder   dao.FindAll       `dependency:"{{$entityName}}FindAll"`
 	}
 	view *template.Template
 }
@@ -38,14 +38,14 @@ func NewList(dp dependency.Provider) (*List, error) {
 	if err = dp.InjectTo(&ctrl.deps); err != nil {
 		return nil, err
 	}
-	if ctrl.view, err = ctrl.deps.Template.View(goathtml.DefaultLayout, "admin/{{lower $name}}/list", nil); err != nil {
+	if ctrl.view, err = ctrl.deps.Template.View(goathtml.DefaultLayout, "admin/model/{{lower $name}}/list", nil); err != nil {
 		return nil, err
 	}
 	return ctrl, nil
 }
 
 // Get is handler to serve template where one can add new article
-func (c *ListCtrl) Get(requestScope app.Scope) {
+func (c *List) Get(requestScope app.Scope) {
 	var (
 		rows        db.Rows
 		err         error
@@ -59,7 +59,7 @@ func (c *ListCtrl) Get(requestScope app.Scope) {
 		fmt.Println(err)
 		return
 	}
-	if rows, err = c.deps.FindAll(requestScope); err != nil {
+	if rows, err = c.deps.Finder.Find(requestScope, entities.{{$entityName}}MainFields); err != nil {
 		requestDeps.RequestError.Error(312, err)
 		return
 	}

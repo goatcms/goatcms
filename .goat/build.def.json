@@ -3,6 +3,10 @@
   "layout":"default",
   "template":"config",
 },{
+  "to":"templates/views/admin",
+  "layout":"default",
+  "template":"admin/views",
+},{
   "to":"cmsapp/entities",
   "layout":"default",
   "template":"entity",
@@ -19,15 +23,15 @@
     "path":"github.com/goatcms/goatcms/cmsapp/dao",
     "entities_path":"github.com/goatcms/goatcms/cmsapp/entities"
   },
-  "afterBuild": "gofmt -w {{argument.cwd}}cmsapp/dao/sqlite/",
+  "afterBuild": "gofmt -w {{argument.cwd}}cmsapp/dao/",
 },{
-  "to":"cmsapp/controllers/admin",
+  "to":"cmsapp/controllers/adminctrl",
   "layout":"default",
   "template":"admin/controllers",
   "properties": {
     "package":"adminctrl",
-    "path":"github.com/goatcms/goatcms/cmsapp/controller/admin",
+    "path":"github.com/goatcms/goatcms/cmsapp/controllers/adminctrl",
     "entities_path":"github.com/goatcms/goatcms/cmsapp/entities"
   },
-  "afterBuild": "gofmt -w {{argument.cwd}}cmsapp/controller/admin/",
+  "afterBuild": "gofmt -w {{argument.cwd}}cmsapp/controllers/admin/",
 }]

@@ -1,14 +1,14 @@
 {{define "sqlite.module" -}}
 {{- $ctx := . -}}
 
-package {{index $ctx.Properties.Build "package"}}
+package sqlitedao
 
 import (
 	"github.com/goatcms/goatcore/dependency"
-	database "{{index $ctx.Properties.Build "path"}}/sqlite/database"
+	database "{{index $ctx.Properties.Build "path"}}/sqlitedao/database"
 	{{- range $index, $key := (keys .Data "model.") }}
-	{{$key}} "{{index $ctx.Properties.Build "path"}}/sqlite/dao/{{$key}}"
-	{{$key}}q "{{index $ctx.Properties.Build "path"}}/sqlite/dao/{{$key}}/queries"
+	{{$key}} "{{index $ctx.Properties.Build "path"}}/sqlitedao/dao/{{$key}}"
+	{{$key}}q "{{index $ctx.Properties.Build "path"}}/sqlitedao/dao/{{$key}}/queries"
 	{{- end -}}
 )
 

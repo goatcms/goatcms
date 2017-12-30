@@ -1,0 +1,14 @@
+{{- define "admin.views.model.list" -}}
+{{- $ctx := . -}}
+{{- $name := (index $ctx.Data (print .From ".entity")) -}}
+{{- $entityName := (camelcaseuf $name) -}}
+{{- $typeName := (print $entityName "CreateTable") -}}
+{{- $fieldsBaseKey := (print .From ".fields.") -}}
+
+{{- noescape "{{- define \"content\" -}}" }}
+
+<h1>IT WORK</h1> yeah {{$entityName}}
+
+{{ noescape "{{- end -}}" }}
+
+{{- end -}}

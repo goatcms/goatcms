@@ -21,11 +21,11 @@ import (
 	"github.com/goatcms/goatcore/app/gio"
 	"github.com/goatcms/goatcore/app/mockupapp"
 	"github.com/goatcms/goatcore/app/scope"
-	dao "{{index $ctx.Properties.Build "path"}}/sqlite/dao/{{$modelName}}"
-	helpers "{{index $ctx.Properties.Build "path"}}/sqlite/helpers"
+	dao "{{index $ctx.Properties.Build "path"}}/sqlitedao/dao/{{$modelName}}"
+	helpers "{{index $ctx.Properties.Build "path"}}/sqlitedao/helpers"
 	entities "{{index $ctx.Properties.Build "entities_path"}}"
 	maindef "{{index $ctx.Properties.Build "path"}}"
-	database "{{index $ctx.Properties.Build "path"}}/sqlite/database"
+	database "{{index $ctx.Properties.Build "path"}}/sqlitedao/database"
 	_ "github.com/mattn/go-sqlite3"
 )
 

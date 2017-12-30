@@ -1,0 +1,13 @@
+{{- $ctx := . -}}
+
+{{- range $index, $key := (keys .Data "model.") -}}
+
+  {{- /* List */ -}}
+  {{- $listPath := (print $ctx.To "/model/" $key "/list/main.gohtml") -}}
+  {{- if not ($ctx.Filesystem.IsFile $listPath) -}}
+    {{- $ctx.Out.File $listPath -}}
+      {{- template "admin.views.model.list" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+{{- end -}}

@@ -1,12 +1,28 @@
 {{- $ctx := . -}}
 
+{{- /* Module */ -}}
+{{- $modulePath := (print $ctx.To "/module.go") -}}
+{{- if not ($ctx.Filesystem.IsFile $modulePath) -}}
+  {{- $ctx.Out.File $modulePath -}}
+    {{- template "admin.controllers.module" $ctx -}}
+  {{- $ctx.Out.EOF -}}
+{{- end -}}
+
 {{- range $index, $key := (keys .Data "model.") -}}
 
-  {{- /* Insert */ -}}
-  {{- $listPath := (print $ctx.To "/model/" $key "/list.go") -}}
+  {{- /* List */ -}}
+  {{- $listPath := (print $ctx.To "/model/" (lower $key) "/list.go") -}}
   {{- if not ($ctx.Filesystem.IsFile $listPath) -}}
     {{- $ctx.Out.File $listPath -}}
-      {{- template "controller.model.list" (ctx $ctx (print "model." $key) "") -}}
+      {{- template "admin.controllers.model.list" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{- /* Module */ -}}
+  {{- $modulePath := (print $ctx.To "/model/" (lower $key) "/module.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $modulePath) -}}
+    {{- $ctx.Out.File $modulePath -}}
+      {{- template "admin.controllers.model.module" (ctx $ctx (print "model." $key) "") -}}
     {{- $ctx.Out.EOF -}}
   {{- end -}}
 

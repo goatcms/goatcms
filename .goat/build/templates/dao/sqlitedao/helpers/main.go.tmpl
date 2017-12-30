@@ -9,7 +9,8 @@ import (
 )
 
 const (
-  TXKey = "_dbtx"
+	TXKey        = "_dbtx"
+	CommitInited = "_dbtx_commit_inited"
 )
 
 func TX(scope app.Scope, db *sqlx.DB) (tx *sqlx.Tx, err error) {
@@ -21,6 +22,14 @@ func TX(scope app.Scope, db *sqlx.DB) (tx *sqlx.Tx, err error) {
       return nil, err
     }
 		scope.Set(TXKey, tx)
+		// add commit event callback
+		ins, err = scope.Get(CommitInited)
+		if err != nil || ins == nil {
+			scope.On(app.CommitEvent, func(interface{}) error {
+				_, err := Commit(scope)
+				return err
+			})
+		}
 	} else {
 		tx = ins.(*sqlx.Tx)
 	}

@@ -5,9 +5,9 @@ import (
 )
 
 type UserLoginQueryParams struct {
-	Login string
+	Login    string
 	Password string
-	Email string
+	Email    string
 }
 
 type UserLoginQuery interface {
