@@ -1,6 +1,3 @@
-{{- define "sqlite.database_test" -}}
-{{- $ctx := . -}}
-
 package database
 
 import (
@@ -12,10 +9,10 @@ import (
 	"github.com/goatcms/goatcore/app/gio"
 	"github.com/goatcms/goatcore/app/mockupapp"
 	"github.com/goatcms/goatcore/app/scope"
-	maindef "{{index $ctx.Properties.Build "path"}}"
+	"github.com/jmoiron/sqlx"
 )
 
-func TestFactory(t *testing.T) {
+func TestEngineFactory(t *testing.T) {
 	var (
 		err  error
 		mapp app.App
@@ -36,22 +33,16 @@ func TestFactory(t *testing.T) {
 		t.Error(err)
 		return
 	}
-	if err = mapp.DependencyProvider().AddDefaultFactory("db0", Factory); err != nil {
-		t.Error(err)
-		return
-	}
 	// test
 	var deps struct {
-		DB maindef.Database `dependency:"db0"`
+		DB *sqlx.DB `dependency:"db0.engine"`
 	}
 	if err = mapp.DependencyProvider().InjectTo(&deps); err != nil {
 		t.Error(err)
 		return
 	}
 	if deps.DB == nil {
-		t.Error("should inject database instance to DB property (during injection)")
+		t.Error("should inject database engine instance to DB property (during injection)")
 		return
 	}
 }
-
-{{- end -}}

@@ -12,7 +12,7 @@ import (
 // TranslationFindByID is a Data Access Object for translation entity
 type TranslationFindByID struct {
 	deps struct {
-		DB *sqlx.DB `dependency:"sqlitedb0"`
+		DB *sqlx.DB `dependency:"db0.engine"`
 	}
 }
 

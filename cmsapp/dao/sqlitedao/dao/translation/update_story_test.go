@@ -27,8 +27,8 @@ func doUpdateStory(t *testing.T) (bool, *sqlx.DB) {
 	if ok, db, entity = doInsertStory(t); !ok {
 		return false, nil
 	}
-	entity.Value = expectedEntity.Value
 	entity.Key = expectedEntity.Key
+	entity.Value = expectedEntity.Value
 	s := scope.NewScope("tag")
 	updater := TranslationUpdate{}
 	updater.deps.DB = db
@@ -48,12 +48,12 @@ func doUpdateStory(t *testing.T) (bool, *sqlx.DB) {
 		t.Error(err)
 		return false, db
 	}
-	if expectedEntity.Value != entity.Value {
-		t.Errorf("Returned field should contains inserted entity value for Value field and it is %v (expeted %v)", entity.Value, expectedEntity.Value)
-		return false, db
-	}
 	if expectedEntity.Key != entity.Key {
 		t.Errorf("Returned field should contains inserted entity value for Key field and it is %v (expeted %v)", entity.Key, expectedEntity.Key)
+		return false, db
+	}
+	if expectedEntity.Value != entity.Value {
+		t.Errorf("Returned field should contains inserted entity value for Value field and it is %v (expeted %v)", entity.Value, expectedEntity.Value)
 		return false, db
 	}
 	return true, db

@@ -44,6 +44,22 @@
   {{- $ctx.Out.EOF -}}
 {{- end -}}
 
+{{- /* Database engine */ -}}
+{{- $databaseEnginePath := (print $ctx.To "/sqlitedao/database/engine.go") -}}
+{{- if not ($ctx.Filesystem.IsFile $databaseEnginePath) -}}
+  {{- $ctx.Out.File $databaseEnginePath -}}
+    {{- template "sqlite.engine" $ctx -}}
+  {{- $ctx.Out.EOF -}}
+{{- end -}}
+
+{{- /* Database engine - test */ -}}
+{{- $testDatabaseEnginePath := (print $ctx.To "/sqlitedao/database/engine_test.go") -}}
+{{- if not ($ctx.Filesystem.IsFile $testDatabaseEnginePath) -}}
+  {{- $ctx.Out.File $testDatabaseEnginePath -}}
+    {{- template "sqlite.engine_test" $ctx -}}
+  {{- $ctx.Out.EOF -}}
+{{- end -}}
+
 {{- range $index, $key := (keys .Data "model.") -}}
 
   {{- /* CreateTable */ -}}

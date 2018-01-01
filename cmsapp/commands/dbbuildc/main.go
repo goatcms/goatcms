@@ -10,7 +10,6 @@ import (
 
 func Run(a app.App) error {
 	var deps struct {
-		//Database        services.Database `dependency:"DatabaseService"`
 		DependencyScope app.Scope `dependency:"DependencyScope"`
 		AppScope        app.Scope `dependency:"AppScope"`
 	}

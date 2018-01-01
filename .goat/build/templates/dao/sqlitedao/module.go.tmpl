@@ -13,7 +13,10 @@ import (
 )
 
 func RegisterDependencies(dp dependency.Provider) error {
-	if err := dp.AddDefaultFactory("sqlitedb0", database.Factory); err != nil {
+	if err := dp.AddDefaultFactory("db0.engine", database.EngineFactory); err != nil {
+		return err
+	}
+	if err := dp.AddDefaultFactory("db0", database.Factory); err != nil {
 		return err
 	}
 	{{- range $index, $key := (keys .Data "model.") }}

@@ -7,29 +7,47 @@ import (
 	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/dependency"
 	"github.com/jmoiron/sqlx"
-	_ "github.com/mattn/go-sqlite3"
+	maindef "{{index $ctx.Properties.Build "path"}}"
+	"{{index $ctx.Properties.Build "path"}}/sqlitedao/helpers"
 )
+
+type Database struct {
+	*sqlx.DB
+}
+
+func (db *Database) Exec(scope app.Scope, sql string) (err error) {
+	var tx *sqlx.Tx
+	if tx, err = helpers.TX(scope, db.DB); err != nil {
+		return err
+	}
+	_, err = tx.Exec(sql)
+	return err
+}
+
+func (db *Database) Commit(scope app.Scope) (err error) {
+	_, err = helpers.Commit(scope)
+	return err
+}
+
+func (db *Database) Rollback(scope app.Scope) (err error) {
+	_, err = helpers.Rollback(scope)
+	return err
+}
 
 // Factory create a new database instance
 func Factory(dp dependency.Provider) (interface{}, error) {
 	var (
 		deps struct {
-			DependencyScope app.Scope `dependency:"DependencyScope"`
-			URL             string    `config:"?database.url"`
+			DB *sqlx.DB `dependency:"db0.engine"`
 		}
-		db  *sqlx.DB
 		err error
 	)
 	if err = dp.InjectTo(&deps); err != nil {
 		return nil, err
 	}
-	if db, err = sqlx.Open("sqlite3", deps.URL); err != nil {
-		return nil, err
-	}
-	deps.DependencyScope.On(app.BeforeCloseEvent, func(interface{}) error {
-		return db.Close()
-	})
-	return db, nil
+	return maindef.Database(&Database{
+		DB: deps.DB,
+	}), nil
 }
 
 {{- end -}}

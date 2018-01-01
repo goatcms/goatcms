@@ -1,10 +1,13 @@
 package dao
 
-import (
-	"database/sql"
+import "github.com/goatcms/goatcore/app"
 
-	"github.com/goatcms/goatcore/app"
-)
+// Database provide database public plain api
+type Database interface {
+	Exec(scope app.Scope, query string) error
+	Commit(scope app.Scope) error
+	Rollback(scope app.Scope) error
+}
 
 // CreateTable describe create table action as DAO separated service
 type CreateTable interface {
@@ -49,19 +52,20 @@ type Update interface {
 }
 
 // TX represent a database transaction accessor
-type TX interface {
+/*type TX interface {
 	Queryx(query string, args ...interface{}) (Rows, error)
 	QueryRowx(query string, args ...interface{}) (Row, error)
 	NamedExec(query string, arg interface{}) (sql.Result, error)
 	MustExec(query string, args ...interface{}) sql.Result
 	Commit() error
 	Rollback() error
-}
+}*/
 
 // Rows represent a query response
 type Rows interface {
 	Close() error
 	Next() bool
+	Columns() ([]string, error)
 	StructScan(dest interface{}) error
 }
 

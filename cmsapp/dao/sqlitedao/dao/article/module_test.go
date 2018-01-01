@@ -30,7 +30,7 @@ func TestModule(t *testing.T) {
 		t.Error(err)
 		return
 	}
-	if err = mapp.DependencyProvider().AddDefaultFactory("sqlitedb0", database.Factory); err != nil {
+	if err = mapp.DependencyProvider().AddDefaultFactory("db0.engine", database.EngineFactory); err != nil {
 		t.Error(err)
 		return
 	}

@@ -6,16 +6,16 @@ import (
 
 func NewMockEntity1() *entities.User {
 	return &entities.User{
-		Firstname: "vQ61BF5B5cfnzBkoq7tCBrqasgIr50YgMKIJglVuwqi3",
-		Password:  "PXegHK8CP0aJhOD5sCfzbk3dgkn9MrHg9sJQ8PYC0aaO",
-		Login:     "pTbj0mLuRshUZXA2K7ViQ18e8L5YgmFJKbwBT7pxAr8b",
-		Email:     "i0JPUNLokXsOijULZpIHEk3xakQAKQUgdJVabOePXAPN"}
+		Login:     "mZjXA5Q5pfbwj12mDxqTDRkRW1LEYyRvyaTMwvcNYX3s",
+		Email:     "5MNhXGyuTniBZuE3HicP7odPrgVU0JACYgKAAcTWCFFb",
+		Password:  "ToZPJNcveIaUW2BkIHgxsWNeeW5MmcdS9KsG7x22j4Jx",
+		Firstname: "8VACs2FwIW6CiHwSXbJq5xCiUECDxnRfgI4GrlGBza45"}
 }
 
 func NewMockEntity2() *entities.User {
 	return &entities.User{
-		Email:     "zBEFGsOv9PqgKfTniaRUV4t7oAlv8JKRKlYgtF2li91i",
-		Firstname: "cPzUWgSBKoGd6aCyLMvkHbDJI8C4vvlLzAzmkd1wyD57",
-		Password:  "ek7VHP4jZpRCXo06UALk630QeyTrHgKtUhJYErtoQzGX",
-		Login:     "nnXWhGgLYcc546fyem11OM2o3fb5v78t7J6dObH4vrf2"}
+		Email:     "eXPP8T9pGo6aMXyKs7E3cdv34iCPnkLzjIBjsqnmMKGa",
+		Login:     "5yyoEHjXfsAu40CQHTJFlngQ9CxcBkBb1LLeRkVodTOS",
+		Password:  "2LzI0lBB5GXaMCIkipIL8izz1CIC5NKy5XcfwfO2J57J",
+		Firstname: "9OQQHBSlSIW9Oj7JuiUFXRBEyqSBKwCdO1ktX0Al55Xs"}
 }

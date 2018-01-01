@@ -12,19 +12,22 @@ import (
 )
 
 func RegisterDependencies(dp dependency.Provider) error {
-	if err := dp.AddDefaultFactory("sqlitedb0", database.Factory); err != nil {
+	if err := dp.AddDefaultFactory("db0.engine", database.EngineFactory); err != nil {
 		return err
 	}
-	if err := user.RegisterDependencies(dp); err != nil {
-		return err
-	}
-	if err := userq.RegisterDependencies(dp); err != nil {
+	if err := dp.AddDefaultFactory("db0", database.Factory); err != nil {
 		return err
 	}
 	if err := translation.RegisterDependencies(dp); err != nil {
 		return err
 	}
 	if err := translationq.RegisterDependencies(dp); err != nil {
+		return err
+	}
+	if err := user.RegisterDependencies(dp); err != nil {
+		return err
+	}
+	if err := userq.RegisterDependencies(dp); err != nil {
 		return err
 	}
 	if err := article.RegisterDependencies(dp); err != nil {

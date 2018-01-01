@@ -12,7 +12,7 @@ import (
 // TranslationFindAll is a Data Access Object for translation entity
 type TranslationFindAll struct {
 	deps struct {
-		DB *sqlx.DB `dependency:"sqlitedb0"`
+		DB *sqlx.DB `dependency:"db0.engine"`
 	}
 }
 

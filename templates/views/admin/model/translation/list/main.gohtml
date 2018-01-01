@@ -1,5 +1,7 @@
 {{- define "content" -}}
 
-<h1>IT WORK</h1> yeah Translation
+<h1>Translation</h1>
 
-{{- end -}}
+{{ if not .Next -}}
+Empty
+{{- end }}

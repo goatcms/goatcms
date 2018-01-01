@@ -5,11 +5,11 @@ import (
 	"strings"
 	"testing"
 
+	maindef "github.com/goatcms/goatcms/cmsapp/dao"
 	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/app/gio"
 	"github.com/goatcms/goatcore/app/mockupapp"
 	"github.com/goatcms/goatcore/app/scope"
-	"github.com/jmoiron/sqlx"
 )
 
 func TestFactory(t *testing.T) {
@@ -29,13 +29,17 @@ func TestFactory(t *testing.T) {
 		t.Error(err)
 		return
 	}
-	if err = mapp.DependencyProvider().AddDefaultFactory("sqlitedb0", Factory); err != nil {
+	if err = mapp.DependencyProvider().AddDefaultFactory("db0.engine", EngineFactory); err != nil {
+		t.Error(err)
+		return
+	}
+	if err = mapp.DependencyProvider().AddDefaultFactory("db0", Factory); err != nil {
 		t.Error(err)
 		return
 	}
 	// test
 	var deps struct {
-		DB *sqlx.DB `dependency:"sqlitedb0"`
+		DB maindef.Database `dependency:"db0"`
 	}
 	if err = mapp.DependencyProvider().InjectTo(&deps); err != nil {
 		t.Error(err)

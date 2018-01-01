@@ -11,7 +11,7 @@ import (
 // ArticleCreateTable is a Data Access Object for article entity
 type ArticleCreateTable struct {
 	deps struct {
-		DB *sqlx.DB `dependency:"sqlitedb0"`
+		DB *sqlx.DB `dependency:"db0.engine"`
 	}
 }
 
@@ -44,5 +44,5 @@ func (dao ArticleCreateTable) CreateTable(scope app.Scope) error {
 }
 
 func (dao ArticleCreateTable) SQL() string {
-	return `CREATE TABLE Article (ID INTEGER PRIMARY KEY, Content TEXT, Title TEXT)`
+	return `CREATE TABLE Article (ID INTEGER PRIMARY KEY, Title TEXT, Content TEXT)`
 }

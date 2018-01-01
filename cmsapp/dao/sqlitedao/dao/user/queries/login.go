@@ -13,7 +13,7 @@ import (
 // UserLoginQuery is a query object for
 type UserLoginQuery struct {
 	deps struct {
-		DB *sqlx.DB `dependency:"sqlitedb0"`
+		DB *sqlx.DB `dependency:"db0.engine"`
 	}
 }
 
@@ -62,11 +62,11 @@ func (dao UserLoginQuery) SQL(fields []string, params *maindef.UserLoginQueryPar
 	}
 	// fields
 	sql += " FROM User WHERE "
-	if params.Email != "" || params.Password != "" {
-		sql += "(Email=" + strconv.Quote(params.Email) + " AND Password=" + strconv.Quote(params.Password)
-	}
 	if params.Login != "" || params.Password != "" {
-		sql += ") OR (Login=" + strconv.Quote(params.Login) + " AND Password=" + strconv.Quote(params.Password)
+		sql += "(Login=" + strconv.Quote(params.Login) + " AND Password=" + strconv.Quote(params.Password)
+	}
+	if params.Email != "" || params.Password != "" {
+		sql += ") OR (Email=" + strconv.Quote(params.Email) + " AND Password=" + strconv.Quote(params.Password)
 	}
 	sql += ") LIMIT 1"
 	return sql

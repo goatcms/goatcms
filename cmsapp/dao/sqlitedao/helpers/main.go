@@ -45,6 +45,18 @@ func Commit(scope app.Scope) (isCommited bool, err error) {
 	return true, tx.Commit()
 }
 
+func Rollback(scope app.Scope) (isRollback bool, err error) {
+	var ins interface{}
+	ins, err = scope.Get(TXKey)
+	if err != nil || ins == nil {
+		// nothing to commit
+		return false, nil
+	}
+	tx := ins.(*sqlx.Tx)
+	scope.Set(TXKey, nil)
+	return true, tx.Rollback()
+}
+
 func NewMemoryDB() (db *sqlx.DB, err error) {
 	if db, err = sqlx.Open("sqlite3", ":memory:"); err != nil {
 		return nil, err

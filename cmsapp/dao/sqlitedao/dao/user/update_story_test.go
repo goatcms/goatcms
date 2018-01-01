@@ -27,10 +27,10 @@ func doUpdateStory(t *testing.T) (bool, *sqlx.DB) {
 	if ok, db, entity = doInsertStory(t); !ok {
 		return false, nil
 	}
-	entity.Password = expectedEntity.Password
-	entity.Login = expectedEntity.Login
-	entity.Firstname = expectedEntity.Firstname
 	entity.Email = expectedEntity.Email
+	entity.Login = expectedEntity.Login
+	entity.Password = expectedEntity.Password
+	entity.Firstname = expectedEntity.Firstname
 	s := scope.NewScope("tag")
 	updater := UserUpdate{}
 	updater.deps.DB = db
@@ -50,16 +50,16 @@ func doUpdateStory(t *testing.T) (bool, *sqlx.DB) {
 		t.Error(err)
 		return false, db
 	}
-	if expectedEntity.Email != entity.Email {
-		t.Errorf("Returned field should contains inserted entity value for Email field and it is %v (expeted %v)", entity.Email, expectedEntity.Email)
-		return false, db
-	}
 	if expectedEntity.Firstname != entity.Firstname {
 		t.Errorf("Returned field should contains inserted entity value for Firstname field and it is %v (expeted %v)", entity.Firstname, expectedEntity.Firstname)
 		return false, db
 	}
 	if expectedEntity.Password != entity.Password {
 		t.Errorf("Returned field should contains inserted entity value for Password field and it is %v (expeted %v)", entity.Password, expectedEntity.Password)
+		return false, db
+	}
+	if expectedEntity.Email != entity.Email {
+		t.Errorf("Returned field should contains inserted entity value for Email field and it is %v (expeted %v)", entity.Email, expectedEntity.Email)
 		return false, db
 	}
 	if expectedEntity.Login != entity.Login {

@@ -45,7 +45,7 @@ func doUserLoginQuery(t *testing.T) bool {
 		t.Error(err)
 		return false
 	}
-	if err = mapp.DependencyProvider().AddDefaultFactory("sqlitedb0", database.Factory); err != nil {
+	if err = mapp.DependencyProvider().AddDefaultFactory("db0.engine", database.EngineFactory); err != nil {
 		t.Error(err)
 		return false
 	}
@@ -80,9 +80,9 @@ func doUserLoginQuery(t *testing.T) bool {
 		return false
 	}
 	params := &maindef.UserLoginQueryParams{
-		Login:    expectedEntity.Login,
-		Password: expectedEntity.Password,
 		Email:    expectedEntity.Email,
+		Password: expectedEntity.Password,
+		Login:    expectedEntity.Login,
 	}
 	if row, err = deps.Query.Login(s, entities.UserMainFields, params); err != nil {
 		t.Error(err)
@@ -93,8 +93,8 @@ func doUserLoginQuery(t *testing.T) bool {
 		t.Error(err)
 		return false
 	}
-	if expectedEntity.Firstname != entity.Firstname {
-		t.Errorf("Returned field should contains inserted entity value for Firstname field and it is %v (expeted %v)", entity.Firstname, expectedEntity.Firstname)
+	if expectedEntity.Login != entity.Login {
+		t.Errorf("Returned field should contains inserted entity value for Login field and it is %v (expeted %v)", entity.Login, expectedEntity.Login)
 		return false
 	}
 	if expectedEntity.Email != entity.Email {
@@ -105,8 +105,8 @@ func doUserLoginQuery(t *testing.T) bool {
 		t.Errorf("Returned field should contains inserted entity value for Password field and it is %v (expeted %v)", entity.Password, expectedEntity.Password)
 		return false
 	}
-	if expectedEntity.Login != entity.Login {
-		t.Errorf("Returned field should contains inserted entity value for Login field and it is %v (expeted %v)", entity.Login, expectedEntity.Login)
+	if expectedEntity.Firstname != entity.Firstname {
+		t.Errorf("Returned field should contains inserted entity value for Firstname field and it is %v (expeted %v)", entity.Firstname, expectedEntity.Firstname)
 		return false
 	}
 	return true

@@ -6,12 +6,12 @@ import (
 
 func NewMockEntity1() *entities.Article {
 	return &entities.Article{
-		Title:   "rMNvfxoOUWqyrPSINVl373NoHeGF08N3UVq47QIN0Y0c",
-		Content: "cINuuDh8DubS7llNiUxU23KRasIcpUllw43eQdxfhGyi"}
+		Content: "AxvtO3AByzLIq6xwbdN6RlxM2lSqzgu2Itl0cy0Fopsx",
+		Title:   "sijrmTHrn7P8HM4gM951B2FTvsHOjTeV7MvJBDQ6zlZX"}
 }
 
 func NewMockEntity2() *entities.Article {
 	return &entities.Article{
-		Title:   "J8jMRY3K8UdcFRK8qpzspCGYNUwyo4zohACzMZSuiiJO",
-		Content: "HleHVxMwanajppHOlUB7FTwi8e0xg30mkXAdewLwBht8"}
+		Content: "82mXwCAvGkxypW4isRp3glG5GWYZWKN3jZYvFpVYKqQz",
+		Title:   "lj9nQJljsD6FRjSSUJMg4T0UiKspq3GvxINEpcpJlhJ9"}
 }

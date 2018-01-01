@@ -11,7 +11,7 @@ import (
 // TranslationCreateTable is a Data Access Object for translation entity
 type TranslationCreateTable struct {
 	deps struct {
-		DB *sqlx.DB `dependency:"sqlitedb0"`
+		DB *sqlx.DB `dependency:"db0.engine"`
 	}
 }
 
@@ -44,5 +44,5 @@ func (dao TranslationCreateTable) CreateTable(scope app.Scope) error {
 }
 
 func (dao TranslationCreateTable) SQL() string {
-	return `CREATE TABLE Translation (ID INTEGER PRIMARY KEY, Key TEXT, Value TEXT)`
+	return `CREATE TABLE Translation (ID INTEGER PRIMARY KEY, Value TEXT, Key TEXT)`
 }

@@ -48,12 +48,12 @@ func doUpdateStory(t *testing.T) (bool, *sqlx.DB) {
 		t.Error(err)
 		return false, db
 	}
-	if expectedEntity.Title != entity.Title {
-		t.Errorf("Returned field should contains inserted entity value for Title field and it is %v (expeted %v)", entity.Title, expectedEntity.Title)
-		return false, db
-	}
 	if expectedEntity.Content != entity.Content {
 		t.Errorf("Returned field should contains inserted entity value for Content field and it is %v (expeted %v)", entity.Content, expectedEntity.Content)
+		return false, db
+	}
+	if expectedEntity.Title != entity.Title {
+		t.Errorf("Returned field should contains inserted entity value for Title field and it is %v (expeted %v)", entity.Title, expectedEntity.Title)
 		return false, db
 	}
 	return true, db

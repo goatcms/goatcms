@@ -39,12 +39,12 @@ func doFindByIDStory(t *testing.T) (bool, *sqlx.DB) {
 		t.Error(err)
 		return false, db
 	}
-	if expectedEntity.Key != entity.Key {
-		t.Errorf("Returned field should contains inserted entity value for Key field and it is %v (expeted %v)", entity.Key, expectedEntity.Key)
-		return false, db
-	}
 	if expectedEntity.Value != entity.Value {
 		t.Errorf("Returned field should contains inserted entity value for Value field and it is %v (expeted %v)", entity.Value, expectedEntity.Value)
+		return false, db
+	}
+	if expectedEntity.Key != entity.Key {
+		t.Errorf("Returned field should contains inserted entity value for Key field and it is %v (expeted %v)", entity.Key, expectedEntity.Key)
 		return false, db
 	}
 	return true, db

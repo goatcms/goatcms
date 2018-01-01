@@ -4,16 +4,17 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/goatcms/goatcms/cmsapp/commands"
+	"github.com/goatcms/goatcms/cmsapp/dao"
 	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/filesystem"
-	"github.com/goatcms/goatcms/cmsapp/commands"
-	"github.com/goatcms/goatcms/cmsapp/services"
 )
 
 type Deps struct {
 	Path      string               `argument:"?path"`
 	Filespace filesystem.Filespace `filespace:"root"`
-	Database  services.Database    `dependency:"DatabaseService"`
+	AppScope  app.Scope            `dependency:"AppScope"`
+	Database  dao.Database         `dependency:"db0"`
 }
 
 func Run(a app.App) error {
@@ -21,10 +22,6 @@ func Run(a app.App) error {
 		Path: commands.DefaultFixtureDir,
 	}
 	if err := a.DependencyProvider().InjectTo(deps); err != nil {
-		return err
-	}
-	tx, err := deps.Database.TX()
-	if err != nil {
 		return err
 	}
 	files, err := deps.Filespace.ReadDir(deps.Path)
@@ -37,12 +34,14 @@ func Run(a app.App) error {
 			if err != nil {
 				return err
 			}
-			tx.MustExec(string(data))
+			if err = deps.Database.Exec(deps.AppScope, string(data)); err != nil {
+				return err
+			}
 			fmt.Printf(" loaded %s\n", file.Name())
 		}
 	}
 	fmt.Printf("commited... ")
-	if err := tx.Commit(); err != nil {
+	if err := deps.Database.Commit(deps.AppScope); err != nil {
 		fmt.Printf("fail\n")
 		return err
 	}

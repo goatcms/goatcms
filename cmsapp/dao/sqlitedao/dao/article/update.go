@@ -13,7 +13,7 @@ import (
 // ArticleUpdate is a Data Access Object for article entity
 type ArticleUpdate struct {
 	deps struct {
-		DB *sqlx.DB `dependency:"sqlitedb0"`
+		DB *sqlx.DB `dependency:"db0.engine"`
 	}
 }
 

@@ -7,8 +7,10 @@
 
 {{- noescape "{{- define \"content\" -}}" }}
 
-<h1>IT WORK</h1> yeah {{$entityName}}
+<h1>{{$entityName}}</h1>
 
-{{ noescape "{{- end -}}" }}
+{{ noescape "{{ if not .Next -}}" }}
+Empty
+{{ noescape "{{- end }}" }}
 
 {{- end -}}

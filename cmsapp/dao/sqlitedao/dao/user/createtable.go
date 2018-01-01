@@ -11,7 +11,7 @@ import (
 // UserCreateTable is a Data Access Object for user entity
 type UserCreateTable struct {
 	deps struct {
-		DB *sqlx.DB `dependency:"sqlitedb0"`
+		DB *sqlx.DB `dependency:"db0.engine"`
 	}
 }
 
@@ -44,5 +44,5 @@ func (dao UserCreateTable) CreateTable(scope app.Scope) error {
 }
 
 func (dao UserCreateTable) SQL() string {
-	return `CREATE TABLE User (ID INTEGER PRIMARY KEY, Password TEXT, Login TEXT, Firstname TEXT, Email TEXT)`
+	return `CREATE TABLE User (ID INTEGER PRIMARY KEY, Password TEXT, Email TEXT, Login TEXT, Firstname TEXT)`
 }

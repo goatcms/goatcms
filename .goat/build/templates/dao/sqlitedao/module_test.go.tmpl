@@ -39,7 +39,7 @@ func TestModule(t *testing.T) {
 	}
 	// test
 	var deps struct {
-		DB *sqlx.DB `dependency:"sqlitedb0"`
+		DB *sqlx.DB `dependency:"db0.engine"`
 		{{- range $index, $key := (keys .Data "model.") }}
 		{{camelcaseuf $key}}CreateTable maindef.CreateTable `dependency:"{{camelcaseuf $key}}CreateTable"`
 		{{camelcaseuf $key}}Delete maindef.Delete `dependency:"{{camelcaseuf $key}}Delete"`
