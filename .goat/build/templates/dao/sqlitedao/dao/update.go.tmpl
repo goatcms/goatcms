@@ -10,18 +10,20 @@ package dao
 import (
 	"fmt"
 	"database/sql"
+	"strconv"
 	"github.com/goatcms/goatcore/app"
-	"github.com/jmoiron/sqlx"
+	"database/sql"
 	"github.com/goatcms/goatcore/dependency"
 	helpers "{{index $ctx.Properties.Build "path"}}/sqlitedao/helpers"
 	maindef "{{index $ctx.Properties.Build "path"}}"
+	entities "{{index $ctx.Properties.Build "entities_path"}}"
 )
 
 
 // {{$typeName}} is a Data Access Object for {{lower $name}} entity
 type {{$typeName}} struct {
   deps struct{
-    DB *sqlx.DB `dependency:"db0.engine"`
+    DB *sql.DB `dependency:"db0.engine"`
   }
 }
 
@@ -38,41 +40,55 @@ func {{$typeName}}Factory(dp dependency.Provider) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	return maindef.Update(instance), nil
+	return maindef.{{$entityName}}Update(instance), nil
 }
 
-func (dao {{$typeName}}) Update(scope app.Scope, entity interface{}, fields []string) (err error) {
+func (dao {{$typeName}}) Update(scope app.Scope, entity *entities.{{$entityName}}, fields []string) (err error) {
 	var (
 		res   sql.Result
 		count int64
-		sql string
-		tx  *sqlx.Tx
+		query string
+		tx  *sql.Tx
 	)
 	if tx, err = helpers.TX(scope, dao.deps.DB); err != nil {
 		return err
 	}
-	if sql, err = dao.SQL(fields); err != nil {
-		return err
+	if query, err = dao.SQL(fields, entity); err != nil {
+		return fmt.Errorf("%s: %s", err.Error(), query)
 	}
-	if res, err = tx.NamedExec(sql, entity); err != nil {
-		return fmt.Errorf("%s: %s", err.Error(), sql)
+	if res, err = tx.Exec(query); err != nil {
 	}
 	if count, err = res.RowsAffected(); err != nil {
-		return fmt.Errorf("%s: %s", err.Error(), sql)
+		return fmt.Errorf("%s: %s", err.Error(), query)
 	}
 	if count != 1 {
-		return fmt.Errorf("Update modified more then one record (%v records modyfieds): %s", count, sql)
+		return fmt.Errorf("Update modified more then one record (%v records modyfieds): %s", count, query)
 	}
 	return nil
 }
 
-func (dao {{$typeName}}) SQL(fields []string) (string, error) {
+func (dao {{$typeName}}) SQL(fields []string, entity *entities.{{$entityName}}) (string, error) {
 	sql := "UPDATE {{camelcaseuf $name}} SET "
 	for i, row := range fields {
 		if i == 0 {
-			sql += row + " = :" + row
+			sql += row + "="
 		} else {
-			sql += ", " + row + " = :" + row
+			sql += ", " + row + "="
+		}
+		switch(row) {
+			{{- range $fi, $field := (keys $ctx.Data $fieldsBaseKey) -}}
+				{{- $key := (print $fieldsBaseKey $field) -}}
+				{{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
+				{{- $fieldType := (index $ctx.Data (print $key ".type")) }}
+				case "{{$fieldName}}":
+				{{- if eq (lower $fieldType) "text" "string" -}}
+					sql += strconv.Quote(*entity.{{camelcaseuf $fieldName}})
+				{{- else if (lower $fieldType) "int" -}}
+					sql += strconv.Itoa(*entity.{{camelcaseuf $fieldName}})
+				{{- else -}}
+					{{- error (print "bad type" $fieldType) -}}
+				{{- end -}}
+			{{- end -}}
 		}
 	}
 	return sql, nil

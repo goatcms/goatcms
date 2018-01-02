@@ -1,9 +1,9 @@
 package database
 
 import (
+	"database/sql"
 	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/dependency"
-	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -14,13 +14,13 @@ func EngineFactory(dp dependency.Provider) (interface{}, error) {
 			DependencyScope app.Scope `dependency:"DependencyScope"`
 			URL             string    `config:"?database.url"`
 		}
-		db  *sqlx.DB
+		db  *sql.DB
 		err error
 	)
 	if err = dp.InjectTo(&deps); err != nil {
 		return nil, err
 	}
-	if db, err = sqlx.Open("sqlite3", deps.URL); err != nil {
+	if db, err = sql.Open("sqlite3", deps.URL); err != nil {
 		return nil, err
 	}
 	deps.DependencyScope.On(app.BeforeCloseEvent, func(interface{}) error {

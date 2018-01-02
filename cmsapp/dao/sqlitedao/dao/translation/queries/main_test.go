@@ -5,13 +5,23 @@ import (
 )
 
 func NewMockEntity1() *entities.Translation {
+	var (
+		key   string = "voJJ7TeCjaJ2aZZHqc2FRcqO3Z7BS4f3ZkHMRdXL0U6Y"
+		value string = "d4ae1wGamu4p8w0o RbCbP8AewVttN9C2KOlzwWXjhDTTtE51MbkFut2AES0bJCkMZ4WwX0pEzpueEZ2QVHwT c1uAcfoXG579NpNDZDUvbHYxiy D5i XkQcjSTOMgx6FEEV2DI4V4tOB3SRMm20Ycl7ZAu3q0aDLaff8rIPqtKZNMVjlE4O qiJQNPxgTFTah0viTIC GiDF9yNxeWdl5JTHoqYzHu4ytar94pA0bhfJ2VNIN8Y2pmCd1XOjzSAJwSTzul68rbBJKWMQgIsjDTtERKPIUz3SML9Orc51drCbkzFTb7n5JcnjMaqSyhUfMKUNEHulDZb1umypHRwg4uv541pNkk0p6DipH2wcFlzoGFNUa5rMCrdVKJpNlWERmpr9mCBif4geHL"
+	)
 	return &entities.Translation{
-		Value: "6DDmJBfhPtXnZa8quNb6sX343U80W p3OKIbR5sr3pssdZu07n9xJdFPN7BfFEHOctP2s3hrSZ4Yi7BFHqkC GDte1YsButNYZF2bqs2cSQUohSgzybzV5zUX105E7epLoDM76g jL06M1evv2718WELEshbU1NKsdg2bZ0XfM5ZmDftLuGUM1J3jiZf9isK8RUw65eiZsiTZ65NoDpYGmUSJ fz5KknrqTTrCRmaHHPQG FBP4UHJXAstVRiGJMjwDKeSXmJ334fIZZWTujsFm U23YY5FjHKLxcxlYRP2ET9NsbzttVruh46gvqFz65mHIPhe3qp VS829mc6yuQ0lGTUIQz1Ziibr1vEnW1OTGccJzorGlkKX0zsZbyG9mxNvsbsGArfyHZsh",
-		Key:   "9FOVyBQr9LzIBgbRT4PeZVsorMUhPZ3kFqfACcE9EGDJ"}
+		Key:   &key,
+		Value: &value,
+	}
 }
 
 func NewMockEntity2() *entities.Translation {
+	var (
+		key   string = "SJ2mEBrmWKSMMNb7qyTxyPIxitKAeDZWENZKMjOwyVAA"
+		value string = "nC6lIPv4sqV8A5L6WWF JByb081mDYoTU239nIpZUzN4wFvEmgTHrhnQaeu8NfCFmiYbe3eEUJ57Yb5rJAWWAKHDVbQCTqGVkPqbAv3pdRRQyUUqdNQWAVnBF8kwpBMPjhYTtE3Cq3XJMoCRzlkgI6PwyOKFBNurupoVGzHfjYInRqm9G C jOKLAkMxB0TNT5l4LSOSGLNaMHovOHd1VSp3HK7T6sCshewiY4tGAakrDAGLan1tLce6GzYk 4KpfwYVjiUqXZW1HgXmAg5ybQMWL2 3JkRb eoizyBYNnALZoalcem8 MfNxIjN2Qs2xItJ7EVWU0mIfqeTgUPlJf SvZ8FaFsWizE8t2xjlPL7JHbj88793SntGHFc14TCIzXb4ipctT9gLY0h"
+	)
 	return &entities.Translation{
-		Value: "K1pOoDBGWQeFQQlOKBtQjCInDPXxDsxIe4eTdLVBZsmOsi7YZHjvS00Gk5NJmGZoox4ecTtunhbN69KdHWQlqBGOPxCaHccAKIBBR7GLth3wSOCmum3r6YGCOYaEHKcERnQUhbkf3d t3lCNDfPs271EiJU4JnJnO2xylKOugjSqhyPaooHiwBY2P0ifRcj7MGMiTWCKg7oWvFRXZUQPT5ye4Mu2fJjq M43SNizMzThudiRm0XcNrP8walpqClbN9tbE8eEEkJxobgrNkIA8p17fZhLS0AREst218JsEOLdtLkk6c7PisKkNqdtVwxicQkhc7qO5V4wPZOLMbQQEeVSi9ZVnUgDGjeLKbue4AMvZfseA TXhG49lbYpLe1W1oDMu39hYPUOCYim",
-		Key:   "AWmSgdz38t1rb7EuZusXmkzhkFinzEwgWkRev4tE2oHK"}
+		Key:   &key,
+		Value: &value,
+	}
 }

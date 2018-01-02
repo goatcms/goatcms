@@ -1,23 +1,23 @@
 package database
 
 import (
+	"database/sql"
 	maindef "github.com/goatcms/goatcms/cmsapp/dao"
 	"github.com/goatcms/goatcms/cmsapp/dao/sqlitedao/helpers"
 	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/dependency"
-	"github.com/jmoiron/sqlx"
 )
 
 type Database struct {
-	*sqlx.DB
+	*sql.DB
 }
 
-func (db *Database) Exec(scope app.Scope, sql string) (err error) {
-	var tx *sqlx.Tx
+func (db *Database) Exec(scope app.Scope, query string) (err error) {
+	var tx *sql.Tx
 	if tx, err = helpers.TX(scope, db.DB); err != nil {
 		return err
 	}
-	_, err = tx.Exec(sql)
+	_, err = tx.Exec(query)
 	return err
 }
 
@@ -35,7 +35,7 @@ func (db *Database) Rollback(scope app.Scope) (err error) {
 func Factory(dp dependency.Provider) (interface{}, error) {
 	var (
 		deps struct {
-			DB *sqlx.DB `dependency:"db0.engine"`
+			DB *sql.DB `dependency:"db0.engine"`
 		}
 		err error
 	)

@@ -5,13 +5,23 @@ import (
 )
 
 func NewMockEntity1() *entities.Translation {
+	var (
+		key   string = "OZYIvQREApDxw629AoGPzd1VTDMhuAu27YWJNbA1AyRB"
+		value string = "zLsuzTgVFSQQjYhUQirmdzIgrVmDS7Zii4Hw3VoabQvng0UR1T9QydcPdAOA3dxkLsdTJzgHGJlTlafhjw2JtW7nHljz9W9LB1xUYO3FrnD8J6W3cSJCUKM0qudt8zUgzq5RLPJSo0VNqJQBLmiOuwE5ko7Ze8meHSogNx7g0Qf7CX2hGSmIvNCcqvPKWfjgYrWL5MqIof0OOmGJkfv8sZnsIeG 02sUkqG27LgeDQ8PPdkNiUvfYDfcHBIOqjNekwcJRZz3K6wEy90rThPR XU7NaXxt6YpPwCsToiXDE5D62AbUIZLlHw0j8QhgmVwZStIe1iTIV4btfWhYzjmZ8qCLWKCyg759GEgHQ2jVMZKQr6jHY2PEK8mV2F0Ja7XmI6VpU3NfHLCaxNa"
+	)
 	return &entities.Translation{
-		Value: "1Nu  gNFFRUgV6RtNOCEM8322VCN1Jg2nNT6GKf5eSihwbm9FrjXsxE22IUpvi3EkTorLMSW9EYKV95EcG99uwFu5k1JjZVGbZBTuHWjXTIIyl8yktz0W66mr6TRKiqGghhs 0Z2kIKIZsVvDoXcRMSOIuR7dulcZgM ZtWt7hGKQkQG179zYajCznFZWRps36KjeQDy67dyPAvFffpEg2kYEJC7zU7F 7gWtXXH Ky7a8IbO0KhVyaqywWttKtX58CZLQBNEJM0LbVv6vncmzTUzLkkVmzfHXB0szXYgEN5AYMjUBuydz51kPrCwnfUq6sR6zVTTVzOGlOUhWD29tJRNX5b0SVVsfG21dbi9eT2fXAzW6OxZJGwY2MOOvBHGa9N1XzuRMBIqkRX",
-		Key:   "5FT1DSJC3uGcQnP21S1CO7961vBOc2zbjM8YDunhnYFx"}
+		Key:   &key,
+		Value: &value,
+	}
 }
 
 func NewMockEntity2() *entities.Translation {
+	var (
+		value string = "UZ05Ehr  F9B7w5aRvErBWp7eujlvuofcyy7DsSciTBlh RflG8duJNnevdsMagRlbv EQCvtLsXrKA53W6fddWCmtD4DOrptW9Ur5owkFL4o9oq69fY4fRH1Vt7EcoeUi4TeL2fKdaBWkl0EtkePw1bRaykpasYh9augqfySLSpQZ7WYJ AxIRl7PbyMrkLb9Yxx4ESO xJL07ZL7IEBa9vz9JvxeKBDsdA1nIgLV779Fg3JyjsdK7xVAIrSQbDIdgTepNpaLto4Vl2wQiUTXsfQctZ2TyT4YkZRg1eCG6qoiv9V5b JvmXg fPeAEHnIxAQZn2H4KydxxT7UB9fFeifmpEnvtBajKPW4RjbVu4wBFk7rqwcrBvcWH6vqK7d3DvwK8fQzscskg0"
+		key   string = "lhMPBTczc6RGrjNgMJwZTuyQvB22PCzXAUQvpsCtTs01"
+	)
 	return &entities.Translation{
-		Key:   "kHIKYHwEZKmq4U8kA6DNWAhsYyyRWLKDeSYFanXr6WV6",
-		Value: "oXVt2VZP2Xf4QLcF5Nbqj0DwWQnG4FZP661AQF UtKg7Qv3MsncpYtOCTLezXOOdkPoFSbjU3VwLFxJiyat9SKfy0mmpWkJPGYotjq6SDXuyNVpT1IquHn2jNqpLMAnYhjTvWHVh2CWeAXGXGDU2ngf3arIhJXS889d7Hb6u9yKC8FNo3DVltbLcjaM14yY1ljYucjJbqZ7wWrBgbM3o2XvzVdcVVpneHYn5bBi72l2j1N5RxypsMYBYtnE2z5K0GyACJp4ZNNXCFUhX ttNlJcwOgV0pkCAZip1rVlW9E5r1GMIhE0w 3NlQR2TuRIgkSXCdnH90vgVa6GEgIxTjRMn86WMl0v FqmKTFR034GGXnObcbK DbrB7lG43oKMkXfxR1xbAGjTJ2Cn"}
+		Value: &value,
+		Key:   &key,
+	}
 }

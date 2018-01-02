@@ -9,7 +9,7 @@ package dao
 
 import (
 	"testing"
-	"github.com/jmoiron/sqlx"
+	"database/sql"
 	"github.com/goatcms/goatcore/app/scope"
 	helpers "{{index $ctx.Properties.Build "path"}}/sqlitedao/helpers"
 	_ "github.com/mattn/go-sqlite3"
@@ -21,9 +21,9 @@ func TestCreateTable(t *testing.T) {
 	doCreateTable(t)
 }
 
-func doCreateTable(t *testing.T) (bool, *sqlx.DB) {
+func doCreateTable(t *testing.T) (bool, *sql.DB) {
 	var (
-		db  *sqlx.DB
+		db  *sql.DB
 		err error
 	)
 	if db, err = helpers.NewMemoryDB(); err != nil {

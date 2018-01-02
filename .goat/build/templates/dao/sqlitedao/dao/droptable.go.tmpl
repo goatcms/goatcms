@@ -9,7 +9,7 @@ package dao
 
 import (
 	"github.com/goatcms/goatcore/app"
-	"github.com/jmoiron/sqlx"
+	"database/sql"
 	"github.com/goatcms/goatcore/dependency"
 	helpers "{{index $ctx.Properties.Build "path"}}/sqlitedao/helpers"
 	maindef "{{index $ctx.Properties.Build "path"}}"
@@ -18,7 +18,7 @@ import (
 // {{$typeName}} is a Data Access Object for {{lower $name}} entity
 type {{$typeName}} struct {
   deps struct{
-    DB *sqlx.DB `dependency:"db0.engine"`
+    DB *sql.DB `dependency:"db0.engine"`
   }
 }
 
@@ -38,16 +38,13 @@ func {{$typeName}}Factory(dp dependency.Provider) (interface{}, error) {
 	return maindef.DropTable(instance), nil
 }
 
-func (dao {{$typeName}}) DropTable(scope app.Scope) error {
-	var (
-		err   error
-		tx *sqlx.Tx
-	)
+func (dao {{$typeName}}) DropTable(scope app.Scope) (err error) {
+	var tx *sql.Tx
 	if tx, err = helpers.TX(scope, dao.deps.DB); err != nil {
 		return err
 	}
-	tx.MustExec(dao.SQL())
-	return nil
+	_, err = tx.Exec(dao.SQL())
+	return err
 }
 
 func (dao {{$typeName}}) SQL() string {

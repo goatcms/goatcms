@@ -62,6 +62,38 @@
 
 {{- range $index, $key := (keys .Data "model.") -}}
 
+  {{- /* rows */ -}}
+  {{- $rowsPath := (print $ctx.To "/sqlitedao/dao/" $key "/rows.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $rowsPath) -}}
+    {{- $ctx.Out.File $rowsPath -}}
+      {{- template "sqlite.dao.rows" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{- /* row */ -}}
+  {{- $rowPath := (print $ctx.To "/sqlitedao/dao/" $key "/row.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $rowPath) -}}
+    {{- $ctx.Out.File $rowPath -}}
+      {{- template "sqlite.dao.row" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{- /* Search */ -}}
+  {{- $searchPath := (print $ctx.To "/sqlitedao/dao/" $key "/search.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $searchPath) -}}
+    {{- $ctx.Out.File $searchPath -}}
+      {{- template "sqlite.dao.search" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{- /* Search story test */ -}}
+  {{- $testSearchPath := (print $ctx.To "/sqlitedao/dao/" $key "/search_story_test.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $testSearchPath) -}}
+    {{- $ctx.Out.File $testSearchPath -}}
+      {{- template "sqlite.dao.search_story_test" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
   {{- /* CreateTable */ -}}
   {{- $createtablePath := (print $ctx.To "/sqlitedao/dao/" $key "/createtable.go") -}}
   {{- if not ($ctx.Filesystem.IsFile $createtablePath) -}}

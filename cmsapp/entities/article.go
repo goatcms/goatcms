@@ -1,11 +1,11 @@
 package entities
 
 // ArticleMainFields is a array object contains list of all Article fields without ID
-var ArticleMainFields = []string{"Content", "Title"}
+var ArticleMainFields = []string{"Title", "Content"}
 
 // Article storages article data
 type Article struct {
-	ID      int64  `json:"id"`
-	Title   string `json:"title" db:"Title"`
-	Content string `json:"content" db:"Content"`
+	ID      *int64  `json:"id"`
+	Content *string `json:"content" db:"Content"`
+	Title   *string `json:"title" db:"Title"`
 }

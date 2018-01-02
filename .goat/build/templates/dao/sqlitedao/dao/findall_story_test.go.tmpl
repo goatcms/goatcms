@@ -8,7 +8,7 @@ package dao
 
 import (
 	"testing"
-	"github.com/jmoiron/sqlx"
+	"database/sql"
 	"github.com/goatcms/goatcore/app/scope"
 	entities "{{index $ctx.Properties.Build "entities_path"}}"
 	maindef "{{index $ctx.Properties.Build "path"}}"
@@ -21,11 +21,11 @@ func TestFindAllStory(t *testing.T) {
 	doFindAllStory(t)
 }
 
-func doFindAllStory(t *testing.T) (bool, *sqlx.DB) {
+func doFindAllStory(t *testing.T) (bool, *sql.DB) {
 	var (
-		rows     maindef.Rows
+		rows     maindef.{{$entityName}}Rows
 		ok       bool
-		db       *sqlx.DB
+		db       *sql.DB
 		err      error
 	)
 	if ok, db, _ = doInsertStory(t); !ok {
@@ -38,16 +38,13 @@ func doFindAllStory(t *testing.T) (bool, *sqlx.DB) {
 		t.Error(err)
 		return false, db
 	}
-	// expected list witn exaclly one row
-	// TODO: check this
-
 	// iterate over each row
 	count := 0
 	expectedEntity := NewMockEntity1()
 	for rows.Next() {
-		var e entities.{{$entityName}}
+		var e *entities.{{$entityName}}
 		count++
-		if err = rows.StructScan(&e); err != nil {
+		if e, err = rows.Get(); err != nil {
 			t.Error(err)
 			return false, db
 		}
@@ -55,7 +52,7 @@ func doFindAllStory(t *testing.T) (bool, *sqlx.DB) {
 		  {{- $key := (print $fieldsBaseKey $field) -}}
 		  {{- $fieldName := (index $ctx.Data (print $key ".name")) -}}
 			{{- print "\n" -}}
-			if expectedEntity.{{camelcaseuf $fieldName}} != e.{{camelcaseuf $fieldName}} {
+			if *expectedEntity.{{camelcaseuf $fieldName}} != *e.{{camelcaseuf $fieldName}} {
 				t.Errorf("Returned field should contains inserted entity value for {{camelcaseuf $fieldName}} field and it is %v (expeted %v)",e.{{camelcaseuf $fieldName}}, expectedEntity.{{camelcaseuf $fieldName}})
 				return false, db
 			}

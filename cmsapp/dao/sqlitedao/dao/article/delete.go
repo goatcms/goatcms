@@ -7,13 +7,13 @@ import (
 	helpers "github.com/goatcms/goatcms/cmsapp/dao/sqlitedao/helpers"
 	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/dependency"
-	"github.com/jmoiron/sqlx"
+	"strconv"
 )
 
 // ArticleDelete is a Data Access Object for article entity
 type ArticleDelete struct {
 	deps struct {
-		DB *sqlx.DB `dependency:"db0.engine"`
+		DB *sql.DB `dependency:"db0.engine"`
 	}
 }
 
@@ -35,20 +35,16 @@ func ArticleDeleteFactory(dp dependency.Provider) (interface{}, error) {
 
 func (dao ArticleDelete) Delete(scope app.Scope, id int64) error {
 	var (
-		res         sql.Result
-		err         error
-		count       int64
-		idContainer struct {
-			ID int64 `db:"id"`
-		}
-		tx *sqlx.Tx
+		res   sql.Result
+		err   error
+		count int64
+		tx    *sql.Tx
 	)
-	idContainer.ID = id
 	if tx, err = helpers.TX(scope, dao.deps.DB); err != nil {
 		return err
 	}
-	sql := "DELETE FROM Article WHERE id=:id"
-	if res, err = tx.NamedExec(sql, &idContainer); err != nil {
+	sql := "DELETE FROM Article WHERE id=" + strconv.FormatInt(id, 10)
+	if res, err = tx.Exec(sql); err != nil {
 		return fmt.Errorf("%s: %s", err.Error(), sql)
 	}
 	if count, err = res.RowsAffected(); err != nil {

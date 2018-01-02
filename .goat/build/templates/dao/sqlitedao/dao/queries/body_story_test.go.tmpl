@@ -43,13 +43,13 @@ func do{{$typeName}}(t *testing.T) (bool) {
 		entity         *entities.{{$modelNameUF}}
 		deps struct {
 			TableCreator maindef.CreateTable `dependency:"{{$modelNameUF}}CreateTable"`
-			Inserter     maindef.Insert `dependency:"{{$modelNameUF}}Insert"`
+			Inserter     maindef.{{$modelNameUF}}Insert `dependency:"{{$modelNameUF}}Insert"`
 			Query        maindef.{{$modelNameUF}}{{$queryNameUF}}Query `dependency:"{{$modelNameUF}}{{$queryNameUF}}Query"`
 		}
 		{{- if eq $isSingleResult "y" }}
-		row maindef.Row
+			{{- /* Use entity - don't create a new variable */ -}}
 		{{- else }}
-		rows maindef.Rows
+		rows maindef.{{$modelNameUF}}Rows
 		{{- end }}
 	)
 	configScope := scope.NewScope(app.ConfigTagName)
@@ -88,7 +88,7 @@ func do{{$typeName}}(t *testing.T) (bool) {
 		return false
 	}
 	expectedEntity = NewMockEntity1()
-	if _, err = deps.Inserter.Insert(s, expectedEntity, entities.{{$modelNameUF}}MainFields); err != nil {
+	if _, err = deps.Inserter.Insert(s, expectedEntity); err != nil {
 		t.Error(err)
 		return false
 	}
@@ -100,29 +100,25 @@ func do{{$typeName}}(t *testing.T) (bool) {
 		{{- range $fi, $field := $fields -}}
 			{{- $modelFieldKey := (print $modelKey ".fields." (findRow (print $modelKey ".fields.") "^[A-Za-z0-9]+$" ".name" $field $ctx.Data)) -}}
 			{{- $fieldType := (index $ctx.Data (print $modelFieldKey ".type")) }}
-			{{camelcaseuf $field}}: expectedEntity.{{camelcaseuf $field}},
+			{{camelcaseuf $field}}: *expectedEntity.{{camelcaseuf $field}},
 		{{- end }}
 	}
 	if {{ if eq $isSingleResult "y" -}}
-		row
+		entity
 	{{- else -}}
-		rows maindef.Rows
+		rows
 	{{- end }}, err = deps.Query.{{$queryNameUF}}(s, entities.{{$modelNameUF}}MainFields, params); err != nil {
 		t.Error(err)
 		return false
 	}
-	entity = &entities.{{$modelNameUF}}{}
 	{{- if eq $isSingleResult "y" }}
-		if err = row.StructScan(entity); err != nil {
-			t.Error(err)
-			return false
-		}
+		{{- /* use directly entity as deps.Query.{{$queryNameUF}} result */ -}}
 	{{- else }}
 		count := 0
 		for rows.Next() {
 			var e entities.{{$modelNameUF}}
 			count++
-			if err = rows.StructScan(entity); err != nil {
+			if entity, err = rows.Get(); err != nil {
 				t.Error(err)
 				return false, db
 			}
@@ -136,7 +132,7 @@ func do{{$typeName}}(t *testing.T) (bool) {
 	{{- range $i, $fieldid := (keys .Data (print $modelKey ".fields.")) -}}
 		{{- $key := (print $modelKey ".fields." $fieldid) -}}
 		{{- $fieldName := (index $ctx.Data (print $key ".name")) }}
-		if expectedEntity.{{camelcaseuf $fieldName}} != entity.{{camelcaseuf $fieldName}} {
+		if *expectedEntity.{{camelcaseuf $fieldName}} != *entity.{{camelcaseuf $fieldName}} {
 			t.Errorf("Returned field should contains inserted entity value for {{camelcaseuf $fieldName}} field and it is %v (expeted %v)", entity.{{camelcaseuf $fieldName}}, expectedEntity.{{camelcaseuf $fieldName}})
 			return false
 		}

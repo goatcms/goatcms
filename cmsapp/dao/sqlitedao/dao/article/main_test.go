@@ -5,13 +5,23 @@ import (
 )
 
 func NewMockEntity1() *entities.Article {
+	var (
+		content string = "eOr7W1Z40kE6fyMyKKb8E2CezUUmYhVmbPuKXxGyifJi"
+		title   string = "jHxgvK0HA5Plv9hvgysp5dXEQp2EPcHtjARDbLUTSCdz"
+	)
 	return &entities.Article{
-		Title:   "KTfaPv2lRcdecK5ddWuA4PaxC1IVxHy3iwy1Itvl8vDP",
-		Content: "6DV4WqqwiAs36apeHhdXJ7AVXCMJTgbXPxlrkxD3YTGc"}
+		Content: &content,
+		Title:   &title,
+	}
 }
 
 func NewMockEntity2() *entities.Article {
+	var (
+		title   string = "4cxndrwTVqBjhOPzhLvTBDzaxfDrYMKOlqJMFbp4xUg0"
+		content string = "vDiphKeJCyZt0Zcdy4yOOcy8pFzPvD9yqoBFe4bVjtaW"
+	)
 	return &entities.Article{
-		Content: "S4XFk1u5M9NER7Apq1f3pyYJZRgNXXx4gCO0mBx6gXpb",
-		Title:   "6ZKlNLlMqwvO1kAQilV8uJPD6tevDdEIGIBGXePgI5Sl"}
+		Title:   &title,
+		Content: &content,
+	}
 }

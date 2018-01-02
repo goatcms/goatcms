@@ -49,10 +49,11 @@ func TestModule(t *testing.T) {
 		{{$entityName}}CreateTable maindef.CreateTable `dependency:"{{$entityName}}CreateTable"`
 		{{$entityName}}Delete maindef.Delete `dependency:"{{$entityName}}Delete"`
 		{{$entityName}}DropTable maindef.DropTable `dependency:"{{$entityName}}DropTable"`
-		{{$entityName}}FindAll maindef.FindAll `dependency:"{{$entityName}}FindAll"`
-		{{$entityName}}FindByID maindef.FindByID `dependency:"{{$entityName}}FindByID"`
-		{{$entityName}}Insert maindef.Insert `dependency:"{{$entityName}}Insert"`
-		{{$entityName}}Update maindef.Update `dependency:"{{$entityName}}Update"`
+		{{$entityName}}FindAll maindef.{{$entityName}}FindAll `dependency:"{{$entityName}}FindAll"`
+		{{$entityName}}FindByID maindef.{{$entityName}}FindByID `dependency:"{{$entityName}}FindByID"`
+		{{$entityName}}Insert maindef.{{$entityName}}Insert `dependency:"{{$entityName}}Insert"`
+		{{$entityName}}Update maindef.{{$entityName}}Update `dependency:"{{$entityName}}Update"`
+		{{$entityName}}Search maindef.{{$entityName}}Search `dependency:"{{$entityName}}Search"`
 	}
 	if err = mapp.DependencyProvider().InjectTo(&deps); err != nil {
 		t.Error(err)

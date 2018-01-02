@@ -1,18 +1,18 @@
 package dao
 
 import (
+	"database/sql"
 	"fmt"
 	maindef "github.com/goatcms/goatcms/cmsapp/dao"
 	helpers "github.com/goatcms/goatcms/cmsapp/dao/sqlitedao/helpers"
 	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/dependency"
-	"github.com/jmoiron/sqlx"
 )
 
 // ArticleFindAll is a Data Access Object for article entity
 type ArticleFindAll struct {
 	deps struct {
-		DB *sqlx.DB `dependency:"db0.engine"`
+		DB *sql.DB `dependency:"db0.engine"`
 	}
 }
 
@@ -29,24 +29,26 @@ func ArticleFindAllFactory(dp dependency.Provider) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	return maindef.FindAll(instance), nil
+	return maindef.ArticleFindAll(instance), nil
 }
 
-func (dao ArticleFindAll) Find(scope app.Scope, fields []string) (rows maindef.Rows, err error) {
+func (dao ArticleFindAll) Find(scope app.Scope, fields []string) (maindef.ArticleRows, error) {
 	var (
-		sql string
-		tx  *sqlx.Tx
+		err   error
+		query string
+		tx    *sql.Tx
+		rows  *sql.Rows
 	)
 	if tx, err = helpers.TX(scope, dao.deps.DB); err != nil {
 		return nil, err
 	}
-	if sql, err = dao.SQL(fields); err != nil {
+	if query, err = dao.SQL(fields); err != nil {
 		return nil, err
 	}
-	if rows, err = tx.Queryx(sql); err != nil {
-		return nil, fmt.Errorf("%s: %s", err.Error(), sql)
+	if rows, err = tx.Query(query); err != nil {
+		return nil, fmt.Errorf("%s: %s", err.Error(), query)
 	}
-	return rows.(maindef.Rows), nil
+	return NewArticleRows(rows), nil
 }
 
 func (dao ArticleFindAll) SQL(fields []string) (string, error) {

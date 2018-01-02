@@ -7,13 +7,13 @@ import (
 	"bytes"
 	"strings"
 	"testing"
+	"database/sql"
 
 	maindef "{{index $ctx.Properties.Build "path"}}"
 	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/app/gio"
 	"github.com/goatcms/goatcore/app/mockupapp"
 	"github.com/goatcms/goatcore/app/scope"
-	"github.com/jmoiron/sqlx"
 )
 
 func TestModule(t *testing.T) {
@@ -39,15 +39,16 @@ func TestModule(t *testing.T) {
 	}
 	// test
 	var deps struct {
-		DB *sqlx.DB `dependency:"db0.engine"`
+		DB *sql.DB `dependency:"db0.engine"`
 		{{- range $index, $key := (keys .Data "model.") }}
-		{{camelcaseuf $key}}CreateTable maindef.CreateTable `dependency:"{{camelcaseuf $key}}CreateTable"`
-		{{camelcaseuf $key}}Delete maindef.Delete `dependency:"{{camelcaseuf $key}}Delete"`
-		{{camelcaseuf $key}}DropTable maindef.DropTable `dependency:"{{camelcaseuf $key}}DropTable"`
-		{{camelcaseuf $key}}FindAll maindef.FindAll `dependency:"{{camelcaseuf $key}}FindAll"`
-		{{camelcaseuf $key}}FindByID maindef.FindByID `dependency:"{{camelcaseuf $key}}FindByID"`
-		{{camelcaseuf $key}}Insert maindef.Insert `dependency:"{{camelcaseuf $key}}Insert"`
-		{{camelcaseuf $key}}Update maindef.Update `dependency:"{{camelcaseuf $key}}Update"`
+		{{- $entityName := (camelcaseuf (index $ctx.Data (print "model." $key ".entity"))) }}
+		{{$entityName}}CreateTable maindef.CreateTable `dependency:"{{$entityName}}CreateTable"`
+		{{$entityName}}Delete maindef.Delete `dependency:"{{$entityName}}Delete"`
+		{{$entityName}}DropTable maindef.DropTable `dependency:"{{$entityName}}DropTable"`
+		{{$entityName}}FindAll maindef.{{$entityName}}FindAll `dependency:"{{$entityName}}FindAll"`
+		{{$entityName}}FindByID maindef.{{$entityName}}FindByID `dependency:"{{$entityName}}FindByID"`
+		{{$entityName}}Insert maindef.{{$entityName}}Insert `dependency:"{{$entityName}}Insert"`
+		{{$entityName}}Update maindef.{{$entityName}}Update `dependency:"{{$entityName}}Update"`
 		{{- end -}}
 	}
 	if err = mapp.DependencyProvider().InjectTo(&deps); err != nil {

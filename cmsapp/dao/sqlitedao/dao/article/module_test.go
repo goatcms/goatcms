@@ -40,13 +40,14 @@ func TestModule(t *testing.T) {
 	}
 	// test
 	var deps struct {
-		ArticleCreateTable maindef.CreateTable `dependency:"ArticleCreateTable"`
-		ArticleDelete      maindef.Delete      `dependency:"ArticleDelete"`
-		ArticleDropTable   maindef.DropTable   `dependency:"ArticleDropTable"`
-		ArticleFindAll     maindef.FindAll     `dependency:"ArticleFindAll"`
-		ArticleFindByID    maindef.FindByID    `dependency:"ArticleFindByID"`
-		ArticleInsert      maindef.Insert      `dependency:"ArticleInsert"`
-		ArticleUpdate      maindef.Update      `dependency:"ArticleUpdate"`
+		ArticleCreateTable maindef.CreateTable     `dependency:"ArticleCreateTable"`
+		ArticleDelete      maindef.Delete          `dependency:"ArticleDelete"`
+		ArticleDropTable   maindef.DropTable       `dependency:"ArticleDropTable"`
+		ArticleFindAll     maindef.ArticleFindAll  `dependency:"ArticleFindAll"`
+		ArticleFindByID    maindef.ArticleFindByID `dependency:"ArticleFindByID"`
+		ArticleInsert      maindef.ArticleInsert   `dependency:"ArticleInsert"`
+		ArticleUpdate      maindef.ArticleUpdate   `dependency:"ArticleUpdate"`
+		ArticleSearch      maindef.ArticleSearch   `dependency:"ArticleSearch"`
 	}
 	if err = mapp.DependencyProvider().InjectTo(&deps); err != nil {
 		t.Error(err)

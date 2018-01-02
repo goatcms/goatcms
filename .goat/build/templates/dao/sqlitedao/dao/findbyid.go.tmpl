@@ -10,7 +10,7 @@ package dao
 import (
 	"strconv"
 	"github.com/goatcms/goatcore/app"
-	"github.com/jmoiron/sqlx"
+	"database/sql"
 	"github.com/goatcms/goatcore/dependency"
 	helpers "{{index $ctx.Properties.Build "path"}}/sqlitedao/helpers"
 	maindef "{{index $ctx.Properties.Build "path"}}"
@@ -20,7 +20,7 @@ import (
 // {{$typeName}} is a Data Access Object for {{lower $name}} entity
 type {{$typeName}} struct {
   deps struct{
-    DB *sqlx.DB `dependency:"db0.engine"`
+    DB *sql.DB `dependency:"db0.engine"`
   }
 }
 
@@ -37,22 +37,24 @@ func {{$typeName}}Factory(dp dependency.Provider) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	return maindef.FindByID(instance), nil
+	return maindef.{{$entityName}}FindByID(instance), nil
 }
 
-func (dao {{$typeName}}) Find(scope app.Scope, fields []string, id int64) (row maindef.Row, err error) {
+func (dao {{$typeName}}) Find(scope app.Scope, fields []string, id int64) (maindef.{{$entityName}}Row, error) {
 	var (
-		sql string
-		tx  *sqlx.Tx
+		err   error
+		query string
+		tx    *sql.Tx
+		row   *sql.Row
 	)
 	if tx, err = helpers.TX(scope, dao.deps.DB); err != nil {
 		return nil, err
 	}
-	if sql, err = dao.SQL(fields, id); err != nil {
+	if query, err = dao.SQL(fields, id); err != nil {
 		return nil, err
 	}
-	row = tx.QueryRowx(sql)
-	return row, nil
+	row = tx.QueryRow(query)
+	return New{{$entityName}}Row(row, fields), nil
 }
 
 func (dao {{$typeName}}) SQL(fields []string, id int64) (string, error) {

@@ -40,13 +40,14 @@ func TestModule(t *testing.T) {
 	}
 	// test
 	var deps struct {
-		TranslationCreateTable maindef.CreateTable `dependency:"TranslationCreateTable"`
-		TranslationDelete      maindef.Delete      `dependency:"TranslationDelete"`
-		TranslationDropTable   maindef.DropTable   `dependency:"TranslationDropTable"`
-		TranslationFindAll     maindef.FindAll     `dependency:"TranslationFindAll"`
-		TranslationFindByID    maindef.FindByID    `dependency:"TranslationFindByID"`
-		TranslationInsert      maindef.Insert      `dependency:"TranslationInsert"`
-		TranslationUpdate      maindef.Update      `dependency:"TranslationUpdate"`
+		TranslationCreateTable maindef.CreateTable         `dependency:"TranslationCreateTable"`
+		TranslationDelete      maindef.Delete              `dependency:"TranslationDelete"`
+		TranslationDropTable   maindef.DropTable           `dependency:"TranslationDropTable"`
+		TranslationFindAll     maindef.TranslationFindAll  `dependency:"TranslationFindAll"`
+		TranslationFindByID    maindef.TranslationFindByID `dependency:"TranslationFindByID"`
+		TranslationInsert      maindef.TranslationInsert   `dependency:"TranslationInsert"`
+		TranslationUpdate      maindef.TranslationUpdate   `dependency:"TranslationUpdate"`
+		TranslationSearch      maindef.TranslationSearch   `dependency:"TranslationSearch"`
 	}
 	if err = mapp.DependencyProvider().InjectTo(&deps); err != nil {
 		t.Error(err)

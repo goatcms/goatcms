@@ -1,10 +1,10 @@
 package dao
 
 import (
+	"database/sql"
 	maindef "github.com/goatcms/goatcms/cmsapp/dao"
 	entities "github.com/goatcms/goatcms/cmsapp/entities"
 	"github.com/goatcms/goatcore/app/scope"
-	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
 	"testing"
 )
@@ -14,11 +14,11 @@ func TestFindByIDStory(t *testing.T) {
 	doFindByIDStory(t)
 }
 
-func doFindByIDStory(t *testing.T) (bool, *sqlx.DB) {
+func doFindByIDStory(t *testing.T) (bool, *sql.DB) {
 	var (
-		row            maindef.Row
+		row            maindef.TranslationRow
 		ok             bool
-		db             *sqlx.DB
+		db             *sql.DB
 		err            error
 		expectedEntity *entities.Translation
 		entity         *entities.Translation
@@ -29,22 +29,21 @@ func doFindByIDStory(t *testing.T) (bool, *sqlx.DB) {
 	s := scope.NewScope("tag")
 	finder := TranslationFindByID{}
 	finder.deps.DB = db
-	if row, err = finder.Find(s, entities.TranslationMainFields, expectedEntity.ID); err != nil {
+	if row, err = finder.Find(s, entities.TranslationMainFields, *expectedEntity.ID); err != nil {
 		t.Error(err)
 		return false, db
 	}
 	// iterate over each row
-	entity = &entities.Translation{}
-	if err = row.StructScan(entity); err != nil {
+	if entity, err = row.Get(); err != nil {
 		t.Error(err)
 		return false, db
 	}
-	if expectedEntity.Value != entity.Value {
-		t.Errorf("Returned field should contains inserted entity value for Value field and it is %v (expeted %v)", entity.Value, expectedEntity.Value)
+	if *expectedEntity.Key != *entity.Key {
+		t.Errorf("Returned field should contains inserted entity value for Key field and it is %v (expeted %v)", entity.Key, expectedEntity.Key)
 		return false, db
 	}
-	if expectedEntity.Key != entity.Key {
-		t.Errorf("Returned field should contains inserted entity value for Key field and it is %v (expeted %v)", entity.Key, expectedEntity.Key)
+	if *expectedEntity.Value != *entity.Value {
+		t.Errorf("Returned field should contains inserted entity value for Value field and it is %v (expeted %v)", entity.Value, expectedEntity.Value)
 		return false, db
 	}
 	return true, db

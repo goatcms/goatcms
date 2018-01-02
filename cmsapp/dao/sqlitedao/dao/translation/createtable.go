@@ -1,17 +1,17 @@
 package dao
 
 import (
+	"database/sql"
 	maindef "github.com/goatcms/goatcms/cmsapp/dao"
 	helpers "github.com/goatcms/goatcms/cmsapp/dao/sqlitedao/helpers"
 	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/dependency"
-	"github.com/jmoiron/sqlx"
 )
 
 // TranslationCreateTable is a Data Access Object for translation entity
 type TranslationCreateTable struct {
 	deps struct {
-		DB *sqlx.DB `dependency:"db0.engine"`
+		DB *sql.DB `dependency:"db0.engine"`
 	}
 }
 
@@ -31,11 +31,8 @@ func TranslationCreateTableFactory(dp dependency.Provider) (interface{}, error) 
 	return maindef.CreateTable(instance), nil
 }
 
-func (dao TranslationCreateTable) CreateTable(scope app.Scope) error {
-	var (
-		err error
-		tx  *sqlx.Tx
-	)
+func (dao TranslationCreateTable) CreateTable(scope app.Scope) (err error) {
+	var tx *sql.Tx
 	if tx, err = helpers.TX(scope, dao.deps.DB); err != nil {
 		return err
 	}
@@ -44,5 +41,5 @@ func (dao TranslationCreateTable) CreateTable(scope app.Scope) error {
 }
 
 func (dao TranslationCreateTable) SQL() string {
-	return `CREATE TABLE Translation (ID INTEGER PRIMARY KEY, Value TEXT, Key TEXT)`
+	return `CREATE TABLE IF NOT EXISTS Translation (ID INTEGER PRIMARY KEY, Key TEXT, Value TEXT)`
 }

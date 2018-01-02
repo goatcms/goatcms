@@ -2,6 +2,7 @@ package sqlitedao
 
 import (
 	"bytes"
+	"database/sql"
 	"strings"
 	"testing"
 
@@ -10,7 +11,6 @@ import (
 	"github.com/goatcms/goatcore/app/gio"
 	"github.com/goatcms/goatcore/app/mockupapp"
 	"github.com/goatcms/goatcore/app/scope"
-	"github.com/jmoiron/sqlx"
 )
 
 func TestModule(t *testing.T) {
@@ -36,28 +36,28 @@ func TestModule(t *testing.T) {
 	}
 	// test
 	var deps struct {
-		DB                     *sqlx.DB            `dependency:"db0.engine"`
-		UserCreateTable        maindef.CreateTable `dependency:"UserCreateTable"`
-		UserDelete             maindef.Delete      `dependency:"UserDelete"`
-		UserDropTable          maindef.DropTable   `dependency:"UserDropTable"`
-		UserFindAll            maindef.FindAll     `dependency:"UserFindAll"`
-		UserFindByID           maindef.FindByID    `dependency:"UserFindByID"`
-		UserInsert             maindef.Insert      `dependency:"UserInsert"`
-		UserUpdate             maindef.Update      `dependency:"UserUpdate"`
-		TranslationCreateTable maindef.CreateTable `dependency:"TranslationCreateTable"`
-		TranslationDelete      maindef.Delete      `dependency:"TranslationDelete"`
-		TranslationDropTable   maindef.DropTable   `dependency:"TranslationDropTable"`
-		TranslationFindAll     maindef.FindAll     `dependency:"TranslationFindAll"`
-		TranslationFindByID    maindef.FindByID    `dependency:"TranslationFindByID"`
-		TranslationInsert      maindef.Insert      `dependency:"TranslationInsert"`
-		TranslationUpdate      maindef.Update      `dependency:"TranslationUpdate"`
-		ArticleCreateTable     maindef.CreateTable `dependency:"ArticleCreateTable"`
-		ArticleDelete          maindef.Delete      `dependency:"ArticleDelete"`
-		ArticleDropTable       maindef.DropTable   `dependency:"ArticleDropTable"`
-		ArticleFindAll         maindef.FindAll     `dependency:"ArticleFindAll"`
-		ArticleFindByID        maindef.FindByID    `dependency:"ArticleFindByID"`
-		ArticleInsert          maindef.Insert      `dependency:"ArticleInsert"`
-		ArticleUpdate          maindef.Update      `dependency:"ArticleUpdate"`
+		DB                     *sql.DB                     `dependency:"db0.engine"`
+		TranslationCreateTable maindef.CreateTable         `dependency:"TranslationCreateTable"`
+		TranslationDelete      maindef.Delete              `dependency:"TranslationDelete"`
+		TranslationDropTable   maindef.DropTable           `dependency:"TranslationDropTable"`
+		TranslationFindAll     maindef.TranslationFindAll  `dependency:"TranslationFindAll"`
+		TranslationFindByID    maindef.TranslationFindByID `dependency:"TranslationFindByID"`
+		TranslationInsert      maindef.TranslationInsert   `dependency:"TranslationInsert"`
+		TranslationUpdate      maindef.TranslationUpdate   `dependency:"TranslationUpdate"`
+		UserCreateTable        maindef.CreateTable         `dependency:"UserCreateTable"`
+		UserDelete             maindef.Delete              `dependency:"UserDelete"`
+		UserDropTable          maindef.DropTable           `dependency:"UserDropTable"`
+		UserFindAll            maindef.UserFindAll         `dependency:"UserFindAll"`
+		UserFindByID           maindef.UserFindByID        `dependency:"UserFindByID"`
+		UserInsert             maindef.UserInsert          `dependency:"UserInsert"`
+		UserUpdate             maindef.UserUpdate          `dependency:"UserUpdate"`
+		ArticleCreateTable     maindef.CreateTable         `dependency:"ArticleCreateTable"`
+		ArticleDelete          maindef.Delete              `dependency:"ArticleDelete"`
+		ArticleDropTable       maindef.DropTable           `dependency:"ArticleDropTable"`
+		ArticleFindAll         maindef.ArticleFindAll      `dependency:"ArticleFindAll"`
+		ArticleFindByID        maindef.ArticleFindByID     `dependency:"ArticleFindByID"`
+		ArticleInsert          maindef.ArticleInsert       `dependency:"ArticleInsert"`
+		ArticleUpdate          maindef.ArticleUpdate       `dependency:"ArticleUpdate"`
 	}
 	if err = mapp.DependencyProvider().InjectTo(&deps); err != nil {
 		t.Error(err)

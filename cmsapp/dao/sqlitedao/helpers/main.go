@@ -1,8 +1,8 @@
 package helpers
 
 import (
+	"database/sql"
 	"github.com/goatcms/goatcore/app"
-	"github.com/jmoiron/sqlx"
 )
 
 const (
@@ -10,11 +10,11 @@ const (
 	CommitInited = "_dbtx_commit_inited"
 )
 
-func TX(scope app.Scope, db *sqlx.DB) (tx *sqlx.Tx, err error) {
+func TX(scope app.Scope, db *sql.DB) (tx *sql.Tx, err error) {
 	var ins interface{}
 	ins, err = scope.Get(TXKey)
 	if err != nil || ins == nil {
-		tx, err = db.Beginx()
+		tx, err = db.Begin()
 		if err != nil {
 			return nil, err
 		}
@@ -28,7 +28,7 @@ func TX(scope app.Scope, db *sqlx.DB) (tx *sqlx.Tx, err error) {
 			})
 		}
 	} else {
-		tx = ins.(*sqlx.Tx)
+		tx = ins.(*sql.Tx)
 	}
 	return tx, nil
 }
@@ -40,7 +40,7 @@ func Commit(scope app.Scope) (isCommited bool, err error) {
 		// nothing to commit
 		return false, nil
 	}
-	tx := ins.(*sqlx.Tx)
+	tx := ins.(*sql.Tx)
 	scope.Set(TXKey, nil)
 	return true, tx.Commit()
 }
@@ -52,13 +52,13 @@ func Rollback(scope app.Scope) (isRollback bool, err error) {
 		// nothing to commit
 		return false, nil
 	}
-	tx := ins.(*sqlx.Tx)
+	tx := ins.(*sql.Tx)
 	scope.Set(TXKey, nil)
 	return true, tx.Rollback()
 }
 
-func NewMemoryDB() (db *sqlx.DB, err error) {
-	if db, err = sqlx.Open("sqlite3", ":memory:"); err != nil {
+func NewMemoryDB() (db *sql.DB, err error) {
+	if db, err = sql.Open("sqlite3", ":memory:"); err != nil {
 		return nil, err
 	}
 	return db, nil

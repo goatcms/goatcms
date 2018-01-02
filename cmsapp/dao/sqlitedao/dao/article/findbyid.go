@@ -1,18 +1,18 @@
 package dao
 
 import (
+	"database/sql"
 	maindef "github.com/goatcms/goatcms/cmsapp/dao"
 	helpers "github.com/goatcms/goatcms/cmsapp/dao/sqlitedao/helpers"
 	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/dependency"
-	"github.com/jmoiron/sqlx"
 	"strconv"
 )
 
 // ArticleFindByID is a Data Access Object for article entity
 type ArticleFindByID struct {
 	deps struct {
-		DB *sqlx.DB `dependency:"db0.engine"`
+		DB *sql.DB `dependency:"db0.engine"`
 	}
 }
 
@@ -29,22 +29,24 @@ func ArticleFindByIDFactory(dp dependency.Provider) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	return maindef.FindByID(instance), nil
+	return maindef.ArticleFindByID(instance), nil
 }
 
-func (dao ArticleFindByID) Find(scope app.Scope, fields []string, id int64) (row maindef.Row, err error) {
+func (dao ArticleFindByID) Find(scope app.Scope, fields []string, id int64) (maindef.ArticleRow, error) {
 	var (
-		sql string
-		tx  *sqlx.Tx
+		err   error
+		query string
+		tx    *sql.Tx
+		row   *sql.Row
 	)
 	if tx, err = helpers.TX(scope, dao.deps.DB); err != nil {
 		return nil, err
 	}
-	if sql, err = dao.SQL(fields, id); err != nil {
+	if query, err = dao.SQL(fields, id); err != nil {
 		return nil, err
 	}
-	row = tx.QueryRowx(sql)
-	return row, nil
+	row = tx.QueryRow(query)
+	return NewArticleRow(row, fields), nil
 }
 
 func (dao ArticleFindByID) SQL(fields []string, id int64) (string, error) {

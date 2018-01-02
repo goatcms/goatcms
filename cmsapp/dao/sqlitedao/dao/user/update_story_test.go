@@ -1,10 +1,10 @@
 package dao
 
 import (
+	"database/sql"
 	maindef "github.com/goatcms/goatcms/cmsapp/dao"
 	entities "github.com/goatcms/goatcms/cmsapp/entities"
 	"github.com/goatcms/goatcore/app/scope"
-	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
 	"testing"
 )
@@ -14,11 +14,11 @@ func TestUpdateStory(t *testing.T) {
 	doUpdateStory(t)
 }
 
-func doUpdateStory(t *testing.T) (bool, *sqlx.DB) {
+func doUpdateStory(t *testing.T) (bool, *sql.DB) {
 	var (
-		row            maindef.Row
+		row            maindef.UserRow
 		ok             bool
-		db             *sqlx.DB
+		db             *sql.DB
 		err            error
 		expectedEntity *entities.User
 		entity         *entities.User
@@ -28,9 +28,9 @@ func doUpdateStory(t *testing.T) (bool, *sqlx.DB) {
 		return false, nil
 	}
 	entity.Email = expectedEntity.Email
-	entity.Login = expectedEntity.Login
 	entity.Password = expectedEntity.Password
 	entity.Firstname = expectedEntity.Firstname
+	entity.Login = expectedEntity.Login
 	s := scope.NewScope("tag")
 	updater := UserUpdate{}
 	updater.deps.DB = db
@@ -40,30 +40,29 @@ func doUpdateStory(t *testing.T) (bool, *sqlx.DB) {
 	}
 	finder := UserFindByID{}
 	finder.deps.DB = db
-	if row, err = finder.Find(s, entities.UserMainFields, entity.ID); err != nil {
+	if row, err = finder.Find(s, entities.UserMainFields, *entity.ID); err != nil {
 		t.Error(err)
 		return false, db
 	}
 	// iterate over each row
-	entity = &entities.User{}
-	if err = row.StructScan(entity); err != nil {
+	if entity, err = row.Get(); err != nil {
 		t.Error(err)
 		return false, db
 	}
-	if expectedEntity.Firstname != entity.Firstname {
+	if *expectedEntity.Firstname != *entity.Firstname {
 		t.Errorf("Returned field should contains inserted entity value for Firstname field and it is %v (expeted %v)", entity.Firstname, expectedEntity.Firstname)
 		return false, db
 	}
-	if expectedEntity.Password != entity.Password {
-		t.Errorf("Returned field should contains inserted entity value for Password field and it is %v (expeted %v)", entity.Password, expectedEntity.Password)
+	if *expectedEntity.Login != *entity.Login {
+		t.Errorf("Returned field should contains inserted entity value for Login field and it is %v (expeted %v)", entity.Login, expectedEntity.Login)
 		return false, db
 	}
-	if expectedEntity.Email != entity.Email {
+	if *expectedEntity.Email != *entity.Email {
 		t.Errorf("Returned field should contains inserted entity value for Email field and it is %v (expeted %v)", entity.Email, expectedEntity.Email)
 		return false, db
 	}
-	if expectedEntity.Login != entity.Login {
-		t.Errorf("Returned field should contains inserted entity value for Login field and it is %v (expeted %v)", entity.Login, expectedEntity.Login)
+	if *expectedEntity.Password != *entity.Password {
+		t.Errorf("Returned field should contains inserted entity value for Password field and it is %v (expeted %v)", entity.Password, expectedEntity.Password)
 		return false, db
 	}
 	return true, db

@@ -2,6 +2,29 @@
 
 <h1>User</h1>
 
-{{ if not .Next -}}
-Empty
+{{ if eq (len .Data.Collection) 0 -}}
+No data to show
+{{- else }}
+  <table>
+    <thead>
+      <tr>
+        <th>Firstname</th>
+        <th>Password</th>
+        <th>Email</th>
+        <th>Login</th>
+      </tr>
+    </thead>
+    <tbody>{{- range $i, $user := .Data.Collection }}" }}
+      <tr>
+        <td>{{- $user.Firstname -}}</td>
+        <td>{{- $user.Password -}}</td>
+        <td>{{- $user.Email -}}</td>
+        <td>{{- $user.Login -}}</td>
+      <tr>
+    {{- end }}
+  </tbody>
+</table>
+{{- end }}
+
+
 {{- end }}

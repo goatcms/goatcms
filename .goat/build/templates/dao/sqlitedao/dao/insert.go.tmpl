@@ -10,19 +10,20 @@ package dao
 import (
 	"database/sql"
 	"fmt"
+	"strconv"
 
 	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/varutil"
-	"github.com/jmoiron/sqlx"
 	"github.com/goatcms/goatcore/dependency"
 	helpers "{{index $ctx.Properties.Build "path"}}/sqlitedao/helpers"
 	maindef "{{index $ctx.Properties.Build "path"}}"
+	entities "{{index $ctx.Properties.Build "entities_path"}}"
 )
 
 // {{$typeName}} is a Data Access Object for {{lower $name}} entity
 type {{$typeName}} struct {
   deps struct{
-    DB *sqlx.DB `dependency:"db0.engine"`
+    DB *sql.DB `dependency:"db0.engine"`
   }
 }
 
@@ -39,46 +40,55 @@ func {{$typeName}}Factory(dp dependency.Provider) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	return maindef.Insert(instance), nil
+	return maindef.{{$entityName}}Insert(instance), nil
 }
 
-func (dao {{$typeName}}) Insert(scope app.Scope, entity interface{}, fields []string) (id int64, err error) {
+func (dao {{$typeName}}) Insert(scope app.Scope, entity *entities.{{$entityName}}) (id int64, err error) {
 	var (
 		sqlq   string
-		tx     *sqlx.Tx
+		tx     *sql.Tx
 		result sql.Result
 	)
 	if tx, err = helpers.TX(scope, dao.deps.DB); err != nil {
 		return -1, err
 	}
-	if sqlq, err = dao.SQL(fields); err != nil {
+	if sqlq, err = dao.SQL(entity); err != nil {
 		return -1, err
 	}
-	if result, err = tx.NamedExec(sqlq, entity); err != nil {
+	if result, err = tx.Exec(sqlq); err != nil {
 		return -1, fmt.Errorf("%s: %s", err.Error(), sqlq)
 	}
 	if id, err = result.LastInsertId(); err != nil {
 		return -1, fmt.Errorf("%s: %s", err.Error(), sqlq)
 	}
-	if err = varutil.SetField(entity, "ID", id); err != nil {
+	if err = varutil.SetField(entity, "ID", &id); err != nil {
 		return -1, fmt.Errorf("%s: %s", err.Error(), sqlq)
 	}
 	return id, nil
 }
 
-func (dao {{$typeName}}) SQL(fields []string) (string, error) {
-	sql := "INSERT INTO {{camelcaseuf $name}} ("
-	sqlValues := "VALUES ("
-	for i, row := range fields {
-		if i == 0 {
-			sql += "" + row
-			sqlValues += ":" + row
-		} else {
-			sql += ", " + row
-			sqlValues += ", :" + row
-		}
-	}
-	return sql + ") " + sqlValues + ")", nil
+func (dao {{$typeName}}) SQL(entity *entities.{{$entityName}}) (string, error) {
+	{{- $keys := (keys $ctx.Data $fieldsBaseKey) -}}
+	return "INSERT INTO {{camelcaseuf $name}} ({{- range $fi, $field := $keys -}}
+			{{- $key := (print $fieldsBaseKey $field) -}}
+			{{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
+			{{- $fieldType := (index $ctx.Data (print $key ".type")) }}
+			{{- if ne $fi 0 -}}, {{ end -}}
+			{{$fieldName}}
+		{{- end -}}) VALUES ({{- range $fi, $field := $keys -}}
+			{{- $key := (print $fieldsBaseKey $field) -}}
+			{{- $fieldName := (index $ctx.Data (print $key ".name")) -}}
+			{{- $fieldType := (index $ctx.Data (print $key ".type")) }}
+			{{- if ne $fi 0 -}}, {{ end -}}
+
+			{{- if eq (lower $fieldType) "text" "string" -}}
+				" + strconv.Quote(*entity.{{camelcaseuf $fieldName}}) + "
+			{{- else if (lower $fieldType) "int" -}}
+				" + strconv.Itoa(*entity.{{camelcaseuf $field}}) + "
+			{{- else -}}
+				{{- error (print "bad type" $fieldType) -}}
+			{{- end -}}
+		{{- end -}})", nil
 }
 
 {{- end -}}

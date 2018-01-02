@@ -10,7 +10,6 @@ import (
 	"github.com/goatcms/goatcms/cmsapp/services"
 	"github.com/goatcms/goatcms/cmsapp/services/requestdep"
 	"github.com/goatcms/goatcore/app"
-	"github.com/goatcms/goatcore/db"
 	"github.com/goatcms/goatcore/dependency"
 	"github.com/goatcms/goatcore/goathtml"
 )
@@ -19,7 +18,7 @@ import (
 type List struct {
 	deps struct {
 		Template services.Template `dependency:"TemplateService"`
-		Finder   dao.FindAll       `dependency:"TranslationFindAll"`
+		Finder   dao.TranslationFindAll       `dependency:"TranslationFindAll"`
 	}
 	view *template.Template
 }
@@ -40,8 +39,9 @@ func NewList(dp dependency.Provider) (*List, error) {
 // Get is handler to serve template where one can add new article
 func (c *List) Get(requestScope app.Scope) {
 	var (
-		rows        db.Rows
+		rows        dao.TranslationRows
 		err         error
+		entity      *entities.Translation
 		requestDeps struct {
 			RequestError requestdep.Error     `request:"ErrorService"`
 			Responser    requestdep.Responser `request:"ResponserService"`
@@ -56,12 +56,23 @@ func (c *List) Get(requestScope app.Scope) {
 		requestDeps.RequestError.Error(312, err)
 		return
 	}
+	collection := []*entities.Translation{}
+	for rows.Next() {
+		if entity, err = rows.Get(); err != nil {
+			requestDeps.RequestError.Error(312, err)
+			return
+		}
+		collection = append(collection, entity)
+	}
 	requestScope.On(app.ErrorEvent, func(erri interface{}) error {
 		scopeErr := erri.(error)
 		requestDeps.RequestError.Errorf(403, "%s", scopeErr.Error())
 		return nil
 	})
-	if err = requestDeps.Responser.Execute(c.view, rows); err != nil {
+	if err = requestDeps.Responser.Execute(c.view, map[string]interface{}{
+		"Collection": collection,
+		"Labels":     entities.TranslationMainFields,
+	}); err != nil {
 		requestDeps.RequestError.Error(312, err)
 		return
 	}

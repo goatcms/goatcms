@@ -9,9 +9,9 @@ package dao
 
 import (
 	"fmt"
+	"strconv"
 	"database/sql"
 	"github.com/goatcms/goatcore/app"
-	"github.com/jmoiron/sqlx"
 	"github.com/goatcms/goatcore/dependency"
 	helpers "{{index $ctx.Properties.Build "path"}}/sqlitedao/helpers"
 	maindef "{{index $ctx.Properties.Build "path"}}"
@@ -20,7 +20,7 @@ import (
 // {{$typeName}} is a Data Access Object for {{lower $name}} entity
 type {{$typeName}} struct {
   deps struct{
-    DB *sqlx.DB `dependency:"db0.engine"`
+    DB *sql.DB `dependency:"db0.engine"`
   }
 }
 
@@ -45,17 +45,13 @@ func (dao {{$typeName}}) Delete(scope app.Scope, id int64) error {
 		res   sql.Result
 		err   error
 		count int64
-		idContainer struct {
-			ID int64 `db:"id"`
-		}
-		tx *sqlx.Tx
+		tx *sql.Tx
 	)
-	idContainer.ID = id
 	if tx, err = helpers.TX(scope, dao.deps.DB); err != nil {
 		return err
 	}
-	sql := "DELETE FROM {{$entityName}} WHERE id=:id"
-	if res, err = tx.NamedExec(sql, &idContainer); err != nil {
+	sql := "DELETE FROM {{$entityName}} WHERE id="+strconv.FormatInt(id, 10)
+	if res, err = tx.Exec(sql); err != nil {
 		return fmt.Errorf("%s: %s", err.Error(), sql)
 	}
 	if count, err = res.RowsAffected(); err != nil {

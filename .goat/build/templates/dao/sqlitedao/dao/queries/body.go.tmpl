@@ -14,16 +14,18 @@ import (
 	"strconv"
 	"fmt"
 	"github.com/goatcms/goatcore/app"
-	"github.com/jmoiron/sqlx"
+	"database/sql"
 	"github.com/goatcms/goatcore/dependency"
 	helpers "{{index $ctx.Properties.Build "path"}}/sqlitedao/helpers"
+	dao "{{index $ctx.Properties.Build "path"}}/sqlitedao/dao/{{lower $modelName}}"
 	maindef "{{index $ctx.Properties.Build "path"}}"
+	entities "{{index $ctx.Properties.Build "entities_path"}}"
 )
 
 // {{$typeName}} is a query object for
 type {{$typeName}} struct {
   deps struct{
-    DB *sqlx.DB `dependency:"db0.engine"`
+    DB *sql.DB `dependency:"db0.engine"`
   }
 }
 
@@ -43,48 +45,55 @@ func {{$typeName}}Factory(dp dependency.Provider) (interface{}, error) {
 	return maindef.{{$typeName}}(instance), nil
 }
 
-func (dao {{$typeName}}) {{$queryNameUF}}(scope app.Scope, fields []string, params *maindef.{{$typeName}}Params) (
+func (query {{$typeName}}) {{$queryNameUF}}(scope app.Scope, fields []string, params *maindef.{{$typeName}}Params) (
 	{{- if eq $isSingleResult "y" -}}
-		row maindef.Row
+		*entities.{{$modelNameUF}}
 	{{- else -}}
-		rows maindef.Rows
+		maindef.{{$modelNameUF}}Rows
 	{{- end -}}
-, err error) {
+, error) {
 	var (
-		sql string
-		tx  *sqlx.Tx
+		err  error
+		sqlq string
+		tx   *sql.Tx
+		{{ if eq $isSingleResult "y" -}}
+			row    maindef.{{$modelNameUF}}Row
+			entity *entities.{{$modelNameUF}}
+		{{- else -}}
+			rows  *sql.Rows
+		{{- end }}
 	)
-	if tx, err = helpers.TX(scope, dao.deps.DB); err != nil {
+	if tx, err = helpers.TX(scope, query.deps.DB); err != nil {
 		return nil, err
 	}
-	sql = dao.SQL(fields, params)
+	sqlq = query.SQL(fields, params)
 	{{ if eq $isSingleResult "y" -}}
-		row = tx.QueryRowx(sql)
-		if row.Err() != nil {
-			return nil, fmt.Errorf("%v: %v", row.Err(), sql)
+		row = dao.New{{$modelNameUF}}Row(tx.QueryRow(sqlq), fields)
+		if entity, err = row.Get(); err != nil {
+			return nil, fmt.Errorf("%v: %v", err, sqlq)
 		}
-		return row, nil
+		return entity, nil
 	{{- else -}}
-		if rows, err = tx.Queryx(sql); err != nil {
+		if rows, err = tx.Query(sqlq); err != nil {
 			return nil, fmt.Errorf("%s: %s", err.Error(), sql)
 		}
-		return rows, nil
+		return dao.{{$modelNameUF}}Rows(rows), nil
 	{{- end }}
 }
 
-func (dao {{$typeName}}) SQL(fields []string, params *maindef.{{$typeName}}Params) string {
-	sql := "SELECT "
+func (query {{$typeName}}) SQL(fields []string, params *maindef.{{$typeName}}Params) string {
+	sqlq := "SELECT "
 	// selected fields
 	i := 0
 	for _, row := range fields {
 		if i > 0 {
-			sql += ", "
+			sqlq += ", "
 		}
-		sql += row
+		sqlq += row
 		i++
 	}
 	// fields
-	sql += " FROM {{camelcaseuf $modelName}} WHERE ";
+	sqlq += " FROM {{camelcaseuf $modelName}} WHERE ";
 	{{- $fieldsets := (valuesFor (print "^" .From  ".fit.[A-Za-z0-9]+.fields$") $ctx.Data) -}}
 	{{- $fields := (uniqueReduce (split (join $fieldsets " ") " ")) -}}
 
@@ -103,7 +112,7 @@ func (dao {{$typeName}}) SQL(fields []string, params *maindef.{{$typeName}}Param
 			  {{- error (print "bad type" $fieldType) -}}
 			{{- end -}}
 		{{- end }} {
-			sql += {{range $fi, $field := $fields -}}
+			sqlq += {{range $fi, $field := $fields -}}
 				{{- $modelFieldKey := (print $modelKey ".fields." (findRow (print $modelKey ".fields.") "^[A-Za-z0-9]+$" ".name" $field $ctx.Data)) -}}
 				{{- $fieldType := (index $ctx.Data (print $modelFieldKey ".type")) }}
 
@@ -127,11 +136,11 @@ func (dao {{$typeName}}) SQL(fields []string, params *maindef.{{$typeName}}Param
 	{{- end -}}
 
 	{{- if eq $isSingleResult "y" }}
-		sql += ") LIMIT 1"
+		sqlq += ") LIMIT 1"
 	{{- else }}
-		sql += ")"
+		sqlq += ")"
 	{{- end }}
-	return sql
+	return sqlq
 }
 
 {{- end -}}

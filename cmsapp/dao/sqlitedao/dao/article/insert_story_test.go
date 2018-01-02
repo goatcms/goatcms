@@ -1,10 +1,10 @@
 package dao
 
 import (
+	"database/sql"
 	helpers "github.com/goatcms/goatcms/cmsapp/dao/sqlitedao/helpers"
 	entities "github.com/goatcms/goatcms/cmsapp/entities"
 	"github.com/goatcms/goatcore/app/scope"
-	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
 	"testing"
 )
@@ -14,11 +14,11 @@ func TestInsertStory(t *testing.T) {
 	doInsertStory(t)
 }
 
-func doInsertStory(t *testing.T) (bool, *sqlx.DB, *entities.Article) {
+func doInsertStory(t *testing.T) (bool, *sql.DB, *entities.Article) {
 	var (
 		resultID int64
 		ok       bool
-		db       *sqlx.DB
+		db       *sql.DB
 		err      error
 		entity   *entities.Article
 	)
@@ -29,12 +29,12 @@ func doInsertStory(t *testing.T) (bool, *sqlx.DB, *entities.Article) {
 	s := scope.NewScope("tag")
 	persister := ArticleInsert{}
 	persister.deps.DB = db
-	if resultID, err = persister.Insert(s, entity, entities.ArticleMainFields); err != nil {
+	if resultID, err = persister.Insert(s, entity); err != nil {
 		t.Error(err)
 		return false, db, entity
 	}
 	// expected set a new entity id
-	if entity.ID == 0 {
+	if *entity.ID == 0 {
 		t.Errorf("the entity id should contains database ID and it is %v", entity.ID)
 		return false, db, entity
 	}
@@ -42,7 +42,7 @@ func doInsertStory(t *testing.T) (bool, *sqlx.DB, *entities.Article) {
 		t.Errorf("id returned by fuction should contains database id and it is %v", resultID)
 		return false, db, entity
 	}
-	if resultID != entity.ID {
+	if resultID != *entity.ID {
 		t.Errorf("id returned by fuction should and entity.ID are the same database id and must be equals. They are (%v != %v)", resultID, entity.ID)
 		return false, db, entity
 	}

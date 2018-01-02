@@ -1,19 +1,21 @@
 package queries
 
 import (
+	"database/sql"
 	"fmt"
 	maindef "github.com/goatcms/goatcms/cmsapp/dao"
+	dao "github.com/goatcms/goatcms/cmsapp/dao/sqlitedao/dao/user"
 	helpers "github.com/goatcms/goatcms/cmsapp/dao/sqlitedao/helpers"
+	entities "github.com/goatcms/goatcms/cmsapp/entities"
 	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/dependency"
-	"github.com/jmoiron/sqlx"
 	"strconv"
 )
 
 // UserLoginQuery is a query object for
 type UserLoginQuery struct {
 	deps struct {
-		DB *sqlx.DB `dependency:"db0.engine"`
+		DB *sql.DB `dependency:"db0.engine"`
 	}
 }
 
@@ -33,41 +35,44 @@ func UserLoginQueryFactory(dp dependency.Provider) (interface{}, error) {
 	return maindef.UserLoginQuery(instance), nil
 }
 
-func (dao UserLoginQuery) Login(scope app.Scope, fields []string, params *maindef.UserLoginQueryParams) (row maindef.Row, err error) {
+func (query UserLoginQuery) Login(scope app.Scope, fields []string, params *maindef.UserLoginQueryParams) (*entities.User, error) {
 	var (
-		sql string
-		tx  *sqlx.Tx
+		err    error
+		sqlq   string
+		tx     *sql.Tx
+		row    maindef.UserRow
+		entity *entities.User
 	)
-	if tx, err = helpers.TX(scope, dao.deps.DB); err != nil {
+	if tx, err = helpers.TX(scope, query.deps.DB); err != nil {
 		return nil, err
 	}
-	sql = dao.SQL(fields, params)
-	row = tx.QueryRowx(sql)
-	if row.Err() != nil {
-		return nil, fmt.Errorf("%v: %v", row.Err(), sql)
+	sqlq = query.SQL(fields, params)
+	row = dao.NewUserRow(tx.QueryRow(sqlq), fields)
+	if entity, err = row.Get(); err != nil {
+		return nil, fmt.Errorf("%v: %v", err, sqlq)
 	}
-	return row, nil
+	return entity, nil
 }
 
-func (dao UserLoginQuery) SQL(fields []string, params *maindef.UserLoginQueryParams) string {
-	sql := "SELECT "
+func (query UserLoginQuery) SQL(fields []string, params *maindef.UserLoginQueryParams) string {
+	sqlq := "SELECT "
 	// selected fields
 	i := 0
 	for _, row := range fields {
 		if i > 0 {
-			sql += ", "
+			sqlq += ", "
 		}
-		sql += row
+		sqlq += row
 		i++
 	}
 	// fields
-	sql += " FROM User WHERE "
-	if params.Login != "" || params.Password != "" {
-		sql += "(Login=" + strconv.Quote(params.Login) + " AND Password=" + strconv.Quote(params.Password)
-	}
+	sqlq += " FROM User WHERE "
 	if params.Email != "" || params.Password != "" {
-		sql += ") OR (Email=" + strconv.Quote(params.Email) + " AND Password=" + strconv.Quote(params.Password)
+		sqlq += "(Email=" + strconv.Quote(params.Email) + " AND Password=" + strconv.Quote(params.Password)
 	}
-	sql += ") LIMIT 1"
-	return sql
+	if params.Login != "" || params.Password != "" {
+		sqlq += ") OR (Login=" + strconv.Quote(params.Login) + " AND Password=" + strconv.Quote(params.Password)
+	}
+	sqlq += ") LIMIT 1"
+	return sqlq
 }

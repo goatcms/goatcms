@@ -17,12 +17,12 @@ var {{camelcaseuf $name}}MainFields = []string{
 
 // {{camelcaseuf $name}} storages {{lower $name}} data
 type {{camelcaseuf $name}} struct {
-  ID int64 `json:"id"`
+  ID *int64 `json:"id"`
 {{- range $index, $field := (keys .Data $fieldsBaseKey) -}}
   {{- $key := (print $fieldsBaseKey $field) -}}
   {{- $fieldName := (index $ctx.Data (print $key ".name")) -}}
   {{- $fieldType := (index $ctx.Data (print $key ".type")) }}
-  {{camelcaseuf $fieldName}} {{template "gotype" $fieldType}} `json:"{{camelcaself $fieldName}}" db:"{{camelcaseuf $fieldName}}"`
+  {{camelcaseuf $fieldName}} *{{template "gotype" $fieldType}} `json:"{{camelcaself $fieldName}}" db:"{{camelcaseuf $fieldName}}"`
 {{- end -}}
 }
 

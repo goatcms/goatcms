@@ -5,11 +5,11 @@ import (
 	"strings"
 	"testing"
 
+	"database/sql"
 	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/app/gio"
 	"github.com/goatcms/goatcore/app/mockupapp"
 	"github.com/goatcms/goatcore/app/scope"
-	"github.com/jmoiron/sqlx"
 )
 
 func TestEngineFactory(t *testing.T) {
@@ -35,7 +35,7 @@ func TestEngineFactory(t *testing.T) {
 	}
 	// test
 	var deps struct {
-		DB *sqlx.DB `dependency:"db0.engine"`
+		DB *sql.DB `dependency:"db0.engine"`
 	}
 	if err = mapp.DependencyProvider().InjectTo(&deps); err != nil {
 		t.Error(err)

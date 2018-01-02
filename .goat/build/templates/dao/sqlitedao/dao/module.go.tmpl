@@ -32,6 +32,9 @@ func RegisterDependencies(dp dependency.Provider) error {
 	if err := dp.AddDefaultFactory("{{camelcaseuf $name}}Update", {{camelcaseuf $name}}UpdateFactory); err != nil {
 		return err
 	}
+	if err := dp.AddDefaultFactory("{{camelcaseuf $name}}Search", {{camelcaseuf $name}}SearchFactory); err != nil {
+		return err
+	}
 	return nil
 }
 

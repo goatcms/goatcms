@@ -47,18 +47,11 @@ func (a *RequestAuth) UserID() (string, error) {
 }
 
 func (a *RequestAuth) Login(name, password string) (user *entities.User, err error) {
-	var (
-		row dao.Row
-	)
-	if row, err = a.deps.LoginQuery.Login(a.deps.Scope, []string{"id"}, &dao.UserLoginQueryParams{
+	if user, err = a.deps.LoginQuery.Login(a.deps.Scope, []string{"id"}, &dao.UserLoginQueryParams{
 		Login:    name,
 		Email:    name,
 		Password: password,
 	}); err != nil {
-		return nil, err
-	}
-	user = &entities.User{}
-	if err := row.StructScan(user); err != nil {
 		return nil, err
 	}
 	if err := a.deps.SessionManager.Set(UserID, user.ID); err != nil {

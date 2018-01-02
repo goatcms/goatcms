@@ -26,5 +26,8 @@ func RegisterDependencies(dp dependency.Provider) error {
 	if err := dp.AddDefaultFactory("TranslationUpdate", TranslationUpdateFactory); err != nil {
 		return err
 	}
+	if err := dp.AddDefaultFactory("TranslationSearch", TranslationSearchFactory); err != nil {
+		return err
+	}
 	return nil
 }

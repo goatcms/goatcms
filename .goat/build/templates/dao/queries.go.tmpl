@@ -1,10 +1,14 @@
 {{define "queries" -}}
 {{- $ctx := . -}}
+{{- $firstSingleResultKey := (print "model." (findRow "query." "^[A-Za-z0-9]+$" ".isSingleResult" "y" $ctx.Data)) -}}
 
 package {{index $ctx.Properties.Build "package"}}
 
 import (
 	"github.com/goatcms/goatcore/app"
+	{{- if ne $firstSingleResultKey ""}}
+	entities "{{index $ctx.Properties.Build "entities_path"}}"
+	{{- end }}
 )
 
 {{ range $qi, $querykey := (keys $ctx.Data "query.") -}}
@@ -27,9 +31,9 @@ type {{camelcaseuf $queryModel}}{{camelcaseuf $queryName}}QueryParams struct {
 type {{camelcaseuf $queryModel}}{{camelcaseuf $queryName}}Query interface {
 	{{camelcaseuf $queryName}}(scope app.Scope, fields []string, params *{{camelcaseuf $queryModel}}{{camelcaseuf $queryName}}QueryParams) (
 		{{- if eq $isSingleResult "y" -}}
-			Row
+			*entities.{{camelcaseuf $queryModel}}
 		{{- else -}}
-			Rows
+			{{camelcaseuf $queryModel}}Rows
 		{{- end -}}
 	, error)
 }

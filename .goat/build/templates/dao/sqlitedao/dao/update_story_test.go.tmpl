@@ -8,7 +8,7 @@ package dao
 
 import (
 	"testing"
-	"github.com/jmoiron/sqlx"
+	"database/sql"
 	"github.com/goatcms/goatcore/app/scope"
 	entities "{{index $ctx.Properties.Build "entities_path"}}"
 	maindef "{{index $ctx.Properties.Build "path"}}"
@@ -21,11 +21,11 @@ func TestUpdateStory(t *testing.T) {
 	doUpdateStory(t)
 }
 
-func doUpdateStory(t *testing.T) (bool, *sqlx.DB) {
+func doUpdateStory(t *testing.T) (bool, *sql.DB) {
 	var (
-		row            maindef.Row
+		row            maindef.{{$entityName}}Row
 		ok             bool
-		db             *sqlx.DB
+		db             *sql.DB
 		err            error
 		expectedEntity *entities.{{$entityName}}
 		entity         *entities.{{$entityName}}
@@ -49,13 +49,12 @@ func doUpdateStory(t *testing.T) (bool, *sqlx.DB) {
 	}
 	finder := {{$entityName}}FindByID{}
 	finder.deps.DB = db
-	if row, err = finder.Find(s, entities.{{$entityName}}MainFields, entity.ID); err != nil {
+	if row, err = finder.Find(s, entities.{{$entityName}}MainFields, *entity.ID); err != nil {
 		t.Error(err)
 		return false, db
 	}
 	// iterate over each row
-	entity = &entities.{{$entityName}}{}
-	if err = row.StructScan(entity); err != nil {
+	if entity, err = row.Get(); err != nil {
 		t.Error(err)
 		return false, db
 	}
@@ -63,7 +62,7 @@ func doUpdateStory(t *testing.T) (bool, *sqlx.DB) {
 	  {{- $key := (print $fieldsBaseKey $field) -}}
 	  {{- $fieldName := (index $ctx.Data (print $key ".name")) -}}
 		{{- print "\n" -}}
-		if expectedEntity.{{camelcaseuf $fieldName}} != entity.{{camelcaseuf $fieldName}} {
+		if *expectedEntity.{{camelcaseuf $fieldName}} != *entity.{{camelcaseuf $fieldName}} {
 			t.Errorf("Returned field should contains inserted entity value for {{camelcaseuf $fieldName}} field and it is %v (expeted %v)", entity.{{camelcaseuf $fieldName}}, expectedEntity.{{camelcaseuf $fieldName}})
 			return false, db
 		}

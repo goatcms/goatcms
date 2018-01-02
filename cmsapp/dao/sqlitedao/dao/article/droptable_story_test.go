@@ -1,9 +1,9 @@
 package dao
 
 import (
+	"database/sql"
 	helpers "github.com/goatcms/goatcms/cmsapp/dao/sqlitedao/helpers"
 	"github.com/goatcms/goatcore/app/scope"
-	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
 	"testing"
 )
@@ -13,9 +13,9 @@ func TestDropTable(t *testing.T) {
 	doDropTable(t)
 }
 
-func doDropTable(t *testing.T) (bool, *sqlx.DB) {
+func doDropTable(t *testing.T) (bool, *sql.DB) {
 	var (
-		db  *sqlx.DB
+		db  *sql.DB
 		err error
 		ok  bool
 	)

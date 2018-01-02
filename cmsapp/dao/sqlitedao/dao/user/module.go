@@ -26,5 +26,8 @@ func RegisterDependencies(dp dependency.Provider) error {
 	if err := dp.AddDefaultFactory("UserUpdate", UserUpdateFactory); err != nil {
 		return err
 	}
+	if err := dp.AddDefaultFactory("UserSearch", UserSearchFactory); err != nil {
+		return err
+	}
 	return nil
 }
