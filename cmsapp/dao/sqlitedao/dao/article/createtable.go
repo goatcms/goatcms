@@ -41,5 +41,5 @@ func (dao ArticleCreateTable) CreateTable(scope app.Scope) (err error) {
 }
 
 func (dao ArticleCreateTable) SQL() string {
-	return `CREATE TABLE IF NOT EXISTS Article (ID INTEGER PRIMARY KEY, Title TEXT, Content TEXT)`
+	return `CREATE TABLE IF NOT EXISTS Article (ID INTEGER PRIMARY KEY, Title TEXT, Content TEXT);`
 }

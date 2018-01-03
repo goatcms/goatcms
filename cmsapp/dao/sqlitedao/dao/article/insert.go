@@ -61,5 +61,5 @@ func (dao ArticleInsert) Insert(scope app.Scope, entity *entities.Article) (id i
 }
 
 func (dao ArticleInsert) SQL(entity *entities.Article) (string, error) {
-	return "INSERT INTO Article (Title, Content) VALUES (" + strconv.Quote(*entity.Title) + ", " + strconv.Quote(*entity.Content) + ")", nil
+	return "INSERT INTO Article (Content, Title) VALUES (" + strconv.Quote(*entity.Content) + ", " + strconv.Quote(*entity.Title) + ")", nil
 }

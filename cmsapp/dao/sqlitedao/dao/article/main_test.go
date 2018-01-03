@@ -6,8 +6,8 @@ import (
 
 func NewMockEntity1() *entities.Article {
 	var (
-		content string = "eOr7W1Z40kE6fyMyKKb8E2CezUUmYhVmbPuKXxGyifJi"
-		title   string = "jHxgvK0HA5Plv9hvgysp5dXEQp2EPcHtjARDbLUTSCdz"
+		content string = "cwL151F3YPC100DLcV0TVDd9jQc8d2bsZhjVcBX7W47S"
+		title   string = "p35CHyV5oAXJGAIjjGLFGZckATv5MHZObUgiB658xyml"
 	)
 	return &entities.Article{
 		Content: &content,
@@ -17,11 +17,11 @@ func NewMockEntity1() *entities.Article {
 
 func NewMockEntity2() *entities.Article {
 	var (
-		title   string = "4cxndrwTVqBjhOPzhLvTBDzaxfDrYMKOlqJMFbp4xUg0"
-		content string = "vDiphKeJCyZt0Zcdy4yOOcy8pFzPvD9yqoBFe4bVjtaW"
+		content string = "309Uiew5d6b1lvjQatmlislR7wByc6bIUw2m1sRk1nN8"
+		title   string = "s4NFjHtRRwKPkN5XIw58xRc0lAls5UoDwWRxaf9oKERi"
 	)
 	return &entities.Article{
-		Title:   &title,
 		Content: &content,
+		Title:   &title,
 	}
 }

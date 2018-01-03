@@ -29,8 +29,8 @@ func doSearchStory(t *testing.T) (bool, *sql.DB) {
 	searcher := TranslationSearch{}
 	searcher.deps.DB = db
 	if rows, err = searcher.Search(s, entities.TranslationMainFields, &maindef.TranslationSearchParams{
-		Key:   *expectedEntity.Key,
 		Value: *expectedEntity.Value,
+		Key:   *expectedEntity.Key,
 	}); err != nil {
 		t.Error(err)
 		return false, db
@@ -44,12 +44,12 @@ func doSearchStory(t *testing.T) (bool, *sql.DB) {
 			t.Error(err)
 			return false, db
 		}
-		if *expectedEntity.Key != *e.Key {
-			t.Errorf("Returned field should contains inserted entity value for Key field and it is %v (expeted %v)", e.Key, expectedEntity.Key)
-			return false, db
-		}
 		if *expectedEntity.Value != *e.Value {
 			t.Errorf("Returned field should contains inserted entity value for Value field and it is %v (expeted %v)", e.Value, expectedEntity.Value)
+			return false, db
+		}
+		if *expectedEntity.Key != *e.Key {
+			t.Errorf("Returned field should contains inserted entity value for Key field and it is %v (expeted %v)", e.Key, expectedEntity.Key)
 			return false, db
 		}
 	}

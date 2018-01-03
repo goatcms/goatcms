@@ -38,20 +38,20 @@ func doFindByIDStory(t *testing.T) (bool, *sql.DB) {
 		t.Error(err)
 		return false, db
 	}
-	if *expectedEntity.Firstname != *entity.Firstname {
-		t.Errorf("Returned field should contains inserted entity value for Firstname field and it is %v (expeted %v)", entity.Firstname, expectedEntity.Firstname)
-		return false, db
-	}
-	if *expectedEntity.Login != *entity.Login {
-		t.Errorf("Returned field should contains inserted entity value for Login field and it is %v (expeted %v)", entity.Login, expectedEntity.Login)
-		return false, db
-	}
 	if *expectedEntity.Email != *entity.Email {
 		t.Errorf("Returned field should contains inserted entity value for Email field and it is %v (expeted %v)", entity.Email, expectedEntity.Email)
 		return false, db
 	}
 	if *expectedEntity.Password != *entity.Password {
 		t.Errorf("Returned field should contains inserted entity value for Password field and it is %v (expeted %v)", entity.Password, expectedEntity.Password)
+		return false, db
+	}
+	if *expectedEntity.Firstname != *entity.Firstname {
+		t.Errorf("Returned field should contains inserted entity value for Firstname field and it is %v (expeted %v)", entity.Firstname, expectedEntity.Firstname)
+		return false, db
+	}
+	if *expectedEntity.Login != *entity.Login {
+		t.Errorf("Returned field should contains inserted entity value for Login field and it is %v (expeted %v)", entity.Login, expectedEntity.Login)
 		return false, db
 	}
 	return true, db

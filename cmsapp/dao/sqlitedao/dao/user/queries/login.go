@@ -67,11 +67,11 @@ func (query UserLoginQuery) SQL(fields []string, params *maindef.UserLoginQueryP
 	}
 	// fields
 	sqlq += " FROM User WHERE "
-	if params.Email != "" || params.Password != "" {
-		sqlq += "(Email=" + strconv.Quote(params.Email) + " AND Password=" + strconv.Quote(params.Password)
-	}
 	if params.Login != "" || params.Password != "" {
-		sqlq += ") OR (Login=" + strconv.Quote(params.Login) + " AND Password=" + strconv.Quote(params.Password)
+		sqlq += "(Login=" + strconv.Quote(params.Login) + " AND Password=" + strconv.Quote(params.Password)
+	}
+	if params.Email != "" || params.Password != "" {
+		sqlq += ") OR (Email=" + strconv.Quote(params.Email) + " AND Password=" + strconv.Quote(params.Password)
 	}
 	sqlq += ") LIMIT 1"
 	return sqlq

@@ -6,10 +6,10 @@ import (
 
 func NewMockEntity1() *entities.User {
 	var (
-		email     string = "Xqw1BWEmRKshIVfir27nBuixhHZJrm3XsDZJUD5PmiZz"
-		password  string = "W94EmM84BgqvX98rLINfuE1qvztSaN9YWHwLvtWq55Kh"
-		firstname string = "JF5mMUgdjolW1m5EyfZ6Phh6oH4V98Vt70dluexfspaU"
-		login     string = "bfJgj1u0TWvXgZwyWTc6o8ls8Q4c3Ue1RYjD16qYWnWx"
+		email     string = "4nJvJbJDA84ppNbDgIkBkQRZ1ZRFhCl6u9P3jqt7Yb9w"
+		password  string = "p5FsUi7NEUGkO8gy27kuzDvdvaQBiwzwHvGfLEqnbsPV"
+		firstname string = "zHHoKO74mlHQHtVQMv6GIC1seaaycH3rlh4ZcUwpmaQb"
+		login     string = "MNGvJiBXXZ5p3QDTHm4Oxwx9iAu3AyJveAD04ml7pXjG"
 	)
 	return &entities.User{
 		Email:     &email,
@@ -21,15 +21,15 @@ func NewMockEntity1() *entities.User {
 
 func NewMockEntity2() *entities.User {
 	var (
-		login     string = "VPI6rHeDmJsckwo8z0cfuwmnGUywzJBLibiX8iWjxkwC"
-		password  string = "DQPsXF9C1r3zLQgekZO4ZxUaHoLksfzQdY6BB3RneAvW"
-		firstname string = "8A1ZuFaz9IlAuxoWeGBlf1uxTTvzOmzBhsPuA8AZuOu9"
-		email     string = "awSYN8Yg4ThoCyur97rIlAiwAusrXxKi1bQxzvDfN6LO"
+		firstname string = "0gVOZLBwDxc4DQtqvcRPCvXKUbx7vIjxnyfyYgICYB5H"
+		password  string = "REf4s9ddV99dPhmCxaj0eoUrNqW867i1lFQbniFhkl68"
+		login     string = "bT8gTl5rQ9xzmlCS0WCzTkMPZ5eMvt2IVlzNkgbr7swT"
+		email     string = "rUAFh8XPXUdQkpQRttSoIzbg2n6VdTQHlernYrnm8JzB"
 	)
 	return &entities.User{
-		Login:     &login,
-		Password:  &password,
 		Firstname: &firstname,
+		Password:  &password,
+		Login:     &login,
 		Email:     &email,
 	}
 }

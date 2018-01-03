@@ -69,11 +69,11 @@ func (query UserSearch) SQL(fields []string, params *maindef.UserSearchParams) s
 	if params.Password != "" {
 		criterias = append(criterias, "Password="+strconv.Quote(params.Password))
 	}
-	if params.Firstname != "" {
-		criterias = append(criterias, "Firstname="+strconv.Quote(params.Firstname))
-	}
 	if params.Email != "" {
 		criterias = append(criterias, "Email="+strconv.Quote(params.Email))
+	}
+	if params.Firstname != "" {
+		criterias = append(criterias, "Firstname="+strconv.Quote(params.Firstname))
 	}
 	if params.Login != "" {
 		criterias = append(criterias, "Login="+strconv.Quote(params.Login))

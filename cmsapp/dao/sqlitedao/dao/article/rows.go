@@ -25,10 +25,10 @@ func (rows *ArticleRows) InjectTo(dest *entities.Article) (err error) {
 	values := make([]interface{}, len(columns))
 	for i, name := range columns {
 		switch name {
-		case "Title":
-			values[i] = &dest.Title
 		case "Content":
 			values[i] = &dest.Content
+		case "Title":
+			values[i] = &dest.Title
 		default:
 			return fmt.Errorf("ArticleRows.InjectTo unknow field %v", name)
 		}

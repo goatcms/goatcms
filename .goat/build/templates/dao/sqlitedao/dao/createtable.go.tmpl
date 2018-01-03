@@ -54,7 +54,7 @@ func (dao {{$typeName}}) SQL() string {
     {{- $fieldName := (index $ctx.Data (print $key ".name")) -}}
     {{- $fieldType := (index $ctx.Data (print $key ".type")) -}}
     , {{camelcaseuf $fieldName}} {{template "sqlite.sqltype" $fieldType}}
-  {{- end -}})`
+  {{- end -}});`
 }
 
 {{- end -}}

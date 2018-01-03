@@ -3,8 +3,8 @@ package cmsapp
 import (
 	"github.com/goatcms/goatcms/cmsapp/commands"
 	"github.com/goatcms/goatcms/cmsapp/commands/dbbuildc"
+	"github.com/goatcms/goatcms/cmsapp/commands/dbexportc"
 	"github.com/goatcms/goatcms/cmsapp/commands/dbloadc"
-	"github.com/goatcms/goatcms/cmsapp/commands/dbsexportc"
 	"github.com/goatcms/goatcms/cmsapp/commands/servec"
 	"github.com/goatcms/goatcore/app"
 )
@@ -18,8 +18,8 @@ func RegisterCommands(a app.App) error {
 	commandScope.Set("help.command.dbbuild", commands.DBBuildHelp)
 	commandScope.Set("command.dbbuild", dbbuildc.Run)
 	// dbbuild
-	commandScope.Set("help.command.dbsexport", commands.DBExportHelp)
-	commandScope.Set("command.db_schema_export", dbsexportc.Run)
+	commandScope.Set("help.command.dbexport", commands.DBExportHelp)
+	commandScope.Set("command.dbexport", dbexportc.Run)
 	// dbload
 	commandScope.Set("help.command.dbload", commands.DBLoadHelp)
 	commandScope.Set("command.dbload", dbloadc.Run)

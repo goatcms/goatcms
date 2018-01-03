@@ -29,12 +29,12 @@ func (row *UserRow) InjectTo(dest *entities.User) (err error) {
 		switch name {
 		case "Firstname":
 			values[i] = &dest.Firstname
+		case "Password":
+			values[i] = &dest.Password
 		case "Login":
 			values[i] = &dest.Login
 		case "Email":
 			values[i] = &dest.Email
-		case "Password":
-			values[i] = &dest.Password
 		default:
 			return fmt.Errorf("UserRow.InjectTo unknow field %v", name)
 		}

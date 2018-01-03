@@ -45,10 +45,10 @@ type UserUpdate interface {
 
 // UserSearchParams is the search criteria container
 type UserSearchParams struct {
-	Firstname string
 	Login     string
-	Email     string
+	Firstname string
 	Password  string
+	Email     string
 }
 
 // UserSearch is the DAO search provider interface

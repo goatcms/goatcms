@@ -79,20 +79,12 @@ func doUserLoginQuery(t *testing.T) bool {
 		return false
 	}
 	params := &maindef.UserLoginQueryParams{
-		Email:    *expectedEntity.Email,
-		Password: *expectedEntity.Password,
 		Login:    *expectedEntity.Login,
+		Password: *expectedEntity.Password,
+		Email:    *expectedEntity.Email,
 	}
 	if entity, err = deps.Query.Login(s, entities.UserMainFields, params); err != nil {
 		t.Error(err)
-		return false
-	}
-	if *expectedEntity.Firstname != *entity.Firstname {
-		t.Errorf("Returned field should contains inserted entity value for Firstname field and it is %v (expeted %v)", entity.Firstname, expectedEntity.Firstname)
-		return false
-	}
-	if *expectedEntity.Login != *entity.Login {
-		t.Errorf("Returned field should contains inserted entity value for Login field and it is %v (expeted %v)", entity.Login, expectedEntity.Login)
 		return false
 	}
 	if *expectedEntity.Email != *entity.Email {
@@ -101,6 +93,14 @@ func doUserLoginQuery(t *testing.T) bool {
 	}
 	if *expectedEntity.Password != *entity.Password {
 		t.Errorf("Returned field should contains inserted entity value for Password field and it is %v (expeted %v)", entity.Password, expectedEntity.Password)
+		return false
+	}
+	if *expectedEntity.Firstname != *entity.Firstname {
+		t.Errorf("Returned field should contains inserted entity value for Firstname field and it is %v (expeted %v)", entity.Firstname, expectedEntity.Firstname)
+		return false
+	}
+	if *expectedEntity.Login != *entity.Login {
+		t.Errorf("Returned field should contains inserted entity value for Login field and it is %v (expeted %v)", entity.Login, expectedEntity.Login)
 		return false
 	}
 	return true

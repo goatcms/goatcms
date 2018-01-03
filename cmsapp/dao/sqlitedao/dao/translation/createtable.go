@@ -41,5 +41,5 @@ func (dao TranslationCreateTable) CreateTable(scope app.Scope) (err error) {
 }
 
 func (dao TranslationCreateTable) SQL() string {
-	return `CREATE TABLE IF NOT EXISTS Translation (ID INTEGER PRIMARY KEY, Key TEXT, Value TEXT)`
+	return `CREATE TABLE IF NOT EXISTS Translation (ID INTEGER PRIMARY KEY, Key TEXT, Value TEXT);`
 }

@@ -41,20 +41,20 @@ func doFindAllStory(t *testing.T) (bool, *sql.DB) {
 			t.Error(err)
 			return false, db
 		}
-		if *expectedEntity.Email != *e.Email {
-			t.Errorf("Returned field should contains inserted entity value for Email field and it is %v (expeted %v)", e.Email, expectedEntity.Email)
-			return false, db
-		}
-		if *expectedEntity.Password != *e.Password {
-			t.Errorf("Returned field should contains inserted entity value for Password field and it is %v (expeted %v)", e.Password, expectedEntity.Password)
+		if *expectedEntity.Login != *e.Login {
+			t.Errorf("Returned field should contains inserted entity value for Login field and it is %v (expeted %v)", e.Login, expectedEntity.Login)
 			return false, db
 		}
 		if *expectedEntity.Firstname != *e.Firstname {
 			t.Errorf("Returned field should contains inserted entity value for Firstname field and it is %v (expeted %v)", e.Firstname, expectedEntity.Firstname)
 			return false, db
 		}
-		if *expectedEntity.Login != *e.Login {
-			t.Errorf("Returned field should contains inserted entity value for Login field and it is %v (expeted %v)", e.Login, expectedEntity.Login)
+		if *expectedEntity.Password != *e.Password {
+			t.Errorf("Returned field should contains inserted entity value for Password field and it is %v (expeted %v)", e.Password, expectedEntity.Password)
+			return false, db
+		}
+		if *expectedEntity.Email != *e.Email {
+			t.Errorf("Returned field should contains inserted entity value for Email field and it is %v (expeted %v)", e.Email, expectedEntity.Email)
 			return false, db
 		}
 	}

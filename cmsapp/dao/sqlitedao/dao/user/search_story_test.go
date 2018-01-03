@@ -29,10 +29,10 @@ func doSearchStory(t *testing.T) (bool, *sql.DB) {
 	searcher := UserSearch{}
 	searcher.deps.DB = db
 	if rows, err = searcher.Search(s, entities.UserMainFields, &maindef.UserSearchParams{
+		Firstname: *expectedEntity.Firstname,
+		Password:  *expectedEntity.Password,
 		Login:     *expectedEntity.Login,
 		Email:     *expectedEntity.Email,
-		Password:  *expectedEntity.Password,
-		Firstname: *expectedEntity.Firstname,
 	}); err != nil {
 		t.Error(err)
 		return false, db
@@ -46,20 +46,20 @@ func doSearchStory(t *testing.T) (bool, *sql.DB) {
 			t.Error(err)
 			return false, db
 		}
-		if *expectedEntity.Login != *e.Login {
-			t.Errorf("Returned field should contains inserted entity value for Login field and it is %v (expeted %v)", e.Login, expectedEntity.Login)
-			return false, db
-		}
-		if *expectedEntity.Email != *e.Email {
-			t.Errorf("Returned field should contains inserted entity value for Email field and it is %v (expeted %v)", e.Email, expectedEntity.Email)
+		if *expectedEntity.Firstname != *e.Firstname {
+			t.Errorf("Returned field should contains inserted entity value for Firstname field and it is %v (expeted %v)", e.Firstname, expectedEntity.Firstname)
 			return false, db
 		}
 		if *expectedEntity.Password != *e.Password {
 			t.Errorf("Returned field should contains inserted entity value for Password field and it is %v (expeted %v)", e.Password, expectedEntity.Password)
 			return false, db
 		}
-		if *expectedEntity.Firstname != *e.Firstname {
-			t.Errorf("Returned field should contains inserted entity value for Firstname field and it is %v (expeted %v)", e.Firstname, expectedEntity.Firstname)
+		if *expectedEntity.Login != *e.Login {
+			t.Errorf("Returned field should contains inserted entity value for Login field and it is %v (expeted %v)", e.Login, expectedEntity.Login)
+			return false, db
+		}
+		if *expectedEntity.Email != *e.Email {
+			t.Errorf("Returned field should contains inserted entity value for Email field and it is %v (expeted %v)", e.Email, expectedEntity.Email)
 			return false, db
 		}
 	}

@@ -61,5 +61,5 @@ func (dao UserInsert) Insert(scope app.Scope, entity *entities.User) (id int64, 
 }
 
 func (dao UserInsert) SQL(entity *entities.User) (string, error) {
-	return "INSERT INTO User (Password, Firstname, Email, Login) VALUES (" + strconv.Quote(*entity.Password) + ", " + strconv.Quote(*entity.Firstname) + ", " + strconv.Quote(*entity.Email) + ", " + strconv.Quote(*entity.Login) + ")", nil
+	return "INSERT INTO User (Password, Email, Login, Firstname) VALUES (" + strconv.Quote(*entity.Password) + ", " + strconv.Quote(*entity.Email) + ", " + strconv.Quote(*entity.Login) + ", " + strconv.Quote(*entity.Firstname) + ")", nil
 }

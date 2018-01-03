@@ -69,12 +69,12 @@ func (dao UserUpdate) SQL(fields []string, entity *entities.User) (string, error
 		switch row {
 		case "Firstname":
 			sql += strconv.Quote(*entity.Firstname)
-		case "Email":
-			sql += strconv.Quote(*entity.Email)
 		case "Password":
 			sql += strconv.Quote(*entity.Password)
 		case "Login":
 			sql += strconv.Quote(*entity.Login)
+		case "Email":
+			sql += strconv.Quote(*entity.Email)
 		}
 	}
 	return sql, nil

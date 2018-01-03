@@ -6,8 +6,8 @@ import (
 
 func NewMockEntity1() *entities.Translation {
 	var (
-		key   string = "OZYIvQREApDxw629AoGPzd1VTDMhuAu27YWJNbA1AyRB"
-		value string = "zLsuzTgVFSQQjYhUQirmdzIgrVmDS7Zii4Hw3VoabQvng0UR1T9QydcPdAOA3dxkLsdTJzgHGJlTlafhjw2JtW7nHljz9W9LB1xUYO3FrnD8J6W3cSJCUKM0qudt8zUgzq5RLPJSo0VNqJQBLmiOuwE5ko7Ze8meHSogNx7g0Qf7CX2hGSmIvNCcqvPKWfjgYrWL5MqIof0OOmGJkfv8sZnsIeG 02sUkqG27LgeDQ8PPdkNiUvfYDfcHBIOqjNekwcJRZz3K6wEy90rThPR XU7NaXxt6YpPwCsToiXDE5D62AbUIZLlHw0j8QhgmVwZStIe1iTIV4btfWhYzjmZ8qCLWKCyg759GEgHQ2jVMZKQr6jHY2PEK8mV2F0Ja7XmI6VpU3NfHLCaxNa"
+		key   string = "jPKpCtO41NZ0A1340W0hnrnDa2J9Ln72u3Wj9ULzvHRg"
+		value string = "w8lhegz3o0hzF3T4dGi6eGc77N2cvA8q614HE6OlpWYV7WkMKxtKcWd5VMNy52DDkXj4bNk3LPTVGBFh4dDnXmcjD844tsKdU0yFtt7W7UJJT0Podmyt8clsRTWqWiOX8BSlunF8 oOUaaPFx8WBZ5R6LMP39kDvtHFUH64Q9qN8PX84HBjKEt17jOZTrdFr456Yxjpz5hv2MQ44g3Gowi7I s5gVO4 UXAcPM9T9IWHUfpxGxo0KrPEQwqg7LY1QVFfrGVmu8UnBbVRDvX8rTL81jB fOCPJCraRPctcflrIJZT4ZkxKJWhcyW3E2 SC6mSe 26h0a62Ul18VVgDJnJOenHazvWU7srtaOXaXsleGH2sqq1n4tMG1yyt Gneu9LJi49R1bwJRa7"
 	)
 	return &entities.Translation{
 		Key:   &key,
@@ -17,11 +17,11 @@ func NewMockEntity1() *entities.Translation {
 
 func NewMockEntity2() *entities.Translation {
 	var (
-		value string = "UZ05Ehr  F9B7w5aRvErBWp7eujlvuofcyy7DsSciTBlh RflG8duJNnevdsMagRlbv EQCvtLsXrKA53W6fddWCmtD4DOrptW9Ur5owkFL4o9oq69fY4fRH1Vt7EcoeUi4TeL2fKdaBWkl0EtkePw1bRaykpasYh9augqfySLSpQZ7WYJ AxIRl7PbyMrkLb9Yxx4ESO xJL07ZL7IEBa9vz9JvxeKBDsdA1nIgLV779Fg3JyjsdK7xVAIrSQbDIdgTepNpaLto4Vl2wQiUTXsfQctZ2TyT4YkZRg1eCG6qoiv9V5b JvmXg fPeAEHnIxAQZn2H4KydxxT7UB9fFeifmpEnvtBajKPW4RjbVu4wBFk7rqwcrBvcWH6vqK7d3DvwK8fQzscskg0"
-		key   string = "lhMPBTczc6RGrjNgMJwZTuyQvB22PCzXAUQvpsCtTs01"
+		key   string = "NsBjshvRRRusRIiT0ub7Yw3T1aYMmoFEwThYGXcum83a"
+		value string = "BoIlLiCoYke41fbat9zSX7RbLFZPydkWIHWLJh2C03y8b23zKItTuLcZw5bdHoIu2IBvQfcsdIRwylH0AZtXWBZ3AUcItVpwjerU ZqsAdurSqVy3bihKZQKEkMYCj4VPpbncOUO0iN1sTyTgmMy8t1vCcNSK2Lmdd344Xo9zG5H6Qa2TKPcCi5E Y8TJjueZEzyWuyQxQ0q6YALZN4dZEZ1jCFdhLRulg3iFPj0tbqX0E2gv6sIpL7Qx UQasnrtATqychNa7ZH886kRaFF85xZUcAsIDuT1sm6aAtGxrzLMo foI1LCjTnow1V3iHyu3qUgNIHX3EQnCKRJV6OgCYDu4D495hBTbriY5AX8VMCXWm 8h Em5atIgiOSSTPuc0B4EBgFRxLLzip"
 	)
 	return &entities.Translation{
-		Value: &value,
 		Key:   &key,
+		Value: &value,
 	}
 }

@@ -41,5 +41,5 @@ func (dao UserCreateTable) CreateTable(scope app.Scope) (err error) {
 }
 
 func (dao UserCreateTable) SQL() string {
-	return `CREATE TABLE IF NOT EXISTS User (ID INTEGER PRIMARY KEY, Password TEXT, Firstname TEXT, Login TEXT, Email TEXT)`
+	return `CREATE TABLE IF NOT EXISTS User (ID INTEGER PRIMARY KEY, Login TEXT, Firstname TEXT, Password TEXT, Email TEXT);`
 }

@@ -37,13 +37,6 @@ func TestModule(t *testing.T) {
 	// test
 	var deps struct {
 		DB                     *sql.DB                     `dependency:"db0.engine"`
-		TranslationCreateTable maindef.CreateTable         `dependency:"TranslationCreateTable"`
-		TranslationDelete      maindef.Delete              `dependency:"TranslationDelete"`
-		TranslationDropTable   maindef.DropTable           `dependency:"TranslationDropTable"`
-		TranslationFindAll     maindef.TranslationFindAll  `dependency:"TranslationFindAll"`
-		TranslationFindByID    maindef.TranslationFindByID `dependency:"TranslationFindByID"`
-		TranslationInsert      maindef.TranslationInsert   `dependency:"TranslationInsert"`
-		TranslationUpdate      maindef.TranslationUpdate   `dependency:"TranslationUpdate"`
 		UserCreateTable        maindef.CreateTable         `dependency:"UserCreateTable"`
 		UserDelete             maindef.Delete              `dependency:"UserDelete"`
 		UserDropTable          maindef.DropTable           `dependency:"UserDropTable"`
@@ -51,6 +44,13 @@ func TestModule(t *testing.T) {
 		UserFindByID           maindef.UserFindByID        `dependency:"UserFindByID"`
 		UserInsert             maindef.UserInsert          `dependency:"UserInsert"`
 		UserUpdate             maindef.UserUpdate          `dependency:"UserUpdate"`
+		TranslationCreateTable maindef.CreateTable         `dependency:"TranslationCreateTable"`
+		TranslationDelete      maindef.Delete              `dependency:"TranslationDelete"`
+		TranslationDropTable   maindef.DropTable           `dependency:"TranslationDropTable"`
+		TranslationFindAll     maindef.TranslationFindAll  `dependency:"TranslationFindAll"`
+		TranslationFindByID    maindef.TranslationFindByID `dependency:"TranslationFindByID"`
+		TranslationInsert      maindef.TranslationInsert   `dependency:"TranslationInsert"`
+		TranslationUpdate      maindef.TranslationUpdate   `dependency:"TranslationUpdate"`
 		ArticleCreateTable     maindef.CreateTable         `dependency:"ArticleCreateTable"`
 		ArticleDelete          maindef.Delete              `dependency:"ArticleDelete"`
 		ArticleDropTable       maindef.DropTable           `dependency:"ArticleDropTable"`

@@ -1,17 +1,16 @@
-package dbsexportc
+package dbexportc
 
 import (
 	"fmt"
 	"strings"
 
+	"github.com/goatcms/goatcms/cmsapp/dao"
 	"github.com/goatcms/goatcore/app"
-	"github.com/goatcms/goatcore/db"
 )
 
 func Run(a app.App) error {
 	var deps struct {
 		DependencyScope app.Scope `dependency:"DependencyScope"`
-		DSQL            db.DSQL   `dependency:"DSQL"`
 	}
 	if err := a.DependencyProvider().InjectTo(&deps); err != nil {
 		return err
@@ -21,19 +20,16 @@ func Run(a app.App) error {
 		return err
 	}
 	for _, key := range keys {
-		if strings.HasSuffix(key, "Table") {
-			tableIns, err := deps.DependencyScope.Get(key)
+		if strings.HasSuffix(key, "CreateTable") {
+			instance, err := deps.DependencyScope.Get(key)
 			if err != nil {
 				return err
 			}
-			table, ok := tableIns.(db.Table)
+			creator, ok := instance.(dao.CreateTable)
 			if !ok {
-				return fmt.Errorf("%s is not instance of db.Table", key)
+				return fmt.Errorf("%s is not instance of dao.CreateTable", key)
 			}
-			query, err := deps.DSQL.NewCreateSQL(table.Name(), table.Types())
-			if err != nil {
-				return err
-			}
+			query := creator.SQL()
 			fmt.Printf("\n%s\n", query)
 		}
 	}

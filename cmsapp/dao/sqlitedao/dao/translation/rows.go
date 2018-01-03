@@ -25,10 +25,10 @@ func (rows *TranslationRows) InjectTo(dest *entities.Translation) (err error) {
 	values := make([]interface{}, len(columns))
 	for i, name := range columns {
 		switch name {
-		case "Key":
-			values[i] = &dest.Key
 		case "Value":
 			values[i] = &dest.Value
+		case "Key":
+			values[i] = &dest.Key
 		default:
 			return fmt.Errorf("TranslationRows.InjectTo unknow field %v", name)
 		}
