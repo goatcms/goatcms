@@ -1,0 +1,28 @@
+{{- define "content" -}}
+
+<h1>Fragment</h1>
+
+{{ if eq (len .Data.Collection) 0 -}}
+No data to show
+{{- else }}
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Lang</th>
+        <th>Content</th>
+      </tr>
+    </thead>
+    <tbody>{{- range $i, $fragment := .Data.Collection }}
+      <tr>
+        <td>{{- $fragment.Name -}}</td>
+        <td>{{- $fragment.Lang -}}</td>
+        <td>{{- $fragment.Content -}}</td>
+      <tr>
+    {{- end }}
+  </tbody>
+</table>
+{{- end }}
+
+
+{{- end }}

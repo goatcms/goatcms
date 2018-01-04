@@ -8,7 +8,7 @@
 {{- $modelKey := (print "model." (findRow "model." "^[A-Za-z0-9]+$" ".entity" $modelName $ctx.Data)) -}}
 
 {{- $fieldsets := (valuesFor (print "^" .From  ".fit.[A-Za-z0-9]+.fields$") $ctx.Data) -}}
-{{- $fields := (uniqueReduce (split (join $fieldsets " ") " ")) -}}
+{{- $fields := (unique (split (join $fieldsets " ") " ")) -}}
 
 package queries
 

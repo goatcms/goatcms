@@ -5,25 +5,21 @@ import (
 	"html/template"
 
 	"github.com/goatcms/goatcms/cmsapp/forms/user/registerform"
-	"github.com/goatcms/goatcms/cmsapp/models"
 	"github.com/goatcms/goatcms/cmsapp/services"
 	"github.com/goatcms/goatcms/cmsapp/services/requestdep"
 	"github.com/goatcms/goatcore/app"
-	"github.com/goatcms/goatcore/db"
 	"github.com/goatcms/goatcore/dependency"
 	"github.com/goatcms/goatcore/goathtml"
-	"github.com/goatcms/goatcore/goatmail"
+	"github.com/goatcms/goatcore/messages"
 	"github.com/goatcms/goatcore/messages/msgcollection"
 )
 
 // Register is register controller
 type Register struct {
 	deps struct {
-		Template services.Template   `dependency:"TemplateService"`
-		Register models.UserRegister `dependency:"UserRegister"`
-		Crypt    services.Crypt      `dependency:"CryptService"`
-		Mailer   services.Mailer     `dependency:"MailerService"`
-		Logger   services.Logger     `dependency:"LoggerService"`
+		Template services.Template           `dependency:"TemplateService"`
+		Logger   services.Logger             `dependency:"LoggerService"`
+		Action   services.UserRegisterAction `dependency:"UserRegisterAction"`
 	}
 	view *template.Template
 }
@@ -43,76 +39,58 @@ func NewRegister(dp dependency.Provider) (*Register, error) {
 }
 
 // Get is handler to serve template where one can add new article
-func (c *Register) Get(requestScope app.Scope) {
-	var requestDeps struct {
+func (c *Register) Get(scope app.Scope) {
+	var deps struct {
 		RequestError requestdep.Error     `request:"ErrorService"`
 		Responser    requestdep.Responser `request:"ResponserService"`
 	}
-	if err := requestScope.InjectTo(&requestDeps); err != nil {
-		fmt.Println(err)
+	if err := scope.InjectTo(&deps); err != nil {
+		c.deps.Logger.ErrorLog("%v", err)
 		return
 	}
-	if err := requestDeps.Responser.Execute(c.view, map[string]interface{}{
+	if err := deps.Responser.Execute(c.view, map[string]interface{}{
 		"Valid": msgcollection.NewMessageMap(),
 	}); err != nil {
-		requestDeps.RequestError.Error(312, err)
+		c.deps.Logger.ErrorLog("%v", err)
+		deps.RequestError.Error(312, err)
 		return
 	}
 }
 
-func (c *Register) Post(requestScope app.Scope) {
+func (c *Register) Post(scope app.Scope) {
 	var (
-		tx          db.TX
-		err         error
-		requestDeps struct {
-			RequestDB    requestdep.DB        `request:"DBService"`
+		err  error
+		msgs messages.MessageMap
+		form *registerform.RegisterForm
+		deps struct {
 			RequestError requestdep.Error     `request:"ErrorService"`
 			Responser    requestdep.Responser `request:"ResponserService"`
 		}
 	)
-	if err = requestScope.InjectTo(&requestDeps); err != nil {
+	if err = scope.InjectTo(&deps); err != nil {
 		fmt.Println(err)
 		return
 	}
-	form, err := registerform.NewForm(requestScope)
-	if err != nil {
-		requestDeps.RequestError.Error(312, err)
+	if form, err = registerform.NewForm(scope); err != nil {
+		c.deps.Logger.ErrorLog("%v", err)
+		deps.RequestError.Error(312, err)
 		return
 	}
-	validResult := msgcollection.NewMessageMap()
-	if err = form.Valid("", validResult); err != nil {
-		requestDeps.RequestError.Error(312, err)
+	if msgs, err = c.deps.Action.Register(form, scope); err != nil {
+		c.deps.Logger.ErrorLog("%v", err)
+		deps.RequestError.Error(312, err)
 		return
 	}
-	if len(validResult.GetAll()) == 0 {
-		// success
-		c.deps.Logger.DevLog("Register new user %v", form.User)
-		tx, err = requestDeps.RequestDB.TX()
-		if err != nil {
-			requestDeps.RequestError.Error(312, err)
-			return
-		}
-		user := models.User(form.User)
-		_, err = c.deps.Register(tx, &user, form.Password)
-		if err != nil {
-			requestDeps.RequestError.Error(312, err)
-			return
-		}
-		if err = tx.Commit(); err != nil {
-			requestDeps.RequestError.Error(312, err)
-			return
-		}
-		c.deps.Mailer.Send(form.User.Email, "register", form, []goatmail.Attachment{}, requestScope)
-		requestDeps.Responser.Redirect("/")
-	} else {
-		// fail
-		c.deps.Logger.DevLog("Register user valid error: %v %v %v", form, form.User, validResult.GetAll())
-		if err := requestDeps.Responser.Execute(c.view, map[string]interface{}{
-			"Valid": validResult,
-			"Form":  form,
-		}); err != nil {
-			requestDeps.RequestError.Error(312, err)
-			return
-		}
+	if len(msgs.GetAll()) == 0 {
+		deps.Responser.Redirect("/")
+		return
+	}
+	if err := deps.Responser.Execute(c.view, map[string]interface{}{
+		"Valid": msgs,
+		"Form":  form,
+	}); err != nil {
+		c.deps.Logger.ErrorLog("%v", err)
+		deps.RequestError.Error(312, err)
+		return
 	}
 }

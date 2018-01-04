@@ -16,7 +16,7 @@ import (
 	{{- $queryName := (index $ctx.Data (print "query." $querykey ".name")) -}}
 	{{- $isSingleResult := (index $ctx.Data (print "query." $querykey ".isSingleResult")) -}}
 	{{- $fieldsets := (valuesFor (print "^query." $querykey ".fit.[A-Za-z0-9]+.fields$") $ctx.Data) -}}
-	{{- $fields := (uniqueReduce (split (join $fieldsets " ") " ")) -}}
+	{{- $fields := (unique (split (join $fieldsets " ") " ")) -}}
 
 type {{camelcaseuf $queryModel}}{{camelcaseuf $queryName}}QueryParams struct {
 {{- $modelkey := (print "model." (findRow "model." "^[A-Za-z0-9]+$" ".entity" $queryModel $ctx.Data)) -}}

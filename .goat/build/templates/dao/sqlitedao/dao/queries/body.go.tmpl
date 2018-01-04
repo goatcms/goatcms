@@ -95,14 +95,14 @@ func (query {{$typeName}}) SQL(fields []string, params *maindef.{{$typeName}}Par
 	// fields
 	sqlq += " FROM {{camelcaseuf $modelName}} WHERE ";
 	{{- $fieldsets := (valuesFor (print "^" .From  ".fit.[A-Za-z0-9]+.fields$") $ctx.Data) -}}
-	{{- $fields := (uniqueReduce (split (join $fieldsets " ") " ")) -}}
+	{{- $fields := (unique (split (join $fieldsets " ") " ")) -}}
 
 	{{- range $fis, $fieldstr := $fieldsets -}}
-		{{- $fields := (uniqueReduce (split $fieldstr " ")) }}
+		{{- $fields := (unique (split $fieldstr " ")) }}
 		if {{range $fi, $field := $fields -}}
 			{{- $modelFieldKey := (print $modelKey ".fields." (findRow (print $modelKey ".fields.") "^[A-Za-z0-9]+$" ".name" $field $ctx.Data)) -}}
 			{{- $fieldType := (index $ctx.Data (print $modelFieldKey ".type")) }}
-			{{- if eq (lower $fieldType) "text" "string" -}}
+			{{- if eq (lower $fieldType) "text" "string" "email" "password" "lang" -}}
 				{{- if ne $fi 0 }} || {{ end -}}
 				params.{{camelcaseuf $field}} != ""
 			{{- else if (lower $fieldType) "int" -}}
@@ -116,7 +116,7 @@ func (query {{$typeName}}) SQL(fields []string, params *maindef.{{$typeName}}Par
 				{{- $modelFieldKey := (print $modelKey ".fields." (findRow (print $modelKey ".fields.") "^[A-Za-z0-9]+$" ".name" $field $ctx.Data)) -}}
 				{{- $fieldType := (index $ctx.Data (print $modelFieldKey ".type")) }}
 
-				{{- if eq (lower $fieldType) "text" "string" -}}
+				{{- if eq (lower $fieldType) "text" "string" "email" "password" "lang" -}}
 					{{- if eq $fi 0 -}}
 						"{{- if eq $fis 0 -}} ( {{- else -}} ) OR ( {{- end -}}  {{camelcaseuf $field}}="
 					{{- else -}}
@@ -127,7 +127,7 @@ func (query {{$typeName}}) SQL(fields []string, params *maindef.{{$typeName}}Par
 						"{{- if eq $fis 0 -}} ( {{- else -}} ) OR ( {{- end -}} {{camelcaseuf $field}}="
 					{{- else -}}
 						+ " AND {{camelcaseuf $field}}="
-					{{- end }} + strconv.Itoa(params.{{camelcaseuf $field}})
+					{{- end }} + strconv.FormatInt(params.{{camelcaseuf $field}}, 10)
 				{{- else -}}
 					{{- error (print "bad type" $fieldType) -}}
 				{{- end -}}

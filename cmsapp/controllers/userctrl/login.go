@@ -66,11 +66,11 @@ func (c *Login) Post(requestScope app.Scope) {
 		return
 	}
 	_, err := requestDeps.RequestAuth.Login(requestDeps.Username, requestDeps.Password)
+	c.deps.Logger.DevLog("Login.Post controller error: %v", err)
 	if err == nil {
 		requestDeps.Responser.Redirect("/")
 		return
 	}
-	c.deps.Logger.DevLog("Login.Post controller error: %v", err)
 	if err := requestDeps.Responser.Execute(c.view, map[string]interface{}{
 		"Error": true,
 	}); err != nil {

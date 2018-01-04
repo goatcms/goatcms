@@ -24,8 +24,8 @@ import (
 // List is a controler to show a list of article
 type List struct {
 	deps struct {
-		Template services.Template `dependency:"TemplateService"`
-		Finder   dao.{{$entityName}}FindAll       `dependency:"{{$entityName}}FindAll"`
+		Template services.Template 					`dependency:"TemplateService"`
+		Finder   dao.{{$entityName}}Search  `dependency:"{{$entityName}}Search"`
 	}
 	view *template.Template
 }
@@ -54,12 +54,13 @@ func (c *List) Get(requestScope app.Scope) {
 			Responser    requestdep.Responser `request:"ResponserService"`
 			Request      *http.Request        `request:"Request"`
 		}
+		searchParams dao.{{$entityName}}SearchParams
 	)
 	if err = requestScope.InjectTo(&requestDeps); err != nil {
 		fmt.Println(err)
 		return
 	}
-	if rows, err = c.deps.Finder.Find(requestScope, entities.{{$entityName}}MainFields); err != nil {
+	if rows, err = c.deps.Finder.Search(requestScope, entities.{{$entityName}}MainFields, &searchParams); err != nil {
 		requestDeps.RequestError.Error(312, err)
 		return
 	}

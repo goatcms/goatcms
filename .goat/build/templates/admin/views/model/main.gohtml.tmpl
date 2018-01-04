@@ -23,7 +23,7 @@ No data to show
       </tr>
     </thead>
     <tbody>
-    {{- noescape "{{- " -}} range $i, ${{camelcaself $entityName}} := .Data.Collection }}" }}
+    {{- noescape "{{- " -}} range $i, ${{camelcaself $entityName}} := .Data.Collection }}
       <tr>
       {{- range $i, $fieldkey := $fields -}}
       {{- $fieldName := (camelcaseuf (index $ctx.Data (print $fieldsBaseKey $fieldkey ".name"))) }}

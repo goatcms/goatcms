@@ -36,28 +36,21 @@ func TestModule(t *testing.T) {
 	}
 	// test
 	var deps struct {
-		DB                     *sql.DB                     `dependency:"db0.engine"`
-		UserCreateTable        maindef.CreateTable         `dependency:"UserCreateTable"`
-		UserDelete             maindef.Delete              `dependency:"UserDelete"`
-		UserDropTable          maindef.DropTable           `dependency:"UserDropTable"`
-		UserFindAll            maindef.UserFindAll         `dependency:"UserFindAll"`
-		UserFindByID           maindef.UserFindByID        `dependency:"UserFindByID"`
-		UserInsert             maindef.UserInsert          `dependency:"UserInsert"`
-		UserUpdate             maindef.UserUpdate          `dependency:"UserUpdate"`
-		TranslationCreateTable maindef.CreateTable         `dependency:"TranslationCreateTable"`
-		TranslationDelete      maindef.Delete              `dependency:"TranslationDelete"`
-		TranslationDropTable   maindef.DropTable           `dependency:"TranslationDropTable"`
-		TranslationFindAll     maindef.TranslationFindAll  `dependency:"TranslationFindAll"`
-		TranslationFindByID    maindef.TranslationFindByID `dependency:"TranslationFindByID"`
-		TranslationInsert      maindef.TranslationInsert   `dependency:"TranslationInsert"`
-		TranslationUpdate      maindef.TranslationUpdate   `dependency:"TranslationUpdate"`
-		ArticleCreateTable     maindef.CreateTable         `dependency:"ArticleCreateTable"`
-		ArticleDelete          maindef.Delete              `dependency:"ArticleDelete"`
-		ArticleDropTable       maindef.DropTable           `dependency:"ArticleDropTable"`
-		ArticleFindAll         maindef.ArticleFindAll      `dependency:"ArticleFindAll"`
-		ArticleFindByID        maindef.ArticleFindByID     `dependency:"ArticleFindByID"`
-		ArticleInsert          maindef.ArticleInsert       `dependency:"ArticleInsert"`
-		ArticleUpdate          maindef.ArticleUpdate       `dependency:"ArticleUpdate"`
+		DB                  *sql.DB                  `dependency:"db0.engine"`
+		UserCreateTable     maindef.CreateTable      `dependency:"UserCreateTable"`
+		UserDelete          maindef.Delete           `dependency:"UserDelete"`
+		UserDropTable       maindef.DropTable        `dependency:"UserDropTable"`
+		UserFindAll         maindef.UserFindAll      `dependency:"UserFindAll"`
+		UserFindByID        maindef.UserFindByID     `dependency:"UserFindByID"`
+		UserInsert          maindef.UserInsert       `dependency:"UserInsert"`
+		UserUpdate          maindef.UserUpdate       `dependency:"UserUpdate"`
+		FragmentCreateTable maindef.CreateTable      `dependency:"FragmentCreateTable"`
+		FragmentDelete      maindef.Delete           `dependency:"FragmentDelete"`
+		FragmentDropTable   maindef.DropTable        `dependency:"FragmentDropTable"`
+		FragmentFindAll     maindef.FragmentFindAll  `dependency:"FragmentFindAll"`
+		FragmentFindByID    maindef.FragmentFindByID `dependency:"FragmentFindByID"`
+		FragmentInsert      maindef.FragmentInsert   `dependency:"FragmentInsert"`
+		FragmentUpdate      maindef.FragmentUpdate   `dependency:"FragmentUpdate"`
 	}
 	if err = mapp.DependencyProvider().InjectTo(&deps); err != nil {
 		t.Error(err)

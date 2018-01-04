@@ -8,7 +8,6 @@ import (
 	entities "github.com/goatcms/goatcms/cmsapp/entities"
 	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/dependency"
-	"strconv"
 )
 
 // UserUpdate is a Data Access Object for user entity
@@ -68,13 +67,17 @@ func (dao UserUpdate) SQL(fields []string, entity *entities.User) (string, error
 		}
 		switch row {
 		case "Firstname":
-			sql += strconv.Quote(*entity.Firstname)
-		case "Password":
-			sql += strconv.Quote(*entity.Password)
+			sql += helpers.Quote(entity.Firstname)
+		case "Roles":
+			sql += helpers.Quote(entity.Roles)
 		case "Login":
-			sql += strconv.Quote(*entity.Login)
+			sql += helpers.Quote(entity.Login)
+		case "Lastname":
+			sql += helpers.Quote(entity.Lastname)
+		case "Password":
+			sql += helpers.Quote(entity.Password)
 		case "Email":
-			sql += strconv.Quote(*entity.Email)
+			sql += helpers.Quote(entity.Email)
 		}
 	}
 	return sql, nil

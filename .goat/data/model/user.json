@@ -1,1 +1,45 @@
-{"model":{"user":{"entity":"user","fields":{"0":{"name":"firstname","type":"string","unique":"n"},"1":{"name":"lastname","type":"string","unique":"n"},"2":{"name":"email","type":"string","unique":"y"},"3":{"name":"login","type":"string","unique":"y"},"1":{"name":"password","type":"string","unique":"n"}}}}}
+{
+  "model": {
+    "user": {
+      "entity": "user",
+      "fields": {
+        "0": {
+          "name": "firstname",
+          "system": "n",
+          "type": "string",
+          "unique": "n"
+        },
+        "1": {
+          "name": "lastname",
+          "system": "n",
+          "type": "string",
+          "unique": "n"
+        },
+        "2": {
+          "name": "email",
+          "system": "n",
+          "type": "email",
+          "unique": "y"
+        },
+        "3": {
+          "name": "password",
+          "system": "y",
+          "type": "password",
+          "unique": "n"
+        },
+        "4": {
+          "name": "roles",
+          "system": "y",
+          "type": "string",
+          "unique": "n"
+        },
+        "5": {
+          "name": "login",
+          "system": "n",
+          "type": "string",
+          "unique": "y"
+        }
+      }
+    }
+  }
+}

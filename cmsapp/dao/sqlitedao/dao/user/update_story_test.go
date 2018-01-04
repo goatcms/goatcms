@@ -27,9 +27,11 @@ func doUpdateStory(t *testing.T) (bool, *sql.DB) {
 	if ok, db, entity = doInsertStory(t); !ok {
 		return false, nil
 	}
-	entity.Password = expectedEntity.Password
+	entity.Roles = expectedEntity.Roles
 	entity.Firstname = expectedEntity.Firstname
 	entity.Login = expectedEntity.Login
+	entity.Lastname = expectedEntity.Lastname
+	entity.Password = expectedEntity.Password
 	entity.Email = expectedEntity.Email
 	s := scope.NewScope("tag")
 	updater := UserUpdate{}
@@ -57,12 +59,20 @@ func doUpdateStory(t *testing.T) (bool, *sql.DB) {
 		t.Errorf("Returned field should contains inserted entity value for Password field and it is %v (expeted %v)", entity.Password, expectedEntity.Password)
 		return false, db
 	}
-	if *expectedEntity.Login != *entity.Login {
-		t.Errorf("Returned field should contains inserted entity value for Login field and it is %v (expeted %v)", entity.Login, expectedEntity.Login)
+	if *expectedEntity.Lastname != *entity.Lastname {
+		t.Errorf("Returned field should contains inserted entity value for Lastname field and it is %v (expeted %v)", entity.Lastname, expectedEntity.Lastname)
+		return false, db
+	}
+	if *expectedEntity.Roles != *entity.Roles {
+		t.Errorf("Returned field should contains inserted entity value for Roles field and it is %v (expeted %v)", entity.Roles, expectedEntity.Roles)
 		return false, db
 	}
 	if *expectedEntity.Email != *entity.Email {
 		t.Errorf("Returned field should contains inserted entity value for Email field and it is %v (expeted %v)", entity.Email, expectedEntity.Email)
+		return false, db
+	}
+	if *expectedEntity.Login != *entity.Login {
+		t.Errorf("Returned field should contains inserted entity value for Login field and it is %v (expeted %v)", entity.Login, expectedEntity.Login)
 		return false, db
 	}
 	return true, db

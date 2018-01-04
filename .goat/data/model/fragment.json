@@ -1,0 +1,27 @@
+{
+  "model": {
+    "fragment": {
+      "entity": "fragment",
+      "fields": {
+        "0": {
+          "name": "lang",
+          "system": "n",
+          "type": "lang",
+          "unique": "n"
+        },
+        "1": {
+          "name": "name",
+          "system": "n",
+          "type": "string",
+          "unique": "n"
+        },
+        "2": {
+          "name": "content",
+          "system": "n",
+          "type": "text",
+          "unique": "n"
+        }
+      }
+    }
+  }
+}

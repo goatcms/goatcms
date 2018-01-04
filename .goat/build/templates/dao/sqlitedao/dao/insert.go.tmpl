@@ -10,7 +10,6 @@ package dao
 import (
 	"database/sql"
 	"fmt"
-	"strconv"
 
 	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/varutil"
@@ -81,10 +80,10 @@ func (dao {{$typeName}}) SQL(entity *entities.{{$entityName}}) (string, error) {
 			{{- $fieldType := (index $ctx.Data (print $key ".type")) }}
 			{{- if ne $fi 0 -}}, {{ end -}}
 
-			{{- if eq (lower $fieldType) "text" "string" -}}
-				" + strconv.Quote(*entity.{{camelcaseuf $fieldName}}) + "
+			{{- if eq (lower $fieldType) "text" "string" "email" "password" "lang" -}}
+				" + helpers.Quote(entity.{{camelcaseuf $fieldName}}) + "
 			{{- else if (lower $fieldType) "int" -}}
-				" + strconv.Itoa(*entity.{{camelcaseuf $field}}) + "
+				" + helpers.FormatInt(entity.{{camelcaseuf $field}}, 10) + "
 			{{- else -}}
 				{{- error (print "bad type" $fieldType) -}}
 			{{- end -}}

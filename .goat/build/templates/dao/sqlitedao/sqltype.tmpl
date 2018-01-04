@@ -1,6 +1,6 @@
 {{- define "sqlite.sqltype" -}}
 
-{{- if eq (lower .) "text" "string" -}}
+{{- if eq (lower .) "text" "string" "email" "password" "lang" -}}
   TEXT
 {{- else if eq (lower .) "int" -}}
   INTEGER

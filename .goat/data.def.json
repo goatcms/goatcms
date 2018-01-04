@@ -25,13 +25,20 @@
       "type":"line",
       "min":1,
       "max":25,
-      "pattern": "^(string|text|int)$"
+      "pattern": "^(string|text|int|lang|email|password)$"
     },{
-      "prompt":"The field is unique? (y/n)",
+      "prompt":"Is it a unique field? (y/n)",
       "key":"unique",
       "type":"line",
       "min":1,
-      "max":4,
+      "max":1,
+      "pattern": "^(y|n)$"
+    },{
+      "prompt":"Is it a system field? (y/n)",
+      "key":"system",
+      "type":"line",
+      "min":1,
+      "max":1,
       "pattern": "^(y|n)$"
     }]
   }]

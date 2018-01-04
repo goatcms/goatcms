@@ -1,0 +1,15 @@
+{{- define "randomvalue" -}}
+
+{{- if eq . "email" -}}
+  {{- template "randomvalue" "firstname" -}}.{{- template "randomvalue" "lastname" -}}@{{random 3 "abcdefghijklmnopqrstuvwxyz"}}.{{- template "randomvalue" "lang" -}}
+{{- else if eq . "lang" -}}
+  {{- randomValue "pl" "en" "fi" "fr" "us" "cn" -}}
+{{- else if eq . "firstname" -}}
+  {{- randomValue "Jack" "Thomas" "Oliver" "Joshua" "Harry" "Charlie" "Daniel" "William" "James" "Alfie" "Grace" "Ruby" "Olivia" "Emily" "Jessica" "Sophie" "Chloe" "Lily" "Ella" "Amelia" -}}
+{{- else if eq . "lastname" -}}
+  {{- randomValue "Smith" "Jones" "Williams" "Brown" "Taylor" "Davies" "Wilson" "Evans" "Thomas" "Roberts" "Johnson" "Walker" "Wright" "Robinson" -}}
+{{- else -}}
+  {{- error (print "bad type" .) -}}
+{{- end -}}
+
+{{- end -}}

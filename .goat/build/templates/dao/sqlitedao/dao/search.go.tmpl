@@ -77,17 +77,17 @@ func (query {{$typeName}}) SQL(fields []string, params *maindef.{{$typeName}}Par
 	{{- range $fi, $fieldkey := $fields -}}
 		{{- $fieldName := (index $ctx.Data (print $fieldsBaseKey $fieldkey ".name")) -}}
 		{{- $fieldType := (lower (index $ctx.Data (print $fieldsBaseKey $fieldkey ".type"))) }}
-		if {{ if eq $fieldType "text" "string" -}}
+		if {{ if eq $fieldType "text" "string" "email" "password" "lang" -}}
 			params.{{camelcaseuf $fieldName}} != ""
 		{{- else if eq $fieldType "int" -}}
 			params.{{camelcaseuf $fieldName}} != 0
 		{{- else -}}
 			{{- error (print "bad type" $fieldType) -}}
 		{{- end }} {
-		criterias = append(criterias, "{{camelcaseuf $fieldName}}=" + {{ if eq $fieldType "text" "string" -}}
+		criterias = append(criterias, "{{camelcaseuf $fieldName}}=" + {{ if eq $fieldType "text" "string" "email" "password" "lang" -}}
 			strconv.Quote(params.{{camelcaseuf $fieldName}})
 		{{- else if eq $fieldType "int" -}}
-			strconv.Itoa(params.{{camelcaseuf $fieldName}})
+			strconv.FormatInt(params.{{camelcaseuf $fieldName}}, 10)
 		{{- else -}}
 			{{- error (print "bad type" $fieldType) -}}
 		{{- end }})

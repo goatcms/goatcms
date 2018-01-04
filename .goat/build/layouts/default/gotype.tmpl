@@ -1,10 +1,10 @@
 {{- define "gotype" -}}
 
-{{- if eq . "text" -}}
+{{- $lvalue := (lower .) -}}
+
+{{- if eq $lvalue "text" "string" "email" "password" "lang" -}}
   string
-{{- else if eq . "string" -}}
-  string
-{{- else if eq . "int" -}}
+{{- else if eq $lvalue "int" -}}
   int
 {{- else -}}
   {{- error (print "bad type " .) -}}

@@ -3,6 +3,7 @@ package helpers
 import (
 	"database/sql"
 	"github.com/goatcms/goatcore/app"
+	"strconv"
 )
 
 const (
@@ -62,4 +63,18 @@ func NewMemoryDB() (db *sql.DB, err error) {
 		return nil, err
 	}
 	return db, nil
+}
+
+func Quote(s *string) string {
+	if s == nil {
+		return "null"
+	}
+	return strconv.Quote(*s)
+}
+
+func FormatInt(i *int64, base int) string {
+	if i == nil {
+		return "null"
+	}
+	return strconv.FormatInt(*i, base)
 }

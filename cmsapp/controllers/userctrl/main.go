@@ -13,22 +13,25 @@ func InitDependencies(a app.App) error {
 	if err := a.DependencyProvider().InjectTo(&deps); err != nil {
 		return err
 	}
+	// register
 	register, err := NewRegister(a.DependencyProvider())
-	if err != nil {
-		return err
-	}
-	login, err := NewLogin(a.DependencyProvider())
-	if err != nil {
-		return err
-	}
-	logout, err := NewLogout(a.DependencyProvider())
 	if err != nil {
 		return err
 	}
 	deps.Router.OnGet("/user/register", register.Get)
 	deps.Router.OnPost("/user/register", register.Post)
+	// login
+	login, err := NewLogin(a.DependencyProvider())
+	if err != nil {
+		return err
+	}
 	deps.Router.OnGet("/user/login", login.Get)
 	deps.Router.OnPost("/user/login", login.Post)
+	// logout
+	logout, err := NewLogout(a.DependencyProvider())
+	if err != nil {
+		return err
+	}
 	deps.Router.OnGet("/user/logout", logout.Do)
 	deps.Router.OnPost("/user/logout", logout.Do)
 	return nil

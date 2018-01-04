@@ -1,7 +1,6 @@
 package userform
 
 import (
-	"github.com/goatcms/goatcms/cmsapp/models"
 	"github.com/goatcms/goatcore/dependency"
 	"github.com/goatcms/goatcore/messages"
 	"github.com/goatcms/goatcore/varutil/validator"
@@ -14,7 +13,9 @@ const (
 )
 
 // UserForm is structure with register form values
-type UserForm models.User
+type UserForm struct {
+	Email *string `form:"Email"`
+}
 
 func NewForm(dp dependency.Injector) (*UserForm, error) {
 	form := &UserForm{}
@@ -25,7 +26,7 @@ func NewForm(dp dependency.Injector) (*UserForm, error) {
 }
 
 func (f *UserForm) Valid(basekey string, mm messages.MessageMap) error {
-	if err := validator.EmailValid(f.Email, basekey+EmailKey, mm); err != nil {
+	if err := validator.EmailValid(*f.Email, basekey+EmailKey, mm); err != nil {
 		return err
 	}
 	return nil

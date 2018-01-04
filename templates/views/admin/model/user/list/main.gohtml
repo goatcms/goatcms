@@ -8,18 +8,18 @@ No data to show
   <table>
     <thead>
       <tr>
-        <th>Firstname</th>
-        <th>Password</th>
         <th>Email</th>
         <th>Login</th>
+        <th>Firstname</th>
+        <th>Password</th>
       </tr>
     </thead>
-    <tbody>{{- range $i, $user := .Data.Collection }}" }}
+    <tbody>{{- range $i, $user := .Data.Collection }}
       <tr>
-        <td>{{- $user.Firstname -}}</td>
-        <td>{{- $user.Password -}}</td>
         <td>{{- $user.Email -}}</td>
         <td>{{- $user.Login -}}</td>
+        <td>{{- $user.Firstname -}}</td>
+        <td>{{- $user.Password -}}</td>
       <tr>
     {{- end }}
   </tbody>
