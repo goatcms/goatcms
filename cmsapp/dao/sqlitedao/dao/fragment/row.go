@@ -27,12 +27,14 @@ func (row *FragmentRow) InjectTo(dest *entities.Fragment) (err error) {
 	values := make([]interface{}, len(row.columns))
 	for i, name := range row.columns {
 		switch name {
-		case "Content":
-			values[i] = &dest.Content
+		case "ID":
+			values[i] = &dest.ID
 		case "Name":
 			values[i] = &dest.Name
 		case "Lang":
 			values[i] = &dest.Lang
+		case "Content":
+			values[i] = &dest.Content
 		default:
 			return fmt.Errorf("FragmentRow.InjectTo unknow field %v", name)
 		}

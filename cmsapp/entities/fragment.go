@@ -1,10 +1,10 @@
 package entities
 
 // FragmentAllFields is a array contains list of all Fragment fields (except ID)
-var FragmentAllFields = []string{"Lang", "Name", "Content"}
+var FragmentAllFields = []string{"Content", "Lang", "Name"}
 
 // FragmentMainFields is a array contains list of main Fragment fields (except ID)
-var FragmentMainFields = []string{"Lang", "Name", "Content"}
+var FragmentMainFields = []string{"Content", "Lang", "Name"}
 
 // FragmentSystemFields is a array contains list of system Fragment fields (except ID)
 var FragmentSystemFields = []string{}

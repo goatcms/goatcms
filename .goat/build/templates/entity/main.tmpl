@@ -1,10 +1,19 @@
 {{- $ctx := . -}}
 
 {{- range $index, $key := (keys .Data "model.") -}}
+
   {{- $path := (print $ctx.To "/" $key ".go") -}}
   {{- if not ($ctx.Filesystem.IsFile $path) -}}
     {{- $ctx.Out.File $path -}}
       {{- template "entity" (ctx $ctx (print "model." $key) "") -}}
     {{- $ctx.Out.EOF -}}
   {{- end -}}
+
+  {{- $path := (print $ctx.To "/" $key "_valid.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $path) -}}
+    {{- $ctx.Out.File $path -}}
+      {{- template "entity_valid" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
 {{- end -}}

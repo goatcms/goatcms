@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	maindef "github.com/goatcms/goatcms/cmsapp/dao"
 	helpers "github.com/goatcms/goatcms/cmsapp/dao/sqlitedao/helpers"
+	entities "github.com/goatcms/goatcms/cmsapp/entities"
 	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/dependency"
 	"strconv"
@@ -32,12 +33,12 @@ func FragmentFindByIDFactory(dp dependency.Provider) (interface{}, error) {
 	return maindef.FragmentFindByID(instance), nil
 }
 
-func (dao FragmentFindByID) Find(scope app.Scope, fields []string, id int64) (maindef.FragmentRow, error) {
+func (dao FragmentFindByID) Find(scope app.Scope, fields []string, id int64) (*entities.Fragment, error) {
 	var (
 		err   error
 		query string
 		tx    *sql.Tx
-		row   *sql.Row
+		row   *FragmentRow
 	)
 	if tx, err = helpers.TX(scope, dao.deps.DB); err != nil {
 		return nil, err
@@ -45,8 +46,8 @@ func (dao FragmentFindByID) Find(scope app.Scope, fields []string, id int64) (ma
 	if query, err = dao.SQL(fields, id); err != nil {
 		return nil, err
 	}
-	row = tx.QueryRow(query)
-	return NewFragmentRow(row, fields), nil
+	row = NewFragmentRow(tx.QueryRow(query), fields)
+	return row.Get()
 }
 
 func (dao FragmentFindByID) SQL(fields []string, id int64) (string, error) {

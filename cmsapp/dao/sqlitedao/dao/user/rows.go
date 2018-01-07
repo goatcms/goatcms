@@ -25,18 +25,20 @@ func (rows *UserRows) InjectTo(dest *entities.User) (err error) {
 	values := make([]interface{}, len(columns))
 	for i, name := range columns {
 		switch name {
+		case "ID":
+			values[i] = &dest.ID
 		case "Firstname":
 			values[i] = &dest.Firstname
-		case "Login":
-			values[i] = &dest.Login
-		case "Lastname":
-			values[i] = &dest.Lastname
-		case "Password":
-			values[i] = &dest.Password
-		case "Email":
-			values[i] = &dest.Email
+		case "Username":
+			values[i] = &dest.Username
 		case "Roles":
 			values[i] = &dest.Roles
+		case "Email":
+			values[i] = &dest.Email
+		case "Password":
+			values[i] = &dest.Password
+		case "Lastname":
+			values[i] = &dest.Lastname
 		default:
 			return fmt.Errorf("UserRows.InjectTo unknow field %v", name)
 		}

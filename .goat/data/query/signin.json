@@ -1,0 +1,17 @@
+{
+  "query": {
+    "signin": {
+      "fit": {
+        "0": {
+          "fields": "username"
+        },
+        "1": {
+          "fields": "email"
+        }
+      },
+      "isSingleResult": "y",
+      "model": "user",
+      "name": "signin"
+    }
+  }
+}

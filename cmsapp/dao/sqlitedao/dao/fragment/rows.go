@@ -25,6 +25,8 @@ func (rows *FragmentRows) InjectTo(dest *entities.Fragment) (err error) {
 	values := make([]interface{}, len(columns))
 	for i, name := range columns {
 		switch name {
+		case "ID":
+			values[i] = &dest.ID
 		case "Lang":
 			values[i] = &dest.Lang
 		case "Name":

@@ -53,7 +53,11 @@ func (dao {{$typeName}}) SQL() string {
     {{- $key := (print $fieldsBaseKey $field) -}}
     {{- $fieldName := (index $ctx.Data (print $key ".name")) -}}
     {{- $fieldType := (index $ctx.Data (print $key ".type")) -}}
+    {{- $unique := (lower (index $ctx.Data (print $key ".unique"))) -}}
+    {{- $required := (lower (index $ctx.Data (print $key ".required"))) -}}
     , {{camelcaseuf $fieldName}} {{template "sqlite.sqltype" $fieldType}}
+		{{- if eq $unique "y" }} UNIQUE {{- end -}}
+		{{- if eq $required "y" }} NOT NULL {{- end -}}
   {{- end -}});`
 }
 

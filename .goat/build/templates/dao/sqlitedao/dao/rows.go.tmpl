@@ -31,13 +31,15 @@ func (rows *{{$entityName}}Rows) InjectTo(dest *entities.{{$entityName}}) (err e
 	values := make([]interface{}, len(columns))
 	for i, name := range columns {
 		switch(name) {
+			case "ID":
+				values[i] = &dest.ID
 			{{- range $index, $field := (keys .Data $fieldsBaseKey) -}}
 		    {{- $key := (print $fieldsBaseKey $field) -}}
 		    {{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
-		    {{- $fieldType := (index $ctx.Data (print $key ".type")) -}}
+		    {{- $fieldType := (index $ctx.Data (print $key ".type")) }}
 				case "{{$fieldName}}":
 					values[i] = &dest.{{$fieldName}}
-		  {{ end -}}
+		  {{- end }}
 			default:
 				return fmt.Errorf("{{$entityName}}Rows.InjectTo unknow field %v", name)
 		}

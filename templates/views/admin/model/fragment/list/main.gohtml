@@ -8,15 +8,15 @@ No data to show
   <table>
     <thead>
       <tr>
-        <th>Name</th>
         <th>Lang</th>
+        <th>Name</th>
         <th>Content</th>
       </tr>
     </thead>
     <tbody>{{- range $i, $fragment := .Data.Collection }}
       <tr>
-        <td>{{- $fragment.Name -}}</td>
         <td>{{- $fragment.Lang -}}</td>
+        <td>{{- $fragment.Name -}}</td>
         <td>{{- $fragment.Content -}}</td>
       <tr>
     {{- end }}

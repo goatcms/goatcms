@@ -1,0 +1,56 @@
+{{- define "httpmodel.body" -}}
+{{- $ctx := . -}}
+{{- $name := (index $ctx.Data (print .From ".entity")) -}}
+{{- $entityName := (camelcaseuf $name) -}}
+{{- $typeName := (print $entityName "FindAll") -}}
+{{- $fieldsBaseKey := (print .From ".fields.") -}}
+{{- $fields := (keys .Data $fieldsBaseKey) -}}
+package {{lower $name}}
+
+import (
+	"net/http"
+
+	entities "{{index $ctx.Properties.Build "entities_path"}}"
+	"github.com/goatcms/goatcore/app"
+	"github.com/goatcms/goatcore/http/httphelpers"
+)
+
+// NewForm create new entity instance with data from HTTP request
+func NewForm(scope app.Scope, fields []string) (entity *entities.{{$entityName}}, err error) {
+	var deps struct {
+		Req *http.Request `request:"Request"`
+	}
+	if scope.InjectTo(&deps); err != nil {
+		return nil, err
+	}
+	entity = &entities.{{$entityName}}{}
+	if err = DecodeFields("", entity, deps.Req, fields); err != nil {
+		return nil, err
+	}
+	return entity, nil
+}
+
+// DecodeFields decode HTTP request and set result do entity
+func DecodeFields(prefix string, e *entities.{{$entityName}}, req *http.Request, fields []string) (err error) {
+	if err = httphelpers.ParseForm(req); err != nil {
+		return err
+	}
+	for _, fieldName := range fields {
+		switch(fieldName) {
+			{{- range $index, $field := $fields -}}
+		    {{- $key := (print $fieldsBaseKey $field) -}}
+		    {{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
+		    {{- $fieldType := (index $ctx.Data (print $key ".type")) }}
+			case "{{$fieldName}}":
+				plain{{$fieldName}}, ok := req.Form[prefix + "{{$fieldName}}"]
+				if !ok {
+					continue
+				}
+				e.{{$fieldName}} = &plain{{$fieldName}}[0]
+		  {{- end }}
+		}
+	}
+	return nil
+}
+
+{{- end -}}

@@ -1,17 +1,18 @@
 {{define "admin.controllers.module" -}}
 {{- $ctx := . -}}
+{{- $models := (sort (keys .Data "model.")) -}}
 
 package {{index $ctx.Properties.Build "package"}}
 
 import (
 	"github.com/goatcms/goatcore/app"
-	{{- range $index, $key := (keys .Data "model.") }}
+	{{- range $index, $key := $models }}
 	{{$key}} "{{index $ctx.Properties.Build "path"}}/model/{{$key}}"
 	{{- end -}}
 )
 
 func InitDependencies(a app.App) error {
-	{{- range $index, $key := (keys .Data "model.") }}
+	{{- range $index, $key := $models }}
 	if err := {{$key}}.InitDependencies(a); err != nil {
 		return err
 	}

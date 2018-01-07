@@ -28,10 +28,10 @@ func doSearchStory(t *testing.T) (bool, *sql.DB) {
 	s := scope.NewScope("tag")
 	searcher := FragmentSearch{}
 	searcher.deps.DB = db
-	if rows, err = searcher.Search(s, entities.FragmentMainFields, &maindef.FragmentSearchParams{
+	if rows, err = searcher.Search(s, entities.FragmentAllFields, &maindef.FragmentSearchParams{
+		Lang:    *expectedEntity.Lang,
 		Name:    *expectedEntity.Name,
 		Content: *expectedEntity.Content,
-		Lang:    *expectedEntity.Lang,
 	}); err != nil {
 		t.Error(err)
 		return false, db
@@ -45,16 +45,16 @@ func doSearchStory(t *testing.T) (bool, *sql.DB) {
 			t.Error(err)
 			return false, db
 		}
+		if *expectedEntity.Lang != *e.Lang {
+			t.Errorf("Returned field should contains inserted entity value for Lang field and it is %v (expeted %v)", e.Lang, expectedEntity.Lang)
+			return false, db
+		}
 		if *expectedEntity.Name != *e.Name {
 			t.Errorf("Returned field should contains inserted entity value for Name field and it is %v (expeted %v)", e.Name, expectedEntity.Name)
 			return false, db
 		}
 		if *expectedEntity.Content != *e.Content {
 			t.Errorf("Returned field should contains inserted entity value for Content field and it is %v (expeted %v)", e.Content, expectedEntity.Content)
-			return false, db
-		}
-		if *expectedEntity.Lang != *e.Lang {
-			t.Errorf("Returned field should contains inserted entity value for Lang field and it is %v (expeted %v)", e.Lang, expectedEntity.Lang)
 			return false, db
 		}
 	}

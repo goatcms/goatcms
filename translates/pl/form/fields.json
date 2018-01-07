@@ -7,7 +7,9 @@
         "repeat_password": "Powtórz hasło",
         "email": "Email",
         "title": "Tytuł",
-        "content": "Treść"
+        "content": "Treść",
+        "firstname": "Imię",
+        "lastname": "Nazwisko"
       }
     }
   }

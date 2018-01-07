@@ -30,8 +30,9 @@ type Session interface {
 }
 
 type Auth interface {
-	UserID() (string, error)
-	Login(name, password string) (*entities.User, error)
+	UserID() (int64, error)
+	Signin(name, password string) (*entities.User, error)
+	LoggedInUser() (user *entities.User, err error)
 	Clear() error
 }
 

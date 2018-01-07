@@ -27,16 +27,18 @@ func (row *UserRow) InjectTo(dest *entities.User) (err error) {
 	values := make([]interface{}, len(row.columns))
 	for i, name := range row.columns {
 		switch name {
+		case "ID":
+			values[i] = &dest.ID
 		case "Email":
 			values[i] = &dest.Email
+		case "Lastname":
+			values[i] = &dest.Lastname
 		case "Roles":
 			values[i] = &dest.Roles
 		case "Firstname":
 			values[i] = &dest.Firstname
-		case "Login":
-			values[i] = &dest.Login
-		case "Lastname":
-			values[i] = &dest.Lastname
+		case "Username":
+			values[i] = &dest.Username
 		case "Password":
 			values[i] = &dest.Password
 		default:

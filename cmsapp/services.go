@@ -13,7 +13,7 @@ import (
 	"github.com/goatcms/goatcms/cmsapp/services/session"
 	"github.com/goatcms/goatcms/cmsapp/services/template"
 	"github.com/goatcms/goatcms/cmsapp/services/translate"
-	"github.com/goatcms/goatcms/cmsapp/services/user/register"
+	"github.com/goatcms/goatcms/cmsapp/services/user/signup"
 	"github.com/goatcms/goatcore/app"
 )
 
@@ -41,7 +41,7 @@ func RegisterServices(a app.App) error {
 	if err := translate.RegisterDependencies(dp); err != nil {
 		return err
 	}
-	if err := register.RegisterDependencies(dp); err != nil {
+	if err := signup.RegisterDependencies(dp); err != nil {
 		return err
 	}
 	return nil

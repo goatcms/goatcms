@@ -41,5 +41,5 @@ func (dao FragmentCreateTable) CreateTable(scope app.Scope) (err error) {
 }
 
 func (dao FragmentCreateTable) SQL() string {
-	return `CREATE TABLE IF NOT EXISTS Fragment (ID INTEGER PRIMARY KEY, Lang TEXT, Name TEXT, Content TEXT);`
+	return `CREATE TABLE IF NOT EXISTS Fragment (ID INTEGER PRIMARY KEY, Content TEXT NOT NULL, Name TEXT NOT NULL, Lang TEXT NOT NULL);`
 }

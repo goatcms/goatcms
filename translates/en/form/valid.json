@@ -4,7 +4,9 @@
       "valid": {
         "email": "Wrong email address",
         "length_max": "The text exceeds the maximum length",
-        "length_min": "The text is too short"
+        "length_min": "The text is too short",
+        "required": "The field is required",
+        "identical_password": "Passwords must be the same"
       }
     }
   }

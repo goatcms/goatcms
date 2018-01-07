@@ -27,7 +27,7 @@ type UserFindAll interface {
 
 // UserFindByID is the DAO find by id provider interface
 type UserFindByID interface {
-	Find(scope app.Scope, fields []string, id int64) (row UserRow, err error)
+	Find(scope app.Scope, fields []string, id int64) (user *entities.User, err error)
 	SQL(fields []string, id int64) (string, error)
 }
 
@@ -45,12 +45,12 @@ type UserUpdate interface {
 
 // UserSearchParams is the search criteria container
 type UserSearchParams struct {
-	Roles     string
-	Email     string
-	Login     string
 	Firstname string
 	Lastname  string
+	Email     string
 	Password  string
+	Roles     string
+	Username  string
 }
 
 // UserSearch is the DAO search provider interface

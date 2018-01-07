@@ -60,5 +60,5 @@ func (dao FragmentInsert) Insert(scope app.Scope, entity *entities.Fragment) (id
 }
 
 func (dao FragmentInsert) SQL(entity *entities.Fragment) (string, error) {
-	return "INSERT INTO Fragment (Content, Lang, Name) VALUES (" + helpers.Quote(entity.Content) + ", " + helpers.Quote(entity.Lang) + ", " + helpers.Quote(entity.Name) + ")", nil
+	return "INSERT INTO Fragment (Name, Content, Lang) VALUES (" + helpers.Quote(entity.Name) + ", " + helpers.Quote(entity.Content) + ", " + helpers.Quote(entity.Lang) + ")", nil
 }

@@ -4,7 +4,9 @@
 {{- $entityName := (camelcaseuf $name) -}}
 {{- $typeName := (print $entityName "CreateTable") -}}
 {{- $fieldsBaseKey := (print .From ".fields.") -}}
-{{- $fields := (keys $ctx.Data $fieldsBaseKey) -}}
+{{- $fields := (sort (keys $ctx.Data $fieldsBaseKey)) -}}
+{{- $systemFields := (findRows $fieldsBaseKey "^[A-Za-z0-9]+$" ".system" "y" $ctx.Data) -}}
+{{- $mainFields := (except $fields $systemFields) -}}
 
 {{- noescape "{{- define \"content\" -}}" }}
 
@@ -16,7 +18,7 @@ No data to show
   <table>
     <thead>
       <tr>
-      {{- range $i, $fieldkey := $fields -}}
+      {{- range $i, $fieldkey := $mainFields -}}
       {{- $fieldName := (camelcaseuf (index $ctx.Data (print $fieldsBaseKey $fieldkey ".name"))) }}
         <th>{{$fieldName}}</th>
       {{- end }}
@@ -25,7 +27,7 @@ No data to show
     <tbody>
     {{- noescape "{{- " -}} range $i, ${{camelcaself $entityName}} := .Data.Collection }}
       <tr>
-      {{- range $i, $fieldkey := $fields -}}
+      {{- range $i, $fieldkey := $mainFields -}}
       {{- $fieldName := (camelcaseuf (index $ctx.Data (print $fieldsBaseKey $fieldkey ".name"))) }}
         <td>{{- noescape "{{- " -}} ${{camelcaself $entityName}}.{{$fieldName}} -}}</td>
       {{- end }}

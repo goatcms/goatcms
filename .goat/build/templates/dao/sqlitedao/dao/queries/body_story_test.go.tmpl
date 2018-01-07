@@ -107,7 +107,7 @@ func do{{$typeName}}(t *testing.T) (bool) {
 		entity
 	{{- else -}}
 		rows
-	{{- end }}, err = deps.Query.{{$queryNameUF}}(s, entities.{{$modelNameUF}}MainFields, params); err != nil {
+	{{- end }}, err = deps.Query.{{$queryNameUF}}(s, entities.{{$modelNameUF}}AllFields, params); err != nil {
 		t.Error(err)
 		return false
 	}

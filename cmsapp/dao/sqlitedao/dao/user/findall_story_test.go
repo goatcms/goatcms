@@ -27,7 +27,7 @@ func doFindAllStory(t *testing.T) (bool, *sql.DB) {
 	s := scope.NewScope("tag")
 	finder := UserFindAll{}
 	finder.deps.DB = db
-	if rows, err = finder.Find(s, entities.UserMainFields); err != nil {
+	if rows, err = finder.Find(s, entities.UserAllFields); err != nil {
 		t.Error(err)
 		return false, db
 	}
@@ -41,28 +41,28 @@ func doFindAllStory(t *testing.T) (bool, *sql.DB) {
 			t.Error(err)
 			return false, db
 		}
-		if *expectedEntity.Login != *e.Login {
-			t.Errorf("Returned field should contains inserted entity value for Login field and it is %v (expeted %v)", e.Login, expectedEntity.Login)
-			return false, db
-		}
 		if *expectedEntity.Firstname != *e.Firstname {
 			t.Errorf("Returned field should contains inserted entity value for Firstname field and it is %v (expeted %v)", e.Firstname, expectedEntity.Firstname)
 			return false, db
 		}
-		if *expectedEntity.Lastname != *e.Lastname {
-			t.Errorf("Returned field should contains inserted entity value for Lastname field and it is %v (expeted %v)", e.Lastname, expectedEntity.Lastname)
+		if *expectedEntity.Username != *e.Username {
+			t.Errorf("Returned field should contains inserted entity value for Username field and it is %v (expeted %v)", e.Username, expectedEntity.Username)
+			return false, db
+		}
+		if *expectedEntity.Password != *e.Password {
+			t.Errorf("Returned field should contains inserted entity value for Password field and it is %v (expeted %v)", e.Password, expectedEntity.Password)
 			return false, db
 		}
 		if *expectedEntity.Email != *e.Email {
 			t.Errorf("Returned field should contains inserted entity value for Email field and it is %v (expeted %v)", e.Email, expectedEntity.Email)
 			return false, db
 		}
-		if *expectedEntity.Roles != *e.Roles {
-			t.Errorf("Returned field should contains inserted entity value for Roles field and it is %v (expeted %v)", e.Roles, expectedEntity.Roles)
+		if *expectedEntity.Lastname != *e.Lastname {
+			t.Errorf("Returned field should contains inserted entity value for Lastname field and it is %v (expeted %v)", e.Lastname, expectedEntity.Lastname)
 			return false, db
 		}
-		if *expectedEntity.Password != *e.Password {
-			t.Errorf("Returned field should contains inserted entity value for Password field and it is %v (expeted %v)", e.Password, expectedEntity.Password)
+		if *expectedEntity.Roles != *e.Roles {
+			t.Errorf("Returned field should contains inserted entity value for Roles field and it is %v (expeted %v)", e.Roles, expectedEntity.Roles)
 			return false, db
 		}
 	}

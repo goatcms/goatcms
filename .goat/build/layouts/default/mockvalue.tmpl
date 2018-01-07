@@ -4,6 +4,12 @@
   "{{random 400 " abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"}}"
 {{- else if eq . "string" "password" -}}
   "{{random 44 "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"}}"
+{{- else if eq . "string" "password" -}}
+  {{- $value := (random 44 "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890") -}}
+  {
+    First:  "{{$value}}",
+    Second: "{{$value}}",
+  }
 {{- else if eq . "int" -}}
   {{random 1 "123456789"}}{{random 4 "1234567890"}}
 {{- else if eq . "email" -}}

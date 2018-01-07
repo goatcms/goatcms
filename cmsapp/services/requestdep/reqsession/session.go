@@ -16,6 +16,7 @@ type SessionManager struct {
 	deps struct {
 		Request         *http.Request           `request:"Request"`
 		Response        http.ResponseWriter     `request:"Response"`
+		Logger          services.Logger         `dependency:"LoggerService"`
 		SessionStorage  services.SessionStorage `dependency:"SessionStorageService"`
 		SessionCookieID string                  `config:"?session.cookie.id"`
 	}
@@ -23,13 +24,16 @@ type SessionManager struct {
 }
 
 // SessionFactory create a session manager instance
-func SessionFactory(dp dependency.Provider) (interface{}, error) {
+func SessionFactory(dp dependency.Provider) (i interface{}, err error) {
 	s := &SessionManager{}
-	if err := dp.InjectTo(&s.deps); err != nil {
+	if err = dp.InjectTo(&s.deps); err != nil {
 		return nil, err
 	}
 	if s.deps.SessionCookieID == "" {
 		s.deps.SessionCookieID = services.SessionCookieID
+	}
+	if err = s.Init(); err != nil {
+		return nil, err
 	}
 	return requestdep.Session(s), nil
 }
@@ -76,26 +80,36 @@ func (s *SessionManager) Keys() ([]string, error) {
 }
 
 // Init build new session if a session doesn't exist
-func (s *SessionManager) Init() error {
-	if _, err := s.deps.Request.Cookie(s.deps.SessionCookieID); err != nil {
-		if _, _, err = s.createSession(); err != nil {
+func (s *SessionManager) Init() (err error) {
+	var cookie *http.Cookie
+	if cookie, err = s.deps.Request.Cookie(s.deps.SessionCookieID); err != nil {
+		s.deps.Logger.DevLog("Create new session")
+		if err = s.createSession(); err != nil {
 			return err
+		}
+	} else {
+		s.deps.Logger.DevLog("Use %v session", cookie.Value)
+		if s.dataScope, err = s.deps.SessionStorage.Get(cookie.Value); err != nil {
+			s.deps.Logger.DevLog("Use %v fail. Create new session", cookie.Value)
+			// regenerate session if expired
+			if err = s.createSession(); err != nil {
+				return err
+			}
 		}
 	}
 	return nil
 }
 
 // Create build new session
-func (s *SessionManager) createSession() (string, app.DataScope, error) {
+func (s *SessionManager) createSession() (err error) {
 	var sessionID string
-	var err error
 	sessionID, s.dataScope, err = s.deps.SessionStorage.Create()
 	if err != nil {
-		return "", nil, err
+		return err
 	}
 	lifetime, err := s.deps.SessionStorage.SessionLifetime()
 	if err != nil {
-		return "", nil, err
+		return err
 	}
 	expiration := time.Now().Add(time.Duration(lifetime) * time.Hour)
 	cookie := http.Cookie{
@@ -105,5 +119,5 @@ func (s *SessionManager) createSession() (string, app.DataScope, error) {
 		HttpOnly: true,
 	}
 	http.SetCookie(s.deps.Response, &cookie)
-	return sessionID, s.dataScope, nil
+	return nil
 }

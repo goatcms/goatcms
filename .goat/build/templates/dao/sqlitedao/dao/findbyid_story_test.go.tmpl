@@ -11,7 +11,6 @@ import (
 	"database/sql"
 	"github.com/goatcms/goatcore/app/scope"
 	entities "{{index $ctx.Properties.Build "entities_path"}}"
-	maindef "{{index $ctx.Properties.Build "path"}}"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -23,7 +22,6 @@ func TestFindByIDStory(t *testing.T) {
 
 func doFindByIDStory(t *testing.T) (bool, *sql.DB) {
 	var (
-		row            maindef.{{$entityName}}Row
 		ok             bool
 		db             *sql.DB
 		err            error
@@ -36,12 +34,7 @@ func doFindByIDStory(t *testing.T) (bool, *sql.DB) {
 	s := scope.NewScope("tag")
 	finder := {{$entityName}}FindByID{}
 	finder.deps.DB = db
-	if row, err = finder.Find(s, entities.{{$entityName}}MainFields, *expectedEntity.ID); err != nil {
-		t.Error(err)
-		return false, db
-	}
-	// iterate over each row
-	if entity, err = row.Get(); err != nil {
+	if entity, err = finder.Find(s, entities.{{$entityName}}AllFields, *expectedEntity.ID); err != nil {
 		t.Error(err)
 		return false, db
 	}

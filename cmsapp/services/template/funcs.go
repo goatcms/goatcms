@@ -27,6 +27,21 @@ func NewDefaultFuncs(di dependency.Injector) (*DefaultFuncs, error) {
 func (df *DefaultFuncs) Register() {
 	df.Template.AddFunc(services.CutTextTF, df.CutText)
 	df.Template.AddFunc(services.MessagesTF, df.Messages)
+	df.Template.AddFunc("dict", Dict)
+}
+
+func Dict(v ...interface{}) map[string]interface{} {
+	dict := map[string]interface{}{}
+	lenv := len(v)
+	for i := 0; i < lenv; i += 2 {
+		key := v[i].(string)
+		if i+1 >= lenv {
+			dict[key] = ""
+			continue
+		}
+		dict[key] = v[i+1]
+	}
+	return dict
 }
 
 // CutText cut text to max length

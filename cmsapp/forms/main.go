@@ -1,6 +1,6 @@
 package forms
 
-const (
-	UserRegisterForm = "UserRegisterForm"
-	UserLoginForm    = "UserLoginForm"
-)
+type RepeatPassword struct {
+	First  string
+	Second string
+}

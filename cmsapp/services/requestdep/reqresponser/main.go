@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"sync"
 
+	"github.com/goatcms/goatcms/cmsapp/entities"
 	"github.com/goatcms/goatcms/cmsapp/services"
 	"github.com/goatcms/goatcms/cmsapp/services/requestdep"
 	"github.com/goatcms/goatcore/app"
@@ -20,6 +21,7 @@ type ResponserService struct {
 		DependencyScope app.Scope            `dependency:"DependencyScope"`
 		RequestScope    app.Scope            `request:"RequestScope"`
 		Translate       requestdep.Translate `request:"TranslateService"`
+		Auth            requestdep.Auth      `request:"AuthService"`
 		Request         *http.Request        `request:"Request"`
 		Response        http.ResponseWriter  `request:"Response"`
 	}
@@ -34,16 +36,21 @@ func (rs *ResponserService) IsSended() bool {
 }
 
 func (rs *ResponserService) Execute(view *template.Template, data interface{}) error {
-	var err error
+	var (
+		loggedInUser *entities.User
+		err          error
+	)
 	if rs.IsSended() {
 		return fmt.Errorf("Response sended")
 	}
 	rs.muSended.Lock()
 	rs.sended = true
 	rs.muSended.Unlock()
+	loggedInUser, _ = rs.deps.Auth.LoggedInUser()
 	if err = view.Execute(rs.deps.Response, map[string]interface{}{
-		"Data": data,
-		"Lang": rs.deps.Translate.Lang(),
+		"Data":         data,
+		"Lang":         rs.deps.Translate.Lang(),
+		"LoggedInUser": loggedInUser,
 	}); err != nil {
 		return err
 	}

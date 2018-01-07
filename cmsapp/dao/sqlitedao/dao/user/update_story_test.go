@@ -2,7 +2,6 @@ package dao
 
 import (
 	"database/sql"
-	maindef "github.com/goatcms/goatcms/cmsapp/dao"
 	entities "github.com/goatcms/goatcms/cmsapp/entities"
 	"github.com/goatcms/goatcore/app/scope"
 	_ "github.com/mattn/go-sqlite3"
@@ -16,7 +15,6 @@ func TestUpdateStory(t *testing.T) {
 
 func doUpdateStory(t *testing.T) (bool, *sql.DB) {
 	var (
-		row            maindef.UserRow
 		ok             bool
 		db             *sql.DB
 		err            error
@@ -27,32 +25,35 @@ func doUpdateStory(t *testing.T) (bool, *sql.DB) {
 	if ok, db, entity = doInsertStory(t); !ok {
 		return false, nil
 	}
-	entity.Roles = expectedEntity.Roles
 	entity.Firstname = expectedEntity.Firstname
-	entity.Login = expectedEntity.Login
-	entity.Lastname = expectedEntity.Lastname
+	entity.Username = expectedEntity.Username
+	entity.Roles = expectedEntity.Roles
 	entity.Password = expectedEntity.Password
+	entity.Lastname = expectedEntity.Lastname
 	entity.Email = expectedEntity.Email
 	s := scope.NewScope("tag")
 	updater := UserUpdate{}
 	updater.deps.DB = db
-	if err = updater.Update(s, entity, entities.UserMainFields); err != nil {
+	if err = updater.Update(s, entity, entities.UserAllFields); err != nil {
 		t.Error(err)
 		return false, db
 	}
 	finder := UserFindByID{}
 	finder.deps.DB = db
-	if row, err = finder.Find(s, entities.UserMainFields, *entity.ID); err != nil {
+	if entity, err = finder.Find(s, entities.UserAllFields, *entity.ID); err != nil {
 		t.Error(err)
 		return false, db
 	}
-	// iterate over each row
-	if entity, err = row.Get(); err != nil {
-		t.Error(err)
+	if *expectedEntity.Email != *entity.Email {
+		t.Errorf("Returned field should contains inserted entity value for Email field and it is %v (expeted %v)", entity.Email, expectedEntity.Email)
 		return false, db
 	}
-	if *expectedEntity.Firstname != *entity.Firstname {
-		t.Errorf("Returned field should contains inserted entity value for Firstname field and it is %v (expeted %v)", entity.Firstname, expectedEntity.Firstname)
+	if *expectedEntity.Username != *entity.Username {
+		t.Errorf("Returned field should contains inserted entity value for Username field and it is %v (expeted %v)", entity.Username, expectedEntity.Username)
+		return false, db
+	}
+	if *expectedEntity.Roles != *entity.Roles {
+		t.Errorf("Returned field should contains inserted entity value for Roles field and it is %v (expeted %v)", entity.Roles, expectedEntity.Roles)
 		return false, db
 	}
 	if *expectedEntity.Password != *entity.Password {
@@ -63,16 +64,8 @@ func doUpdateStory(t *testing.T) (bool, *sql.DB) {
 		t.Errorf("Returned field should contains inserted entity value for Lastname field and it is %v (expeted %v)", entity.Lastname, expectedEntity.Lastname)
 		return false, db
 	}
-	if *expectedEntity.Roles != *entity.Roles {
-		t.Errorf("Returned field should contains inserted entity value for Roles field and it is %v (expeted %v)", entity.Roles, expectedEntity.Roles)
-		return false, db
-	}
-	if *expectedEntity.Email != *entity.Email {
-		t.Errorf("Returned field should contains inserted entity value for Email field and it is %v (expeted %v)", entity.Email, expectedEntity.Email)
-		return false, db
-	}
-	if *expectedEntity.Login != *entity.Login {
-		t.Errorf("Returned field should contains inserted entity value for Login field and it is %v (expeted %v)", entity.Login, expectedEntity.Login)
+	if *expectedEntity.Firstname != *entity.Firstname {
+		t.Errorf("Returned field should contains inserted entity value for Firstname field and it is %v (expeted %v)", entity.Firstname, expectedEntity.Firstname)
 		return false, db
 	}
 	return true, db

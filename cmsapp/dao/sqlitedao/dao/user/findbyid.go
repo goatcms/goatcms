@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	maindef "github.com/goatcms/goatcms/cmsapp/dao"
 	helpers "github.com/goatcms/goatcms/cmsapp/dao/sqlitedao/helpers"
+	entities "github.com/goatcms/goatcms/cmsapp/entities"
 	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/dependency"
 	"strconv"
@@ -32,12 +33,12 @@ func UserFindByIDFactory(dp dependency.Provider) (interface{}, error) {
 	return maindef.UserFindByID(instance), nil
 }
 
-func (dao UserFindByID) Find(scope app.Scope, fields []string, id int64) (maindef.UserRow, error) {
+func (dao UserFindByID) Find(scope app.Scope, fields []string, id int64) (*entities.User, error) {
 	var (
 		err   error
 		query string
 		tx    *sql.Tx
-		row   *sql.Row
+		row   *UserRow
 	)
 	if tx, err = helpers.TX(scope, dao.deps.DB); err != nil {
 		return nil, err
@@ -45,8 +46,8 @@ func (dao UserFindByID) Find(scope app.Scope, fields []string, id int64) (mainde
 	if query, err = dao.SQL(fields, id); err != nil {
 		return nil, err
 	}
-	row = tx.QueryRow(query)
-	return NewUserRow(row, fields), nil
+	row = NewUserRow(tx.QueryRow(query), fields)
+	return row.Get()
 }
 
 func (dao UserFindByID) SQL(fields []string, id int64) (string, error) {

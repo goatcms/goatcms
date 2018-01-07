@@ -1,0 +1,16 @@
+{{- define "httpmodel.main" -}}
+{{- $ctx := . -}}
+
+{{- range $mi, $modelKey := (keys $ctx.Data "model.") -}}
+  {{- $entityName := (index $ctx.Data (print "model." $modelKey ".entity")) -}}
+
+  {{/* Model */}}
+  {{- $modelPath := (print $ctx.To "/httpmodel/" $entityName "/main.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $modelPath) -}}
+    {{- $ctx.Out.File $modelPath -}}
+      {{- template "httpmodel.body" (ctx $ctx (print "model." $modelKey) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+{{- end -}}
+
+{{- end -}}

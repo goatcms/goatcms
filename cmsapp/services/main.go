@@ -4,7 +4,7 @@ import (
 	"html/template"
 	"net/http"
 
-	"github.com/goatcms/goatcms/cmsapp/forms/user/registerform"
+	"github.com/goatcms/goatcms/cmsapp/forms"
 	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/db"
 	"github.com/goatcms/goatcore/dependency"
@@ -31,8 +31,8 @@ const (
 	LoggerService = "LoggerService"
 	// LoggerService provide logger
 	TranslateService = "TranslateService"
-	// UserRegisterAction provide Register service
-	UserRegisterActionService = "UserRegisterAction"
+	// SignupActionService provide user register service
+	SignupActionService = "SignupAction"
 )
 
 // MuxHandler is function for standard mux input
@@ -100,6 +100,6 @@ type Translate interface {
 	Default() string
 }
 
-type UserRegisterAction interface {
-	Register(form *registerform.RegisterForm, scope app.Scope) (msgs messages.MessageMap, err error)
+type SignupAction interface {
+	Signup(form *forms.Signup, scope app.Scope) (msgs messages.MessageMap, err error)
 }

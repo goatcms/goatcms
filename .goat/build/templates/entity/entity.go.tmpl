@@ -2,7 +2,7 @@
 {{- $ctx := . -}}
 {{- $name := (index $ctx.Data (print .From ".entity")) -}}
 {{- $fieldsBaseKey := (print .From ".fields.") -}}
-{{- $fields := (keys .Data $fieldsBaseKey) -}}
+{{- $fields := (sort (keys .Data $fieldsBaseKey)) -}}
 {{- $systemFields := (findRows $fieldsBaseKey "^[A-Za-z0-9]+$" ".system" "y" $ctx.Data) -}}
 {{- $mainFields := (except $fields $systemFields) -}}
 
@@ -41,7 +41,7 @@ var {{camelcaseuf $name}}SystemFields = []string{
 // {{camelcaseuf $name}} storages {{lower $name}} data
 type {{camelcaseuf $name}} struct {
   ID *int64 `json:"id"`
-{{- range $index, $field := (keys .Data $fieldsBaseKey) -}}
+{{- range $index, $field := $fields -}}
   {{- $key := (print $fieldsBaseKey $field) -}}
   {{- $fieldName := (index $ctx.Data (print $key ".name")) -}}
   {{- $fieldType := (index $ctx.Data (print $key ".type")) }}

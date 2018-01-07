@@ -34,7 +34,7 @@ func doFindAllStory(t *testing.T) (bool, *sql.DB) {
 	s := scope.NewScope("tag")
 	finder := {{$entityName}}FindAll{}
 	finder.deps.DB = db
-	if rows, err = finder.Find(s, entities.{{$entityName}}MainFields); err != nil {
+	if rows, err = finder.Find(s, entities.{{$entityName}}AllFields); err != nil {
 		t.Error(err)
 		return false, db
 	}

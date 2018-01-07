@@ -66,14 +66,14 @@ func (query FragmentSearch) SQL(fields []string, params *maindef.FragmentSearchP
 	}
 	// fields
 	sqlq += " FROM Fragment"
-	if params.Content != "" {
-		criterias = append(criterias, "Content="+strconv.Quote(params.Content))
+	if params.Lang != "" {
+		criterias = append(criterias, "Lang="+strconv.Quote(params.Lang))
 	}
 	if params.Name != "" {
 		criterias = append(criterias, "Name="+strconv.Quote(params.Name))
 	}
-	if params.Lang != "" {
-		criterias = append(criterias, "Lang="+strconv.Quote(params.Lang))
+	if params.Content != "" {
+		criterias = append(criterias, "Content="+strconv.Quote(params.Content))
 	}
 	if len(criterias) > 0 {
 		sqlq += " WHERE " + strings.Join(criterias, " AND ")

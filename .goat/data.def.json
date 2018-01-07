@@ -34,8 +34,52 @@
       "max":1,
       "pattern": "^(y|n)$"
     },{
+      "prompt":"Is it a required field? (y/n)",
+      "key":"required",
+      "type":"line",
+      "min":1,
+      "max":1,
+      "pattern": "^(y|n)$"
+    },{
       "prompt":"Is it a system field? (y/n)",
       "key":"system",
+      "type":"line",
+      "min":1,
+      "max":1,
+      "pattern": "^(y|n)$"
+    }]
+  }]
+},{
+  "type":"form",
+  "properties":[{
+    "prompt":"insert form name",
+    "key":"name",
+    "type":"line",
+    "min":1,
+    "max":30,
+    "pattern": "^[a-zA-z]+[a-zA-Z0-9]*$"
+  }],
+  "collections":[{
+    "key": "fields",
+    "type": "array",
+    "prompt": "Insert form fields",
+    "properties": [{
+      "prompt":"Insert field name",
+      "key":"name",
+      "type":"line",
+      "min":1,
+      "max":25,
+      "pattern": "^[A-Za-z]+$"
+    },{
+      "prompt":"Insert field type",
+      "key":"type",
+      "type":"line",
+      "min":1,
+      "max":25,
+      "pattern": "^(string|text|int|lang|email|password|repassword)$"
+    },{
+      "prompt":"Is it a required field? (y/n)",
+      "key":"required",
       "type":"line",
       "min":1,
       "max":1,

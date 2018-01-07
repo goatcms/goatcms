@@ -7,6 +7,10 @@
   "layout":"default",
   "template":"admin/views",
 },{
+  "to":"templates/layouts/default/forms",
+  "layout":"default",
+  "template":"form/view",
+},{
   "to":"cmsapp/entities",
   "layout":"default",
   "template":"entity",
@@ -14,6 +18,25 @@
     "package":"entities"
   },
   "afterBuild": "gofmt -w {{argument.cwd}}cmsapp/entities/",
+},{
+  "to":"cmsapp/forms",
+  "layout":"default",
+  "template":"form/gocode",
+  "properties": {
+    "package":"forms"
+  },
+  "afterBuild": "gofmt -w {{argument.cwd}}cmsapp/forms/",
+},{
+  "to":"cmsapp/http",
+  "layout":"default",
+  "template":"http",
+  "properties": {
+    "package":"http",
+    "path":"github.com/goatcms/goatcms/cmsapp/http",
+    "entities_path":"github.com/goatcms/goatcms/cmsapp/entities",
+    "forms_path":"github.com/goatcms/goatcms/cmsapp/forms"
+  },
+  "afterBuild": "gofmt -w {{argument.cwd}}cmsapp/http/",
 },{
   "to":"cmsapp/dao",
   "layout":"default",

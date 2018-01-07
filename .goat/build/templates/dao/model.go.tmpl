@@ -3,6 +3,7 @@
 {{- $name := (index $ctx.Data (print .From ".entity")) -}}
 {{- $entityName := (camelcaseuf $name) -}}
 {{- $fieldsBaseKey := (print .From ".fields.") -}}
+{{- $fields := (sort (keys $ctx.Data $fieldsBaseKey)) -}}
 
 package {{index $ctx.Properties.Build "package"}}
 
@@ -33,7 +34,7 @@ type {{$entityName}}FindAll interface {
 
 // {{$entityName}}FindByID is the DAO find by id provider interface
 type  {{$entityName}}FindByID interface {
-	Find(scope app.Scope, fields []string, id int64) (row {{$entityName}}Row, err error)
+	Find(scope app.Scope, fields []string, id int64) (user *entities.{{$entityName}}, err error)
 	SQL(fields []string, id int64) (string, error)
 }
 
@@ -51,7 +52,7 @@ type {{$entityName}}Update interface {
 
 // {{$entityName}}SearchParams is the search criteria container
 type {{$entityName}}SearchParams struct {
-{{- range $fi, $key := (keys $ctx.Data $fieldsBaseKey) -}}
+{{- range $fi, $key := $fields -}}
 	{{- $fieldName := (index $ctx.Data (print $fieldsBaseKey $key ".name")) }}
 	{{- $fieldType := (index $ctx.Data (print $fieldsBaseKey $key ".type")) }}
 	{{camelcaseuf $fieldName}} {{template "gotype" $fieldType}}

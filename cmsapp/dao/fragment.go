@@ -27,7 +27,7 @@ type FragmentFindAll interface {
 
 // FragmentFindByID is the DAO find by id provider interface
 type FragmentFindByID interface {
-	Find(scope app.Scope, fields []string, id int64) (row FragmentRow, err error)
+	Find(scope app.Scope, fields []string, id int64) (user *entities.Fragment, err error)
 	SQL(fields []string, id int64) (string, error)
 }
 
@@ -46,8 +46,8 @@ type FragmentUpdate interface {
 // FragmentSearchParams is the search criteria container
 type FragmentSearchParams struct {
 	Lang    string
-	Content string
 	Name    string
+	Content string
 }
 
 // FragmentSearch is the DAO search provider interface

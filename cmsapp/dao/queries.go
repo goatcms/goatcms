@@ -5,12 +5,11 @@ import (
 	"github.com/goatcms/goatcore/app"
 )
 
-type UserLoginQueryParams struct {
+type UserSigninQueryParams struct {
+	Username string
 	Email    string
-	Password string
-	Login    string
 }
 
-type UserLoginQuery interface {
-	Login(scope app.Scope, fields []string, params *UserLoginQueryParams) (*entities.User, error)
+type UserSigninQuery interface {
+	Signin(scope app.Scope, fields []string, params *UserSigninQueryParams) (*entities.User, error)
 }
