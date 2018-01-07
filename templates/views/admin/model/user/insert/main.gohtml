@@ -1,0 +1,9 @@
+{{- define "content" -}}
+{{-  $prefix := (print .Lang ".view.admin.user.insert.") }}
+
+<h1>{{- TranslateFor "title" $prefix}}</h1>
+{{- TranslateFor "description" $prefix}}
+<br />
+{{-  template "entity.forms.user" (dict "Data" .Data.Form "Lang" .Lang "Valid" .Data.Valid "Fields" .Data.Fields) -}}
+
+{{- end -}}

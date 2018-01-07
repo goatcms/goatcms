@@ -10,7 +10,7 @@ import (
 )
 
 // InitDependencies initialize the {{$entityName}} controllers
-func InitDependencies(a app.App) error {
+func InitDependencies(a app.App) (err error) {
 	var deps struct {
 		Router services.Router `dependency:"RouterService"`
 	}
@@ -24,6 +24,13 @@ func InitDependencies(a app.App) error {
 		return err
 	}
 	deps.Router.OnGet("/admin/{{lower $entityName}}", list.Get)
+	// add insert controller
+	insert, err := NewInsert(dp)
+	if err != nil {
+		return err
+	}
+	deps.Router.OnGet("/admin/{{lower $entityName}}/insert", insert.Get)
+	deps.Router.OnPost("/admin/{{lower $entityName}}/insert", insert.Post)
 	return nil
 }
 

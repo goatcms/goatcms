@@ -1,0 +1,17 @@
+{{- define "admin.views.model.insert" -}}
+{{- $ctx := . -}}
+{{- $name := (index $ctx.Data (print .From ".entity")) -}}
+{{- $entityName := (camelcaseuf $name) -}}
+{{- $typeName := (print $entityName "CreateTable") -}}
+{{- $fieldsBaseKey := (print .From ".fields.") -}}
+
+{{- noescape "{{- define \"content\" -}}" }}
+{{ noescape "{{- " }} $prefix := (print .Lang ".view.admin.{{lower $name}}.insert.") }}
+
+<h1>{{ noescape "{{- " }}TranslateFor "title" $prefix}}</h1>
+{{ noescape "{{- " }}TranslateFor "description" $prefix}}
+<br />
+{{ noescape "{{- " }} template "entity.forms.{{lower $name}}" (dict "Data" .Data.Form "Lang" .Lang "Valid" .Data.Valid "Fields" .Data.Fields) -}}
+
+{{ noescape "{{- end -}}" }}
+{{- end -}}

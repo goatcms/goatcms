@@ -6,7 +6,6 @@
 
 {{- noescape "{{- " -}} define "forms.{{lower $name}}" -}}
 
-{{ noescape "{{- " -}} $prefix:=(print .Lang ".view.user.register.") -}}
 {{ noescape "{{- " -}} $validPrefix:=(print .Lang ".form.valid.") -}}
 {{ noescape "{{- " -}} $formPrefix:=(print .Lang ".form.fields.") -}}
 
@@ -42,7 +41,7 @@
   {{- end }}
 
   <div class="form-group">
-    <input type="submit" class="btn btn-lg btn-primary btn-block" value='{{- noescape "{{" -}}TranslateFor "submit" $prefix}}'></input>
+    <input type="submit" class="btn btn-lg btn-primary btn-block" value='{{- noescape "{{" -}}TranslateFor "submit" $formPrefix}}'></input>
   </div>
 </form>
 

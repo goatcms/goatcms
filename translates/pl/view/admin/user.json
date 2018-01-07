@@ -1,0 +1,8 @@
+{
+  "pl.view.admin.user": {
+    "insert": {
+      "title": "User insert",
+      "description": "Add a new user ",
+    }
+  }
+}

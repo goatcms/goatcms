@@ -1,0 +1,13 @@
+{
+  "en": {
+    "view": {
+      "article": {
+        "insert": {
+            "title": "Insert",
+            "description": "Remember the content is the most important matter on your website",
+            "submit": "add",
+        }
+      }
+    }
+  }
+}

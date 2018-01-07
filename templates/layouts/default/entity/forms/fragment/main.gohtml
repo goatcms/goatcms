@@ -1,0 +1,37 @@
+{{- define "entity.forms.fragment" -}}
+
+{{- $validPrefix:=(print .Lang ".form.valid.") -}}
+{{- $formPrefix:=(print .Lang ".form.fields.") -}}
+
+<form method="post" enctype="application/x-www-form-urlencoded">
+
+      {{- if contains .Fields "Lang" }}
+      <div class="form-group">
+        <label for="Lang">{{TranslateFor "lang" $formPrefix}}:</label>
+        <input class="form-control" value="{{- .Data.Lang -}}" name="Lang" type="text">
+        {{- Messages .Valid $validPrefix "error" "Lang" -}}
+      </div>
+      {{- end }}
+
+      {{- if contains .Fields "Name" }}
+      <div class="form-group">
+        <label for="Name">{{TranslateFor "name" $formPrefix}}:</label>
+        <input class="form-control" value="{{- .Data.Name -}}" name="Name" type="text">
+        {{- Messages .Valid $validPrefix "error" "Name" -}}
+      </div>
+      {{- end }}
+
+      {{- if contains .Fields "Content" }}
+      <div class="form-group">
+        <label for="Content">{{TranslateFor "content" $formPrefix}}:</label>
+        <input class="form-control" value="{{- .Data.Content -}}" name="Content" type="text">
+        {{- Messages .Valid $validPrefix "error" "Content" -}}
+      </div>
+      {{- end }}
+
+  <div class="form-group">
+    <input type="submit" class="btn btn-lg btn-primary btn-block" value='{{TranslateFor "submit" $formPrefix}}'></input>
+  </div>
+</form>
+
+{{- end -}}

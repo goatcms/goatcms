@@ -25,6 +25,13 @@
   "max":4,
   "pattern": "^[a-zA-Z]+$"
 },{
+  "prompt":"Insert all application languages (pl, en...). Use space as separator",
+  "key":"app.lang.all",
+  "type":"line",
+  "min":1,
+  "max":4,
+  "pattern": "^[a-zA-Z]+$"
+},{
   "prompt":"Insert SMTP address (like smtp.gmail.com:465)",
   "key":"smtp.address",
   "type":"line",

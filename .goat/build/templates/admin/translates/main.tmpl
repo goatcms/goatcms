@@ -1,0 +1,24 @@
+{{- $ctx := . -}}
+{{- $langs := (unique (split (index $ctx.Properties.Project "app.lang.all") " ")) -}}
+{{- $models := (keys .Data "model.") -}}
+
+{{- range $i, $lang := $langs -}}
+  {{- range $index, $model := $models -}}
+    {{- $entityName := (camelcaseuf (index $ctx.Data (print "model." $model ".entity"))) -}}
+    {{- $path := (print $ctx.To "/" $lang "/view/admin/" (lower $entityName) ".json") -}}
+    {{- if not ($ctx.Filesystem.IsFile $path) -}}
+      {{- $ctx.Out.File $path -}}
+
+{
+  "{{$lang}}.view.admin.{{lower $entityName}}": {
+    "insert": {
+      "title": "{{$entityName}} insert",
+      "description": "Add a new {{lower $entityName}} ",
+    }
+  }
+}
+
+      {{- $ctx.Out.EOF -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}

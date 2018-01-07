@@ -1,0 +1,45 @@
+{{- define "entity.forms.user" -}}
+
+{{- $validPrefix:=(print .Lang ".form.valid.") -}}
+{{- $formPrefix:=(print .Lang ".form.fields.") -}}
+
+<form method="post" enctype="application/x-www-form-urlencoded">
+
+      {{- if contains .Fields "Firstname" }}
+      <div class="form-group">
+        <label for="Firstname">{{TranslateFor "firstname" $formPrefix}}:</label>
+        <input class="form-control" value="{{- .Data.Firstname -}}" name="Firstname" type="text">
+        {{- Messages .Valid $validPrefix "error" "Firstname" -}}
+      </div>
+      {{- end }}
+
+      {{- if contains .Fields "Lastname" }}
+      <div class="form-group">
+        <label for="Lastname">{{TranslateFor "lastname" $formPrefix}}:</label>
+        <input class="form-control" value="{{- .Data.Lastname -}}" name="Lastname" type="text">
+        {{- Messages .Valid $validPrefix "error" "Lastname" -}}
+      </div>
+      {{- end }}
+
+      {{- if contains .Fields "Email" }}
+      <div class="form-group">
+        <label for="Email">{{TranslateFor "email" $formPrefix}}:</label>
+        <input class="form-control" value="{{- .Data.Email -}}" name="Email" type="text">
+        {{- Messages .Valid $validPrefix "error" "Email" -}}
+      </div>
+      {{- end }}
+
+      {{- if contains .Fields "Username" }}
+      <div class="form-group">
+        <label for="Username">{{TranslateFor "username" $formPrefix}}:</label>
+        <input class="form-control" value="{{- .Data.Username -}}" name="Username" type="text">
+        {{- Messages .Valid $validPrefix "error" "Username" -}}
+      </div>
+      {{- end }}
+
+  <div class="form-group">
+    <input type="submit" class="btn btn-lg btn-primary btn-block" value='{{TranslateFor "submit" $formPrefix}}'></input>
+  </div>
+</form>
+
+{{- end -}}

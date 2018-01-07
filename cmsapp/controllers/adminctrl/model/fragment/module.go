@@ -6,7 +6,7 @@ import (
 )
 
 // InitDependencies initialize the Fragment controllers
-func InitDependencies(a app.App) error {
+func InitDependencies(a app.App) (err error) {
 	var deps struct {
 		Router services.Router `dependency:"RouterService"`
 	}
@@ -20,5 +20,12 @@ func InitDependencies(a app.App) error {
 		return err
 	}
 	deps.Router.OnGet("/admin/fragment", list.Get)
+	// add insert controller
+	insert, err := NewInsert(dp)
+	if err != nil {
+		return err
+	}
+	deps.Router.OnGet("/admin/fragment/insert", insert.Get)
+	deps.Router.OnPost("/admin/fragment/insert", insert.Post)
 	return nil
 }

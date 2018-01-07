@@ -8,7 +8,10 @@
         "title": "Title",
         "content": "Content",
         "firstname": "Firstname",
-        "lastname": "Lastname"
+        "lastname": "Lastname",
+        "lang": "Language",
+        "name": "Name",
+        "submit": "Send",
       }
     }
   }

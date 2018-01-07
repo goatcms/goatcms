@@ -17,8 +17,8 @@ import (
 // List is a controler to show a list of article
 type List struct {
 	deps struct {
-		Template services.Template `dependency:"TemplateService"`
-		Finder   dao.UserSearch    `dependency:"UserSearch"`
+		Template services.Template 					`dependency:"TemplateService"`
+		Finder   dao.UserSearch  `dependency:"UserSearch"`
 	}
 	view *template.Template
 }

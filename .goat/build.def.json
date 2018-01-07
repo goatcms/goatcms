@@ -7,13 +7,21 @@
   "layout":"default",
   "template":"admin/views",
 },{
+  "to":"translates",
+  "layout":"default",
+  "template":"admin/translates",
+},{
   "to":"templates/layouts/default/forms",
   "layout":"default",
   "template":"form/view",
 },{
+  "to":"templates/layouts/default/entity/forms",
+  "layout":"default",
+  "template":"entity/formview",
+},{
   "to":"cmsapp/entities",
   "layout":"default",
-  "template":"entity",
+  "template":"entity/gocode",
   "properties": {
     "package":"entities"
   },

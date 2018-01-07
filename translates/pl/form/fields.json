@@ -9,7 +9,10 @@
         "title": "Tytuł",
         "content": "Treść",
         "firstname": "Imię",
-        "lastname": "Nazwisko"
+        "lastname": "Nazwisko",
+        "lang": "Język",
+        "name": "Nazwa",
+        "submit": "Wyślij",
       }
     }
   }

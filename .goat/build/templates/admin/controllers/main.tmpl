@@ -18,6 +18,14 @@
     {{- $ctx.Out.EOF -}}
   {{- end -}}
 
+  {{- /* Insert */ -}}
+  {{- $insertPath := (print $ctx.To "/model/" (lower $key) "/insert.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $insertPath) -}}
+    {{- $ctx.Out.File $insertPath -}}
+      {{- template "admin.controllers.model.insert" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
   {{- /* Module */ -}}
   {{- $modulePath := (print $ctx.To "/model/" (lower $key) "/module.go") -}}
   {{- if not ($ctx.Filesystem.IsFile $modulePath) -}}

@@ -1,0 +1,10 @@
+{{- $ctx := . -}}
+
+{{- range $index, $key := (keys .Data "model.") -}}
+  {{- $path := (print $ctx.To "/" $key "/main.gohtml") -}}
+  {{- if not ($ctx.Filesystem.IsFile $path) -}}
+    {{- $ctx.Out.File $path -}}
+      {{- template "entity.formviews.main_gohtml" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+{{- end -}}

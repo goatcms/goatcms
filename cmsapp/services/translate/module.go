@@ -23,8 +23,20 @@ func InitDependencies(a app.App) error {
 	if err := a.DependencyProvider().InjectTo(&deps); err != nil {
 		return err
 	}
-	if err := deps.Template.AddFunc("Translate", deps.Translate.Translate); err != nil {
+	if err := deps.Template.AddFunc("Translate", func(key string, values ...interface{}) string {
+		t, err := deps.Translate.Translate(key, values...)
+		if err != nil {
+			return key
+		}
+		return t
+	}); err != nil {
 		return err
 	}
-	return deps.Template.AddFunc("TranslateFor", deps.Translate.TranslateFor)
+	return deps.Template.AddFunc("TranslateFor", func(key, prefix string, values ...interface{}) string {
+		t, err := deps.Translate.TranslateFor(key, prefix, values...)
+		if err != nil {
+			return prefix + key
+		}
+		return t
+	})
 }

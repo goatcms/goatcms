@@ -7,6 +7,7 @@ import (
 	"github.com/goatcms/goatcms/cmsapp/services"
 	"github.com/goatcms/goatcore/dependency"
 	"github.com/goatcms/goatcore/messages"
+	"github.com/goatcms/goatcore/varutil"
 )
 
 type DefaultFuncs struct {
@@ -27,6 +28,7 @@ func NewDefaultFuncs(di dependency.Injector) (*DefaultFuncs, error) {
 func (df *DefaultFuncs) Register() {
 	df.Template.AddFunc(services.CutTextTF, df.CutText)
 	df.Template.AddFunc(services.MessagesTF, df.Messages)
+	df.Template.AddFunc("contains", varutil.IsArrContainStr)
 	df.Template.AddFunc("dict", Dict)
 }
 

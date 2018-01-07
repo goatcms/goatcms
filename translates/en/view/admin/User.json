@@ -1,0 +1,12 @@
+
+
+{
+  "en.view.admin.User": {
+    "insert": {
+      "title": "User insert",
+      "description": "Add a new user ",
+    }
+  }
+}
+
+      
