@@ -83,15 +83,12 @@ func (s *SessionManager) Keys() ([]string, error) {
 func (s *SessionManager) Init() (err error) {
 	var cookie *http.Cookie
 	if cookie, err = s.deps.Request.Cookie(s.deps.SessionCookieID); err != nil {
-		s.deps.Logger.DevLog("Create new session")
 		if err = s.createSession(); err != nil {
 			return err
 		}
 	} else {
-		s.deps.Logger.DevLog("Use %v session", cookie.Value)
 		if s.dataScope, err = s.deps.SessionStorage.Get(cookie.Value); err != nil {
-			s.deps.Logger.DevLog("Use %v fail. Create new session", cookie.Value)
-			// regenerate session if expired
+			s.deps.Logger.DevLog("Re-create session")
 			if err = s.createSession(); err != nil {
 				return err
 			}
@@ -117,6 +114,7 @@ func (s *SessionManager) createSession() (err error) {
 		Value:    sessionID,
 		Expires:  expiration,
 		HttpOnly: true,
+		Path:     "/",
 	}
 	http.SetCookie(s.deps.Response, &cookie)
 	return nil

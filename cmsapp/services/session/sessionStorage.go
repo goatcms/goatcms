@@ -5,11 +5,11 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/goatcms/goatcms/cmsapp/services"
 	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/app/scope"
 	"github.com/goatcms/goatcore/dependency"
 	"github.com/goatcms/goatcore/varutil"
-	"github.com/goatcms/goatcms/cmsapp/services"
 )
 
 // MemorySessionStorage store sessions in memory
@@ -36,9 +36,7 @@ func MemorySessionStorageFactory(dp dependency.Provider) (interface{}, error) {
 func (s *MemorySessionStorage) Get(id string) (app.DataScope, error) {
 	dataScope, ok := s.sessions[id]
 	if !ok {
-		dataScope = scope.NewDataScope(map[string]interface{}{})
-		s.sessions[id] = dataScope
-		return dataScope, nil
+		return nil, fmt.Errorf("Session expired")
 	}
 	expirationIns, err := dataScope.Get(services.SessionExpireKey)
 	if err != nil {
