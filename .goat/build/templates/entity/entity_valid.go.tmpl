@@ -1,0 +1,72 @@
+{{define "entity_valid" -}}
+{{- $ctx := . -}}
+{{- $name := (camelcaseuf (index $ctx.Data (print .From ".entity"))) -}}
+{{- $fieldsBaseKey := (print .From ".fields.") -}}
+{{- $fields := (keys .Data $fieldsBaseKey) -}}
+
+package {{index $ctx.Properties.Build "package"}}
+
+import (
+	"github.com/goatcms/goatcore/messages"
+	"github.com/goatcms/goatcore/messages/msgcollection"
+	"github.com/goatcms/goatcore/varutil/validator"
+)
+
+
+func Valid{{$name}}(e *{{$name}}) (mm messages.MessageMap, err error) {
+	mm = msgcollection.NewMessageMap()
+	if err = Add{{$name}}Valid("", mm, e); err != nil {
+		return nil, err
+	}
+	return mm, nil
+}
+
+func Add{{$name}}Valid(basekey string, mm messages.MessageMap, e *{{$name}}) error {
+	var messageKey string
+  {{- range $index, $field := $fields -}}
+    {{- $key := (print $fieldsBaseKey $field) -}}
+    {{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
+    {{- $fieldType := (lower (index $ctx.Data (print $key ".type"))) }}
+    {{- $required := (lower (index $ctx.Data (print $key ".required"))) }}
+
+		// {{$fieldName}} field
+    messageKey = basekey+"{{$fieldName}}"
+
+    {{- if eq $required "y" }}
+      if e.{{$fieldName}} == nil {
+    		mm.Add(messageKey, "required")
+  	  } {{ if eq $fieldType "text" "string" "email" "password" "lang" -}}
+        else if len(*e.{{$fieldName}}) == 0 {
+      		mm.Add(messageKey, "required")
+    	  }
+      {{- end -}}
+    {{- end -}}
+
+    {{- if eq $fieldType "text" "string" "password" -}}
+      {{- /* NO VALID INT TYPE*/ -}}
+    {{- else if eq $fieldType "email" }}
+      if e.{{$fieldName}} != nil {
+        if err := validator.EmailValid(*e.{{$fieldName}}, messageKey, mm); err != nil {
+      		return err
+      	}
+      }
+    {{- else if eq $fieldType "lang" }}
+      if e.{{$fieldName}} != nil {
+        if err := validator.MinStringValid(*e.{{$fieldName}}, basekey+"{{$fieldName}}", mm, 2); err != nil {
+      		return err
+      	}
+        if err := validator.MaxStringValid(*e.{{$fieldName}}, basekey+"{{$fieldName}}", mm, 3); err != nil {
+        	return err
+        }
+      }
+    {{- else if eq $fieldType "int" -}}
+      {{- /* NO VALID INT TYPE*/ -}}
+    {{- else -}}
+      {{- error (print "bad type" $fieldType) -}}
+    {{- end }}
+  {{- end }}
+
+	return nil
+}
+
+{{- end -}}

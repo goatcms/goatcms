@@ -51,3 +51,7 @@ func (logger *Logger) ProdLog(format string, data ...interface{}) {
 		logger.log.Printf(format, data...)
 	}
 }
+
+func (logger *Logger) ErrorLog(format string, data ...interface{}) {
+	logger.log.Fatalf(format, data...)
+}

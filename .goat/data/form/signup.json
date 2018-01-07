@@ -1,0 +1,36 @@
+{
+  "form": {
+    "signup": {
+      "fields": {
+        "0": {
+          "name": "firstname",
+          "type": "string",
+          "required": "y"
+        },
+        "1": {
+          "name": "lastname",
+          "type": "string",
+          "required": "y"
+        },
+        "2": {
+          "name": "username",
+          "system": "n",
+          "type": "string",
+          "unique": "y",
+          "required": "y"
+        },
+        "3": {
+          "name": "email",
+          "type": "email",
+          "required": "y"
+        },
+        "4": {
+          "name": "password",
+          "required": "y",
+          "type": "repassword"
+        }
+      },
+      "name": "signup"
+    }
+  }
+}

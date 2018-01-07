@@ -3,7 +3,7 @@ package requestdep
 import (
 	"html/template"
 
-	"github.com/goatcms/goatcms/cmsapp/models"
+	"github.com/goatcms/goatcms/cmsapp/entities"
 	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/db"
 )
@@ -30,8 +30,9 @@ type Session interface {
 }
 
 type Auth interface {
-	UserID() (string, error)
-	Login(name, password string) (*models.User, error)
+	UserID() (int64, error)
+	Signin(name, password string) (*entities.User, error)
+	LoggedInUser() (user *entities.User, err error)
 	Clear() error
 }
 

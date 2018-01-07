@@ -1,0 +1,42 @@
+{{- define "forms.signup" -}}
+
+{{- $prefix:=(print .Lang ".view.user.register.") -}}
+{{- $validPrefix:=(print .Lang ".form.valid.") -}}
+{{- $formPrefix:=(print .Lang ".form.fields.") -}}
+
+<form method="post" enctype="application/x-www-form-urlencoded">
+    <div class="form-group">
+      <label for="Firstname">{{TranslateFor "firstname" $formPrefix}}:</label>
+      <input class="form-control" value="{{- .Data.Firstname -}}" name="Firstname" type="text">
+      {{- Messages .Valid $validPrefix "error" "Firstname" -}}
+    </div>
+    <div class="form-group">
+      <label for="Lastname">{{TranslateFor "lastname" $formPrefix}}:</label>
+      <input class="form-control" value="{{- .Data.Lastname -}}" name="Lastname" type="text">
+      {{- Messages .Valid $validPrefix "error" "Lastname" -}}
+    </div>
+    <div class="form-group">
+      <label for="Username">{{TranslateFor "username" $formPrefix}}:</label>
+      <input class="form-control" value="{{- .Data.Username -}}" name="Username" type="text">
+      {{- Messages .Valid $validPrefix "error" "Username" -}}
+    </div>
+    <div class="form-group">
+      <label for="Email">{{TranslateFor "email" $formPrefix}}:</label>
+      <input class="form-control" value="{{- .Data.Email -}}" name="Email" type="text">
+      {{- Messages .Valid $validPrefix "error" "Email" -}}
+    </div>
+    <div class="form-group">
+      <label for="Password">{{TranslateFor "password" $formPrefix}}:</label>
+      <input type="password" class="form-control" value="" name="Password.First" type="password">{{- Messages .Valid $validPrefix "error" "Password" -}}
+    </div>
+    <div class="form-group">
+      <label for="PasswordSecond">{{TranslateFor "repeat_password" $formPrefix}}:</label>
+      <input type="password" class="form-control" value="" name="Password.Second" type="password">
+    </div>
+
+  <div class="form-group">
+    <input type="submit" class="btn btn-lg btn-primary btn-block" value='{{TranslateFor "submit" $prefix}}'></input>
+  </div>
+</form>
+
+{{- end -}}

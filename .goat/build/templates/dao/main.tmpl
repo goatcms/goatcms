@@ -1,0 +1,31 @@
+{{- $ctx := . -}}
+
+{{- /* sqlite */ -}}
+{{- template "sqlite.main" $ctx -}}
+
+{{- /* queries */ -}}
+{{- $path := (print $ctx.To "/queries.go") -}}
+{{- if not ($ctx.Filesystem.IsFile $path) -}}
+  {{- $ctx.Out.File $path -}}
+    {{- template "queries" $ctx -}}
+  {{- $ctx.Out.EOF -}}
+{{- end -}}
+
+{{- /* interfaces */ -}}
+{{- $path := (print $ctx.To "/interfaces.go") -}}
+{{- if not ($ctx.Filesystem.IsFile $path) -}}
+  {{- $ctx.Out.File $path -}}
+    {{- template "interfaces" $ctx -}}
+  {{- $ctx.Out.EOF -}}
+{{- end -}}
+
+{{- range $index, $key := (keys .Data "model.") -}}
+  {{- /* Model interface */ -}}
+  {{- $entity := (index $ctx.Data (print "model." $key ".entity")) -}}
+  {{- $modelInterfacePath := (print $ctx.To "/" (lower $entity) ".go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $modelInterfacePath) -}}
+    {{- $ctx.Out.File $modelInterfacePath -}}
+      {{- template "model" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+{{- end -}}

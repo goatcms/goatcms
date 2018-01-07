@@ -4,7 +4,9 @@
       "valid": {
         "email": "Niepoprawny format adresu email",
         "length_max": "Tekst przekracza maksymalną długość",
-        "length_min": "Tekst jest zbyt krótki"
+        "length_min": "Tekst jest zbyt krótki",
+        "required": "Pole jest wymagane",
+        "identical_password": "Hasła muszą być jednakowe"
       }
     }
   }

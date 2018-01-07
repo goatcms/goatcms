@@ -5,8 +5,9 @@
       "head_title": "GoatCMS",
       "navbar": {
         "home": "GoatCMS",
-        "sing_up": "sing up",
-        "sing_in": "sing in"
+        "signup": "sign up",
+        "signin": "sign in",
+        "signout": "sign out"
       },
     }
   }

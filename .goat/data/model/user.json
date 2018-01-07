@@ -1,0 +1,51 @@
+{
+  "model": {
+    "user": {
+      "entity": "user",
+      "fields": {
+        "0": {
+          "name": "firstname",
+          "system": "n",
+          "type": "string",
+          "unique": "n",
+          "required": "y"
+        },
+        "1": {
+          "name": "lastname",
+          "system": "n",
+          "type": "string",
+          "unique": "n",
+          "required": "y"
+        },
+        "2": {
+          "name": "email",
+          "system": "n",
+          "type": "email",
+          "unique": "y",
+          "required": "y"
+        },
+        "3": {
+          "name": "password",
+          "system": "y",
+          "type": "password",
+          "unique": "n",
+          "required": "y"
+        },
+        "4": {
+          "name": "roles",
+          "system": "y",
+          "type": "string",
+          "unique": "n",
+          "required": "y"
+        },
+        "5": {
+          "name": "username",
+          "system": "n",
+          "type": "string",
+          "unique": "y",
+          "required": "y"
+        }
+      }
+    }
+  }
+}

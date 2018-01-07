@@ -1,0 +1,42 @@
+{{- define "admin.views.model.list" -}}
+{{- $ctx := . -}}
+{{- $name := (index $ctx.Data (print .From ".entity")) -}}
+{{- $entityName := (camelcaseuf $name) -}}
+{{- $typeName := (print $entityName "CreateTable") -}}
+{{- $fieldsBaseKey := (print .From ".fields.") -}}
+{{- $fields := (sort (keys $ctx.Data $fieldsBaseKey)) -}}
+{{- $systemFields := (findRows $fieldsBaseKey "^[A-Za-z0-9]+$" ".system" "y" $ctx.Data) -}}
+{{- $mainFields := (except $fields $systemFields) -}}
+
+{{- noescape "{{- define \"content\" -}}" }}
+
+<h1>{{$entityName}}</h1>
+
+{{ noescape "{{ if eq (len .Data.Collection) 0 -}}" }}
+No data to show
+{{ noescape "{{- else }}" }}
+  <table>
+    <thead>
+      <tr>
+      {{- range $i, $fieldkey := $mainFields -}}
+      {{- $fieldName := (camelcaseuf (index $ctx.Data (print $fieldsBaseKey $fieldkey ".name"))) }}
+        <th>{{$fieldName}}</th>
+      {{- end }}
+      </tr>
+    </thead>
+    <tbody>
+    {{- noescape "{{- " -}} range $i, ${{camelcaself $entityName}} := .Data.Collection }}
+      <tr>
+      {{- range $i, $fieldkey := $mainFields -}}
+      {{- $fieldName := (camelcaseuf (index $ctx.Data (print $fieldsBaseKey $fieldkey ".name"))) }}
+        <td>{{- noescape "{{- " -}} ${{camelcaself $entityName}}.{{$fieldName}} -}}</td>
+      {{- end }}
+      <tr>
+    {{ noescape "{{- end }}" }}
+  </tbody>
+</table>
+{{ noescape "{{- end }}" }}
+
+
+{{ noescape "{{- end }}" }}
+{{- end -}}

@@ -1,0 +1,42 @@
+{{define "sqlite.dao.module" -}}
+{{- $ctx := . -}}
+{{- $name := (index $ctx.Data (print .From ".entity")) -}}
+{{- $entityName := (camelcaseuf $name) -}}
+{{- $fieldsBaseKey := (print .From ".fields.") -}}
+
+package dao
+
+import (
+	"github.com/goatcms/goatcore/dependency"
+)
+
+func RegisterDependencies(dp dependency.Provider) error {
+	if err := dp.AddDefaultFactory("{{camelcaseuf $name}}CreateTable", {{camelcaseuf $name}}CreateTableFactory); err != nil {
+		return err
+	}
+	if err := dp.AddDefaultFactory("{{camelcaseuf $name}}Delete", {{camelcaseuf $name}}DeleteFactory); err != nil {
+		return err
+	}
+	if err := dp.AddDefaultFactory("{{camelcaseuf $name}}DropTable", {{camelcaseuf $name}}DropTableFactory); err != nil {
+		return err
+	}
+	if err := dp.AddDefaultFactory("{{camelcaseuf $name}}FindAll", {{camelcaseuf $name}}FindAllFactory); err != nil {
+		return err
+	}
+	if err := dp.AddDefaultFactory("{{camelcaseuf $name}}FindByID", {{camelcaseuf $name}}FindByIDFactory); err != nil {
+		return err
+	}
+	if err := dp.AddDefaultFactory("{{camelcaseuf $name}}Insert", {{camelcaseuf $name}}InsertFactory); err != nil {
+		return err
+	}
+	if err := dp.AddDefaultFactory("{{camelcaseuf $name}}Update", {{camelcaseuf $name}}UpdateFactory); err != nil {
+		return err
+	}
+	if err := dp.AddDefaultFactory("{{camelcaseuf $name}}Search", {{camelcaseuf $name}}SearchFactory); err != nil {
+		return err
+	}
+	return nil
+}
+
+
+{{- end -}}

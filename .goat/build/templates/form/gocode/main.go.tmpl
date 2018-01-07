@@ -1,0 +1,11 @@
+{{- define "main_go" -}}
+{{- $ctx := . -}}
+
+package {{index $ctx.Properties.Build "package"}}
+
+type RepeatPassword struct {
+  First  string
+  Second string
+}
+
+{{- end -}}

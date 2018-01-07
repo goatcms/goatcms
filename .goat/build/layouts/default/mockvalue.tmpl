@@ -1,0 +1,27 @@
+{{- define "mockvalue" -}}
+
+{{- if eq . "text" -}}
+  "{{random 400 " abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"}}"
+{{- else if eq . "string" "password" -}}
+  "{{random 44 "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"}}"
+{{- else if eq . "string" "password" -}}
+  {{- $value := (random 44 "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890") -}}
+  {
+    First:  "{{$value}}",
+    Second: "{{$value}}",
+  }
+{{- else if eq . "int" -}}
+  {{random 1 "123456789"}}{{random 4 "1234567890"}}
+{{- else if eq . "email" -}}
+  "{{- template "randomvalue" "email" -}}"
+{{- else if eq . "lang" -}}
+  "{{- template "randomvalue" "lang" -}}"
+{{- else if eq . "firstname" -}}
+  "{{- template "randomvalue" "firstname" -}}"
+{{- else if eq . "lastname" -}}
+  "{{- template "randomvalue" "lastname" -}}"
+{{- else -}}
+  {{- error (print "bad type" .) -}}
+{{- end -}}
+
+{{- end -}}

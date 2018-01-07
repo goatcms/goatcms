@@ -1,0 +1,11 @@
+{{- define "sqlite.sqltype" -}}
+
+{{- if eq (lower .) "text" "string" "email" "password" "lang" -}}
+  TEXT
+{{- else if eq (lower .) "int" -}}
+  INTEGER
+{{- else -}}
+  {{- error (print "bad SQL type" .) -}}
+{{- end -}}
+
+{{- end -}}

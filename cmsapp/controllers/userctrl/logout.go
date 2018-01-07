@@ -8,21 +8,20 @@ import (
 	"github.com/goatcms/goatcore/dependency"
 )
 
-// Logout is logout controller
-type Logout struct {
+// Signout is signout controller
+type Signout struct {
 	deps struct{}
 }
 
-// NewUserRegisterController create instance of a register form controller
-func NewLogout(dp dependency.Provider) (*Logout, error) {
-	ctrl := &Logout{}
+func NewSignout(dp dependency.Provider) (*Signout, error) {
+	ctrl := &Signout{}
 	if err := dp.InjectTo(&ctrl.deps); err != nil {
 		return nil, err
 	}
 	return ctrl, nil
 }
 
-func (c *Logout) Do(requestScope app.Scope) {
+func (c *Signout) Do(requestScope app.Scope) {
 	var requestDeps struct {
 		Responser    requestdep.Responser `request:"ResponserService"`
 		RequestError requestdep.Error     `request:"ErrorService"`

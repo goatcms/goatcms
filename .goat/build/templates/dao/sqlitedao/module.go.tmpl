@@ -1,0 +1,34 @@
+{{define "sqlite.module" -}}
+{{- $ctx := . -}}
+
+package sqlitedao
+
+import (
+	"github.com/goatcms/goatcore/dependency"
+	database "{{index $ctx.Properties.Build "path"}}/sqlitedao/database"
+	{{- range $index, $key := (keys .Data "model.") }}
+	{{$key}} "{{index $ctx.Properties.Build "path"}}/sqlitedao/dao/{{$key}}"
+	{{$key}}q "{{index $ctx.Properties.Build "path"}}/sqlitedao/dao/{{$key}}/queries"
+	{{- end -}}
+)
+
+func RegisterDependencies(dp dependency.Provider) error {
+	if err := dp.AddDefaultFactory("db0.engine", database.EngineFactory); err != nil {
+		return err
+	}
+	if err := dp.AddDefaultFactory("db0", database.Factory); err != nil {
+		return err
+	}
+	{{- range $index, $key := (keys .Data "model.") }}
+	if err := {{$key}}.RegisterDependencies(dp); err != nil {
+		return err
+	}
+	if err := {{$key}}q.RegisterDependencies(dp); err != nil {
+		return err
+	}
+	{{- end }}
+	return nil
+}
+
+
+{{- end -}}

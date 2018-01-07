@@ -1,0 +1,29 @@
+{{define "config"}}
+{
+  "mailer": {
+    "smtp": {
+      "addr": "{{index .Properties.Project "smtp.address"}}",
+      "auth": {
+        "username": "{{index .Properties.Project "smtp.user"}}",
+        "password": "{{index .Properties.Project "smtp.password"}}",
+        "identity": "{{index .Properties.Project "smtp.identity"}}"
+      }
+    }
+  },
+  "translate": {
+    "langs": "{{join (keys .Data "lang.") ", "}}",
+    "default": "{{index .Properties.Project "app.lang.default"}}"
+  },
+  "router": {
+    "host": ":{{index .Properties.Project "app.port"}}",
+    "static": {
+      "path": "./web/dist/",
+      "prefix": "/static/"
+    }
+  },
+  "database": {
+    "engine": "postgres",
+    "url": "postgres://{{index .Properties.Project "database.username"}}:{{index .Properties.Project "database.password"}}@{{index .Properties.Project "database.host"}}/{{index .Properties.Project "database.name"}}?sslmode=disable"
+  }
+}
+{{end}}

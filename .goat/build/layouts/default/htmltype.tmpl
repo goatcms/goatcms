@@ -1,0 +1,15 @@
+{{- define "htmltype" -}}
+
+{{- $lvalue := (lower .) -}}
+
+{{- if eq $lvalue "text" "string" "email" "lang" -}}
+  text
+{{- else if eq $lvalue "int" -}}
+  number
+{{- else if eq $lvalue "repassword" "password" -}}
+  password
+{{- else -}}
+  {{- error (print "bad type " .) -}}
+{{- end -}}
+
+{{- end -}}

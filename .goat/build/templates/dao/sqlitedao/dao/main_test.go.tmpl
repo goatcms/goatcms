@@ -1,0 +1,53 @@
+{{define "sqlite.dao.main_test" -}}
+{{- $ctx := . -}}
+{{- $name := (index $ctx.Data (print .From ".entity")) -}}
+{{- $entityName := (camelcaseuf $name) -}}
+{{- $fieldsBaseKey := (print .From ".fields.") -}}
+
+package dao
+
+import (
+	entities "{{index $ctx.Properties.Build "entities_path"}}"
+)
+
+func NewMockEntity1() *entities.{{$entityName}} {
+	{{- $keys := (keys .Data $fieldsBaseKey) }}
+	var (
+	{{- range $index, $field := $keys -}}
+    {{- $key := (print $fieldsBaseKey $field) -}}
+	  {{- $fieldName := (index $ctx.Data (print $key ".name")) -}}
+    {{- $fieldType := (index $ctx.Data (print $key ".type")) }}
+		{{lower $fieldName}} {{template "gotype" $fieldType}} = {{template "mockvalue" $fieldType}}
+	{{- end }}
+	)
+	return &entities.{{$entityName}} {
+		{{- range $index, $field := $keys -}}
+	    {{- $key := (print $fieldsBaseKey $field) -}}
+	    {{- $fieldName := (index $ctx.Data (print $key ".name")) -}}
+	    {{- $fieldType := (index $ctx.Data (print $key ".type")) }}
+			{{camelcaseuf $fieldName}}: &{{lower $fieldName}},
+	  {{- end }}
+	}
+}
+
+func NewMockEntity2() *entities.{{$entityName}} {
+	{{- $keys := (keys .Data $fieldsBaseKey) }}
+	var (
+	{{- range $index, $field := $keys -}}
+    {{- $key := (print $fieldsBaseKey $field) -}}
+	  {{- $fieldName := (index $ctx.Data (print $key ".name")) -}}
+    {{- $fieldType := (index $ctx.Data (print $key ".type")) }}
+		{{lower $fieldName}} {{template "gotype" $fieldType}} = {{template "mockvalue" $fieldType}}
+	{{- end }}
+	)
+	return &entities.{{$entityName}} {
+		{{- range $index, $field := $keys -}}
+	    {{- $key := (print $fieldsBaseKey $field) -}}
+	    {{- $fieldName := (index $ctx.Data (print $key ".name")) -}}
+	    {{- $fieldType := (index $ctx.Data (print $key ".type")) }}
+			{{camelcaseuf $fieldName}}: &{{lower $fieldName}},
+	  {{- end }}
+	}
+}
+
+{{- end -}}

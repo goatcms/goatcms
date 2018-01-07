@@ -1,0 +1,15 @@
+{{- define "httpform.main" -}}
+{{- $ctx := . -}}
+
+{{- range $mi, $key := (keys $ctx.Data "form.") -}}
+  {{- $formName := (index $ctx.Data (print "form." $key ".name")) -}}
+
+  {{- $path := (print $ctx.To "/httpform/" $formName "/main.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $path) -}}
+    {{- $ctx.Out.File $path -}}
+      {{- template "httpform.body" (ctx $ctx (print "form." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+{{- end -}}
+
+{{- end -}}

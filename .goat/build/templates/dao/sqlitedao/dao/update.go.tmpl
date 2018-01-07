@@ -1,0 +1,96 @@
+{{define "sqlite.dao.update" -}}
+{{- $ctx := . -}}
+{{- $name := (index $ctx.Data (print .From ".entity")) -}}
+{{- $entityName := (camelcaseuf $name) -}}
+{{- $typeName := (print $entityName "Update") -}}
+{{- $fieldsBaseKey := (print .From ".fields.") -}}
+
+package dao
+
+import (
+	"fmt"
+	"database/sql"
+	"github.com/goatcms/goatcore/app"
+	"database/sql"
+	"github.com/goatcms/goatcore/dependency"
+	helpers "{{index $ctx.Properties.Build "path"}}/sqlitedao/helpers"
+	maindef "{{index $ctx.Properties.Build "path"}}"
+	entities "{{index $ctx.Properties.Build "entities_path"}}"
+)
+
+
+// {{$typeName}} is a Data Access Object for {{lower $name}} entity
+type {{$typeName}} struct {
+  deps struct{
+    DB *sql.DB `dependency:"db0.engine"`
+  }
+}
+
+func New{{$typeName}}(di dependency.Injector) (*{{$typeName}}, error) {
+  instance := &{{$typeName}}{}
+  if err := di.InjectTo(&instance.deps); err != nil {
+    return nil, err
+  }
+  return instance, nil
+}
+
+func {{$typeName}}Factory(dp dependency.Provider) (interface{}, error) {
+	instance, err := New{{$typeName}}(dp)
+	if err != nil {
+		return nil, err
+	}
+	return maindef.{{$entityName}}Update(instance), nil
+}
+
+func (dao {{$typeName}}) Update(scope app.Scope, entity *entities.{{$entityName}}, fields []string) (err error) {
+	var (
+		res   sql.Result
+		count int64
+		query string
+		tx  *sql.Tx
+	)
+	if tx, err = helpers.TX(scope, dao.deps.DB); err != nil {
+		return err
+	}
+	if query, err = dao.SQL(fields, entity); err != nil {
+		return fmt.Errorf("%s: %s", err.Error(), query)
+	}
+	if res, err = tx.Exec(query); err != nil {
+	}
+	if count, err = res.RowsAffected(); err != nil {
+		return fmt.Errorf("%s: %s", err.Error(), query)
+	}
+	if count != 1 {
+		return fmt.Errorf("Update modified more then one record (%v records modyfieds): %s", count, query)
+	}
+	return nil
+}
+
+func (dao {{$typeName}}) SQL(fields []string, entity *entities.{{$entityName}}) (string, error) {
+	sql := "UPDATE {{camelcaseuf $name}} SET "
+	for i, row := range fields {
+		if i == 0 {
+			sql += row + "="
+		} else {
+			sql += ", " + row + "="
+		}
+		switch(row) {
+			{{- range $fi, $field := (keys $ctx.Data $fieldsBaseKey) -}}
+				{{- $key := (print $fieldsBaseKey $field) -}}
+				{{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
+				{{- $fieldType := (index $ctx.Data (print $key ".type")) }}
+				case "{{$fieldName}}":
+				{{- if eq (lower $fieldType) "text" "string" "email" "password" "lang" -}}
+					sql += helpers.Quote(entity.{{camelcaseuf $fieldName}})
+				{{- else if (lower $fieldType) "int" -}}
+					sql += helpers.FormatInt(entity.{{camelcaseuf $fieldName}}, 10)
+				{{- else -}}
+					{{- error (print "bad type" $fieldType) -}}
+				{{- end -}}
+			{{- end -}}
+		}
+	}
+	return sql, nil
+}
+
+{{- end -}}

@@ -1,0 +1,25 @@
+{{- $ctx := . -}}
+
+{{- $path := (print $ctx.To "/main.go") -}}
+{{- if not ($ctx.Filesystem.IsFile $path) -}}
+  {{- $ctx.Out.File $path -}}
+    {{- template "main_go" $ctx -}}
+  {{- $ctx.Out.EOF -}}
+{{- end -}}
+
+{{- range $index, $key := (keys .Data "form.") -}}
+  {{- $path := (print $ctx.To "/" $key ".go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $path) -}}
+    {{- $ctx.Out.File $path -}}
+      {{- template "form" (ctx $ctx (print "form." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{- $path := (print $ctx.To "/" $key "_valid.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $path) -}}
+    {{- $ctx.Out.File $path -}}
+      {{- template "form_valid" (ctx $ctx (print "form." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+{{- end -}}

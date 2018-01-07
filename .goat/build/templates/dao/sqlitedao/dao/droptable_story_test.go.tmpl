@@ -1,0 +1,47 @@
+{{define "sqlite.dao.droptable_story_test" -}}
+{{- $ctx := . -}}
+{{- $name := (index $ctx.Data (print .From ".entity")) -}}
+{{- $entityName := (camelcaseuf $name) -}}
+{{- $typeName := (print $entityName "CreateTable") -}}
+{{- $fieldsBaseKey := (print .From ".fields.") -}}
+
+package dao
+
+import (
+	"testing"
+	"database/sql"
+	"github.com/goatcms/goatcore/app/scope"
+	helpers "{{index $ctx.Properties.Build "path"}}/sqlitedao/helpers"
+	_ "github.com/mattn/go-sqlite3"
+)
+
+
+func TestDropTable(t *testing.T) {
+	t.Parallel()
+	doDropTable(t)
+}
+
+func doDropTable(t *testing.T) (bool, *sql.DB) {
+	var (
+		db  *sql.DB
+		err error
+		ok  bool
+	)
+	if ok, db = doCreateTable(t); !ok {
+		return false, nil
+	}
+	dropTable := {{$entityName}}DropTable{}
+	dropTable.deps.DB = db
+	s := scope.NewScope("testtag")
+	if err := dropTable.DropTable(s); err != nil {
+		t.Error(err)
+		return false, db
+	}
+	if _, err = helpers.Commit(s); err != nil {
+		t.Error(err)
+		return false, db
+	}
+	return true, db
+}
+
+{{- end -}}

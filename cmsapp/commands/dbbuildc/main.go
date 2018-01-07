@@ -4,22 +4,16 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/goatcms/goatcms/cmsapp/services"
+	"github.com/goatcms/goatcms/cmsapp/dao"
 	"github.com/goatcms/goatcore/app"
-	"github.com/goatcms/goatcore/db"
 )
 
 func Run(a app.App) error {
 	var deps struct {
-		Database        services.Database `dependency:"DatabaseService"`
-		DependencyScope app.Scope         `dependency:"DependencyScope"`
-		DSQL            db.DSQL           `dependency:"DSQL"`
+		DependencyScope app.Scope `dependency:"DependencyScope"`
+		AppScope        app.Scope `dependency:"AppScope"`
 	}
 	if err := a.DependencyProvider().InjectTo(&deps); err != nil {
-		return err
-	}
-	tx, err := deps.Database.TX()
-	if err != nil {
 		return err
 	}
 	keys, err := deps.DependencyScope.Keys()
@@ -27,28 +21,26 @@ func Run(a app.App) error {
 		return err
 	}
 	for _, key := range keys {
-		if strings.HasSuffix(key, "Table") {
+		if strings.HasSuffix(key, "CreateTable") {
 			tableIns, err := deps.DependencyScope.Get(key)
 			if err != nil {
 				return err
 			}
-			table, ok := tableIns.(db.Table)
+			creator, ok := tableIns.(dao.CreateTable)
 			if !ok {
 				return fmt.Errorf("%s is not instance of db.Table", key)
 			}
-			query, err := deps.DSQL.NewCreateSQL(table.Name(), table.Types())
-			if err != nil {
+			if err := creator.CreateTable(deps.AppScope); err != nil {
 				return err
 			}
-			tx.MustExec(query)
-			fmt.Printf("\n\n%s:\n%s", key, query)
+			fmt.Printf("\n %v... success", key)
 		}
 	}
 	fmt.Printf("\n\ncreated all tables\n")
 	fmt.Printf("commited... ")
-	if err := tx.Commit(); err != nil {
-		fmt.Printf("fail\n")
-		return err
+	if err := deps.AppScope.Trigger(app.CommitEvent, nil); err != nil {
+		fmt.Printf("fail %v\n", err)
+		return nil
 	}
 	fmt.Printf("ok\n")
 	return nil

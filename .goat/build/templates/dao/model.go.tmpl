@@ -1,0 +1,68 @@
+{{- define "model" -}}
+{{- $ctx := . -}}
+{{- $name := (index $ctx.Data (print .From ".entity")) -}}
+{{- $entityName := (camelcaseuf $name) -}}
+{{- $fieldsBaseKey := (print .From ".fields.") -}}
+{{- $fields := (sort (keys $ctx.Data $fieldsBaseKey)) -}}
+
+package {{index $ctx.Properties.Build "package"}}
+
+import (
+	"github.com/goatcms/goatcore/app"
+	entities "{{index $ctx.Properties.Build "entities_path"}}"
+)
+
+// {{$entityName}}Rows is the result of a query. Its cursor starts before the first row of the result set. Use Next to advance through the rows
+type {{$entityName}}Rows interface {
+	Rows
+	InjectTo(*entities.{{$entityName}}) error
+	Get() (*entities.{{$entityName}}, error)
+}
+
+// {{$entityName}}Row is the result of calling QueryRow to select a single row.
+type {{$entityName}}Row interface {
+	Row
+	InjectTo(*entities.{{$entityName}}) error
+	Get() (*entities.{{$entityName}}, error)
+}
+
+// {{$entityName}}FindAll is the DAO find all provider interface
+type {{$entityName}}FindAll interface {
+	Find(scope app.Scope, fields []string) ({{$entityName}}Rows, error)
+	SQL(fields []string) (string, error)
+}
+
+// {{$entityName}}FindByID is the DAO find by id provider interface
+type  {{$entityName}}FindByID interface {
+	Find(scope app.Scope, fields []string, id int64) (user *entities.{{$entityName}}, err error)
+	SQL(fields []string, id int64) (string, error)
+}
+
+// {{$entityName}}Insert is the DAO insert provider interface
+type {{$entityName}}Insert interface {
+	Insert(scope app.Scope, entity *entities.{{$entityName}}) (id int64, err error)
+	SQL(entity *entities.{{$entityName}}) (string, error)
+}
+
+// {{$entityName}}Update is the DAO update provider interface
+type {{$entityName}}Update interface {
+	Update(scope app.Scope, entity *entities.{{$entityName}}, fields []string) (err error)
+	SQL(fields []string, entity *entities.{{$entityName}}) (string, error)
+}
+
+// {{$entityName}}SearchParams is the search criteria container
+type {{$entityName}}SearchParams struct {
+{{- range $fi, $key := $fields -}}
+	{{- $fieldName := (index $ctx.Data (print $fieldsBaseKey $key ".name")) }}
+	{{- $fieldType := (index $ctx.Data (print $fieldsBaseKey $key ".type")) }}
+	{{camelcaseuf $fieldName}} {{template "gotype" $fieldType}}
+{{- end }}
+}
+
+// {{$entityName}}Search is the DAO search provider interface
+type {{$entityName}}Search interface {
+	Search(scope app.Scope, fields []string, params *{{$entityName}}SearchParams) ({{$entityName}}Rows, error)
+	SQL(fields []string, params *{{$entityName}}SearchParams) string
+}
+
+{{- end -}}

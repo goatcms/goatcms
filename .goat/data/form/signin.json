@@ -1,0 +1,19 @@
+{
+  "form": {
+    "signin": {
+      "fields": {
+        "0": {
+          "name": "username",
+          "required": "y",
+          "type": "string"
+        },
+        "1": {
+          "name": "password",
+          "required": "y",
+          "type": "password"
+        }
+      },
+      "name": "signin"
+    }
+  }
+}

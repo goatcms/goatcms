@@ -1,0 +1,52 @@
+{{define "entity" -}}
+{{- $ctx := . -}}
+{{- $name := (index $ctx.Data (print .From ".entity")) -}}
+{{- $fieldsBaseKey := (print .From ".fields.") -}}
+{{- $fields := (sort (keys .Data $fieldsBaseKey)) -}}
+{{- $systemFields := (findRows $fieldsBaseKey "^[A-Za-z0-9]+$" ".system" "y" $ctx.Data) -}}
+{{- $mainFields := (except $fields $systemFields) -}}
+
+package {{index $ctx.Properties.Build "package"}}
+
+// {{camelcaseuf $name}}AllFields is a array contains list of all {{camelcaseuf $name}} fields (except ID)
+var {{camelcaseuf $name}}AllFields = []string{
+{{- range $index, $field := $fields -}}
+  {{- $key := (print $fieldsBaseKey $field) -}}
+  {{- $fieldName := (index $ctx.Data (print $key ".name")) -}}
+  {{- if not (eq $index 0) -}},{{- end -}}
+  "{{camelcaseuf $fieldName}}"
+{{- end -}}
+}
+
+// {{camelcaseuf $name}}MainFields is a array contains list of main {{camelcaseuf $name}} fields (except ID)
+var {{camelcaseuf $name}}MainFields = []string{
+{{- range $index, $field := $mainFields -}}
+  {{- $key := (print $fieldsBaseKey $field) -}}
+  {{- $fieldName := (index $ctx.Data (print $key ".name")) -}}
+  {{- if not (eq $index 0) -}},{{- end -}}
+  "{{camelcaseuf $fieldName}}"
+{{- end -}}
+}
+
+// {{camelcaseuf $name}}SystemFields is a array contains list of system {{camelcaseuf $name}} fields (except ID)
+var {{camelcaseuf $name}}SystemFields = []string{
+{{- range $index, $field := $systemFields -}}
+  {{- $key := (print $fieldsBaseKey $field) -}}
+  {{- $fieldName := (index $ctx.Data (print $key ".name")) -}}
+  {{- if not (eq $index 0) -}},{{- end -}}
+  "{{camelcaseuf $fieldName}}"
+{{- end -}}
+}
+
+// {{camelcaseuf $name}} storages {{lower $name}} data
+type {{camelcaseuf $name}} struct {
+  ID *int64 `json:"id"`
+{{- range $index, $field := $fields -}}
+  {{- $key := (print $fieldsBaseKey $field) -}}
+  {{- $fieldName := (index $ctx.Data (print $key ".name")) -}}
+  {{- $fieldType := (index $ctx.Data (print $key ".type")) }}
+  {{camelcaseuf $fieldName}} *{{template "gotype" $fieldType}} `json:"{{camelcaself $fieldName}}" db:"{{camelcaseuf $fieldName}}"`
+{{- end -}}
+}
+
+{{- end -}}

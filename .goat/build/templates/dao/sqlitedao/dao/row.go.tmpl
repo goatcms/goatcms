@@ -1,0 +1,63 @@
+{{define "sqlite.dao.row" -}}
+{{- $ctx := . -}}
+{{- $name := (index $ctx.Data (print .From ".entity")) -}}
+{{- $entityName := (camelcaseuf $name) -}}
+{{- $fieldsBaseKey := (print .From ".fields.") -}}
+
+package dao
+
+import (
+	"fmt"
+	"database/sql"
+	entities "{{index $ctx.Properties.Build "entities_path"}}"
+)
+
+// {{$entityName}}Row is the result of a query. Its cursor starts before the first row of the result set. Use Next to advance through the row
+type {{$entityName}}Row struct {
+	*sql.Row
+	columns []string
+}
+
+func New{{$entityName}}Row(row *sql.Row, columns []string) *{{$entityName}}Row {
+	return &{{$entityName}}Row{
+		Row: row,
+		columns: columns,
+	}
+}
+
+func (row *{{$entityName}}Row) Columns() (values []string, err error) {
+	return row.columns, nil
+}
+
+func (row *{{$entityName}}Row) InjectTo(dest *entities.{{$entityName}}) (err error) {
+	values := make([]interface{}, len(row.columns))
+	for i, name := range row.columns {
+		switch(name) {
+			case "ID":
+				values[i] = &dest.ID
+			{{- range $index, $field := (keys .Data $fieldsBaseKey) -}}
+		    {{- $key := (print $fieldsBaseKey $field) -}}
+		    {{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
+		    {{- $fieldType := (index $ctx.Data (print $key ".type")) }}
+				case "{{$fieldName}}":
+					values[i] = &dest.{{$fieldName}}
+		  {{- end }}
+			default:
+				return fmt.Errorf("{{$entityName}}Row.InjectTo unknow field %v", name)
+		}
+	}
+	if err = row.Row.Scan(values...); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (row *{{$entityName}}Row) Get() (entity *entities.{{$entityName}}, err error) {
+	entity = &entities.{{$entityName}}{}
+	if err = row.InjectTo(entity); err != nil {
+		return nil, err
+	}
+	return entity, nil
+}
+
+{{- end -}}

@@ -1,0 +1,144 @@
+{{define "sqlite.dao.query.body_test" -}}
+{{- $ctx := . -}}
+{{- $queryNameUF := (camelcaseuf (index $ctx.Data (print .From ".name"))) -}}
+{{- $modelName   := (index $ctx.Data (print .From ".model")) -}}
+{{- $modelNameUF := (camelcaseuf $modelName) -}}
+{{- $typeName    := (print $modelNameUF $queryNameUF "Query") -}}
+{{- $isSingleResult := (index $ctx.Data (print .From ".isSingleResult")) -}}
+{{- $modelKey := (print "model." (findRow "model." "^[A-Za-z0-9]+$" ".entity" $modelName $ctx.Data)) -}}
+
+{{- $fieldsets := (valuesFor (print "^" .From  ".fit.[A-Za-z0-9]+.fields$") $ctx.Data) -}}
+{{- $fields := (unique (split (join $fieldsets " ") " ")) -}}
+
+package queries
+
+import (
+	"bytes"
+	"strings"
+	"testing"
+
+	"github.com/goatcms/goatcore/app"
+	"github.com/goatcms/goatcore/app/gio"
+	"github.com/goatcms/goatcore/app/mockupapp"
+	"github.com/goatcms/goatcore/app/scope"
+	dao "{{index $ctx.Properties.Build "path"}}/sqlitedao/dao/{{$modelName}}"
+	helpers "{{index $ctx.Properties.Build "path"}}/sqlitedao/helpers"
+	entities "{{index $ctx.Properties.Build "entities_path"}}"
+	maindef "{{index $ctx.Properties.Build "path"}}"
+	database "{{index $ctx.Properties.Build "path"}}/sqlitedao/database"
+	_ "github.com/mattn/go-sqlite3"
+)
+
+
+func Test{{$typeName}}(t *testing.T) {
+	t.Parallel()
+	do{{$typeName}}(t)
+}
+
+func do{{$typeName}}(t *testing.T) (bool) {
+	var (
+		mapp           app.App
+		err            error
+		expectedEntity *entities.{{$modelNameUF}}
+		entity         *entities.{{$modelNameUF}}
+		deps struct {
+			TableCreator maindef.CreateTable `dependency:"{{$modelNameUF}}CreateTable"`
+			Inserter     maindef.{{$modelNameUF}}Insert `dependency:"{{$modelNameUF}}Insert"`
+			Query        maindef.{{$modelNameUF}}{{$queryNameUF}}Query `dependency:"{{$modelNameUF}}{{$queryNameUF}}Query"`
+		}
+		{{- if eq $isSingleResult "y" }}
+			{{- /* Use entity - don't create a new variable */ -}}
+		{{- else }}
+		rows maindef.{{$modelNameUF}}Rows
+		{{- end }}
+	)
+	configScope := scope.NewScope(app.ConfigTagName)
+	configScope.Set("database.url", ":memory:")
+	if mapp, err = mockupapp.NewApp(mockupapp.MockupOptions{
+		Input:       gio.NewInput(strings.NewReader("")),
+		Output:      gio.NewOutput(new(bytes.Buffer)),
+		ConfigScope: configScope,
+	}); err != nil {
+		t.Error(err)
+		return false
+	}
+	if err = mapp.DependencyProvider().AddDefaultFactory("db0.engine", database.EngineFactory); err != nil {
+		t.Error(err)
+		return false
+	}
+	if err = dao.RegisterDependencies(mapp.DependencyProvider()); err != nil {
+		t.Error(err)
+		return false
+	}
+	if err = RegisterDependencies(mapp.DependencyProvider()); err != nil {
+		t.Error(err)
+		return false
+	}
+	if err = mapp.DependencyProvider().InjectTo(&deps); err != nil {
+		t.Error(err)
+		return false
+	}
+	s := scope.NewScope("testtag")
+	if err := deps.TableCreator.CreateTable(s); err != nil {
+		t.Error(err)
+		return false
+	}
+	if _, err = helpers.Commit(s); err != nil {
+		t.Error(err)
+		return false
+	}
+	expectedEntity = NewMockEntity1()
+	if _, err = deps.Inserter.Insert(s, expectedEntity); err != nil {
+		t.Error(err)
+		return false
+	}
+	if _, err = helpers.Commit(s); err != nil {
+		t.Error(err)
+		return false
+	}
+	params := &maindef.{{$typeName}}Params {
+		{{- range $fi, $field := $fields -}}
+			{{- $modelFieldKey := (print $modelKey ".fields." (findRow (print $modelKey ".fields.") "^[A-Za-z0-9]+$" ".name" $field $ctx.Data)) -}}
+			{{- $fieldType := (index $ctx.Data (print $modelFieldKey ".type")) }}
+			{{camelcaseuf $field}}: *expectedEntity.{{camelcaseuf $field}},
+		{{- end }}
+	}
+	if {{ if eq $isSingleResult "y" -}}
+		entity
+	{{- else -}}
+		rows
+	{{- end }}, err = deps.Query.{{$queryNameUF}}(s, entities.{{$modelNameUF}}AllFields, params); err != nil {
+		t.Error(err)
+		return false
+	}
+	{{- if eq $isSingleResult "y" }}
+		{{- /* use directly entity as deps.Query.{{$queryNameUF}} result */ -}}
+	{{- else }}
+		count := 0
+		for rows.Next() {
+			var e entities.{{$modelNameUF}}
+			count++
+			if entity, err = rows.Get(); err != nil {
+				t.Error(err)
+				return false, db
+			}
+		}
+		if count != 1 {
+			t.Errorf("expected one find result and take %v results", count)
+			return false, db
+		}
+	{{- end }}
+
+	{{- range $i, $fieldid := (keys .Data (print $modelKey ".fields.")) -}}
+		{{- $key := (print $modelKey ".fields." $fieldid) -}}
+		{{- $fieldName := (index $ctx.Data (print $key ".name")) }}
+		if *expectedEntity.{{camelcaseuf $fieldName}} != *entity.{{camelcaseuf $fieldName}} {
+			t.Errorf("Returned field should contains inserted entity value for {{camelcaseuf $fieldName}} field and it is %v (expeted %v)", entity.{{camelcaseuf $fieldName}}, expectedEntity.{{camelcaseuf $fieldName}})
+			return false
+		}
+	{{- end }}
+	return true
+}
+
+
+{{- end -}}

@@ -1,0 +1,102 @@
+{{- define "sqlite.dao.search" -}}
+{{- $ctx := . -}}
+{{- $name := (index $ctx.Data (print .From ".entity")) -}}
+{{- $entityName := (camelcaseuf $name) -}}
+{{- $typeName := (print $entityName "Search") -}}
+{{- $fieldsBaseKey := (print .From ".fields.") -}}
+{{- $fields := (keys $ctx.Data $fieldsBaseKey) -}}
+
+package dao
+
+import (
+	"database/sql"
+	"fmt"
+	"strconv"
+	"strings"
+
+	"github.com/goatcms/goatcore/app"
+	"github.com/goatcms/goatcore/dependency"
+	helpers "{{index $ctx.Properties.Build "path"}}/sqlitedao/helpers"
+	maindef "{{index $ctx.Properties.Build "path"}}"
+)
+
+// {{$typeName}} is a Data Access Object for {{lower $name}} entity
+type {{$typeName}} struct {
+  deps struct{
+    DB *sql.DB `dependency:"db0.engine"`
+  }
+}
+
+func New{{$typeName}}(di dependency.Injector) (*{{$typeName}}, error) {
+  instance := &{{$typeName}}{}
+  if err := di.InjectTo(&instance.deps); err != nil {
+    return nil, err
+  }
+  return instance, nil
+}
+
+func {{$typeName}}Factory(dp dependency.Provider) (interface{}, error) {
+	instance, err := New{{$typeName}}(dp)
+	if err != nil {
+		return nil, err
+	}
+	return maindef.{{$entityName}}Search(instance), nil
+}
+
+func (dao {{$typeName}}) Search(scope app.Scope, fields []string, params *maindef.{{$entityName}}SearchParams) (maindef.{{$entityName}}Rows, error) {
+	var (
+		err  error
+		sqlq string
+		tx   *sql.Tx
+		rows  *sql.Rows
+	)
+	if tx, err = helpers.TX(scope, dao.deps.DB); err != nil {
+		return nil, err
+	}
+	sqlq = dao.SQL(fields, params)
+	if rows, err = tx.Query(sqlq); err != nil {
+		return nil, fmt.Errorf("%s: %s", err.Error(), sqlq)
+	}
+	return New{{$entityName}}Rows(rows), nil
+}
+
+func (query {{$typeName}}) SQL(fields []string, params *maindef.{{$typeName}}Params) string {
+	var criterias []string = []string{}
+	sqlq := "SELECT "
+	// selected fields
+	i := 0
+	for _, row := range fields {
+		if i > 0 {
+			sqlq += ", "
+		}
+		sqlq += row
+		i++
+	}
+	// fields
+	sqlq += " FROM {{$entityName}}";
+	{{- range $fi, $fieldkey := $fields -}}
+		{{- $fieldName := (index $ctx.Data (print $fieldsBaseKey $fieldkey ".name")) -}}
+		{{- $fieldType := (lower (index $ctx.Data (print $fieldsBaseKey $fieldkey ".type"))) }}
+		if {{ if eq $fieldType "text" "string" "email" "password" "lang" -}}
+			params.{{camelcaseuf $fieldName}} != ""
+		{{- else if eq $fieldType "int" -}}
+			params.{{camelcaseuf $fieldName}} != 0
+		{{- else -}}
+			{{- error (print "bad type" $fieldType) -}}
+		{{- end }} {
+		criterias = append(criterias, "{{camelcaseuf $fieldName}}=" + {{ if eq $fieldType "text" "string" "email" "password" "lang" -}}
+			strconv.Quote(params.{{camelcaseuf $fieldName}})
+		{{- else if eq $fieldType "int" -}}
+			strconv.FormatInt(params.{{camelcaseuf $fieldName}}, 10)
+		{{- else -}}
+			{{- error (print "bad type" $fieldType) -}}
+		{{- end }})
+	}
+	{{- end }}
+	if len(criterias) > 0 {
+		sqlq += " WHERE " + strings.Join(criterias, " AND ")
+	}
+	return sqlq
+}
+
+{{- end -}}

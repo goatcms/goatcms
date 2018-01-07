@@ -1,0 +1,30 @@
+{
+  "model": {
+    "fragment": {
+      "entity": "fragment",
+      "fields": {
+        "0": {
+          "name": "lang",
+          "system": "n",
+          "type": "lang",
+          "unique": "n",
+          "required": "y"
+        },
+        "1": {
+          "name": "name",
+          "system": "n",
+          "type": "string",
+          "unique": "n",
+          "required": "y"
+        },
+        "2": {
+          "name": "content",
+          "system": "n",
+          "type": "text",
+          "unique": "n",
+          "required": "y"
+        }
+      }
+    }
+  }
+}

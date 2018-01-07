@@ -1,0 +1,25 @@
+{{define "sqlite.dao.query.module" -}}
+{{- $ctx := . -}}
+{{- $currentModel   := (index $ctx.Data (print .From ".entity")) -}}
+
+package queries
+
+import (
+	"github.com/goatcms/goatcore/dependency"
+)
+
+func RegisterDependencies(dp dependency.Provider) error {
+	{{ range $qi, $querykey := (keys $ctx.Data "query.") -}}
+		{{- $queryName := (index $ctx.Data (print "query." $querykey ".name")) -}}
+		{{- $modelName := (index $ctx.Data (print "query." $querykey ".model")) -}}
+		{{- if eq $modelName $currentModel -}}
+			if err := dp.AddDefaultFactory("{{camelcaseuf $modelName}}{{camelcaseuf $queryName}}Query", {{camelcaseuf $modelName}}{{camelcaseuf $queryName}}QueryFactory); err != nil {
+				return err
+			}
+		{{- end -}}
+	{{- end }}
+	return nil
+}
+
+
+{{- end -}}

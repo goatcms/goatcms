@@ -1,0 +1,70 @@
+{{define "sqlite.dao.delete" -}}
+{{- $ctx := . -}}
+{{- $name := (index $ctx.Data (print .From ".entity")) -}}
+{{- $entityName := (camelcaseuf $name) -}}
+{{- $typeName := (print $entityName "Delete") -}}
+{{- $fieldsBaseKey := (print .From ".fields.") -}}
+
+package dao
+
+import (
+	"fmt"
+	"strconv"
+	"database/sql"
+	"github.com/goatcms/goatcore/app"
+	"github.com/goatcms/goatcore/dependency"
+	helpers "{{index $ctx.Properties.Build "path"}}/sqlitedao/helpers"
+	maindef "{{index $ctx.Properties.Build "path"}}"
+)
+
+// {{$typeName}} is a Data Access Object for {{lower $name}} entity
+type {{$typeName}} struct {
+  deps struct{
+    DB *sql.DB `dependency:"db0.engine"`
+  }
+}
+
+func New{{$typeName}}(di dependency.Injector) (*{{$typeName}}, error) {
+  instance := &{{$typeName}}{}
+  if err := di.InjectTo(&instance.deps); err != nil {
+    return nil, err
+  }
+  return instance, nil
+}
+
+func {{$typeName}}Factory(dp dependency.Provider) (interface{}, error) {
+	instance, err := New{{$typeName}}(dp)
+	if err != nil {
+		return nil, err
+	}
+	return maindef.Delete(instance), nil
+}
+
+func (dao {{$typeName}}) Delete(scope app.Scope, id int64) error {
+	var (
+		res   sql.Result
+		err   error
+		count int64
+		tx *sql.Tx
+	)
+	if tx, err = helpers.TX(scope, dao.deps.DB); err != nil {
+		return err
+	}
+	sql := "DELETE FROM {{$entityName}} WHERE id="+strconv.FormatInt(id, 10)
+	if res, err = tx.Exec(sql); err != nil {
+		return fmt.Errorf("%s: %s", err.Error(), sql)
+	}
+	if count, err = res.RowsAffected(); err != nil {
+		return fmt.Errorf("%s: %s", err.Error(), sql)
+	}
+	if count != 1 {
+		return fmt.Errorf("Delete more than one record (%v records deleted)", count)
+	}
+	return nil
+}
+
+func (dao {{$typeName}}) SQL(where string) string {
+	return "DELETE FROM {{camelcaseuf $name}} WHERE " + where
+}
+
+{{- end -}}

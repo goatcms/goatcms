@@ -13,23 +13,32 @@ func InitDependencies(a app.App) error {
 	if err := a.DependencyProvider().InjectTo(&deps); err != nil {
 		return err
 	}
-	register, err := NewRegister(a.DependencyProvider())
+	// signup
+	signup, err := NewSignup(a.DependencyProvider())
 	if err != nil {
 		return err
 	}
-	login, err := NewLogin(a.DependencyProvider())
+	deps.Router.OnGet("/user/signup", signup.Get)
+	deps.Router.OnPost("/user/signup", signup.Post)
+	deps.Router.OnGet("/user/register", signup.Get)
+	deps.Router.OnPost("/user/register", signup.Post)
+	// signin
+	signin, err := NewSignin(a.DependencyProvider())
 	if err != nil {
 		return err
 	}
-	logout, err := NewLogout(a.DependencyProvider())
+	deps.Router.OnGet("/user/signin", signin.Get)
+	deps.Router.OnPost("/user/signin", signin.Post)
+	deps.Router.OnGet("/user/login", signin.Get)
+	deps.Router.OnPost("/user/login", signin.Post)
+	// signout
+	signout, err := NewSignout(a.DependencyProvider())
 	if err != nil {
 		return err
 	}
-	deps.Router.OnGet("/user/register", register.Get)
-	deps.Router.OnPost("/user/register", register.Post)
-	deps.Router.OnGet("/user/login", login.Get)
-	deps.Router.OnPost("/user/login", login.Post)
-	deps.Router.OnGet("/user/logout", logout.Do)
-	deps.Router.OnPost("/user/logout", logout.Do)
+	deps.Router.OnGet("/user/signout", signout.Do)
+	deps.Router.OnPost("/user/signout", signout.Do)
+	deps.Router.OnGet("/user/logout", signout.Do)
+	deps.Router.OnPost("/user/logout", signout.Do)
 	return nil
 }
