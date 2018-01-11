@@ -17,36 +17,28 @@ func ValidUser(e *User) (mm messages.MessageMap, err error) {
 func AddUserValid(basekey string, mm messages.MessageMap, e *User) error {
 	var messageKey string
 
-	// Username field
-	messageKey = basekey + "Username"
-	if e.Username == nil {
-		mm.Add(messageKey, "required")
-	} else if len(*e.Username) == 0 {
-		mm.Add(messageKey, "required")
-	}
-
 	// Firstname field
 	messageKey = basekey + "Firstname"
 	if e.Firstname == nil {
-		mm.Add(messageKey, "required")
+		mm.Add(messageKey, validator.FieldIsRequired)
 	} else if len(*e.Firstname) == 0 {
-		mm.Add(messageKey, "required")
+		mm.Add(messageKey, validator.FieldIsRequired)
 	}
 
-	// Roles field
-	messageKey = basekey + "Roles"
-	if e.Roles == nil {
-		mm.Add(messageKey, "required")
-	} else if len(*e.Roles) == 0 {
-		mm.Add(messageKey, "required")
+	// Lastname field
+	messageKey = basekey + "Lastname"
+	if e.Lastname == nil {
+		mm.Add(messageKey, validator.FieldIsRequired)
+	} else if len(*e.Lastname) == 0 {
+		mm.Add(messageKey, validator.FieldIsRequired)
 	}
 
 	// Email field
 	messageKey = basekey + "Email"
 	if e.Email == nil {
-		mm.Add(messageKey, "required")
+		mm.Add(messageKey, validator.FieldIsRequired)
 	} else if len(*e.Email) == 0 {
-		mm.Add(messageKey, "required")
+		mm.Add(messageKey, validator.FieldIsRequired)
 	}
 	if e.Email != nil {
 		if err := validator.EmailValid(*e.Email, messageKey, mm); err != nil {
@@ -57,17 +49,25 @@ func AddUserValid(basekey string, mm messages.MessageMap, e *User) error {
 	// Password field
 	messageKey = basekey + "Password"
 	if e.Password == nil {
-		mm.Add(messageKey, "required")
+		mm.Add(messageKey, validator.FieldIsRequired)
 	} else if len(*e.Password) == 0 {
-		mm.Add(messageKey, "required")
+		mm.Add(messageKey, validator.FieldIsRequired)
 	}
 
-	// Lastname field
-	messageKey = basekey + "Lastname"
-	if e.Lastname == nil {
-		mm.Add(messageKey, "required")
-	} else if len(*e.Lastname) == 0 {
-		mm.Add(messageKey, "required")
+	// Roles field
+	messageKey = basekey + "Roles"
+	if e.Roles == nil {
+		mm.Add(messageKey, validator.FieldIsRequired)
+	} else if len(*e.Roles) == 0 {
+		mm.Add(messageKey, validator.FieldIsRequired)
+	}
+
+	// Username field
+	messageKey = basekey + "Username"
+	if e.Username == nil {
+		mm.Add(messageKey, validator.FieldIsRequired)
+	} else if len(*e.Username) == 0 {
+		mm.Add(messageKey, validator.FieldIsRequired)
 	}
 
 	return nil

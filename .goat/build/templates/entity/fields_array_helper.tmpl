@@ -1,0 +1,20 @@
+{{define "fields_array_helper" -}}
+{{- $root := . -}}
+
+[]string{
+{{- range $index, $field := .Fields -}}
+  {{- $key := (print $root.Context.From ".fields." $field) -}}
+  {{- $fieldName := (index $root.Context.Data (print $key ".name")) -}}
+  {{- if not (eq $index 0) -}},{{- end -}}
+  "{{camelcaseuf $fieldName}}"
+{{- end -}}
+{{- if ne (len .Fields) 0 }}, {{ end -}}
+{{- range $index, $relation := .Relations -}}
+  {{- $key := (print $root.Context.From ".relations." $relation) -}}
+  {{- $fieldName := (index $root.Context.Data (print $key ".name")) -}}
+  {{- if not (eq $index 0) -}},{{- end -}}
+  "{{camelcaseuf $fieldName}}ID"
+{{- end -}}
+}
+
+{{- end -}}

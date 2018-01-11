@@ -3,13 +3,13 @@ package dao
 import (
 	"database/sql"
 	"fmt"
+	"strconv"
 
 	maindef "github.com/goatcms/goatcms/cmsapp/dao"
 	helpers "github.com/goatcms/goatcms/cmsapp/dao/sqlitedao/helpers"
 	entities "github.com/goatcms/goatcms/cmsapp/entities"
 	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/dependency"
-	"github.com/goatcms/goatcore/varutil"
 )
 
 // UserInsert is a Data Access Object for user entity
@@ -53,12 +53,19 @@ func (dao UserInsert) Insert(scope app.Scope, entity *entities.User) (id int64, 
 	if id, err = result.LastInsertId(); err != nil {
 		return -1, fmt.Errorf("%s: %s", err.Error(), sqlq)
 	}
-	if err = varutil.SetField(entity, "ID", &id); err != nil {
-		return -1, fmt.Errorf("%s: %s", err.Error(), sqlq)
-	}
+	entity.ID = &id
 	return id, nil
 }
 
 func (dao UserInsert) SQL(entity *entities.User) (string, error) {
-	return "INSERT INTO User (Username, Password, Firstname, Email, Lastname, Roles) VALUES (" + helpers.Quote(entity.Username) + ", " + helpers.Quote(entity.Password) + ", " + helpers.Quote(entity.Firstname) + ", " + helpers.Quote(entity.Email) + ", " + helpers.Quote(entity.Lastname) + ", " + helpers.Quote(entity.Roles) + ")", nil
+	sql := "INSERT INTO User ("
+	if entity.ID != nil {
+		sql += "ID, "
+	}
+	sql += "Firstname, Lastname, Email, Password, Roles, Username, ID, ID, ID, ID, ID, ID) VALUES ("
+	if entity.ID != nil {
+		sql += strconv.FormatInt(*entity.ID, 10) + ", "
+	}
+	sql += "" + helpers.Quote(entity.Firstname) + ", " + helpers.Quote(entity.Lastname) + ", " + helpers.Quote(entity.Email) + ", " + helpers.Quote(entity.Password) + ", " + helpers.Quote(entity.Roles) + ", " + helpers.Quote(entity.Username) + ", " + helpers.FormatInt(entity.ID, 10) + ", " + helpers.FormatInt(entity.ID, 10) + ", " + helpers.FormatInt(entity.ID, 10) + ", " + helpers.FormatInt(entity.ID, 10) + ", " + helpers.FormatInt(entity.ID, 10) + ", " + helpers.FormatInt(entity.ID, 10) + ")"
+	return sql, nil
 }

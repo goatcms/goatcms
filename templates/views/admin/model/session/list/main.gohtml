@@ -1,0 +1,24 @@
+{{- define "content" -}}
+
+<h1>Session</h1>
+
+{{ if eq (len .Data.Collection) 0 -}}
+No data to show
+{{- else }}
+  <table>
+    <thead>
+      <tr>
+        <th>Secret</th>
+      </tr>
+    </thead>
+    <tbody>{{- range $i, $session := .Data.Collection }}
+      <tr>
+        <td>{{- $session.Secret -}}</td>
+      <tr>
+    {{- end }}
+  </tbody>
+</table>
+{{- end }}
+
+
+{{- end }}

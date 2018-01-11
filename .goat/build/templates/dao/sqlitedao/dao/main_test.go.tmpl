@@ -3,6 +3,9 @@
 {{- $name := (index $ctx.Data (print .From ".entity")) -}}
 {{- $entityName := (camelcaseuf $name) -}}
 {{- $fieldsBaseKey := (print .From ".fields.") -}}
+{{- $fields := (keys $ctx.Data $fieldsBaseKey) -}}
+{{- $relationsBaseKey := (print .From ".relations.") -}}
+{{- $relations := (keys $ctx.Data $relationsBaseKey) -}}
 
 package dao
 
@@ -11,42 +14,60 @@ import (
 )
 
 func NewMockEntity1() *entities.{{$entityName}} {
-	{{- $keys := (keys .Data $fieldsBaseKey) }}
 	var (
-	{{- range $index, $field := $keys -}}
+	{{- range $index, $field := $fields -}}
     {{- $key := (print $fieldsBaseKey $field) -}}
 	  {{- $fieldName := (index $ctx.Data (print $key ".name")) -}}
     {{- $fieldType := (index $ctx.Data (print $key ".type")) }}
 		{{lower $fieldName}} {{template "gotype" $fieldType}} = {{template "mockvalue" $fieldType}}
 	{{- end }}
+	{{- range $index, $relation := $relations -}}
+		{{- $key := (print $relationsBaseKey $relation) -}}
+		{{- $fieldName := (index $ctx.Data (print $key ".name")) }}
+		{{lower $fieldName}} {{template "gotype" "int"}} = 1
+	{{- end }}
 	)
 	return &entities.{{$entityName}} {
-		{{- range $index, $field := $keys -}}
+		{{- range $index, $field := $fields -}}
 	    {{- $key := (print $fieldsBaseKey $field) -}}
 	    {{- $fieldName := (index $ctx.Data (print $key ".name")) -}}
 	    {{- $fieldType := (index $ctx.Data (print $key ".type")) }}
 			{{camelcaseuf $fieldName}}: &{{lower $fieldName}},
 	  {{- end }}
+		{{- range $index, $relation := $relations -}}
+			{{- $key := (print $relationsBaseKey $relation) -}}
+			{{- $fieldName := (index $ctx.Data (print $key ".name")) }}
+			{{camelcaseuf $fieldName}}ID: &{{lower $fieldName}},
+		{{- end }}
 	}
 }
 
 func NewMockEntity2() *entities.{{$entityName}} {
-	{{- $keys := (keys .Data $fieldsBaseKey) }}
 	var (
-	{{- range $index, $field := $keys -}}
+	{{- range $index, $field := $fields -}}
     {{- $key := (print $fieldsBaseKey $field) -}}
 	  {{- $fieldName := (index $ctx.Data (print $key ".name")) -}}
     {{- $fieldType := (index $ctx.Data (print $key ".type")) }}
 		{{lower $fieldName}} {{template "gotype" $fieldType}} = {{template "mockvalue" $fieldType}}
 	{{- end }}
+	{{- range $index, $relation := $relations -}}
+		{{- $key := (print $relationsBaseKey $relation) -}}
+		{{- $fieldName := (index $ctx.Data (print $key ".name")) }}
+		{{lower $fieldName}} {{template "gotype" "int"}} = 1
+	{{- end }}
 	)
 	return &entities.{{$entityName}} {
-		{{- range $index, $field := $keys -}}
+		{{- range $index, $field := $fields -}}
 	    {{- $key := (print $fieldsBaseKey $field) -}}
 	    {{- $fieldName := (index $ctx.Data (print $key ".name")) -}}
 	    {{- $fieldType := (index $ctx.Data (print $key ".type")) }}
 			{{camelcaseuf $fieldName}}: &{{lower $fieldName}},
 	  {{- end }}
+		{{- range $index, $relation := $relations -}}
+			{{- $key := (print $relationsBaseKey $relation) -}}
+			{{- $fieldName := (index $ctx.Data (print $key ".name")) }}
+			{{camelcaseuf $fieldName}}ID: &{{lower $fieldName}},
+		{{- end }}
 	}
 }
 

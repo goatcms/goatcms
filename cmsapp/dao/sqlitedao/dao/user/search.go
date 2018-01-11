@@ -66,23 +66,23 @@ func (query UserSearch) SQL(fields []string, params *maindef.UserSearchParams) s
 	}
 	// fields
 	sqlq += " FROM User"
-	if params.Lastname != "" {
-		criterias = append(criterias, "Lastname="+strconv.Quote(params.Lastname))
-	}
-	if params.Roles != "" {
-		criterias = append(criterias, "Roles="+strconv.Quote(params.Roles))
-	}
 	if params.Firstname != "" {
 		criterias = append(criterias, "Firstname="+strconv.Quote(params.Firstname))
 	}
-	if params.Username != "" {
-		criterias = append(criterias, "Username="+strconv.Quote(params.Username))
+	if params.Lastname != "" {
+		criterias = append(criterias, "Lastname="+strconv.Quote(params.Lastname))
+	}
+	if params.Email != "" {
+		criterias = append(criterias, "Email="+strconv.Quote(params.Email))
 	}
 	if params.Password != "" {
 		criterias = append(criterias, "Password="+strconv.Quote(params.Password))
 	}
-	if params.Email != "" {
-		criterias = append(criterias, "Email="+strconv.Quote(params.Email))
+	if params.Roles != "" {
+		criterias = append(criterias, "Roles="+strconv.Quote(params.Roles))
+	}
+	if params.Username != "" {
+		criterias = append(criterias, "Username="+strconv.Quote(params.Username))
 	}
 	if len(criterias) > 0 {
 		sqlq += " WHERE " + strings.Join(criterias, " AND ")

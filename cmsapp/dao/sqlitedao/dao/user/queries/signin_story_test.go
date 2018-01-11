@@ -86,28 +86,28 @@ func doUserSigninQuery(t *testing.T) bool {
 		t.Error(err)
 		return false
 	}
-	if *expectedEntity.Email != *entity.Email {
-		t.Errorf("Returned field should contains inserted entity value for Email field and it is %v (expeted %v)", entity.Email, expectedEntity.Email)
-		return false
-	}
-	if *expectedEntity.Username != *entity.Username {
-		t.Errorf("Returned field should contains inserted entity value for Username field and it is %v (expeted %v)", entity.Username, expectedEntity.Username)
-		return false
-	}
-	if *expectedEntity.Roles != *entity.Roles {
-		t.Errorf("Returned field should contains inserted entity value for Roles field and it is %v (expeted %v)", entity.Roles, expectedEntity.Roles)
-		return false
-	}
-	if *expectedEntity.Password != *entity.Password {
-		t.Errorf("Returned field should contains inserted entity value for Password field and it is %v (expeted %v)", entity.Password, expectedEntity.Password)
+	if *expectedEntity.Firstname != *entity.Firstname {
+		t.Errorf("Returned field should contains inserted entity value for Firstname field and it is %v (expeted %v)", entity.Firstname, expectedEntity.Firstname)
 		return false
 	}
 	if *expectedEntity.Lastname != *entity.Lastname {
 		t.Errorf("Returned field should contains inserted entity value for Lastname field and it is %v (expeted %v)", entity.Lastname, expectedEntity.Lastname)
 		return false
 	}
-	if *expectedEntity.Firstname != *entity.Firstname {
-		t.Errorf("Returned field should contains inserted entity value for Firstname field and it is %v (expeted %v)", entity.Firstname, expectedEntity.Firstname)
+	if *expectedEntity.Email != *entity.Email {
+		t.Errorf("Returned field should contains inserted entity value for Email field and it is %v (expeted %v)", entity.Email, expectedEntity.Email)
+		return false
+	}
+	if *expectedEntity.Password != *entity.Password {
+		t.Errorf("Returned field should contains inserted entity value for Password field and it is %v (expeted %v)", entity.Password, expectedEntity.Password)
+		return false
+	}
+	if *expectedEntity.Roles != *entity.Roles {
+		t.Errorf("Returned field should contains inserted entity value for Roles field and it is %v (expeted %v)", entity.Roles, expectedEntity.Roles)
+		return false
+	}
+	if *expectedEntity.Username != *entity.Username {
+		t.Errorf("Returned field should contains inserted entity value for Username field and it is %v (expeted %v)", entity.Username, expectedEntity.Username)
 		return false
 	}
 	return true

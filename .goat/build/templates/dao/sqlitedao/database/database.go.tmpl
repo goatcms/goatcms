@@ -24,6 +24,20 @@ func (db *Database) Exec(scope app.Scope, query string) (err error) {
 	return err
 }
 
+func (db *Database) Query(scope app.Scope, query string) (rows maindef.Rows, err error) {
+	var (
+		tx      *sql.Tx
+		sqlRows *sql.Rows
+	)
+	if tx, err = helpers.TX(scope, db.DB); err != nil {
+		return nil, err
+	}
+	if sqlRows, err = tx.Query(query); err != nil {
+		return nil, err
+	}
+	return helpers.NewRows(sqlRows), nil
+}
+
 func (db *Database) Commit(scope app.Scope) (err error) {
 	_, err = helpers.Commit(scope)
 	return err

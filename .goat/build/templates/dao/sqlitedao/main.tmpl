@@ -24,7 +24,15 @@
 {{- $helpersPath := (print $ctx.To "/sqlitedao/helpers/main.go") -}}
 {{- if not ($ctx.Filesystem.IsFile $helpersPath) -}}
   {{- $ctx.Out.File $helpersPath -}}
-    {{- template "sqlite.helpers" $ctx -}}
+    {{- template "sqlite.helpers.main_go" $ctx -}}
+  {{- $ctx.Out.EOF -}}
+{{- end -}}
+
+{{- /* Helpers - Rows */ -}}
+{{- $path := (print $ctx.To "/sqlitedao/helpers/rows.go") -}}
+{{- if not ($ctx.Filesystem.IsFile $path) -}}
+  {{- $ctx.Out.File $path -}}
+    {{- template "sqlite.helpers.rows_go" $ctx -}}
   {{- $ctx.Out.EOF -}}
 {{- end -}}
 

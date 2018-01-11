@@ -29,10 +29,10 @@ func (row *FragmentRow) InjectTo(dest *entities.Fragment) (err error) {
 		switch name {
 		case "ID":
 			values[i] = &dest.ID
-		case "Name":
-			values[i] = &dest.Name
 		case "Lang":
 			values[i] = &dest.Lang
+		case "Name":
+			values[i] = &dest.Name
 		case "Content":
 			values[i] = &dest.Content
 		default:
@@ -51,4 +51,20 @@ func (row *FragmentRow) Get() (entity *entities.Fragment, err error) {
 		return nil, err
 	}
 	return entity, nil
+}
+
+func (row *FragmentRow) GetValues() (values []interface{}, err error) {
+	var columns []string
+	if columns, err = row.Columns(); err != nil {
+		return nil, err
+	}
+	values = make([]interface{}, len(columns))
+	for i, _ := range values {
+		var reference interface{}
+		values[i] = &reference
+	}
+	if err = row.Row.Scan(values...); err != nil {
+		return nil, err
+	}
+	return values, nil
 }

@@ -37,13 +37,6 @@ func TestModule(t *testing.T) {
 	// test
 	var deps struct {
 		DB                  *sql.DB                  `dependency:"db0.engine"`
-		UserCreateTable     maindef.CreateTable      `dependency:"UserCreateTable"`
-		UserDelete          maindef.Delete           `dependency:"UserDelete"`
-		UserDropTable       maindef.DropTable        `dependency:"UserDropTable"`
-		UserFindAll         maindef.UserFindAll      `dependency:"UserFindAll"`
-		UserFindByID        maindef.UserFindByID     `dependency:"UserFindByID"`
-		UserInsert          maindef.UserInsert       `dependency:"UserInsert"`
-		UserUpdate          maindef.UserUpdate       `dependency:"UserUpdate"`
 		FragmentCreateTable maindef.CreateTable      `dependency:"FragmentCreateTable"`
 		FragmentDelete      maindef.Delete           `dependency:"FragmentDelete"`
 		FragmentDropTable   maindef.DropTable        `dependency:"FragmentDropTable"`
@@ -51,6 +44,20 @@ func TestModule(t *testing.T) {
 		FragmentFindByID    maindef.FragmentFindByID `dependency:"FragmentFindByID"`
 		FragmentInsert      maindef.FragmentInsert   `dependency:"FragmentInsert"`
 		FragmentUpdate      maindef.FragmentUpdate   `dependency:"FragmentUpdate"`
+		SessionCreateTable  maindef.CreateTable      `dependency:"SessionCreateTable"`
+		SessionDelete       maindef.Delete           `dependency:"SessionDelete"`
+		SessionDropTable    maindef.DropTable        `dependency:"SessionDropTable"`
+		SessionFindAll      maindef.SessionFindAll   `dependency:"SessionFindAll"`
+		SessionFindByID     maindef.SessionFindByID  `dependency:"SessionFindByID"`
+		SessionInsert       maindef.SessionInsert    `dependency:"SessionInsert"`
+		SessionUpdate       maindef.SessionUpdate    `dependency:"SessionUpdate"`
+		UserCreateTable     maindef.CreateTable      `dependency:"UserCreateTable"`
+		UserDelete          maindef.Delete           `dependency:"UserDelete"`
+		UserDropTable       maindef.DropTable        `dependency:"UserDropTable"`
+		UserFindAll         maindef.UserFindAll      `dependency:"UserFindAll"`
+		UserFindByID        maindef.UserFindByID     `dependency:"UserFindByID"`
+		UserInsert          maindef.UserInsert       `dependency:"UserInsert"`
+		UserUpdate          maindef.UserUpdate       `dependency:"UserUpdate"`
 	}
 	if err = mapp.DependencyProvider().InjectTo(&deps); err != nil {
 		t.Error(err)

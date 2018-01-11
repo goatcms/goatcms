@@ -3,13 +3,13 @@ package dao
 import (
 	"database/sql"
 	"fmt"
+	"strconv"
 
 	maindef "github.com/goatcms/goatcms/cmsapp/dao"
 	helpers "github.com/goatcms/goatcms/cmsapp/dao/sqlitedao/helpers"
 	entities "github.com/goatcms/goatcms/cmsapp/entities"
 	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/dependency"
-	"github.com/goatcms/goatcore/varutil"
 )
 
 // FragmentInsert is a Data Access Object for fragment entity
@@ -53,12 +53,19 @@ func (dao FragmentInsert) Insert(scope app.Scope, entity *entities.Fragment) (id
 	if id, err = result.LastInsertId(); err != nil {
 		return -1, fmt.Errorf("%s: %s", err.Error(), sqlq)
 	}
-	if err = varutil.SetField(entity, "ID", &id); err != nil {
-		return -1, fmt.Errorf("%s: %s", err.Error(), sqlq)
-	}
+	entity.ID = &id
 	return id, nil
 }
 
 func (dao FragmentInsert) SQL(entity *entities.Fragment) (string, error) {
-	return "INSERT INTO Fragment (Name, Content, Lang) VALUES (" + helpers.Quote(entity.Name) + ", " + helpers.Quote(entity.Content) + ", " + helpers.Quote(entity.Lang) + ")", nil
+	sql := "INSERT INTO Fragment ("
+	if entity.ID != nil {
+		sql += "ID, "
+	}
+	sql += "Lang, Name, Content, ID, ID, ID) VALUES ("
+	if entity.ID != nil {
+		sql += strconv.FormatInt(*entity.ID, 10) + ", "
+	}
+	sql += "" + helpers.Quote(entity.Lang) + ", " + helpers.Quote(entity.Name) + ", " + helpers.Quote(entity.Content) + ", " + helpers.FormatInt(entity.ID, 10) + ", " + helpers.FormatInt(entity.ID, 10) + ", " + helpers.FormatInt(entity.ID, 10) + ")"
+	return sql, nil
 }

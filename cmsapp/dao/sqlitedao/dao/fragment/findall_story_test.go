@@ -21,7 +21,7 @@ func doFindAllStory(t *testing.T) (bool, *sql.DB) {
 		db   *sql.DB
 		err  error
 	)
-	if ok, db, _ = doInsertStory(t); !ok {
+	if ok, db, _ = doInsertWithoutIDStory(t); !ok {
 		return false, nil
 	}
 	s := scope.NewScope("tag")
@@ -41,16 +41,16 @@ func doFindAllStory(t *testing.T) (bool, *sql.DB) {
 			t.Error(err)
 			return false, db
 		}
-		if *expectedEntity.Content != *e.Content {
-			t.Errorf("Returned field should contains inserted entity value for Content field and it is %v (expeted %v)", e.Content, expectedEntity.Content)
+		if *expectedEntity.Lang != *e.Lang {
+			t.Errorf("Returned field should contains inserted entity value for Lang field and it is %v (expeted %v)", e.Lang, expectedEntity.Lang)
 			return false, db
 		}
 		if *expectedEntity.Name != *e.Name {
 			t.Errorf("Returned field should contains inserted entity value for Name field and it is %v (expeted %v)", e.Name, expectedEntity.Name)
 			return false, db
 		}
-		if *expectedEntity.Lang != *e.Lang {
-			t.Errorf("Returned field should contains inserted entity value for Lang field and it is %v (expeted %v)", e.Lang, expectedEntity.Lang)
+		if *expectedEntity.Content != *e.Content {
+			t.Errorf("Returned field should contains inserted entity value for Content field and it is %v (expeted %v)", e.Content, expectedEntity.Content)
 			return false, db
 		}
 	}

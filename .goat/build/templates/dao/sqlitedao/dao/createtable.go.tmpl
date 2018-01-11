@@ -4,6 +4,9 @@
 {{- $entityName := (camelcaseuf $name) -}}
 {{- $typeName := (print $entityName "CreateTable") -}}
 {{- $fieldsBaseKey := (print .From ".fields.") -}}
+{{- $fields := (keys .Data $fieldsBaseKey) -}}
+{{- $relationsBaseKey := (print .From ".relations.") -}}
+{{- $relations := (keys .Data $relationsBaseKey) -}}
 
 package dao
 
@@ -49,7 +52,7 @@ func (dao {{$typeName}}) CreateTable(scope app.Scope) (err error) {
 
 func (dao {{$typeName}}) SQL() string {
   return `CREATE TABLE IF NOT EXISTS {{camelcaseuf $name}} (ID INTEGER PRIMARY KEY
-	{{- range $index, $field := (keys .Data $fieldsBaseKey) -}}
+	{{- range $index, $field := $fields -}}
     {{- $key := (print $fieldsBaseKey $field) -}}
     {{- $fieldName := (index $ctx.Data (print $key ".name")) -}}
     {{- $fieldType := (index $ctx.Data (print $key ".type")) -}}
@@ -58,7 +61,29 @@ func (dao {{$typeName}}) SQL() string {
     , {{camelcaseuf $fieldName}} {{template "sqlite.sqltype" $fieldType}}
 		{{- if eq $unique "y" }} UNIQUE {{- end -}}
 		{{- if eq $required "y" }} NOT NULL {{- end -}}
+  {{- end -}}
+	{{- range $i, $relation := $relations -}}
+    {{- $key := (print $relationsBaseKey $relation) -}}
+    {{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
+    {{- $unique := (lower (index $ctx.Data (print $key ".unique"))) -}}
+    {{- $required := (lower (index $ctx.Data (print $key ".required"))) -}}
+    , {{$fieldName}}ID {{template "sqlite.sqltype" "int"}}
+		{{- if eq $unique "y" }} UNIQUE {{- end -}}
+		{{- if eq $required "y" }} NOT NULL {{- end -}}
   {{- end -}});`
+}
+
+func (dao {{$typeName}}) AlterSQL() string {
+  return `{{- range $i, $relation := $relations -}}
+    {{- $key := (print $relationsBaseKey $relation) -}}
+    {{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
+    {{- $foreignModel := (camelcaseuf (index $ctx.Data (print $key ".model"))) -}}
+    {{- $isCascaDedelete := (index $ctx.Data (print $key ".cascadedelete")) }}
+		ALTER TABLE {{$entityName}} ADD CONSTRAINT fk_{{lower $entityName}}_{{lower $fieldName}}
+			FOREIGN KEY ({{$fieldName}}ID)
+			REFERENCES {{$foreignModel}}(ID)
+			{{ if eq $isCascaDedelete "y" -}} ON DELETE CASCADE {{- end -}};
+  {{- end -}}`
 }
 
 {{- end -}}

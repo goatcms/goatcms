@@ -29,16 +29,16 @@ func (rows *UserRows) InjectTo(dest *entities.User) (err error) {
 			values[i] = &dest.ID
 		case "Firstname":
 			values[i] = &dest.Firstname
-		case "Username":
-			values[i] = &dest.Username
-		case "Roles":
-			values[i] = &dest.Roles
+		case "Lastname":
+			values[i] = &dest.Lastname
 		case "Email":
 			values[i] = &dest.Email
 		case "Password":
 			values[i] = &dest.Password
-		case "Lastname":
-			values[i] = &dest.Lastname
+		case "Roles":
+			values[i] = &dest.Roles
+		case "Username":
+			values[i] = &dest.Username
 		default:
 			return fmt.Errorf("UserRows.InjectTo unknow field %v", name)
 		}
@@ -55,4 +55,20 @@ func (rows *UserRows) Get() (entity *entities.User, err error) {
 		return nil, err
 	}
 	return entity, nil
+}
+
+func (rows *UserRows) GetValues() (values []interface{}, err error) {
+	var columns []string
+	if columns, err = rows.Columns(); err != nil {
+		return nil, err
+	}
+	values = make([]interface{}, len(columns))
+	for i, _ := range values {
+		var reference interface{}
+		values[i] = &reference
+	}
+	if err = rows.Rows.Scan(values...); err != nil {
+		return nil, err
+	}
+	return values, nil
 }

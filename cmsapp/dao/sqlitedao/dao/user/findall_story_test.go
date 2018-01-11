@@ -21,7 +21,7 @@ func doFindAllStory(t *testing.T) (bool, *sql.DB) {
 		db   *sql.DB
 		err  error
 	)
-	if ok, db, _ = doInsertStory(t); !ok {
+	if ok, db, _ = doInsertWithoutIDStory(t); !ok {
 		return false, nil
 	}
 	s := scope.NewScope("tag")
@@ -45,24 +45,24 @@ func doFindAllStory(t *testing.T) (bool, *sql.DB) {
 			t.Errorf("Returned field should contains inserted entity value for Firstname field and it is %v (expeted %v)", e.Firstname, expectedEntity.Firstname)
 			return false, db
 		}
-		if *expectedEntity.Username != *e.Username {
-			t.Errorf("Returned field should contains inserted entity value for Username field and it is %v (expeted %v)", e.Username, expectedEntity.Username)
-			return false, db
-		}
-		if *expectedEntity.Password != *e.Password {
-			t.Errorf("Returned field should contains inserted entity value for Password field and it is %v (expeted %v)", e.Password, expectedEntity.Password)
+		if *expectedEntity.Lastname != *e.Lastname {
+			t.Errorf("Returned field should contains inserted entity value for Lastname field and it is %v (expeted %v)", e.Lastname, expectedEntity.Lastname)
 			return false, db
 		}
 		if *expectedEntity.Email != *e.Email {
 			t.Errorf("Returned field should contains inserted entity value for Email field and it is %v (expeted %v)", e.Email, expectedEntity.Email)
 			return false, db
 		}
-		if *expectedEntity.Lastname != *e.Lastname {
-			t.Errorf("Returned field should contains inserted entity value for Lastname field and it is %v (expeted %v)", e.Lastname, expectedEntity.Lastname)
+		if *expectedEntity.Password != *e.Password {
+			t.Errorf("Returned field should contains inserted entity value for Password field and it is %v (expeted %v)", e.Password, expectedEntity.Password)
 			return false, db
 		}
 		if *expectedEntity.Roles != *e.Roles {
 			t.Errorf("Returned field should contains inserted entity value for Roles field and it is %v (expeted %v)", e.Roles, expectedEntity.Roles)
+			return false, db
+		}
+		if *expectedEntity.Username != *e.Username {
+			t.Errorf("Returned field should contains inserted entity value for Username field and it is %v (expeted %v)", e.Username, expectedEntity.Username)
 			return false, db
 		}
 	}

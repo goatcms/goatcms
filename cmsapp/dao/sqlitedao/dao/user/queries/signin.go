@@ -67,11 +67,11 @@ func (query UserSigninQuery) SQL(fields []string, params *maindef.UserSigninQuer
 	}
 	// fields
 	sqlq += " FROM User WHERE "
-	if params.Username != "" {
-		sqlq += "(Username=" + strconv.Quote(params.Username)
-	}
 	if params.Email != "" {
-		sqlq += ") OR (Email=" + strconv.Quote(params.Email)
+		sqlq += "(Email=" + strconv.Quote(params.Email)
+	}
+	if params.Username != "" {
+		sqlq += ") OR (Username=" + strconv.Quote(params.Username)
 	}
 	sqlq += ") LIMIT 1"
 	return sqlq

@@ -21,7 +21,7 @@ func TestDeleteEntityStory(t *testing.T) {
 }
 
 func doDeleteEntityStory(t *testing.T) (bool, *sql.DB) {
-	ok, db, entity := doInsertStory(t)
+	ok, db, entity := doInsertWithoutIDStory(t)
 	if !ok {
 		return false, db
 	}

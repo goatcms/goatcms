@@ -4,15 +4,18 @@
 {{- $entityName := (camelcaseuf $name) -}}
 {{- $typeName := (print $entityName "Insert") -}}
 {{- $fieldsBaseKey := (print .From ".fields.") -}}
+{{- $fields := (keys $ctx.Data $fieldsBaseKey) -}}
+{{- $relationsBaseKey := (print .From ".relations.") -}}
+{{- $relations := (keys $ctx.Data $fieldsBaseKey) -}}
 
 package dao
 
 import (
 	"database/sql"
 	"fmt"
+	"strconv"
 
 	"github.com/goatcms/goatcore/app"
-	"github.com/goatcms/goatcore/varutil"
 	"github.com/goatcms/goatcore/dependency"
 	helpers "{{index $ctx.Properties.Build "path"}}/sqlitedao/helpers"
 	maindef "{{index $ctx.Properties.Build "path"}}"
@@ -60,34 +63,53 @@ func (dao {{$typeName}}) Insert(scope app.Scope, entity *entities.{{$entityName}
 	if id, err = result.LastInsertId(); err != nil {
 		return -1, fmt.Errorf("%s: %s", err.Error(), sqlq)
 	}
-	if err = varutil.SetField(entity, "ID", &id); err != nil {
-		return -1, fmt.Errorf("%s: %s", err.Error(), sqlq)
-	}
+	entity.ID = &id
 	return id, nil
 }
 
 func (dao {{$typeName}}) SQL(entity *entities.{{$entityName}}) (string, error) {
-	{{- $keys := (keys $ctx.Data $fieldsBaseKey) -}}
-	return "INSERT INTO {{camelcaseuf $name}} ({{- range $fi, $field := $keys -}}
+	sql := "INSERT INTO {{camelcaseuf $name}} ("
+	if entity.ID != nil {
+		sql += "ID, "
+	}
+	sql += "{{- range $fi, $field := $fields -}}
 			{{- $key := (print $fieldsBaseKey $field) -}}
 			{{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
 			{{- $fieldType := (index $ctx.Data (print $key ".type")) }}
 			{{- if ne $fi 0 -}}, {{ end -}}
 			{{$fieldName}}
-		{{- end -}}) VALUES ({{- range $fi, $field := $keys -}}
+		{{- end -}}
+		{{- if ne (len $fields) 0 }}, {{ end -}}
+		{{- range $fi, $relation := $relations -}}
+			{{- $key := (print $relationsBaseKey $relation) -}}
+			{{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
+			{{- if ne $fi 0 -}}, {{ end -}}
+			{{$fieldName}}ID
+		{{- end -}}) VALUES ("
+	if entity.ID != nil {
+		sql += strconv.FormatInt(*entity.ID, 10) + ", "
+	}
+	sql +=	"{{- range $fi, $field := $fields -}}
 			{{- $key := (print $fieldsBaseKey $field) -}}
-			{{- $fieldName := (index $ctx.Data (print $key ".name")) -}}
+			{{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
 			{{- $fieldType := (index $ctx.Data (print $key ".type")) }}
 			{{- if ne $fi 0 -}}, {{ end -}}
-
 			{{- if eq (lower $fieldType) "text" "string" "email" "password" "lang" -}}
-				" + helpers.Quote(entity.{{camelcaseuf $fieldName}}) + "
+				" + helpers.Quote(entity.{{$fieldName}}) + "
 			{{- else if (lower $fieldType) "int" -}}
-				" + helpers.FormatInt(entity.{{camelcaseuf $field}}, 10) + "
+				" + helpers.FormatInt(entity.{{$fieldName}}, 10) + "
 			{{- else -}}
 				{{- error (print "bad type" $fieldType) -}}
 			{{- end -}}
-		{{- end -}})", nil
+		{{- end -}}
+		{{- if ne (len $fields) 0 }}, {{ end -}}
+		{{- range $fi, $relation := $relations -}}
+			{{- $key := (print $relationsBaseKey $relation) -}}
+			{{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
+			{{- if ne $fi 0 -}}, {{ end -}}
+			" + helpers.FormatInt(entity.{{$fieldName}}ID, 10) + "
+		{{- end -}})"
+		return sql, nil
 }
 
 {{- end -}}

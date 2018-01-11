@@ -6,8 +6,8 @@ import (
 )
 
 type UserSigninQueryParams struct {
-	Username string
 	Email    string
+	Username string
 }
 
 type UserSigninQuery interface {

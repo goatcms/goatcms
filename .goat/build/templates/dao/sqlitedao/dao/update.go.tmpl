@@ -4,6 +4,9 @@
 {{- $entityName := (camelcaseuf $name) -}}
 {{- $typeName := (print $entityName "Update") -}}
 {{- $fieldsBaseKey := (print .From ".fields.") -}}
+{{- $fields := (keys .Data $fieldsBaseKey) -}}
+{{- $relationsBaseKey := (print .From ".relations.") -}}
+{{- $relations := (keys .Data $relationsBaseKey) -}}
 
 package dao
 
@@ -75,18 +78,24 @@ func (dao {{$typeName}}) SQL(fields []string, entity *entities.{{$entityName}}) 
 			sql += ", " + row + "="
 		}
 		switch(row) {
-			{{- range $fi, $field := (keys $ctx.Data $fieldsBaseKey) -}}
+			{{- range $fi, $field := $fields -}}
 				{{- $key := (print $fieldsBaseKey $field) -}}
 				{{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
 				{{- $fieldType := (index $ctx.Data (print $key ".type")) }}
 				case "{{$fieldName}}":
-				{{- if eq (lower $fieldType) "text" "string" "email" "password" "lang" -}}
-					sql += helpers.Quote(entity.{{camelcaseuf $fieldName}})
-				{{- else if (lower $fieldType) "int" -}}
-					sql += helpers.FormatInt(entity.{{camelcaseuf $fieldName}}, 10)
+				{{- if eq (lower $fieldType) "text" "string" "email" "password" "lang" }}
+					sql += helpers.Quote(entity.{{$fieldName}})
+				{{- else if (lower $fieldType) "int" }}
+					sql += helpers.FormatInt(entity.{{$fieldName}}, 10)
 				{{- else -}}
 					{{- error (print "bad type" $fieldType) -}}
 				{{- end -}}
+			{{- end -}}
+			{{- range $fi, $relation := $relations -}}
+				{{- $key := (print $relationsBaseKey $relation) -}}
+				{{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) }}
+				case "{{$fieldName}}ID":
+					sql += helpers.FormatInt(entity.{{$fieldName}}ID, 10)
 			{{- end -}}
 		}
 	}

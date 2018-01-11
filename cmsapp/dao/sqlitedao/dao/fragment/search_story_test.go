@@ -22,7 +22,7 @@ func doSearchStory(t *testing.T) (bool, *sql.DB) {
 		err            error
 		expectedEntity *entities.Fragment
 	)
-	if ok, db, expectedEntity = doInsertStory(t); !ok {
+	if ok, db, expectedEntity = doInsertWithoutIDStory(t); !ok {
 		return false, nil
 	}
 	s := scope.NewScope("tag")

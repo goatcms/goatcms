@@ -43,7 +43,7 @@ func (dao UserDelete) Delete(scope app.Scope, id int64) error {
 	if tx, err = helpers.TX(scope, dao.deps.DB); err != nil {
 		return err
 	}
-	sql := "DELETE FROM User WHERE id=" + strconv.FormatInt(id, 10)
+	sql := dao.SQL(id)
 	if res, err = tx.Exec(sql); err != nil {
 		return fmt.Errorf("%s: %s", err.Error(), sql)
 	}
@@ -56,6 +56,6 @@ func (dao UserDelete) Delete(scope app.Scope, id int64) error {
 	return nil
 }
 
-func (dao UserDelete) SQL(where string) string {
-	return "DELETE FROM User WHERE " + where
+func (dao UserDelete) SQL(id int64) string {
+	return "DELETE FROM User WHERE " + strconv.FormatInt(id, 10)
 }

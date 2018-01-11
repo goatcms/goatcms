@@ -66,18 +66,18 @@ func (dao UserUpdate) SQL(fields []string, entity *entities.User) (string, error
 			sql += ", " + row + "="
 		}
 		switch row {
-		case "Email":
-			sql += helpers.Quote(entity.Email)
-		case "Lastname":
-			sql += helpers.Quote(entity.Lastname)
-		case "Roles":
-			sql += helpers.Quote(entity.Roles)
 		case "Firstname":
 			sql += helpers.Quote(entity.Firstname)
-		case "Username":
-			sql += helpers.Quote(entity.Username)
+		case "Lastname":
+			sql += helpers.Quote(entity.Lastname)
+		case "Email":
+			sql += helpers.Quote(entity.Email)
 		case "Password":
 			sql += helpers.Quote(entity.Password)
+		case "Roles":
+			sql += helpers.Quote(entity.Roles)
+		case "Username":
+			sql += helpers.Quote(entity.Username)
 		}
 	}
 	return sql, nil

@@ -2,41 +2,24 @@
 {{- $ctx := . -}}
 {{- $name := (index $ctx.Data (print .From ".entity")) -}}
 {{- $fieldsBaseKey := (print .From ".fields.") -}}
-{{- $fields := (sort (keys .Data $fieldsBaseKey)) -}}
+{{- $fields := (keys .Data $fieldsBaseKey) -}}
 {{- $systemFields := (findRows $fieldsBaseKey "^[A-Za-z0-9]+$" ".system" "y" $ctx.Data) -}}
 {{- $mainFields := (except $fields $systemFields) -}}
+{{- $relationsBaseKey := (print .From ".relations.") -}}
+{{- $relations := (keys .Data $relationsBaseKey) -}}
+{{- $systemRelations := (findRows $relationsBaseKey "^[A-Za-z0-9]+$" ".system" "y" $ctx.Data) -}}
+{{- $mainRelations := (except $fields $systemFields) -}}
 
 package {{index $ctx.Properties.Build "package"}}
 
 // {{camelcaseuf $name}}AllFields is a array contains list of all {{camelcaseuf $name}} fields (except ID)
-var {{camelcaseuf $name}}AllFields = []string{
-{{- range $index, $field := $fields -}}
-  {{- $key := (print $fieldsBaseKey $field) -}}
-  {{- $fieldName := (index $ctx.Data (print $key ".name")) -}}
-  {{- if not (eq $index 0) -}},{{- end -}}
-  "{{camelcaseuf $fieldName}}"
-{{- end -}}
-}
+var {{camelcaseuf $name}}AllFields = {{template "fields_array_helper" (dict "Fields" $fields "Relations" $relations "Context" $ctx)}}
 
 // {{camelcaseuf $name}}MainFields is a array contains list of main {{camelcaseuf $name}} fields (except ID)
-var {{camelcaseuf $name}}MainFields = []string{
-{{- range $index, $field := $mainFields -}}
-  {{- $key := (print $fieldsBaseKey $field) -}}
-  {{- $fieldName := (index $ctx.Data (print $key ".name")) -}}
-  {{- if not (eq $index 0) -}},{{- end -}}
-  "{{camelcaseuf $fieldName}}"
-{{- end -}}
-}
+var {{camelcaseuf $name}}MainFields = {{template "fields_array_helper" (dict "Fields" $mainFields "Relations" $mainRelations "Context" $ctx)}}
 
 // {{camelcaseuf $name}}SystemFields is a array contains list of system {{camelcaseuf $name}} fields (except ID)
-var {{camelcaseuf $name}}SystemFields = []string{
-{{- range $index, $field := $systemFields -}}
-  {{- $key := (print $fieldsBaseKey $field) -}}
-  {{- $fieldName := (index $ctx.Data (print $key ".name")) -}}
-  {{- if not (eq $index 0) -}},{{- end -}}
-  "{{camelcaseuf $fieldName}}"
-{{- end -}}
-}
+var {{camelcaseuf $name}}SystemFields = {{template "fields_array_helper" (dict "Fields" $systemFields "Relations" $systemRelations "Context" $ctx)}}
 
 // {{camelcaseuf $name}} storages {{lower $name}} data
 type {{camelcaseuf $name}} struct {
@@ -47,6 +30,13 @@ type {{camelcaseuf $name}} struct {
   {{- $fieldType := (index $ctx.Data (print $key ".type")) }}
   {{camelcaseuf $fieldName}} *{{template "gotype" $fieldType}} `json:"{{camelcaself $fieldName}}" db:"{{camelcaseuf $fieldName}}"`
 {{- end -}}
+{{- range $index, $relation := $relations -}}
+  {{- $key := (print $relationsBaseKey $relation) -}}
+  {{- $fieldName := (index $ctx.Data (print $key ".name")) -}}
+  {{- $foreignModel := (camelcaseuf (index $ctx.Data (print $key ".model"))) }}
+  {{camelcaseuf $fieldName}}ID *{{template "gotype" "int"}}
+  {{camelcaseuf $fieldName}} *{{$foreignModel}}
+{{- end }}
 }
 
 {{- end -}}

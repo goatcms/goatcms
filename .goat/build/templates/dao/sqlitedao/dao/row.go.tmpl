@@ -3,6 +3,9 @@
 {{- $name := (index $ctx.Data (print .From ".entity")) -}}
 {{- $entityName := (camelcaseuf $name) -}}
 {{- $fieldsBaseKey := (print .From ".fields.") -}}
+{{- $fields := (keys .Data $fieldsBaseKey) -}}
+{{- $relationsBaseKey := (print .From ".relations.") -}}
+{{- $relations := (keys .Data $relationsBaseKey) -}}
 
 package dao
 
@@ -35,13 +38,19 @@ func (row *{{$entityName}}Row) InjectTo(dest *entities.{{$entityName}}) (err err
 		switch(name) {
 			case "ID":
 				values[i] = &dest.ID
-			{{- range $index, $field := (keys .Data $fieldsBaseKey) -}}
+			{{- range $index, $field := $fields -}}
 		    {{- $key := (print $fieldsBaseKey $field) -}}
 		    {{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
 		    {{- $fieldType := (index $ctx.Data (print $key ".type")) }}
 				case "{{$fieldName}}":
 					values[i] = &dest.{{$fieldName}}
 		  {{- end }}
+			{{- range $index, $relation := $relations -}}
+				{{- $key := (print $relationsBaseKey $relation) -}}
+				{{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) }}
+				case "{{$fieldName}}ID":
+					values[i] = &dest.{{$fieldName}}ID
+			{{- end }}
 			default:
 				return fmt.Errorf("{{$entityName}}Row.InjectTo unknow field %v", name)
 		}
@@ -58,6 +67,22 @@ func (row *{{$entityName}}Row) Get() (entity *entities.{{$entityName}}, err erro
 		return nil, err
 	}
 	return entity, nil
+}
+
+func (row *{{$entityName}}Row) GetValues() (values []interface{}, err error) {
+	var columns []string
+	if columns, err = row.Columns(); err != nil {
+		return nil, err
+	}
+	values = make([]interface{}, len(columns))
+	for i, _ := range values {
+		var reference interface{}
+		values[i] = &reference
+	}
+	if err = row.Row.Scan(values...); err != nil {
+		return nil, err
+	}
+	return values, nil
 }
 
 {{- end -}}

@@ -50,7 +50,7 @@ func (dao {{$typeName}}) Delete(scope app.Scope, id int64) error {
 	if tx, err = helpers.TX(scope, dao.deps.DB); err != nil {
 		return err
 	}
-	sql := "DELETE FROM {{$entityName}} WHERE id="+strconv.FormatInt(id, 10)
+	sql := dao.SQL(id)
 	if res, err = tx.Exec(sql); err != nil {
 		return fmt.Errorf("%s: %s", err.Error(), sql)
 	}
@@ -63,8 +63,8 @@ func (dao {{$typeName}}) Delete(scope app.Scope, id int64) error {
 	return nil
 }
 
-func (dao {{$typeName}}) SQL(where string) string {
-	return "DELETE FROM {{camelcaseuf $name}} WHERE " + where
+func (dao {{$typeName}}) SQL(id int64) string {
+	return "DELETE FROM {{$entityName}} WHERE " + strconv.FormatInt(id, 10)
 }
 
 {{- end -}}

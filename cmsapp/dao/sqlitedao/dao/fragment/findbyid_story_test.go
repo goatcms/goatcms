@@ -21,7 +21,7 @@ func doFindByIDStory(t *testing.T) (bool, *sql.DB) {
 		expectedEntity *entities.Fragment
 		entity         *entities.Fragment
 	)
-	if ok, db, expectedEntity = doInsertStory(t); !ok {
+	if ok, db, expectedEntity = doInsertWithoutIDStory(t); !ok {
 		return false, nil
 	}
 	s := scope.NewScope("tag")
@@ -31,12 +31,12 @@ func doFindByIDStory(t *testing.T) (bool, *sql.DB) {
 		t.Error(err)
 		return false, db
 	}
-	if *expectedEntity.Name != *entity.Name {
-		t.Errorf("Returned field should contains inserted entity value for Name field and it is %v (expeted %v)", entity.Name, expectedEntity.Name)
-		return false, db
-	}
 	if *expectedEntity.Lang != *entity.Lang {
 		t.Errorf("Returned field should contains inserted entity value for Lang field and it is %v (expeted %v)", entity.Lang, expectedEntity.Lang)
+		return false, db
+	}
+	if *expectedEntity.Name != *entity.Name {
+		t.Errorf("Returned field should contains inserted entity value for Name field and it is %v (expeted %v)", entity.Name, expectedEntity.Name)
 		return false, db
 	}
 	if *expectedEntity.Content != *entity.Content {

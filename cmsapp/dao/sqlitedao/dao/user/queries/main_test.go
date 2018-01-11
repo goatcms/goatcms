@@ -6,37 +6,37 @@ import (
 
 func NewMockEntity1() *entities.User {
 	var (
-		email     string = "Thomas.Roberts@eoc.cn"
-		lastname  string = "a5qxZ8MlEwmZvaTgiC0C53w7mNq8qk7OAZWVxFMNyJJt"
-		roles     string = "kobNHpZId7KQ1mWQuurEZbnWvAMbgmrRQtsFtIOHm2Oa"
-		firstname string = "Fa6pMOYVdqA83lBxmwQb8ObvDBaEdHtfQRVUY3kwIulj"
-		username  string = "yW5YNkaRuqRRG0HI4RiHQxJ5eCCpsTTLn76jibdZjlWi"
-		password  string = "4dzuOKmgVvJ1UDUf1TKpyssaUhLwEZ3AkDOehGeLtPhe"
+		firstname string = "ycxjSmPAp22VvPMIRhh3HcQymmuZVrK41Ov3WdL0Ri9x"
+		lastname  string = "0v45tDtubXhCLDg29qxWxI97mBAwfzA58Icww6dvPy6I"
+		email     string = "William.Evans@saq.en"
+		password  string = "rPRvBfHh0t299oB4AP6qUKQtDi5IXS9d19OHpyZoVTcl"
+		roles     string = "SnNlZKoyJNOKpbF0aD6Jh5AsYGzU9UQUpBbjPdxZJHLa"
+		username  string = "wmpIY1L1OgUsWehPJdTRHpKXVYjvlOdhcJoqYNLRwuvj"
 	)
 	return &entities.User{
-		Email:     &email,
-		Lastname:  &lastname,
-		Roles:     &roles,
 		Firstname: &firstname,
-		Username:  &username,
+		Lastname:  &lastname,
+		Email:     &email,
 		Password:  &password,
+		Roles:     &roles,
+		Username:  &username,
 	}
 }
 
 func NewMockEntity2() *entities.User {
 	var (
-		password  string = "MYzY0e5y0N8JZtU4MqwwKcXMs4SRtWpeQgHIUvDbZDNx"
-		firstname string = "5jZIx8T9Wm9Wx91ehjrubNP51LkwMzTMjZY7jAtKeUsJ"
-		email     string = "Amelia.Robinson@asi.pl"
-		lastname  string = "jZjf9qClWaAbC9NLkdI83zI1uV8Yq8krSDRmbeu7DG3m"
-		roles     string = "4kRO2hzMzA9iAMTRcR7vkqFxkvd77ogdNdvJbKKEy1km"
-		username  string = "aQ7fQqmhlBuNgqFodPuPdfkEA0jRNzodvbY1uxKqGofQ"
+		firstname string = "rffUtQCezdQU8haG01N3Q4Pp3CrRQj7Biky36y5LMTx7"
+		lastname  string = "TOTYn2gg661XvG0aAtGcFYeASHUClyusA30cVoB4x9Ho"
+		email     string = "Ella.Brown@gbz.fi"
+		password  string = "uNGZJSMVdA383lehHkj68lg3t7CfpBwqGSsCN1gTMVms"
+		roles     string = "EBXVURsEMxdRliRsYLy90Fr4Z4j3vkc1OaLHFcldZaOg"
+		username  string = "x1eFEFYKKxc7gZvK1SSskkPBaImzJSSN8JcIfsmsCpNJ"
 	)
 	return &entities.User{
-		Password:  &password,
 		Firstname: &firstname,
-		Email:     &email,
 		Lastname:  &lastname,
+		Email:     &email,
+		Password:  &password,
 		Roles:     &roles,
 		Username:  &username,
 	}

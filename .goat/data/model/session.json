@@ -1,0 +1,25 @@
+{
+  "model": {
+    "session": {
+      "entity": "session",
+      "fields": {
+        "0": {
+          "name": "secret",
+          "required": "y",
+          "system": "n",
+          "type": "string",
+          "unique": "y"
+        }
+      },
+      "relations": {
+        "0": {
+          "model": "user",
+          "name": "user",
+          "required": "y",
+          "system": "n",
+          "unique": "n"
+        }
+      }
+    }
+  }
+}

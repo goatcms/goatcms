@@ -50,3 +50,19 @@ func (rows *FragmentRows) Get() (entity *entities.Fragment, err error) {
 	}
 	return entity, nil
 }
+
+func (rows *FragmentRows) GetValues() (values []interface{}, err error) {
+	var columns []string
+	if columns, err = rows.Columns(); err != nil {
+		return nil, err
+	}
+	values = make([]interface{}, len(columns))
+	for i, _ := range values {
+		var reference interface{}
+		values[i] = &reference
+	}
+	if err = rows.Rows.Scan(values...); err != nil {
+		return nil, err
+	}
+	return values, nil
+}

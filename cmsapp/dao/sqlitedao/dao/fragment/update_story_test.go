@@ -22,12 +22,12 @@ func doUpdateStory(t *testing.T) (bool, *sql.DB) {
 		entity         *entities.Fragment
 	)
 	expectedEntity = NewMockEntity2()
-	if ok, db, entity = doInsertStory(t); !ok {
+	if ok, db, entity = doInsertWithoutIDStory(t); !ok {
 		return false, nil
 	}
-	entity.Content = expectedEntity.Content
 	entity.Lang = expectedEntity.Lang
 	entity.Name = expectedEntity.Name
+	entity.Content = expectedEntity.Content
 	s := scope.NewScope("tag")
 	updater := FragmentUpdate{}
 	updater.deps.DB = db
@@ -41,12 +41,12 @@ func doUpdateStory(t *testing.T) (bool, *sql.DB) {
 		t.Error(err)
 		return false, db
 	}
-	if *expectedEntity.Name != *entity.Name {
-		t.Errorf("Returned field should contains inserted entity value for Name field and it is %v (expeted %v)", entity.Name, expectedEntity.Name)
-		return false, db
-	}
 	if *expectedEntity.Lang != *entity.Lang {
 		t.Errorf("Returned field should contains inserted entity value for Lang field and it is %v (expeted %v)", entity.Lang, expectedEntity.Lang)
+		return false, db
+	}
+	if *expectedEntity.Name != *entity.Name {
+		t.Errorf("Returned field should contains inserted entity value for Name field and it is %v (expeted %v)", entity.Name, expectedEntity.Name)
 		return false, db
 	}
 	if *expectedEntity.Content != *entity.Content {

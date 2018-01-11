@@ -28,7 +28,7 @@ func doFindAllStory(t *testing.T) (bool, *sql.DB) {
 		db       *sql.DB
 		err      error
 	)
-	if ok, db, _ = doInsertStory(t); !ok {
+	if ok, db, _ = doInsertWithoutIDStory(t); !ok {
 		return false, nil
 	}
 	s := scope.NewScope("tag")

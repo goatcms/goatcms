@@ -29,7 +29,7 @@ func doUpdateStory(t *testing.T) (bool, *sql.DB) {
 		entity         *entities.{{$entityName}}
 	)
 	expectedEntity = NewMockEntity2()
-	if ok, db, entity = doInsertStory(t); !ok {
+	if ok, db, entity = doInsertWithoutIDStory(t); !ok {
 		return false, nil
 	}
 	{{- range $index, $field := (keys .Data $fieldsBaseKey) -}}

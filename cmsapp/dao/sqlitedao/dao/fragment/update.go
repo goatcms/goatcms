@@ -66,12 +66,12 @@ func (dao FragmentUpdate) SQL(fields []string, entity *entities.Fragment) (strin
 			sql += ", " + row + "="
 		}
 		switch row {
-		case "Content":
-			sql += helpers.Quote(entity.Content)
-		case "Name":
-			sql += helpers.Quote(entity.Name)
 		case "Lang":
 			sql += helpers.Quote(entity.Lang)
+		case "Name":
+			sql += helpers.Quote(entity.Name)
+		case "Content":
+			sql += helpers.Quote(entity.Content)
 		}
 	}
 	return sql, nil

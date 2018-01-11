@@ -28,7 +28,7 @@ func doFindByIDStory(t *testing.T) (bool, *sql.DB) {
 		expectedEntity *entities.{{$entityName}}
 		entity         *entities.{{$entityName}}
 	)
-	if ok, db, expectedEntity = doInsertStory(t); !ok {
+	if ok, db, expectedEntity = doInsertWithoutIDStory(t); !ok {
 		return false, nil
 	}
 	s := scope.NewScope("tag")

@@ -43,7 +43,7 @@ func (dao FragmentDelete) Delete(scope app.Scope, id int64) error {
 	if tx, err = helpers.TX(scope, dao.deps.DB); err != nil {
 		return err
 	}
-	sql := "DELETE FROM Fragment WHERE id=" + strconv.FormatInt(id, 10)
+	sql := dao.SQL(id)
 	if res, err = tx.Exec(sql); err != nil {
 		return fmt.Errorf("%s: %s", err.Error(), sql)
 	}
@@ -56,6 +56,6 @@ func (dao FragmentDelete) Delete(scope app.Scope, id int64) error {
 	return nil
 }
 
-func (dao FragmentDelete) SQL(where string) string {
-	return "DELETE FROM Fragment WHERE " + where
+func (dao FragmentDelete) SQL(id int64) string {
+	return "DELETE FROM Fragment WHERE " + strconv.FormatInt(id, 10)
 }
