@@ -1,13 +1,12 @@
-
 # .goat - personal data
-.goat\properties.json
+.goat/properties.json
 
 # genereted files
-cmsapp\entities
-cmsapp\dao
-cmsapp\forms
-cmsapp\http
-cmsapp\controllers\adminctrl
+cmsapp/entities
+cmsapp/dao
+cmsapp/forms
+cmsapp/http
+cmsapp/controllers/adminctrl
 
 # config
 config/config_prod.json
