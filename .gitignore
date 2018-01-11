@@ -1,30 +1,45 @@
-sqlite3.db
-sqlite3.db-journal
-assets/images
-main
-npm-debug.log
-*.test
-*~
-*.exe
-configuration.json
-debug
+
+# .goat - personal data
+.goat\properties.json
+
+# genereted files
+cmsapp\entities
+cmsapp\dao
+cmsapp\forms
+cmsapp\http
+cmsapp\controllers\adminctrl
+
+# config
 config/config_prod.json
 config/config_dev.json
 config/config_test.json
 config/config_stage.json
+
+# logs files
+*.log
+
+# database
 database/sqlite3_database.db
 database/sqlite3_database.db-journal
 *.db
 *.db-journal
 
+# web
 web/.DS_STORE
 web/node_modules
 web/dist
 web/coverage
+assets/images
+main
+npm-debug.log
 
-.goat\properties.json
-
-.idea/
+# system
+*.test
+*~
+*.exe
 *.log
-
+# debug
 debug
+
+# IDEs
+.idea/
