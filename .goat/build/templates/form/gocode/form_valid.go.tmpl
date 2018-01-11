@@ -3,6 +3,8 @@
 {{- $name := (camelcaseuf (index $ctx.Data (print .From ".name"))) -}}
 {{- $fieldsBaseKey := (print .From ".fields.") -}}
 {{- $fields := (keys .Data $fieldsBaseKey) -}}
+{{- $relationsBaseKey := (print .From ".relations.") -}}
+{{- $relations := (keys .Data $relationsBaseKey) -}}
 
 package {{index $ctx.Properties.Build "package"}}
 
@@ -34,10 +36,10 @@ func Add{{$name}}Valid(basekey string, mm messages.MessageMap, e *{{$name}}) err
 
     {{- if eq $required "y" }}
       if e.{{$fieldName}} == nil {
-    		mm.Add(messageKey, "required")
+    		mm.Add(messageKey, validator.FieldIsRequired)
   	  } {{ if eq $fieldType "text" "string" "email" "password" "lang" -}}
         else if len(*e.{{$fieldName}}) == 0 {
-      		mm.Add(messageKey, "required")
+      		mm.Add(messageKey, validator.FieldIsRequired)
     	  }
       {{- end -}}
     {{- end -}}
@@ -76,6 +78,19 @@ func Add{{$name}}Valid(basekey string, mm messages.MessageMap, e *{{$name}}) err
     {{- else -}}
       {{- error (print "bad type" $fieldType) -}}
     {{- end }}
+  {{- end }}
+	{{- range $index, $relation := $relations -}}
+    {{- $key := (print $relationsBaseKey $relation) -}}
+    {{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
+    {{- $required := (lower (index $ctx.Data (print $key ".required"))) }}
+
+    {{- if eq $required "y" }}
+			// {{$fieldName}} relation field
+		  messageKey = basekey+"{{$fieldName}}"
+      if e.{{$fieldName}} == nil {
+				mm.Add(messageKey, validator.FieldIsRequired)
+  	  }
+    {{- end -}}
   {{- end }}
 
 	return nil
