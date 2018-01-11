@@ -7,6 +7,7 @@ cmsapp/dao
 cmsapp/forms
 cmsapp/http
 cmsapp/controllers/adminctrl
+templates/layouts/default/forms
 
 # config
 config/config_prod.json
