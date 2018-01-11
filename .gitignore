@@ -8,6 +8,7 @@ cmsapp/forms
 cmsapp/http
 cmsapp/controllers/adminctrl
 templates/layouts/default/forms
+templates/views/admin
 
 # config
 config/config_prod.json
@@ -38,6 +39,7 @@ npm-debug.log
 *~
 *.exe
 *.log
+
 # debug
 debug
 
