@@ -1,4 +1,4 @@
-{{define "sqlite.dao.query.body_test" -}}
+{{define "sqlite.queries.body_test" -}}
 {{- $ctx := . -}}
 {{- $queryNameUF := (camelcaseuf (index $ctx.Data (print .From ".name"))) -}}
 {{- $modelName   := (index $ctx.Data (print .From ".model")) -}}
@@ -21,7 +21,7 @@ import (
 	"github.com/goatcms/goatcore/app/gio"
 	"github.com/goatcms/goatcore/app/mockupapp"
 	"github.com/goatcms/goatcore/app/scope"
-	dao "{{index $ctx.Properties.Build "path"}}/sqlitedao/dao/{{$modelName}}"
+	simple "{{index $ctx.Properties.Build "path"}}/sqlitedao/simple/{{$modelName}}"
 	helpers "{{index $ctx.Properties.Build "path"}}/sqlitedao/helpers"
 	entities "{{index $ctx.Properties.Build "entities_path"}}"
 	maindef "{{index $ctx.Properties.Build "path"}}"
@@ -66,7 +66,7 @@ func do{{$typeName}}(t *testing.T) (bool) {
 		t.Error(err)
 		return false
 	}
-	if err = dao.RegisterDependencies(mapp.DependencyProvider()); err != nil {
+	if err = simple.RegisterDependencies(mapp.DependencyProvider()); err != nil {
 		t.Error(err)
 		return false
 	}

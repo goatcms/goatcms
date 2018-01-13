@@ -5,6 +5,42 @@ package {{index $ctx.Properties.Build "package"}}
 
 import "github.com/goatcms/goatcore/app"
 
+const (
+	// EQ returns the boolean truth of  arg1 == arg2 // IN for multi values array
+	EQ = iota
+	// NE returns the boolean truth of arg1 != arg2  // NOT IN for multi values array
+	NE
+	// LT returns the boolean truth of arg1 < arg2   // Prevent len(value) != 1
+	LT
+	// LE returns the boolean truth of arg1 <= arg2  // Prevent len(value) != 1
+	LE
+	// GT returns the boolean truth of arg1 > arg2   // Prevent len(value) != 1
+	GT
+	// GE returns the boolean truth of arg1 >= arg2  // Prevent len(value) != 1
+	GE
+	// LIKE returns the boolean truth of SQL pattern   // create LIKE v1 OR LIKE v2 query
+	LIKE
+	//IN      // Returns the boolean truth of SQL IN(values...) - created automaticaly when len(Value) > 1
+)
+
+// StringFieldCriteria represent criteria for single string field
+type StringFieldCriteria struct {
+	Value []string
+	Type  int
+}
+
+// Int64FieldCriteria represent criteria for single int64 field
+type Int64FieldCriteria struct {
+	Value []int64
+	Type  int
+}
+
+// Pagger represent position and size of query page
+type Pagger struct {
+	Limit  int64
+	Offset int64
+}
+
 // Database provide database public plain api
 type Database interface {
 	Exec(scope app.Scope, query string) error

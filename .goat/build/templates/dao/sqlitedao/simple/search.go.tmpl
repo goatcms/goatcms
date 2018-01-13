@@ -6,7 +6,7 @@
 {{- $fieldsBaseKey := (print .From ".fields.") -}}
 {{- $fields := (keys $ctx.Data $fieldsBaseKey) -}}
 
-package dao
+package simple
 
 import (
 	"database/sql"

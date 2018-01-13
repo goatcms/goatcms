@@ -8,7 +8,7 @@
 {{- $relationsBaseKey := (print .From ".relations.") -}}
 {{- $relations := (keys .Data $relationsBaseKey) -}}
 
-package dao
+package simple
 
 import (
 	"github.com/goatcms/goatcore/app"

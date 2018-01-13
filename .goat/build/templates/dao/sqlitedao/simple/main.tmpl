@@ -1,0 +1,175 @@
+{{- define "sqlite.simple.main" -}}
+{{- $ctx := . -}}
+
+{{- range $index, $key := (keys .Data "model.") -}}
+
+  {{- /* rows */ -}}
+  {{- $rowsPath := (print $ctx.To "/sqlitedao/simple/" $key "/rows.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $rowsPath) -}}
+    {{- $ctx.Out.File $rowsPath -}}
+      {{- template "sqlite.dao.rows" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{- /* row */ -}}
+  {{- $rowPath := (print $ctx.To "/sqlitedao/simple/" $key "/row.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $rowPath) -}}
+    {{- $ctx.Out.File $rowPath -}}
+      {{- template "sqlite.dao.row" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{- /* Search */ -}}
+  {{- $searchPath := (print $ctx.To "/sqlitedao/simple/" $key "/search.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $searchPath) -}}
+    {{- $ctx.Out.File $searchPath -}}
+      {{- template "sqlite.dao.search" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{- /* Search story test */ -}}
+  {{- $testSearchPath := (print $ctx.To "/sqlitedao/simple/" $key "/search_story_test.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $testSearchPath) -}}
+    {{- $ctx.Out.File $testSearchPath -}}
+      {{- template "sqlite.dao.search_story_test" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{- /* CreateTable */ -}}
+  {{- $createtablePath := (print $ctx.To "/sqlitedao/simple/" $key "/createtable.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $createtablePath) -}}
+    {{- $ctx.Out.File $createtablePath -}}
+      {{- template "sqlite.dao.createtable" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{/* CreateTable story test */}}
+  {{- $testCreateTablePath := (print $ctx.To "/sqlitedao/simple/" $key "/createtable_story_test.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $testCreateTablePath) -}}
+    {{- $ctx.Out.File $testCreateTablePath -}}
+      {{- template "sqlite.dao.createtable_story_test" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{/* Delete */}}
+  {{- $deletePath := (print $ctx.To "/sqlitedao/simple/" $key "/delete.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $deletePath) -}}
+    {{- $ctx.Out.File $deletePath -}}
+      {{- template "sqlite.dao.delete" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{/* Delete story test */}}
+  {{- $testCreateTablePath := (print $ctx.To "/sqlitedao/simple/" $key "/delete_story_test.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $testCreateTablePath) -}}
+    {{- $ctx.Out.File $testCreateTablePath -}}
+      {{- template "sqlite.dao.delete_story_test" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{- /* Drop table */ -}}
+  {{- $dropTablePath := (print $ctx.To "/sqlitedao/simple/" $key "/droptable.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $dropTablePath) -}}
+    {{- $ctx.Out.File $dropTablePath -}}
+      {{- template "sqlite.dao.droptable" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{/* DropTable story test */}}
+  {{- $testDropTablePath := (print $ctx.To "/sqlitedao/simple/" $key "/droptable_story_test.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $testDropTablePath) -}}
+    {{- $ctx.Out.File $testDropTablePath -}}
+      {{- template "sqlite.dao.droptable_story_test" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{- /* Find all */ -}}
+  {{- $findAllPath := (print $ctx.To "/sqlitedao/simple/" $key "/findall.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $findAllPath) -}}
+    {{- $ctx.Out.File $findAllPath -}}
+      {{- template "sqlite.dao.findall" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{/* find all story test */}}
+  {{- $testFindAllPath := (print $ctx.To "/sqlitedao/simple/" $key "/findall_story_test.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $testFindAllPath) -}}
+    {{- $ctx.Out.File $testFindAllPath -}}
+      {{- template "sqlite.dao.findall_story_test" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{- /* Find by id */ -}}
+  {{- $findByIdPath := (print $ctx.To "/sqlitedao/simple/" $key "/findbyid.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $findByIdPath) -}}
+    {{- $ctx.Out.File $findByIdPath -}}
+      {{- template "sqlite.dao.findbyid" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{/* find by id story test */}}
+  {{- $testFindByIDPath := (print $ctx.To "/sqlitedao/simple/" $key "/findbyid_story_test.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $testFindByIDPath) -}}
+    {{- $ctx.Out.File $testFindByIDPath -}}
+      {{- template "sqlite.dao.findbyid_story_test" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{- /* Insert */ -}}
+  {{- $insertPath := (print $ctx.To "/sqlitedao/simple/" $key "/insert.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $insertPath) -}}
+    {{- $ctx.Out.File $insertPath -}}
+      {{- template "sqlite.dao.insert" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{/* insert story test */}}
+  {{- $testInsertPath := (print $ctx.To "/sqlitedao/simple/" $key "/insert_story_test.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $testInsertPath) -}}
+    {{- $ctx.Out.File $testInsertPath -}}
+      {{- template "sqlite.dao.insert_story_test" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{- /* Update */ -}}
+  {{- $updatePath := (print $ctx.To "/sqlitedao/simple/" $key "/update.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $updatePath) -}}
+    {{- $ctx.Out.File $updatePath -}}
+      {{- template "sqlite.dao.update" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{/* update story test */}}
+  {{- $testUpdatePath := (print $ctx.To "/sqlitedao/simple/" $key "/update_story_test.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $testUpdatePath) -}}
+    {{- $ctx.Out.File $testUpdatePath -}}
+      {{- template "sqlite.dao.update_story_test" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{- /* Module */ -}}
+  {{- $modulePath := (print $ctx.To "/sqlitedao/simple/" $key "/module.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $modulePath) -}}
+    {{- $ctx.Out.File $modulePath -}}
+      {{- template "sqlite.dao.module" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{- /* Module test */ -}}
+  {{- $testModulePath := (print $ctx.To "/sqlitedao/simple/" $key "/module_test.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $testModulePath) -}}
+    {{- $ctx.Out.File $testModulePath -}}
+      {{- template "sqlite.dao.module_test" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{/* Main test */}}
+  {{- $mainTestPath := (print $ctx.To "/sqlitedao/simple/" $key "/main_test.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $mainTestPath) -}}
+    {{- $ctx.Out.File $mainTestPath -}}
+      {{- template "sqlite.dao.main_test" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+{{- end -}}
+{{- end -}}

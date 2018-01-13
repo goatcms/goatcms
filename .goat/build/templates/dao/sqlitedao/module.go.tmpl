@@ -7,8 +7,8 @@ import (
 	"github.com/goatcms/goatcore/dependency"
 	database "{{index $ctx.Properties.Build "path"}}/sqlitedao/database"
 	{{- range $index, $key := (keys .Data "model.") }}
-	{{$key}} "{{index $ctx.Properties.Build "path"}}/sqlitedao/dao/{{$key}}"
-	{{$key}}q "{{index $ctx.Properties.Build "path"}}/sqlitedao/dao/{{$key}}/queries"
+	{{$key}} "{{index $ctx.Properties.Build "path"}}/sqlitedao/simple/{{$key}}"
+	{{$key}}q "{{index $ctx.Properties.Build "path"}}/sqlitedao/queries/{{$key}}"
 	{{- end -}}
 )
 

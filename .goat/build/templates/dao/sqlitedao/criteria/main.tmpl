@@ -1,0 +1,10 @@
+{{- define "sqlite.criteria.main" -}}
+  {{- $ctx := . -}}
+
+  {{- range $mi, $modelkey := (keys $ctx.Data "model.") -}}
+    {{- $modelName := (index $ctx.Data (print "model." $modelkey ".entity")) -}}
+
+
+
+  {{- end -}}
+{{- end -}}

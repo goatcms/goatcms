@@ -1,21 +1,22 @@
-{{define "sqlite.dao.delete" -}}
+{{define "sqlite.dao.findbyid" -}}
 {{- $ctx := . -}}
 {{- $name := (index $ctx.Data (print .From ".entity")) -}}
 {{- $entityName := (camelcaseuf $name) -}}
-{{- $typeName := (print $entityName "Delete") -}}
+{{- $typeName := (print $entityName "FindByID") -}}
 {{- $fieldsBaseKey := (print .From ".fields.") -}}
 
-package dao
+package simple
 
 import (
-	"fmt"
 	"strconv"
-	"database/sql"
 	"github.com/goatcms/goatcore/app"
+	"database/sql"
 	"github.com/goatcms/goatcore/dependency"
 	helpers "{{index $ctx.Properties.Build "path"}}/sqlitedao/helpers"
 	maindef "{{index $ctx.Properties.Build "path"}}"
+	entities "{{index $ctx.Properties.Build "entities_path"}}"
 )
+
 
 // {{$typeName}} is a Data Access Object for {{lower $name}} entity
 type {{$typeName}} struct {
@@ -37,34 +38,37 @@ func {{$typeName}}Factory(dp dependency.Provider) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	return maindef.Delete(instance), nil
+	return maindef.{{$entityName}}FindByID(instance), nil
 }
 
-func (dao {{$typeName}}) Delete(scope app.Scope, id int64) error {
+func (dao {{$typeName}}) Find(scope app.Scope, fields []string, id int64) (*entities.{{$entityName}}, error) {
 	var (
-		res   sql.Result
 		err   error
-		count int64
-		tx *sql.Tx
+		query string
+		tx    *sql.Tx
+		row   *{{$entityName}}Row
 	)
 	if tx, err = helpers.TX(scope, dao.deps.DB); err != nil {
-		return err
+		return nil, err
 	}
-	sql := dao.SQL(id)
-	if res, err = tx.Exec(sql); err != nil {
-		return fmt.Errorf("%s: %s", err.Error(), sql)
+	if query, err = dao.SQL(fields, id); err != nil {
+		return nil, err
 	}
-	if count, err = res.RowsAffected(); err != nil {
-		return fmt.Errorf("%s: %s", err.Error(), sql)
-	}
-	if count != 1 {
-		return fmt.Errorf("Delete more than one record (%v records deleted)", count)
-	}
-	return nil
+	row = New{{$entityName}}Row(tx.QueryRow(query), fields)
+	return row.Get()
 }
 
-func (dao {{$typeName}}) SQL(id int64) string {
-	return "DELETE FROM {{$entityName}} WHERE " + strconv.FormatInt(id, 10)
+func (dao {{$typeName}}) SQL(fields []string, id int64) (string, error) {
+	sql := "SELECT "
+	i := 0
+	for _, row := range fields {
+		if i > 0 {
+			sql += ", "
+		}
+		sql += row
+		i++
+	}
+	return sql + " FROM {{camelcaseuf $name}} WHERE id="+strconv.FormatInt(id, 10)+" LIMIT 1", nil
 }
 
 {{- end -}}

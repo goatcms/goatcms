@@ -8,7 +8,7 @@
 {{- $relationsBaseKey := (print .From ".relations.") -}}
 {{- $relations := (keys $ctx.Data $fieldsBaseKey) -}}
 
-package dao
+package simple
 
 import (
 	"database/sql"

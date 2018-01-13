@@ -1,0 +1,41 @@
+{{- define "model_criteria" -}}
+{{- $ctx := . -}}
+{{- $name := (index $ctx.Data (print .From ".entity")) -}}
+{{- $fieldsBaseKey := (print .From ".fields.") -}}
+{{- $fields := (keys .Data $fieldsBaseKey) -}}
+{{- $relationsBaseKey := (print .From ".relations.") -}}
+{{- $relations := (keys .Data $relationsBaseKey) -}}
+
+package {{index $ctx.Properties.Build "package"}}
+
+type {{camelcaseuf $name}}Criteria struct {
+  Fields []string
+  Where struct {
+    {{- range $index, $fieldID := $fields -}}
+      {{- $key := (print $fieldsBaseKey $fieldID) -}}
+      {{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
+      {{- $fieldType := (lower (index $ctx.Data (print $key ".type"))) -}}
+			{{- if eq  $fieldType "text" "string" "email" "password" "lang" }}
+			  {{camelcaseuf $fieldName}} *StringFieldCriteria
+			{{- else if eq $fieldType "int" }}
+			  {{camelcaseuf $fieldName}} *Int64Int64FieldCriteria
+			{{- else -}}
+			  {{- error (print "bad type" .) -}}
+			{{- end -}}
+    {{- end }}
+  }
+	Related struct {
+		{{- range $index, $relationID := $relations -}}
+			{{- $key := (print $relationsBaseKey $relationID) -}}
+			{{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
+			{{- $relatedModel := (camelcaseuf (index $ctx.Data (print $key ".model"))) }}
+			{{$fieldName}} *{{$relatedModel}}Criteria
+		{{- end }}
+	}
+}
+
+type {{camelcaseuf $name}}CriteriaSearch interface {
+  Find(criteria *{{camelcaseuf $name}}Criteria, page Pagger) (rows {{camelcaseuf $name}}Rows, err error)
+}
+
+{{- end -}}

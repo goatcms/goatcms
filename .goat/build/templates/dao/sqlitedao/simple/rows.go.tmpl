@@ -1,4 +1,4 @@
-{{define "sqlite.dao.row" -}}
+{{define "sqlite.dao.rows" -}}
 {{- $ctx := . -}}
 {{- $name := (index $ctx.Data (print .From ".entity")) -}}
 {{- $entityName := (camelcaseuf $name) -}}
@@ -7,7 +7,7 @@
 {{- $relationsBaseKey := (print .From ".relations.") -}}
 {{- $relations := (keys .Data $relationsBaseKey) -}}
 
-package dao
+package simple
 
 import (
 	"fmt"
@@ -15,26 +15,24 @@ import (
 	entities "{{index $ctx.Properties.Build "entities_path"}}"
 )
 
-// {{$entityName}}Row is the result of a query. Its cursor starts before the first row of the result set. Use Next to advance through the row
-type {{$entityName}}Row struct {
-	*sql.Row
-	columns []string
+// {{$entityName}}Rows is the result of a query. Its cursor starts before the first row of the result set. Use Next to advance through the rows
+type {{$entityName}}Rows struct {
+	*sql.Rows
 }
 
-func New{{$entityName}}Row(row *sql.Row, columns []string) *{{$entityName}}Row {
-	return &{{$entityName}}Row{
-		Row: row,
-		columns: columns,
+func New{{$entityName}}Rows(rows *sql.Rows) *{{$entityName}}Rows {
+	return &{{$entityName}}Rows{
+		Rows: rows,
 	}
 }
 
-func (row *{{$entityName}}Row) Columns() (values []string, err error) {
-	return row.columns, nil
-}
-
-func (row *{{$entityName}}Row) InjectTo(dest *entities.{{$entityName}}) (err error) {
-	values := make([]interface{}, len(row.columns))
-	for i, name := range row.columns {
+func (rows *{{$entityName}}Rows) InjectTo(dest *entities.{{$entityName}}) (err error) {
+	var columns []string
+	if columns, err = rows.Rows.Columns(); err != nil {
+		return err
+	}
+	values := make([]interface{}, len(columns))
+	for i, name := range columns {
 		switch(name) {
 			case "ID":
 				values[i] = &dest.ID
@@ -52,26 +50,26 @@ func (row *{{$entityName}}Row) InjectTo(dest *entities.{{$entityName}}) (err err
 					values[i] = &dest.{{$fieldName}}ID
 			{{- end }}
 			default:
-				return fmt.Errorf("{{$entityName}}Row.InjectTo unknow field %v", name)
+				return fmt.Errorf("{{$entityName}}Rows.InjectTo unknow field %v", name)
 		}
 	}
-	if err = row.Row.Scan(values...); err != nil {
+	if err = rows.Rows.Scan(values...); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (row *{{$entityName}}Row) Get() (entity *entities.{{$entityName}}, err error) {
+func (rows *{{$entityName}}Rows) Get() (entity *entities.{{$entityName}}, err error) {
 	entity = &entities.{{$entityName}}{}
-	if err = row.InjectTo(entity); err != nil {
+	if err = rows.InjectTo(entity); err != nil {
 		return nil, err
 	}
 	return entity, nil
 }
 
-func (row *{{$entityName}}Row) GetValues() (values []interface{}, err error) {
+func (rows *{{$entityName}}Rows) GetValues() (values []interface{}, err error) {
 	var columns []string
-	if columns, err = row.Columns(); err != nil {
+	if columns, err = rows.Columns(); err != nil {
 		return nil, err
 	}
 	values = make([]interface{}, len(columns))
@@ -79,7 +77,7 @@ func (row *{{$entityName}}Row) GetValues() (values []interface{}, err error) {
 		var reference interface{}
 		values[i] = &reference
 	}
-	if err = row.Row.Scan(values...); err != nil {
+	if err = rows.Rows.Scan(values...); err != nil {
 		return nil, err
 	}
 	return values, nil

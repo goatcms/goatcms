@@ -1,22 +1,21 @@
-{{define "sqlite.dao.findbyid" -}}
+{{define "sqlite.dao.delete" -}}
 {{- $ctx := . -}}
 {{- $name := (index $ctx.Data (print .From ".entity")) -}}
 {{- $entityName := (camelcaseuf $name) -}}
-{{- $typeName := (print $entityName "FindByID") -}}
+{{- $typeName := (print $entityName "Delete") -}}
 {{- $fieldsBaseKey := (print .From ".fields.") -}}
 
-package dao
+package simple
 
 import (
+	"fmt"
 	"strconv"
-	"github.com/goatcms/goatcore/app"
 	"database/sql"
+	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/dependency"
 	helpers "{{index $ctx.Properties.Build "path"}}/sqlitedao/helpers"
 	maindef "{{index $ctx.Properties.Build "path"}}"
-	entities "{{index $ctx.Properties.Build "entities_path"}}"
 )
-
 
 // {{$typeName}} is a Data Access Object for {{lower $name}} entity
 type {{$typeName}} struct {
@@ -38,37 +37,34 @@ func {{$typeName}}Factory(dp dependency.Provider) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	return maindef.{{$entityName}}FindByID(instance), nil
+	return maindef.Delete(instance), nil
 }
 
-func (dao {{$typeName}}) Find(scope app.Scope, fields []string, id int64) (*entities.{{$entityName}}, error) {
+func (dao {{$typeName}}) Delete(scope app.Scope, id int64) error {
 	var (
+		res   sql.Result
 		err   error
-		query string
-		tx    *sql.Tx
-		row   *{{$entityName}}Row
+		count int64
+		tx *sql.Tx
 	)
 	if tx, err = helpers.TX(scope, dao.deps.DB); err != nil {
-		return nil, err
+		return err
 	}
-	if query, err = dao.SQL(fields, id); err != nil {
-		return nil, err
+	sql := dao.SQL(id)
+	if res, err = tx.Exec(sql); err != nil {
+		return fmt.Errorf("%s: %s", err.Error(), sql)
 	}
-	row = New{{$entityName}}Row(tx.QueryRow(query), fields)
-	return row.Get()
+	if count, err = res.RowsAffected(); err != nil {
+		return fmt.Errorf("%s: %s", err.Error(), sql)
+	}
+	if count != 1 {
+		return fmt.Errorf("Delete more than one record (%v records deleted)", count)
+	}
+	return nil
 }
 
-func (dao {{$typeName}}) SQL(fields []string, id int64) (string, error) {
-	sql := "SELECT "
-	i := 0
-	for _, row := range fields {
-		if i > 0 {
-			sql += ", "
-		}
-		sql += row
-		i++
-	}
-	return sql + " FROM {{camelcaseuf $name}} WHERE id="+strconv.FormatInt(id, 10)+" LIMIT 1", nil
+func (dao {{$typeName}}) SQL(id int64) string {
+	return "DELETE FROM {{$entityName}} WHERE " + strconv.FormatInt(id, 10)
 }
 
 {{- end -}}

@@ -1,4 +1,4 @@
-{{define "sqlite.dao.query.body" -}}
+{{define "sqlite.queries.body" -}}
 {{- $ctx := . -}}
 {{- $queryNameUF := (camelcaseuf (index $ctx.Data (print .From ".name"))) -}}
 {{- $modelName   := (index $ctx.Data (print .From ".model")) -}}
@@ -17,7 +17,7 @@ import (
 	"database/sql"
 	"github.com/goatcms/goatcore/dependency"
 	helpers "{{index $ctx.Properties.Build "path"}}/sqlitedao/helpers"
-	dao "{{index $ctx.Properties.Build "path"}}/sqlitedao/dao/{{lower $modelName}}"
+	simple "{{index $ctx.Properties.Build "path"}}/sqlitedao/simple/{{lower $modelName}}"
 	maindef "{{index $ctx.Properties.Build "path"}}"
 	entities "{{index $ctx.Properties.Build "entities_path"}}"
 )
@@ -68,7 +68,7 @@ func (query {{$typeName}}) {{$queryNameUF}}(scope app.Scope, fields []string, pa
 	}
 	sqlq = query.SQL(fields, params)
 	{{ if eq $isSingleResult "y" -}}
-		row = dao.New{{$modelNameUF}}Row(tx.QueryRow(sqlq), fields)
+		row = simple.New{{$modelNameUF}}Row(tx.QueryRow(sqlq), fields)
 		if entity, err = row.Get(); err != nil {
 			return nil, fmt.Errorf("%v: %v", err, sqlq)
 		}
@@ -77,7 +77,7 @@ func (query {{$typeName}}) {{$queryNameUF}}(scope app.Scope, fields []string, pa
 		if rows, err = tx.Query(sqlq); err != nil {
 			return nil, fmt.Errorf("%s: %s", err.Error(), sql)
 		}
-		return dao.{{$modelNameUF}}Rows(rows), nil
+		return simple.{{$modelNameUF}}Rows(rows), nil
 	{{- end }}
 }
 

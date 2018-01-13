@@ -1,10 +1,11 @@
-{{define "sqlite.dao.findall_story_test" -}}
+{{- define "sqlite.dao.search_story_test" -}}
 {{- $ctx := . -}}
 {{- $name := (index $ctx.Data (print .From ".entity")) -}}
 {{- $entityName := (camelcaseuf $name) -}}
 {{- $fieldsBaseKey := (print .From ".fields.") -}}
+{{- $fields := (keys .Data $fieldsBaseKey) -}}
 
-package dao
+package simple
 
 import (
 	"testing"
@@ -16,31 +17,36 @@ import (
 )
 
 
-func TestFindAllStory(t *testing.T) {
+func TestSearchStory(t *testing.T) {
 	t.Parallel()
-	doFindAllStory(t)
+	doSearchStory(t)
 }
 
-func doFindAllStory(t *testing.T) (bool, *sql.DB) {
+func doSearchStory(t *testing.T) (bool, *sql.DB) {
 	var (
-		rows     maindef.{{$entityName}}Rows
-		ok       bool
-		db       *sql.DB
-		err      error
+		rows           maindef.{{$entityName}}Rows
+		ok             bool
+		db             *sql.DB
+		err            error
+		expectedEntity *entities.{{$entityName}}
 	)
-	if ok, db, _ = doInsertWithoutIDStory(t); !ok {
+	if ok, db, expectedEntity = doInsertWithoutIDStory(t); !ok {
 		return false, nil
 	}
 	s := scope.NewScope("tag")
-	finder := {{$entityName}}FindAll{}
-	finder.deps.DB = db
-	if rows, err = finder.Find(s, entities.{{$entityName}}AllFields); err != nil {
+	searcher := {{$entityName}}Search{}
+	searcher.deps.DB = db
+	if rows, err = searcher.Search(s, entities.{{$entityName}}AllFields, &maindef.{{$entityName}}SearchParams{
+	{{- range $index, $field := $fields -}}
+		{{- $fieldName := (camelcaseuf (index $ctx.Data (print $fieldsBaseKey $field ".name"))) }}
+		{{$fieldName}}: *expectedEntity.{{$fieldName}},
+	{{- end }}
+	}); err != nil {
 		t.Error(err)
 		return false, db
 	}
 	// iterate over each row
 	count := 0
-	expectedEntity := NewMockEntity1()
 	for rows.Next() {
 		var e *entities.{{$entityName}}
 		count++
@@ -48,7 +54,7 @@ func doFindAllStory(t *testing.T) (bool, *sql.DB) {
 			t.Error(err)
 			return false, db
 		}
-		{{- range $index, $field := (keys .Data $fieldsBaseKey) -}}
+		{{- range $index, $field := $fields -}}
 		  {{- $key := (print $fieldsBaseKey $field) -}}
 		  {{- $fieldName := (index $ctx.Data (print $key ".name")) -}}
 			{{- print "\n" -}}
