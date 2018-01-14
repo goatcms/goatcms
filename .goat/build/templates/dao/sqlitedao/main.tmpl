@@ -5,6 +5,7 @@
 {{- template "sqlite.helpers.main" $ctx -}}
 {{- template "sqlite.queries.main" $ctx -}}
 {{- template "sqlite.simple.main" $ctx -}}
+{{- template "sqlite.criteria.main" $ctx -}}
 
 {{- /* Module */ -}}
 {{- $modulePath := (print $ctx.To "/sqlitedao/module.go") -}}

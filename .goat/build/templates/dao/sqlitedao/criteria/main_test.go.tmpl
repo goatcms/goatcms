@@ -1,0 +1,92 @@
+{{define "sqlite.criteria.main_test_go" -}}
+{{- $ctx := . -}}
+{{- $models := (keys .Data "model.") -}}
+
+package criteria
+
+import (
+	"bytes"
+	"strings"
+	"database/sql"
+
+  database "{{index $ctx.Properties.Build "path"}}/sqlitedao/database"
+	maindef "{{index $ctx.Properties.Build "path"}}"
+	"github.com/goatcms/goatcore/app"
+	"github.com/goatcms/goatcore/app/gio"
+	"github.com/goatcms/goatcore/app/mockupapp"
+	"github.com/goatcms/goatcore/app/scope"
+	{{- range $index, $modelID := $models }}
+	{{lower $modelID}}simple "{{index $ctx.Properties.Build "path"}}/sqlitedao/simple/{{$modelID}}"
+	{{- end -}}
+)
+
+func NewMockApp() (mapp app.App, err error) {
+	// prepare mockup application
+	configScope := scope.NewScope(app.ConfigTagName)
+	configScope.Set("database.url", ":memory:")
+	if mapp, err = mockupapp.NewApp(mockupapp.MockupOptions{
+		Input:       gio.NewInput(strings.NewReader("")),
+		Output:      gio.NewOutput(new(bytes.Buffer)),
+		ConfigScope: configScope,
+	}); err != nil {
+		return nil, err
+	}
+	dp := mapp.DependencyProvider()
+	if err = RegisterDependencies(dp); err != nil {
+		return nil, err
+	}
+	if err := dp.AddDefaultFactory("db0.engine", database.EngineFactory); err != nil {
+		return nil, err
+	}
+	if err := dp.AddDefaultFactory("db0", database.Factory); err != nil {
+		return nil, err
+	}
+	{{- range $index, $modelID := $models }}
+	if err = {{lower $modelID}}simple.RegisterDependencies(dp); err != nil {
+		return nil, err
+	}
+	{{- end -}}
+	// create tables
+	var deps struct {
+		DB *sql.DB `dependency:"db0.engine"`
+		{{- range $index, $modelID := $models }}
+		{{- $entityName := (camelcaseuf (index $ctx.Data (print "model." $modelID ".entity"))) }}
+		{{$entityName}}CreateTable maindef.CreateTable           `dependency:"{{$entityName}}CreateTable"`
+		{{$entityName}}Insert      maindef.{{$entityName}}Insert `dependency:"{{$entityName}}Insert"`
+		{{- end }}
+	}
+	if err = mapp.DependencyProvider().InjectTo(&deps); err != nil {
+		return nil, err
+	}
+	{{- range $index, $modelID := $models }}
+	{{- $entityName := (camelcaseuf (index $ctx.Data (print "model." $modelID ".entity"))) }}
+	if err = deps.{{$entityName}}CreateTable.CreateTable(mapp.AppScope()); err != nil {
+		return nil, err
+	}
+	{{- end }}
+	{{- range $index, $modelID := $models }}
+	{{- $entityName := (camelcaseuf (index $ctx.Data (print "model." $modelID ".entity"))) }}
+	if err = deps.{{$entityName}}CreateTable.AlterTable(mapp.AppScope()); err != nil {
+		return nil, err
+	}
+	{{- end }}
+
+	// insert mock data
+	{{- range $index, $modelID := $models }}
+	{{- $entityName := (camelcaseuf (index $ctx.Data (print "model." $modelID ".entity"))) }}
+
+	// insert {{lower $entityName}}
+	{{lower $entityName}}ID := int64(1)
+	{{lower $entityName}} := Mock{{$entityName}}Entity1()
+	{{lower $entityName}}.ID = &{{lower $entityName}}ID
+	if _, err = deps.{{$entityName}}Insert.Insert(mapp.AppScope(), {{lower $entityName}}); err != nil {
+		return nil, err
+	}
+	{{- end }}
+	if err = mapp.AppScope().Trigger(app.CommitEvent, nil); err != nil {
+		return nil, err
+	}
+	return mapp, nil
+}
+
+{{- end -}}

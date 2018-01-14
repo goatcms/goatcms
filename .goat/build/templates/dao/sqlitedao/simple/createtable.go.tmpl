@@ -50,15 +50,24 @@ func (dao {{$typeName}}) CreateTable(scope app.Scope) (err error) {
 	return err
 }
 
+func (dao {{$typeName}}) AlterTable(scope app.Scope) (err error) {
+	var tx *sql.Tx
+	if tx, err = helpers.TX(scope, dao.deps.DB); err != nil {
+		return err
+	}
+	_, err = tx.Exec(dao.AlterSQL())
+	return err
+}
+
 func (dao {{$typeName}}) SQL() string {
-  return `CREATE TABLE IF NOT EXISTS {{camelcaseuf $name}} (ID INTEGER PRIMARY KEY
+  return `CREATE TABLE IF NOT EXISTS {{camelcaseuf $name}} ({{"\n"}}ID INTEGER PRIMARY KEY
 	{{- range $index, $field := $fields -}}
     {{- $key := (print $fieldsBaseKey $field) -}}
     {{- $fieldName := (index $ctx.Data (print $key ".name")) -}}
     {{- $fieldType := (index $ctx.Data (print $key ".type")) -}}
     {{- $unique := (lower (index $ctx.Data (print $key ".unique"))) -}}
     {{- $required := (lower (index $ctx.Data (print $key ".required"))) -}}
-    , {{camelcaseuf $fieldName}} {{template "sqlite.sqltype" $fieldType}}
+    ,{{"\n"}} {{camelcaseuf $fieldName}} {{template "sqlite.sqltype" $fieldType}}
 		{{- if eq $unique "y" }} UNIQUE {{- end -}}
 		{{- if eq $required "y" }} NOT NULL {{- end -}}
   {{- end -}}
@@ -67,23 +76,23 @@ func (dao {{$typeName}}) SQL() string {
     {{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
     {{- $unique := (lower (index $ctx.Data (print $key ".unique"))) -}}
     {{- $required := (lower (index $ctx.Data (print $key ".required"))) -}}
-    , {{$fieldName}}ID {{template "sqlite.sqltype" "int"}}
+    , {{"\n"}} {{$fieldName}}ID {{template "sqlite.sqltype" "int"}}
 		{{- if eq $unique "y" }} UNIQUE {{- end -}}
 		{{- if eq $required "y" }} NOT NULL {{- end -}}
-  {{- end -}});`
+  {{- end -}}
+	{{- range $i, $relation := $relations -}}
+		{{- $key := (print $relationsBaseKey $relation) -}}
+		{{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
+		{{- $foreignModel := (camelcaseuf (index $ctx.Data (print $key ".model"))) -}}
+		{{- $isCascaDedelete := (index $ctx.Data (print $key ".cascadedelete")) -}}
+		,{{"\n"}} FOREIGN KEY ({{$fieldName}}ID) REFERENCES {{$foreignModel}}(ID)
+		{{- if eq $isCascaDedelete "y" -}} ON DELETE CASCADE {{- end -}}
+	{{- end -}}
+	);`
 }
 
 func (dao {{$typeName}}) AlterSQL() string {
-  return `{{- range $i, $relation := $relations -}}
-    {{- $key := (print $relationsBaseKey $relation) -}}
-    {{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
-    {{- $foreignModel := (camelcaseuf (index $ctx.Data (print $key ".model"))) -}}
-    {{- $isCascaDedelete := (index $ctx.Data (print $key ".cascadedelete")) }}
-		ALTER TABLE {{$entityName}} ADD CONSTRAINT fk_{{lower $entityName}}_{{lower $fieldName}}
-			FOREIGN KEY ({{$fieldName}}ID)
-			REFERENCES {{$foreignModel}}(ID)
-			{{ if eq $isCascaDedelete "y" -}} ON DELETE CASCADE {{- end -}};
-  {{- end -}}`
+  return ``
 }
 
 {{- end -}}

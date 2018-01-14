@@ -1,7 +1,7 @@
-{{- define "sqlite.module_test" -}}
+{{- define "sqlite.criteria.module_test_go" -}}
 {{- $ctx := . -}}
 
-package sqlitedao
+package criteria
 
 import (
 	"bytes"
@@ -9,6 +9,7 @@ import (
 	"testing"
 	"database/sql"
 
+	database "{{index $ctx.Properties.Build "path"}}/sqlitedao/database"
 	maindef "{{index $ctx.Properties.Build "path"}}"
 	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/app/gio"
@@ -33,7 +34,16 @@ func TestModule(t *testing.T) {
 		t.Error(err)
 		return
 	}
-	if err = RegisterDependencies(mapp.DependencyProvider()); err != nil {
+	dp := mapp.DependencyProvider()
+	if err := dp.AddDefaultFactory("db0.engine", database.EngineFactory); err != nil {
+		t.Error(err)
+		return
+	}
+	if err := dp.AddDefaultFactory("db0", database.Factory); err != nil {
+		t.Error(err)
+		return
+	}
+	if err = RegisterDependencies(dp); err != nil {
 		t.Error(err)
 		return
 	}
@@ -42,13 +52,6 @@ func TestModule(t *testing.T) {
 		DB *sql.DB `dependency:"db0.engine"`
 		{{- range $index, $key := (keys .Data "model.") }}
 		{{- $entityName := (camelcaseuf (index $ctx.Data (print "model." $key ".entity"))) }}
-		{{$entityName}}CreateTable maindef.CreateTable `dependency:"{{$entityName}}CreateTable"`
-		{{$entityName}}Delete maindef.Delete `dependency:"{{$entityName}}Delete"`
-		{{$entityName}}DropTable maindef.DropTable `dependency:"{{$entityName}}DropTable"`
-		{{$entityName}}FindAll maindef.{{$entityName}}FindAll `dependency:"{{$entityName}}FindAll"`
-		{{$entityName}}FindByID maindef.{{$entityName}}FindByID `dependency:"{{$entityName}}FindByID"`
-		{{$entityName}}Insert maindef.{{$entityName}}Insert `dependency:"{{$entityName}}Insert"`
-		{{$entityName}}Update maindef.{{$entityName}}Update `dependency:"{{$entityName}}Update"`
 		{{$entityName}}CriteriaSearch maindef.{{$entityName}}CriteriaSearch `dependency:"{{$entityName}}CriteriaSearch"`
 		{{- end -}}
 	}

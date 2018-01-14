@@ -1,0 +1,93 @@
+{{define "sqlite.criteria.model_search_test_go" -}}
+{{- $ctx := . -}}
+{{- $name := (index $ctx.Data (print .From ".entity")) -}}
+{{- $entityName := (camelcaseuf $name) -}}
+{{- $typeName := (print $entityName "CreateTable") -}}
+{{- $fieldsBaseKey := (print .From ".fields.") -}}
+{{- $fields := (keys .Data $fieldsBaseKey) -}}
+{{- $relationsBaseKey := (print .From ".relations.") -}}
+{{- $relations := (keys .Data $relationsBaseKey) -}}
+
+package criteria
+
+import (
+	"testing"
+
+	"github.com/goatcms/goatcore/app"
+	entities "{{index $ctx.Properties.Build "entities_path"}}"
+	maindef  "{{index $ctx.Properties.Build "path"}}"
+)
+
+func Test{{$entityName}}Criteria(t *testing.T) {
+	var (
+		err error
+		mapp app.App
+		deps struct {
+			CriteriaSearch maindef.{{$entityName}}CriteriaSearch `dependency:"{{$entityName}}CriteriaSearch"`
+		}
+		rows           maindef.{{$entityName}}Rows
+		criteria       *maindef.{{$entityName}}Criteria
+		entity         *entities.{{$entityName}}
+		expectedEntity *entities.{{$entityName}}
+	)
+	t.Parallel()
+	if mapp, err = NewMockApp(); err != nil {
+		t.Error(err)
+		return
+	}
+	if err = mapp.DependencyProvider().InjectTo(&deps); err != nil {
+		t.Error(err)
+		return
+	}
+	expectedEntity = Mock{{$entityName}}Entity1()
+	criteria = Mock{{$entityName}}Criteria(expectedEntity)
+	if rows, err = deps.CriteriaSearch.Find(mapp.AppScope(), criteria, &maindef.Pager{
+		Offset: 0,
+		Limit:  100,
+	}); err != nil {
+		t.Error(err)
+		return
+	}
+	// iterate over each row
+	count := 0
+	for rows.Next() {
+		count++
+		if entity, err = rows.Get(); err != nil {
+			t.Error(err)
+			return
+		}
+		{{- range $index, $fieldID := $fields -}}
+		  {{- $key := (print $fieldsBaseKey $fieldID) -}}
+		  {{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) }}
+			if *expectedEntity.{{$fieldName}} != *entity.{{$fieldName}} {
+				t.Errorf("Returned field should contains inserted entity value for {{camelcaseuf $fieldName}} field and it is %v (expeted %v)", entity.{{$fieldName}}, expectedEntity.{{$fieldName}})
+				return
+			}
+		{{- end -}}
+		{{- range $index, $relationID := $relations -}}
+		  {{- $key := (print $relationsBaseKey $relationID) -}}
+		  {{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) }}
+		  {{- $relatedModel := (camelcaseuf (index $ctx.Data (print $key ".model"))) }}
+			if *entity.{{$fieldName}}ID != *expectedEntity.{{$fieldName}}ID {
+				t.Errorf("Returned field should contains related entity ID in {{$fieldName}} field and it is %v (expeted %v)", entity.{{$fieldName}}ID, expectedEntity.{{$fieldName}}ID)
+				return
+			}
+			if entity.{{$fieldName}} == nil {
+				t.Errorf("The {{$fieldName}} field is nil (should contains loaded entity)")
+				return
+			}
+			if *entity.{{$fieldName}}.ID != *expectedEntity.{{$fieldName}}ID {
+				t.Errorf("Entity should contains related entity (in {{$fieldName}} field) and the field is %v (expeted entity with id %v)", entity.{{$fieldName}}, expectedEntity.{{$fieldName}}ID)
+				return
+			}
+		{{- end -}}
+	}
+	if count != 1 {
+		t.Errorf("{{$entityName}}CriteriaSearch should return one result and it return %v results", count)
+		return
+	}
+
+}
+
+
+{{- end -}}

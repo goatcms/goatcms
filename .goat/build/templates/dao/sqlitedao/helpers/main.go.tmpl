@@ -6,6 +6,7 @@ package helpers
 import (
 	"database/sql"
 	"strconv"
+	"strings"
 	"github.com/goatcms/goatcore/app"
 )
 
@@ -21,6 +22,9 @@ func TX(scope app.Scope, db *sql.DB) (tx *sql.Tx, err error) {
 		tx, err = db.Begin()
     if err != nil {
       return nil, err
+    }
+    if _, err = tx.Exec("PRAGMA foreign_keys = ON", nil); err != nil {
+        return nil, err
     }
 		scope.Set(TXKey, tx)
 		// add commit event callback
@@ -75,11 +79,27 @@ func Quote(s *string) string {
   return strconv.Quote(*s)
 }
 
+func QuoteArray(s []string, sep string) string {
+	quoted := make([]string, len(s))
+	for i, value := range s {
+		quoted[i] = strconv.Quote(value)
+	}
+	return strings.Join(quoted, sep)
+}
+
 func FormatInt(i *int64, base int) string {
 	if i == nil {
 		return "null"
 	}
-  return strconv.FormatInt(*i, base)
+	return strconv.FormatInt(*i, base)
+}
+
+func FormatIntArray(arr []int64, base int, sep string) string {
+	quoted := make([]string, len(arr))
+	for i, value := range arr {
+		quoted[i] = strconv.FormatInt(value, base)
+	}
+	return strings.Join(quoted, sep)
 }
 
 

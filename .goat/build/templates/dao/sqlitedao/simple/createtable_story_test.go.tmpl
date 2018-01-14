@@ -37,6 +37,10 @@ func doCreateTable(t *testing.T) (bool, *sql.DB) {
 		t.Error(err)
 		return false, db
 	}
+	if err := createTable.AlterTable(s); err != nil {
+		t.Error(err)
+		return false, db
+	}
 	if _, err = helpers.Commit(s); err != nil {
 		t.Error(err)
 		return false, db

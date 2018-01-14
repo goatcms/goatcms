@@ -6,6 +6,7 @@ package sqlitedao
 import (
 	"github.com/goatcms/goatcore/dependency"
 	database "{{index $ctx.Properties.Build "path"}}/sqlitedao/database"
+	criteria "{{index $ctx.Properties.Build "path"}}/sqlitedao/criteria"
 	{{- range $index, $key := (keys .Data "model.") }}
 	{{$key}} "{{index $ctx.Properties.Build "path"}}/sqlitedao/simple/{{$key}}"
 	{{$key}}q "{{index $ctx.Properties.Build "path"}}/sqlitedao/queries/{{$key}}"
@@ -27,6 +28,9 @@ func RegisterDependencies(dp dependency.Provider) error {
 		return err
 	}
 	{{- end }}
+	if err := criteria.RegisterDependencies(dp); err != nil {
+		return err
+	}
 	return nil
 }
 

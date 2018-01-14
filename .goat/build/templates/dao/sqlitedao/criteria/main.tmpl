@@ -1,10 +1,81 @@
 {{- define "sqlite.criteria.main" -}}
-  {{- $ctx := . -}}
+{{- $ctx := . -}}
 
-  {{- range $mi, $modelkey := (keys $ctx.Data "model.") -}}
-    {{- $modelName := (index $ctx.Data (print "model." $modelkey ".entity")) -}}
+{{- /* query */ -}}
+{{- $path := (print $ctx.To "/sqlitedao/criteria/query.go") -}}
+{{- if not ($ctx.Filesystem.IsFile $path) -}}
+  {{- $ctx.Out.File $path -}}
+    {{- template "sqlite.criteria.query_go" $ctx -}}
+  {{- $ctx.Out.EOF -}}
+{{- end -}}
 
+{{- /* module */ -}}
+{{- $path := (print $ctx.To "/sqlitedao/criteria/module.go") -}}
+{{- if not ($ctx.Filesystem.IsFile $path) -}}
+  {{- $ctx.Out.File $path -}}
+    {{- template "sqlite.criteria.module_go" $ctx -}}
+  {{- $ctx.Out.EOF -}}
+{{- end -}}
 
+{{- /* module - test */ -}}
+{{- $path := (print $ctx.To "/sqlitedao/criteria/module_test.go") -}}
+{{- if not ($ctx.Filesystem.IsFile $path) -}}
+  {{- $ctx.Out.File $path -}}
+    {{- template "sqlite.criteria.module_test_go" $ctx -}}
+  {{- $ctx.Out.EOF -}}
+{{- end -}}
 
+{{- /* main - test */ -}}
+{{- $path := (print $ctx.To "/sqlitedao/criteria/main_test.go") -}}
+{{- if not ($ctx.Filesystem.IsFile $path) -}}
+  {{- $ctx.Out.File $path -}}
+    {{- template "sqlite.criteria.main_test_go" $ctx -}}
+  {{- $ctx.Out.EOF -}}
+{{- end -}}
+
+{{- /* mocks - test */ -}}
+{{- $path := (print $ctx.To "/sqlitedao/criteria/mocks_test.go") -}}
+{{- if not ($ctx.Filesystem.IsFile $path) -}}
+  {{- $ctx.Out.File $path -}}
+    {{- template "sqlite.criteria.mocks_test_go" $ctx -}}
+  {{- $ctx.Out.EOF -}}
+{{- end -}}
+
+{{- range $mi, $modelID := (keys $ctx.Data "model.") -}}
+  {{- $modelName := (lower (index $ctx.Data (print "model." $modelID ".entity"))) -}}
+
+  {{- /* model - main */ -}}
+  {{- $path := (print $ctx.To "/sqlitedao/criteria/" $modelName "_main.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $path) -}}
+    {{- $ctx.Out.File $path -}}
+      {{- template "sqlite.criteria.model_main_go" (ctx $ctx (print "model." $modelID) "") -}}
+    {{- $ctx.Out.EOF -}}
   {{- end -}}
+
+  {{- /* model - rows  */ -}}
+  {{- $path := (print $ctx.To "/sqlitedao/criteria/" $modelName "_rows.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $path) -}}
+    {{- $ctx.Out.File $path -}}
+      {{- template "sqlite.criteria.model_rows_go" (ctx $ctx (print "model." $modelID) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{- /* model - search  */ -}}
+  {{- $path := (print $ctx.To "/sqlitedao/criteria/" $modelName "_search.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $path) -}}
+    {{- $ctx.Out.File $path -}}
+      {{- template "sqlite.criteria.model_search_go" (ctx $ctx (print "model." $modelID) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{- /* model - test  */ -}}
+  {{- $path := (print $ctx.To "/sqlitedao/criteria/" $modelName "_search_test.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $path) -}}
+    {{- $ctx.Out.File $path -}}
+      {{- template "sqlite.criteria.model_search_test_go" (ctx $ctx (print "model." $modelID) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+{{- end -}}
+
 {{- end -}}

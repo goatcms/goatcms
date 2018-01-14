@@ -15,11 +15,20 @@ package {{index $ctx.Properties.Build "package"}}
 // {{camelcaseuf $name}}AllFields is a array contains list of all {{camelcaseuf $name}} fields (except ID)
 var {{camelcaseuf $name}}AllFields = {{template "fields_array_helper" (dict "Fields" $fields "Relations" $relations "Context" $ctx)}}
 
+// {{camelcaseuf $name}}AllFieldsAndID is a array contains list of all {{camelcaseuf $name}} fields (with ID)
+var {{camelcaseuf $name}}AllFieldsAndID = append({{camelcaseuf $name}}AllFields, "ID")
+
 // {{camelcaseuf $name}}MainFields is a array contains list of main {{camelcaseuf $name}} fields (except ID)
 var {{camelcaseuf $name}}MainFields = {{template "fields_array_helper" (dict "Fields" $mainFields "Relations" $mainRelations "Context" $ctx)}}
 
+// {{camelcaseuf $name}}MainFieldsAndID is a array contains list of main {{camelcaseuf $name}} fields (with ID)
+var {{camelcaseuf $name}}MainFieldsAndID = append({{camelcaseuf $name}}MainFields, "ID")
+
 // {{camelcaseuf $name}}SystemFields is a array contains list of system {{camelcaseuf $name}} fields (except ID)
 var {{camelcaseuf $name}}SystemFields = {{template "fields_array_helper" (dict "Fields" $systemFields "Relations" $systemRelations "Context" $ctx)}}
+
+// {{camelcaseuf $name}}SystemFieldsAndID is a array contains list of system {{camelcaseuf $name}} fields (with ID)
+var {{camelcaseuf $name}}SystemFieldsAndID = append({{camelcaseuf $name}}SystemFields, "ID")
 
 // {{camelcaseuf $name}} storages {{lower $name}} data
 type {{camelcaseuf $name}} struct {

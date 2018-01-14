@@ -35,8 +35,8 @@ type Int64FieldCriteria struct {
 	Type  int
 }
 
-// Pagger represent position and size of query page
-type Pagger struct {
+// Pager represent position and size of query page
+type Pager struct {
 	Limit  int64
 	Offset int64
 }
@@ -53,6 +53,7 @@ type Database interface {
 type CreateTable interface {
 	CreateTable(scope app.Scope) error
 	SQL() string
+	AlterTable(scope app.Scope) error
 	AlterSQL() string
 }
 
