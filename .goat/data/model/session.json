@@ -9,6 +9,13 @@
           "system": "n",
           "type": "string",
           "unique": "y"
+        },
+        "1": {
+          "name": "expires",
+          "required": "y",
+          "system": "n",
+          "type": "int",
+          "unique": "n"
         }
       },
       "relations": {

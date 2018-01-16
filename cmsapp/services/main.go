@@ -4,6 +4,7 @@ import (
 	"html/template"
 	"net/http"
 
+	"github.com/goatcms/goatcms/cmsapp/entities"
 	"github.com/goatcms/goatcms/cmsapp/forms"
 	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/db"
@@ -60,16 +61,15 @@ type Router interface {
 	AddFactory(name string, factory dependency.Factory) error
 }
 
-type SessionStorage interface {
+/*type SessionStorage interface {
 	Get(id string) (app.DataScope, error)
 	Create() (string, app.DataScope, error)
 	SessionLifetime() (int64, error)
-}
+}*/
 
 type SessionManager interface {
-	Init() error
-	Scope() (app.DataScope, error)
-	app.DataScope
+	Get(scope app.Scope, secret string) (session *entities.Session, err error)
+	Create(scope app.Scope, user *entities.User) (session *entities.Session, err error)
 }
 
 type Template interface {

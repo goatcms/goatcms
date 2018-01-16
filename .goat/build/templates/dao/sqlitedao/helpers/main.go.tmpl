@@ -34,6 +34,14 @@ func TX(scope app.Scope, db *sql.DB) (tx *sql.Tx, err error) {
 				_, err := Commit(scope)
 				return err
 			})
+			scope.On(app.RollbackEvent, func(interface{}) error {
+				_, err := Rollback(scope)
+				return err
+			})
+			scope.On(app.CloseEvent, func(interface{}) error {
+				_, err := Rollback(scope)
+				return err
+			})
 		}
 	} else {
 		tx = ins.(*sql.Tx)
@@ -58,6 +66,18 @@ func Rollback(scope app.Scope) (isRollback bool, err error) {
 	ins, err = scope.Get(TXKey)
 	if err != nil || ins == nil {
 		// nothing to commit
+		return false, nil
+	}
+	tx := ins.(*sql.Tx)
+	scope.Set(TXKey, nil)
+	return true, tx.Rollback()
+}
+
+func Close(scope app.Scope) (isRollback bool, err error) {
+	var ins interface{}
+	ins, err = scope.Get(TXKey)
+	if err != nil || ins == nil {
+		// nothing to close
 		return false, nil
 	}
 	tx := ins.(*sql.Tx)

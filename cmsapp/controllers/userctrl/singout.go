@@ -23,15 +23,16 @@ func NewSignout(dp dependency.Provider) (*Signout, error) {
 
 func (c *Signout) Do(requestScope app.Scope) {
 	var requestDeps struct {
-		Responser    requestdep.Responser `request:"ResponserService"`
-		RequestError requestdep.Error     `request:"ErrorService"`
-		RequestAuth  requestdep.Auth      `request:"AuthService"`
+		Responser      requestdep.Responser      `request:"ResponserService"`
+		RequestError   requestdep.Error          `request:"ErrorService"`
+		RequestAuth    requestdep.Auth           `request:"AuthService"`
+		RequestSession requestdep.SessionManager `request:"SessionService"`
 	}
 	if err := requestScope.InjectTo(&requestDeps); err != nil {
 		fmt.Println(err)
 		return
 	}
-	if err := requestDeps.RequestAuth.Clear(); err != nil {
+	if err := requestDeps.RequestSession.DestroySession(); err != nil {
 		requestDeps.RequestError.Error(312, err)
 	}
 	requestDeps.Responser.Redirect("/")

@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/goatcms/goatcms/cmsapp/services"
+	"github.com/goatcms/goatcms/cmsapp/services/requestdep"
 	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/dependency"
 	"github.com/goatcms/goatcore/filesystem"
@@ -115,7 +116,22 @@ func (router *Router) newRequestScope(w http.ResponseWriter, r *http.Request) ap
 
 func (router *Router) scopeHandlerToMuxHandler(handler services.ScopeHandler) services.MuxHandler {
 	return func(w http.ResponseWriter, r *http.Request) {
+		var (
+			err  error
+			deps struct {
+				Session requestdep.SessionManager `request:"SessionService"`
+			}
+		)
 		scope := router.newRequestScope(w, r)
+		if err = scope.InjectTo(&deps); err != nil {
+			fmt.Printf("Error: %v", err)
+		}
+		if err = deps.Session.LoadCookieSession(); err != nil {
+			fmt.Printf("Error: %v", err)
+		}
 		handler(scope)
+		if err := scope.Trigger(app.CloseEvent, nil); err != nil {
+			fmt.Printf("Error: %v", err)
+		}
 	}
 }

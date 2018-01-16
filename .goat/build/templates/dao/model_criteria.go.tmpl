@@ -20,7 +20,7 @@ type {{camelcaseuf $name}}CriteriaWhere struct {
 		{{- if eq  $fieldType "text" "string" "email" "password" "lang" }}
 			{{camelcaseuf $fieldName}} *StringFieldCriteria
 		{{- else if eq $fieldType "int" }}
-			{{camelcaseuf $fieldName}} *Int64Int64FieldCriteria
+			{{camelcaseuf $fieldName}} *Int64FieldCriteria
 		{{- else -}}
 			{{- error (print "bad type" .) -}}
 		{{- end -}}

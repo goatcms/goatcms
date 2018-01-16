@@ -26,6 +26,7 @@ func EngineFactory(dp dependency.Provider) (interface{}, error) {
 	if db, err = sql.Open("sqlite3", deps.URL); err != nil {
 		return nil, err
 	}
+	db.SetMaxOpenConns(1)
 	deps.DependencyScope.On(app.BeforeCloseEvent, func(interface{}) error {
 		return db.Close()
 	})

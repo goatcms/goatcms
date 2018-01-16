@@ -53,19 +53,30 @@ func (c *Signin) Get(requestScope app.Scope) {
 }
 
 func (c *Signin) Post(requestScope app.Scope) {
-	var requestDeps struct {
-		Request      *http.Request        `request:"Request"`
-		Responser    requestdep.Responser `request:"ResponserService"`
-		RequestAuth  requestdep.Auth      `request:"AuthService"`
-		RequestError requestdep.Error     `request:"ErrorService"`
-		Username     string               `form:"Username"`
-		Password     string               `form:"Password"`
-	}
-	if err := requestScope.InjectTo(&requestDeps); err != nil {
+	var (
+		err         error
+		requestDeps struct {
+			Request      *http.Request        `request:"Request"`
+			RequestScope app.Scope            `request:"RequestScope"`
+			Responser    requestdep.Responser `request:"ResponserService"`
+			RequestAuth  requestdep.Auth      `request:"AuthService"`
+			RequestError requestdep.Error     `request:"ErrorService"`
+			Username     string               `form:"Username"`
+			Password     string               `form:"Password"`
+		}
+	)
+	if err = requestScope.InjectTo(&requestDeps); err != nil {
 		fmt.Println(err)
 		return
 	}
-	_, err := requestDeps.RequestAuth.Signin(requestDeps.Username, requestDeps.Password)
+	if _, err = requestDeps.RequestAuth.Signin(requestDeps.Username, requestDeps.Password); err != nil {
+		fmt.Println(err)
+		return
+	}
+	if err = requestDeps.RequestScope.Trigger(app.CommitEvent, nil); err != nil {
+		fmt.Println(err)
+		return
+	}
 	c.deps.Logger.DevLog("Signin.Post controller error: %v", err)
 	if err == nil {
 		requestDeps.Responser.Redirect("/")

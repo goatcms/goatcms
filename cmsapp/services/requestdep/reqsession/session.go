@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/goatcms/goatcms/cmsapp/entities"
 	"github.com/goatcms/goatcms/cmsapp/services"
 	"github.com/goatcms/goatcms/cmsapp/services/requestdep"
 	"github.com/goatcms/goatcore/app"
@@ -15,108 +16,73 @@ import (
 type SessionManager struct {
 	deps struct {
 		Request         *http.Request           `request:"Request"`
+		RequestScope    app.Scope               `request:"RequestScope"`
 		Response        http.ResponseWriter     `request:"Response"`
 		Logger          services.Logger         `dependency:"LoggerService"`
-		SessionStorage  services.SessionStorage `dependency:"SessionStorageService"`
+		Manager         services.SessionManager `dependency:"SessionManager"`
 		SessionCookieID string                  `config:"?session.cookie.id"`
 	}
-	dataScope app.DataScope
+	session *entities.Session
 }
 
 // SessionFactory create a session manager instance
 func SessionFactory(dp dependency.Provider) (i interface{}, err error) {
 	s := &SessionManager{}
+	s.deps.SessionCookieID = services.SessionCookieID
 	if err = dp.InjectTo(&s.deps); err != nil {
 		return nil, err
 	}
-	if s.deps.SessionCookieID == "" {
-		s.deps.SessionCookieID = services.SessionCookieID
-	}
-	if err = s.Init(); err != nil {
-		return nil, err
-	}
-	return requestdep.Session(s), nil
+	return requestdep.SessionManager(s), nil
 }
 
-// Init build new session if a session doesn't exist
-func (s *SessionManager) Scope() (app.DataScope, error) {
-	if s.dataScope != nil {
-		return s.dataScope, nil
-	}
-	if err := s.Init(); err != nil {
-		return nil, err
-	}
-	if s.dataScope == nil {
-		return nil, fmt.Errorf("Init didn't created DataScope")
-	}
-	return s.dataScope, nil
-}
-
-// Init build new session if a session doesn't exist
-func (s *SessionManager) Get(name string) (interface{}, error) {
-	scope, err := s.Scope()
-	if err != nil {
-		return nil, err
-	}
-	return scope.Get(name)
-}
-
-// Init build new session if a session doesn't exist
-func (s *SessionManager) Set(name string, value interface{}) error {
-	scope, err := s.Scope()
-	if err != nil {
-		return err
-	}
-	return scope.Set(name, value)
-}
-
-// Init build new session if a session doesn't exist
-func (s *SessionManager) Keys() ([]string, error) {
-	scope, err := s.Scope()
-	if err != nil {
-		return nil, err
-	}
-	return scope.Keys()
-}
-
-// Init build new session if a session doesn't exist
-func (s *SessionManager) Init() (err error) {
+// LoadCookieSession read session secret from cookie and init session (create if not exists)
+func (s *SessionManager) LoadCookieSession() (err error) {
 	var cookie *http.Cookie
 	if cookie, err = s.deps.Request.Cookie(s.deps.SessionCookieID); err != nil {
-		s.deps.Logger.DevLog("Create new session")
-		if err = s.createSession(); err != nil {
+		return err
+	}
+	if s.session, err = s.deps.Manager.Get(s.deps.RequestScope, cookie.Value); err != nil {
+		s.deps.Logger.DevLog("%v: remove fail session", err)
+		if err = s.DestroySession(); err != nil {
 			return err
 		}
-	} else {
-		s.deps.Logger.DevLog("Use %v session", cookie.Value)
-		if s.dataScope, err = s.deps.SessionStorage.Get(cookie.Value); err != nil {
-			s.deps.Logger.DevLog("Use %v fail. Create new session", cookie.Value)
-			// regenerate session if expired
-			if err = s.createSession(); err != nil {
-				return err
-			}
-		}
+		return nil
 	}
 	return nil
 }
 
-// Create build new session
-func (s *SessionManager) createSession() (err error) {
-	var sessionID string
-	sessionID, s.dataScope, err = s.deps.SessionStorage.Create()
-	if err != nil {
+// Get return request session
+func (s *SessionManager) Get() (session *entities.Session, err error) {
+	if s.session == nil {
+		return nil, fmt.Errorf("session does not inited")
+	}
+	return s.session, nil
+}
+
+// CreateSession build new session for user
+func (s *SessionManager) CreateSession(user *entities.User) (err error) {
+	if s.session, err = s.deps.Manager.Create(s.deps.RequestScope, user); err != nil {
 		return err
 	}
-	lifetime, err := s.deps.SessionStorage.SessionLifetime()
-	if err != nil {
-		return err
-	}
-	expiration := time.Now().Add(time.Duration(lifetime) * time.Hour)
+	expires := time.Unix(*s.session.Expires, 0)
 	cookie := http.Cookie{
 		Name:     s.deps.SessionCookieID,
-		Value:    sessionID,
-		Expires:  expiration,
+		Value:    *s.session.Secret,
+		Expires:  expires,
 		HttpOnly: true,
+		Path:     "/",
+	}
+	http.SetCookie(s.deps.Response, &cookie)
+	return nil
+}
+
+// DestroySession remove session cookie
+func (s *SessionManager) DestroySession() (err error) {
+	cookie := http.Cookie{
+		Name:    s.deps.SessionCookieID,
+		Value:   "",
+		Expires: time.Unix(0, 0),
+		Path:    "/",
 	}
 	http.SetCookie(s.deps.Response, &cookie)
 	return nil

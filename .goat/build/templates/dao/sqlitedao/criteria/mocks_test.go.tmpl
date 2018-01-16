@@ -31,7 +31,7 @@ import (
 							Type:  maindef.EQ,
 						},
 					{{- else if eq $fieldType "int" }}
-					  {{$fieldName}}: &maindef.StringFieldCriteria{
+					  {{$fieldName}}: &maindef.Int64FieldCriteria{
 							Value: []int64{*entity.{{$fieldName}}},
 							Type:  maindef.EQ,
 						},

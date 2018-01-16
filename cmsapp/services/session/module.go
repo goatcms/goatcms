@@ -1,13 +1,10 @@
 package session
 
-import (
-	"github.com/goatcms/goatcore/dependency"
-	"github.com/goatcms/goatcms/cmsapp/services"
-)
+import "github.com/goatcms/goatcore/dependency"
 
 // RegisterDependencies is init callback to register module dependencies
 func RegisterDependencies(dp dependency.Provider) error {
-	if err := dp.AddDefaultFactory(services.SessionStorageService, MemorySessionStorageFactory); err != nil {
+	if err := dp.AddDefaultFactory("SessionManager", SessionsManagerFactory); err != nil {
 		return err
 	}
 	return nil

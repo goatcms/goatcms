@@ -4,7 +4,6 @@ import (
 	"html/template"
 
 	"github.com/goatcms/goatcms/cmsapp/entities"
-	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/db"
 )
 
@@ -23,17 +22,16 @@ const (
 	TranslateService = "TranslateService"
 )
 
-type Session interface {
-	Init() error
-	Scope() (app.DataScope, error)
-	app.DataScope
+type SessionManager interface {
+	LoadCookieSession() (err error)
+	Get() (session *entities.Session, err error)
+	CreateSession(user *entities.User) (err error)
+	DestroySession() (err error)
 }
 
 type Auth interface {
-	UserID() (int64, error)
 	Signin(name, password string) (*entities.User, error)
-	LoggedInUser() (user *entities.User, err error)
-	Clear() error
+	Signout() error
 }
 
 type Error interface {

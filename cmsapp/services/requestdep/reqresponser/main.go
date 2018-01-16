@@ -16,14 +16,14 @@ import (
 // TranslateService provide translate system
 type ResponserService struct {
 	deps struct {
-		Template        services.Template    `dependency:"TemplateService"`
-		Logger          services.Logger      `dependency:"LoggerService"`
-		DependencyScope app.Scope            `dependency:"DependencyScope"`
-		RequestScope    app.Scope            `request:"RequestScope"`
-		Translate       requestdep.Translate `request:"TranslateService"`
-		Auth            requestdep.Auth      `request:"AuthService"`
-		Request         *http.Request        `request:"Request"`
-		Response        http.ResponseWriter  `request:"Response"`
+		Template        services.Template         `dependency:"TemplateService"`
+		Logger          services.Logger           `dependency:"LoggerService"`
+		DependencyScope app.Scope                 `dependency:"DependencyScope"`
+		RequestScope    app.Scope                 `request:"RequestScope"`
+		Translate       requestdep.Translate      `request:"TranslateService"`
+		SessionManager  requestdep.SessionManager `request:"SessionService"`
+		Request         *http.Request             `request:"Request"`
+		Response        http.ResponseWriter       `request:"Response"`
 	}
 	muSended sync.RWMutex
 	sended   bool
@@ -38,6 +38,7 @@ func (rs *ResponserService) IsSended() bool {
 func (rs *ResponserService) Execute(view *template.Template, data interface{}) error {
 	var (
 		loggedInUser *entities.User
+		session      *entities.Session
 		err          error
 	)
 	if rs.IsSended() {
@@ -46,7 +47,10 @@ func (rs *ResponserService) Execute(view *template.Template, data interface{}) e
 	rs.muSended.Lock()
 	rs.sended = true
 	rs.muSended.Unlock()
-	loggedInUser, _ = rs.deps.Auth.LoggedInUser()
+	if session, err = rs.deps.SessionManager.Get(); err == nil {
+		// only for initied sessions
+		loggedInUser = session.User
+	}
 	if err = view.Execute(rs.deps.Response, map[string]interface{}{
 		"Data":         data,
 		"Lang":         rs.deps.Translate.Lang(),

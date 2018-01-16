@@ -8,7 +8,7 @@
 {{- $relationsBaseKey := (print .From ".relations.") -}}
 {{- $relations := (keys .Data $relationsBaseKey) -}}
 {{- $systemRelations := (findRows $relationsBaseKey "^[A-Za-z0-9]+$" ".system" "y" $ctx.Data) -}}
-{{- $mainRelations := (except $fields $systemFields) -}}
+{{- $mainRelations := (except $relations $systemRelations) -}}
 
 package {{index $ctx.Properties.Build "package"}}
 
