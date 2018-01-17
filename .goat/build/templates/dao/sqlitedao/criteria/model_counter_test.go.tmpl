@@ -1,0 +1,85 @@
+{{define "sqlite.criteria.model_counter_test_go" -}}
+{{- $ctx := . -}}
+{{- $name := (index $ctx.Data (print .From ".entity")) -}}
+{{- $entityName := (camelcaseuf $name) -}}
+{{- $typeName := (print $entityName "CreateTable") -}}
+{{- $fieldsBaseKey := (print .From ".fields.") -}}
+{{- $fields := (keys .Data $fieldsBaseKey) -}}
+{{- $relationsBaseKey := (print .From ".relations.") -}}
+{{- $relations := (keys .Data $relationsBaseKey) -}}
+
+package criteria
+
+import (
+	"testing"
+
+	"github.com/goatcms/goatcore/app"
+	entities "{{index $ctx.Properties.Build "entities_path"}}"
+	maindef  "{{index $ctx.Properties.Build "path"}}"
+)
+
+func Test{{$entityName}}CriteriaCounterForOneResult(t *testing.T) {
+	var (
+		err error
+		mapp app.App
+		deps struct {
+			CriteriaCounter maindef.{{$entityName}}CriteriaCounter `dependency:"{{$entityName}}CriteriaCounter"`
+		}
+		criteria       *maindef.{{$entityName}}Criteria
+		expectedEntity *entities.{{$entityName}}
+		count          int64
+	)
+	t.Parallel()
+	if mapp, err = NewMockApp(); err != nil {
+		t.Error(err)
+		return
+	}
+	if err = mapp.DependencyProvider().InjectTo(&deps); err != nil {
+		t.Error(err)
+		return
+	}
+	expectedEntity = Mock{{$entityName}}Entity1()
+	criteria = Mock{{$entityName}}Criteria(expectedEntity)
+	if count, err = deps.CriteriaCounter.Count(mapp.AppScope(), criteria); err != nil {
+		t.Error(err)
+		return
+	}
+	if count != 1 {
+		t.Errorf("{{$entityName}}CriteriaCounter should return 1 as result and return %v", count)
+		return
+	}
+}
+
+
+func Test{{$entityName}}CriteriaCounterForAll(t *testing.T) {
+	var (
+		err error
+		mapp app.App
+		deps struct {
+			CriteriaCounter maindef.{{$entityName}}CriteriaCounter `dependency:"{{$entityName}}CriteriaCounter"`
+		}
+		criteria       *maindef.{{$entityName}}Criteria
+		count          int64
+	)
+	t.Parallel()
+	if mapp, err = NewMockApp(); err != nil {
+		t.Error(err)
+		return
+	}
+	if err = mapp.DependencyProvider().InjectTo(&deps); err != nil {
+		t.Error(err)
+		return
+	}
+	criteria = &maindef.{{$entityName}}Criteria{}
+	if count, err = deps.CriteriaCounter.Count(mapp.AppScope(), criteria); err != nil {
+		t.Error(err)
+		return
+	}
+	if count != 2 {
+		t.Errorf("{{$entityName}}CriteriaCounter should return 2 (mock database contains 2 records) and return %v", count)
+		return
+	}
+}
+
+
+{{- end -}}

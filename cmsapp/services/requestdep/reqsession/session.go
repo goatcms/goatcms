@@ -78,12 +78,19 @@ func (s *SessionManager) CreateSession(user *entities.User) (err error) {
 
 // DestroySession remove session cookie
 func (s *SessionManager) DestroySession() (err error) {
-	cookie := http.Cookie{
+	var cookie *http.Cookie
+	if cookie, err = s.deps.Request.Cookie(s.deps.SessionCookieID); err != nil {
+		return err
+	}
+	cookie = &http.Cookie{
 		Name:    s.deps.SessionCookieID,
 		Value:   "",
 		Expires: time.Unix(0, 0),
 		Path:    "/",
 	}
-	http.SetCookie(s.deps.Response, &cookie)
+	http.SetCookie(s.deps.Response, cookie)
+	if err = s.deps.Manager.Delete(s.deps.RequestScope, cookie.Value); err != nil {
+		return err
+	}
 	return nil
 }

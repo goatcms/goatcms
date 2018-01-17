@@ -1,4 +1,4 @@
-{{define "sqlite.criteria.model_search_go" -}}
+{{define "sqlite.criteria.model_deleter_go" -}}
 {{- $ctx := . -}}
 {{- $name := (index $ctx.Data (print .From ".entity")) -}}
 {{- $entityName := (camelcaseuf $name) -}}
@@ -18,49 +18,47 @@ import (
 	helpers "{{index $ctx.Properties.Build "path"}}/sqlitedao/helpers"
 )
 
-type {{$entityName}}CriteriaSearch struct {
+type {{$entityName}}CriteriaDeleter struct {
 	deps struct {
     DB *sql.DB `dependency:"db0.engine"`
 	}
 }
 
-func New{{$entityName}}CriteriaSearch(di dependency.Injector) (instance *{{$entityName}}CriteriaSearch, err error) {
-  instance = &{{$entityName}}CriteriaSearch{}
+func New{{$entityName}}CriteriaDeleter(di dependency.Injector) (instance *{{$entityName}}CriteriaDeleter, err error) {
+  instance = &{{$entityName}}CriteriaDeleter{}
   if err = di.InjectTo(&instance.deps); err != nil {
     return nil, err
   }
   return instance, nil
 }
 
-func {{$entityName}}CriteriaSearchFactory(dp dependency.Provider) (interface{}, error) {
-	instance, err := New{{$entityName}}CriteriaSearch(dp)
+func {{$entityName}}CriteriaDeleterFactory(dp dependency.Provider) (interface{}, error) {
+	instance, err := New{{$entityName}}CriteriaDeleter(dp)
 	if err != nil {
 		return nil, err
 	}
-	return maindef.{{$entityName}}CriteriaSearch(instance), nil
+	return maindef.{{$entityName}}CriteriaDeleter(instance), nil
 }
 
-func (search *{{camelcaseuf $name}}CriteriaSearch) Find(scope app.Scope, criteria *maindef.{{camelcaseuf $name}}Criteria, pager *maindef.Pager) (maindef.{{camelcaseuf $name}}Rows, error) {
+func (search *{{camelcaseuf $name}}CriteriaDeleter) Delete(scope app.Scope, criteria *maindef.{{camelcaseuf $name}}Criteria) (err error) {
 	var (
-		err error
 		sqlq string
 		tx   *sql.Tx
-		rows  *sql.Rows
 	)
 	query := NewQuery()
 	if err = Add{{$entityName}}CriteriaToQuery(criteria, query); err != nil {
-		return nil, err
+		return err
 	}
 	if tx, err = helpers.TX(scope, search.deps.DB); err != nil {
-		return nil, err
+		return err
 	}
-	if sqlq, err = query.CompileSelectQuery(pager); err != nil {
-		return nil, err
+	if sqlq, err = query.CompileDeleteQuery(); err != nil {
+		return err
 	}
-	if rows, err = tx.Query(sqlq); err != nil {
-		return nil, fmt.Errorf("%s: %s", err.Error(), sqlq)
+	if _, err = tx.Exec(sqlq); err != nil {
+		return fmt.Errorf("%s: %s", err.Error(), sqlq)
 	}
-	return New{{$entityName}}Rows(rows, criteria), nil
+	return nil
 }
 
 {{- end -}}

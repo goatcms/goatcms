@@ -75,9 +75,15 @@ func NewMockApp() (mapp app.App, err error) {
 	{{- range $index, $modelID := $models }}
 	{{- $entityName := (camelcaseuf (index $ctx.Data (print "model." $modelID ".entity"))) }}
 
-	// insert {{lower $entityName}}
+	// insert {{lower $entityName}} 1
 	{{lower $entityName}}ID := int64(1)
 	{{lower $entityName}} := Mock{{$entityName}}Entity1()
+	{{lower $entityName}}.ID = &{{lower $entityName}}ID
+	if _, err = deps.{{$entityName}}Insert.Insert(mapp.AppScope(), {{lower $entityName}}); err != nil {
+		return nil, err
+	}
+	{{lower $entityName}}ID = int64(2)
+	{{lower $entityName}} = Mock{{$entityName}}Entity2()
 	{{lower $entityName}}.ID = &{{lower $entityName}}ID
 	if _, err = deps.{{$entityName}}Insert.Insert(mapp.AppScope(), {{lower $entityName}}); err != nil {
 		return nil, err

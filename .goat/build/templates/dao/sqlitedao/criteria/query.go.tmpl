@@ -22,7 +22,7 @@ func NewQuery() *Query {
 	return &Query{}
 }
 
-func (q *Query) CompileQuery(pager *maindef.Pager) (sql string, err error) {
+func (q *Query) CompileSelectQuery(pager *maindef.Pager) (sql string, err error) {
 	sql = "SELECT " + strings.Join(q.Fields, ",") +
 		" FROM " + strings.Join(q.From, ",");
 	if len(q.Where) != 0 {
@@ -30,10 +30,35 @@ func (q *Query) CompileQuery(pager *maindef.Pager) (sql string, err error) {
 	}
 	if pager != nil {
 		if pager.Limit == 0 {
-			return "", fmt.Errorf("Query.CompileQuery: pager.Limit must be greter then 1")
+			return "", fmt.Errorf("Query.CompileSelectQuery: pager.Limit must be greter then 1")
 		}
 		sql += " LIMIT " + strconv.FormatInt(pager.Limit, 10) + " OFFSET " + strconv.FormatInt(pager.Offset, 10)
 	}
+	return sql, nil
+}
+
+func (q *Query) CompileDeleteQuery() (sql string, err error) {
+	fieldsBackup := q.Fields
+	q.Fields = []string{"t1.ID"}
+	if sql, err = q.CompileSelectQuery(nil); err != nil {
+		q.Fields = fieldsBackup
+		return "", err
+	}
+	q.Fields = fieldsBackup
+	tablename := q.From[0]
+	tablename = tablename[:strings.Index(tablename, " ")]
+	sql = "DELETE FROM " + tablename + " WHERE ID IN(" + sql +")"
+	return sql, nil
+}
+
+func (q *Query) CompileCountQuery() (sql string, err error) {
+	fieldsBackup := q.Fields
+	q.Fields = []string{"COUNT(*)"}
+	if sql, err = q.CompileSelectQuery(nil); err != nil {
+		q.Fields = fieldsBackup
+		return "", err
+	}
+	q.Fields = fieldsBackup
 	return sql, nil
 }
 
@@ -45,7 +70,7 @@ func (q *Query) AddRelation(entityAlias, entityField, relatedAlias string) (err 
 func (q *Query) AddEntity(entityName string, fields []string) (alias string, err error) {
 	q.aliasCounter++
 	// add to from
-	alias = strings.ToLower(entityName) + strconv.Itoa(q.aliasCounter)
+	alias = "t" + strconv.Itoa(q.aliasCounter)
 	q.From = append(q.From, entityName + " AS " + alias)
 	// add to select fields
 	for _, field := range fields {

@@ -16,11 +16,11 @@ import (
 // SessionsManager store sessions in database
 type SessionsManager struct {
 	deps struct {
-		SecretLength string                    `config:"?session.secret_length"`
-		Lifetime     string                    `config:"?session.lifetime"`
-		Search       dao.SessionCriteriaSearch `dependency:"SessionCriteriaSearch"`
-		Inserter     dao.SessionInsert         `dependency:"SessionInsert"`
-		Deleter      dao.Delete                `dependency:"SessionDelete"`
+		SecretLength string                     `config:"?session.secret_length"`
+		Lifetime     string                     `config:"?session.lifetime"`
+		Search       dao.SessionCriteriaSearch  `dependency:"SessionCriteriaSearch"`
+		Inserter     dao.SessionInsert          `dependency:"SessionInsert"`
+		Deleter      dao.SessionCriteriaDeleter `dependency:"SessionCriteriaDeleter"`
 	}
 	secretLength int
 	lifetime     int64
@@ -113,4 +113,18 @@ func (s *SessionsManager) Create(scope app.Scope, user *entities.User) (session 
 		return nil, err
 	}
 	return session, nil
+}
+
+func (s *SessionsManager) Delete(scope app.Scope, secret string) (err error) {
+	if err = s.deps.Deleter.Delete(scope, &dao.SessionCriteria{
+		Where: dao.SessionCriteriaWhere{
+			Secret: &dao.StringFieldCriteria{
+				Type:  dao.EQ,
+				Value: []string{secret},
+			},
+		},
+	}); err != nil {
+		return err
+	}
+	return nil
 }

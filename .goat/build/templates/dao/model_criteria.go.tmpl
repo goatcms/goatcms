@@ -46,4 +46,12 @@ type {{camelcaseuf $name}}CriteriaSearch interface {
   Find(scope app.Scope, criteria *{{camelcaseuf $name}}Criteria, pager *Pager) (rows {{camelcaseuf $name}}Rows, err error)
 }
 
+type {{camelcaseuf $name}}CriteriaDeleter interface {
+  Delete(scope app.Scope, criteria *{{camelcaseuf $name}}Criteria) (err error)
+}
+
+type {{camelcaseuf $name}}CriteriaCounter interface {
+  Count(scope app.Scope, criteria *{{camelcaseuf $name}}Criteria) (count int64, err error)
+}
+
 {{- end -}}

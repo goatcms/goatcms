@@ -70,6 +70,7 @@ type Router interface {
 type SessionManager interface {
 	Get(scope app.Scope, secret string) (session *entities.Session, err error)
 	Create(scope app.Scope, user *entities.User) (session *entities.Session, err error)
+	Delete(scope app.Scope, secret string) (err error)
 }
 
 type Template interface {

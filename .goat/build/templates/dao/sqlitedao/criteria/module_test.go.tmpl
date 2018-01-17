@@ -53,6 +53,8 @@ func TestModule(t *testing.T) {
 		{{- range $index, $key := (keys .Data "model.") }}
 		{{- $entityName := (camelcaseuf (index $ctx.Data (print "model." $key ".entity"))) }}
 		{{$entityName}}CriteriaSearch maindef.{{$entityName}}CriteriaSearch `dependency:"{{$entityName}}CriteriaSearch"`
+		{{$entityName}}CriteriaDeleter maindef.{{$entityName}}CriteriaDeleter `dependency:"{{$entityName}}CriteriaDeleter"`
+		{{$entityName}}CriteriaCounter maindef.{{$entityName}}CriteriaCounter `dependency:"{{$entityName}}CriteriaCounter"`
 		{{- end -}}
 	}
 	if err = mapp.DependencyProvider().InjectTo(&deps); err != nil {

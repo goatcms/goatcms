@@ -17,6 +17,12 @@ func RegisterDependencies(dp dependency.Provider) error {
 		if err := dp.AddDefaultFactory("{{$modelName}}CriteriaSearch", {{$modelName}}CriteriaSearchFactory); err != nil {
 			return err
 		}
+		if err := dp.AddDefaultFactory("{{$modelName}}CriteriaCounter", {{$modelName}}CriteriaCounterFactory); err != nil {
+			return err
+		}
+		if err := dp.AddDefaultFactory("{{$modelName}}CriteriaDeleter", {{$modelName}}CriteriaDeleterFactory); err != nil {
+			return err
+		}
 	{{- end }}
 	return nil
 }

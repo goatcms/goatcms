@@ -68,11 +68,43 @@
     {{- $ctx.Out.EOF -}}
   {{- end -}}
 
-  {{- /* model - test  */ -}}
+  {{- /* model search - test  */ -}}
   {{- $path := (print $ctx.To "/sqlitedao/criteria/" $modelName "_search_test.go") -}}
   {{- if not ($ctx.Filesystem.IsFile $path) -}}
     {{- $ctx.Out.File $path -}}
       {{- template "sqlite.criteria.model_search_test_go" (ctx $ctx (print "model." $modelID) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{- /* model counter  */ -}}
+  {{- $path := (print $ctx.To "/sqlitedao/criteria/" $modelName "_counter.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $path) -}}
+    {{- $ctx.Out.File $path -}}
+      {{- template "sqlite.criteria.model_counter_go" (ctx $ctx (print "model." $modelID) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{- /* model counter - test  */ -}}
+  {{- $path := (print $ctx.To "/sqlitedao/criteria/" $modelName "_counter_test.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $path) -}}
+    {{- $ctx.Out.File $path -}}
+      {{- template "sqlite.criteria.model_counter_test_go" (ctx $ctx (print "model." $modelID) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{- /* model deleter  */ -}}
+  {{- $path := (print $ctx.To "/sqlitedao/criteria/" $modelName "_deleter.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $path) -}}
+    {{- $ctx.Out.File $path -}}
+      {{- template "sqlite.criteria.model_deleter_go" (ctx $ctx (print "model." $modelID) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{- /* model deelter - test  */ -}}
+  {{- $path := (print $ctx.To "/sqlitedao/criteria/" $modelName "_deleter_test.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $path) -}}
+    {{- $ctx.Out.File $path -}}
+      {{- template "sqlite.criteria.model_deleter_test_go" (ctx $ctx (print "model." $modelID) "") -}}
     {{- $ctx.Out.EOF -}}
   {{- end -}}
 
