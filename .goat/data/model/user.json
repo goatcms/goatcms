@@ -29,14 +29,14 @@
           "system": "y",
           "type": "password",
           "unique": "n",
-          "required": "y"
+          "required": "n"
         },
         "4": {
           "name": "roles",
           "system": "y",
           "type": "string",
           "unique": "n",
-          "required": "y"
+          "required": "n"
         },
         "5": {
           "name": "username",
