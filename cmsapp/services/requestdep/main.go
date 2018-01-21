@@ -22,6 +22,10 @@ const (
 	TranslateService = "TranslateService"
 )
 
+type ACL interface {
+	HasAnyRole(roles []string) bool
+}
+
 type SessionManager interface {
 	LoadCookieSession() (err error)
 	Get() (session *entities.Session, err error)

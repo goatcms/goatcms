@@ -7,6 +7,34 @@
     "min":1,
     "max":30,
     "pattern": "^[a-zA-z]+[a-zA-Z0-9]*$"
+  },{
+    "prompt":"insert required roles for admin panel (read action)",
+    "key":"admin_read_roles",
+    "type":"line",
+    "min":1,
+    "max":30,
+    "pattern": "^([a-zA-z]+[a-zA-Z0-9]*\s)*[a-zA-z]+[a-zA-Z0-9]$"
+  },{
+    "prompt":"insert required roles for admin panel (insert action)",
+    "key":"admin_insert_roles",
+    "type":"line",
+    "min":1,
+    "max":30,
+    "pattern": "^([a-zA-z]+[a-zA-Z0-9]*\s)*[a-zA-z]+[a-zA-Z0-9]$"
+  },{
+    "prompt":"insert required roles for admin panel (edit action)",
+    "key":"admin_update_roles",
+    "type":"line",
+    "min":1,
+    "max":30,
+    "pattern": "^([a-zA-z]+[a-zA-Z0-9]*\s)*[a-zA-z]+[a-zA-Z0-9]$"
+  },{
+    "prompt":"insert required roles for admin panel (delete action)",
+    "key":"admin_delete_roles",
+    "type":"line",
+    "min":1,
+    "max":30,
+    "pattern": "^([a-zA-z]+[a-zA-Z0-9]*\s)*[a-zA-z]+[a-zA-Z0-9]$"
   }],
   "collections":[{
     "key": "fields",

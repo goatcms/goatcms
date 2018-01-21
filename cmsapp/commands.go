@@ -6,6 +6,7 @@ import (
 	"github.com/goatcms/goatcms/cmsapp/commands/dbexportc"
 	"github.com/goatcms/goatcms/cmsapp/commands/dbloadc"
 	"github.com/goatcms/goatcms/cmsapp/commands/servec"
+	"github.com/goatcms/goatcms/cmsapp/commands/userc"
 	"github.com/goatcms/goatcore/app"
 )
 
@@ -23,6 +24,9 @@ func RegisterCommands(a app.App) error {
 	// dbload
 	commandScope.Set("help.command.dbload", commands.DBLoadHelp)
 	commandScope.Set("command.dbload", dbloadc.Run)
+	// user:roles:update
+	commandScope.Set("help.command.user:roles:update", commands.UserUpdateRolesHelp)
+	commandScope.Set("command.user:roles:update", userc.RunUpdateRoles)
 	// arguments
 	commandScope.Set("help.argument.env", commands.EnvArg)
 	commandScope.Set("help.argument.loglvl", commands.LoglvlArg)

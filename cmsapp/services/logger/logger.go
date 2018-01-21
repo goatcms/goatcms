@@ -53,5 +53,5 @@ func (logger *Logger) ProdLog(format string, data ...interface{}) {
 }
 
 func (logger *Logger) ErrorLog(format string, data ...interface{}) {
-	logger.log.Fatalf(format, data...)
+	logger.log.Printf("ERROR: "+format, data...)
 }

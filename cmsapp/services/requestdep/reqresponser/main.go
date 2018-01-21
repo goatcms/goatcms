@@ -22,6 +22,7 @@ type ResponserService struct {
 		RequestScope    app.Scope                 `request:"RequestScope"`
 		Translate       requestdep.Translate      `request:"TranslateService"`
 		SessionManager  requestdep.SessionManager `request:"SessionService"`
+		ACL             requestdep.ACL            `request:"ACLService"`
 		Request         *http.Request             `request:"Request"`
 		Response        http.ResponseWriter       `request:"Response"`
 	}
@@ -55,6 +56,7 @@ func (rs *ResponserService) Execute(view *template.Template, data interface{}) e
 		"Data":         data,
 		"Lang":         rs.deps.Translate.Lang(),
 		"LoggedInUser": loggedInUser,
+		"ACL":          rs.deps.ACL,
 	}); err != nil {
 		return err
 	}

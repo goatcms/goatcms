@@ -4,6 +4,7 @@ import (
 	"github.com/goatcms/goatcms/cmsapp/services/crypt"
 	"github.com/goatcms/goatcms/cmsapp/services/logger"
 	"github.com/goatcms/goatcms/cmsapp/services/mailer"
+	"github.com/goatcms/goatcms/cmsapp/services/requestdep/reqacl"
 	"github.com/goatcms/goatcms/cmsapp/services/requestdep/reqauth"
 	"github.com/goatcms/goatcms/cmsapp/services/requestdep/reqerror"
 	"github.com/goatcms/goatcms/cmsapp/services/requestdep/reqresponser"
@@ -69,6 +70,9 @@ func InitServices(a app.App) error {
 		return err
 	}
 	if err := reqresponser.InitDependencies(a); err != nil {
+		return err
+	}
+	if err := reqacl.InitDependencies(a); err != nil {
 		return err
 	}
 	return nil

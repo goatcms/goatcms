@@ -76,7 +76,7 @@ func (s *SessionsManager) Get(scope app.Scope, secret string) (session *entities
 		},
 		Related: dao.SessionCriteriaRelated{
 			User: &dao.UserCriteria{
-				Fields: entities.UserMainFieldsAndID,
+				Fields: entities.UserAllFieldsAndID,
 			},
 		},
 	}, &dao.Pager{

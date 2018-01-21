@@ -4,6 +4,8 @@
 {{- $entityName := (camelcaseuf $name) -}}
 {{- $typeName := (print $entityName "CreateTable") -}}
 {{- $fieldsBaseKey := (print .From ".fields.") -}}
+{{- $requiredRolesStr := (index $ctx.Data (print .From ".admin_read_roles")) -}}
+{{- $requiredRoles := (unique (split $requiredRolesStr " ")) -}}
 
 package {{lower $name}}
 
@@ -22,6 +24,15 @@ import (
 	"github.com/goatcms/goatcore/goathtml"
 	"github.com/goatcms/goatcore/messages"
 	"github.com/goatcms/goatcore/messages/msgcollection"
+)
+
+var (
+	updateRequiredRoles = []string{
+		{{- range $i, $role := $requiredRoles -}}
+		{{- if ne $i 0 }}, {{ end -}}
+		"{{$role}}"
+		{{- end -}}
+	}
 )
 
 // Updater is {{lower $name}} updat controller
@@ -54,6 +65,7 @@ func (c *Updater) Get(scope app.Scope) {
 		err error
 		entity *entities.{{$entityName}}
 		deps struct {
+			ACL          requestdep.ACL       `request:"ACLService"`
 			RequestError requestdep.Error     `request:"ErrorService"`
 			Responser    requestdep.Responser `request:"ResponserService"`
 			ID           string               `parameter:"id"`
@@ -62,6 +74,11 @@ func (c *Updater) Get(scope app.Scope) {
 	)
 	if err = scope.InjectTo(&deps); err != nil {
 		c.deps.Logger.ErrorLog("%v", err)
+		return
+	}
+	if !deps.ACL.HasAnyRole(updateRequiredRoles) {
+		c.deps.Logger.ErrorLog("Access denied")
+		deps.RequestError.Error(403, fmt.Errorf("Access denied 403"))
 		return
 	}
 	if id, err = strconv.ParseInt(deps.ID, 10, 64); err != nil {
@@ -92,6 +109,7 @@ func (c *Updater) Post(scope app.Scope) {
 		msgs messages.MessageMap
 		entity *entities.{{$entityName}}
 		deps struct {
+			ACL          requestdep.ACL       `request:"ACLService"`
 			RequestError requestdep.Error     `request:"ErrorService"`
 			Responser    requestdep.Responser `request:"ResponserService"`
 			ID           string               `parameter:"id"`
@@ -101,6 +119,11 @@ func (c *Updater) Post(scope app.Scope) {
 	)
 	if err = scope.InjectTo(&deps); err != nil {
 		fmt.Println(err)
+		return
+	}
+	if !deps.ACL.HasAnyRole(updateRequiredRoles) {
+		c.deps.Logger.ErrorLog("Access denied")
+		deps.RequestError.Error(403, fmt.Errorf("Access denied 403"))
 		return
 	}
 	if id, err = strconv.ParseInt(deps.ID, 10, 64); err != nil {

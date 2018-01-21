@@ -4,6 +4,8 @@
 {{- $entityName := (camelcaseuf $name) -}}
 {{- $typeName := (print $entityName "CreateTable") -}}
 {{- $fieldsBaseKey := (print .From ".fields.") -}}
+{{- $requiredRolesStr := (index $ctx.Data (print .From ".admin_read_roles")) -}}
+{{- $requiredRoles := (unique (split $requiredRolesStr " ")) -}}
 
 package {{lower $name}}
 
@@ -21,10 +23,20 @@ import (
 	"github.com/goatcms/goatcore/goathtml"
 )
 
+var (
+	listRequiredRoles = []string{
+		{{- range $i, $role := $requiredRoles -}}
+		{{- if ne $i 0 }}, {{ end -}}
+		"{{$role}}"
+		{{- end -}}
+	}
+)
+
 // List is a controler to show a list of article
 type List struct {
 	deps struct {
 		Template services.Template 					`dependency:"TemplateService"`
+		Logger   services.Logger            `dependency:"LoggerService"`
 		Finder   dao.{{$entityName}}Search  `dependency:"{{$entityName}}Search"`
 	}
 	view *template.Template
@@ -49,39 +61,45 @@ func (c *List) Get(requestScope app.Scope) {
 		rows        dao.{{$entityName}}Rows
 		err         error
 		entity      *entities.{{$entityName}}
-		requestDeps struct {
+		deps struct {
+			ACL          requestdep.ACL       `request:"ACLService"`
 			RequestError requestdep.Error     `request:"ErrorService"`
 			Responser    requestdep.Responser `request:"ResponserService"`
 			Request      *http.Request        `request:"Request"`
 		}
 		searchParams dao.{{$entityName}}SearchParams
 	)
-	if err = requestScope.InjectTo(&requestDeps); err != nil {
+	if err = requestScope.InjectTo(&deps); err != nil {
 		fmt.Println(err)
 		return
 	}
+	if !deps.ACL.HasAnyRole(listRequiredRoles) {
+		c.deps.Logger.ErrorLog("Access denied")
+		deps.RequestError.Error(403, fmt.Errorf("Access denied 403"))
+		return
+	}
 	if rows, err = c.deps.Finder.Search(requestScope, entities.{{$entityName}}MainFieldsAndID, &searchParams); err != nil {
-		requestDeps.RequestError.Error(312, err)
+		deps.RequestError.Error(312, err)
 		return
 	}
 	collection := []*entities.{{$entityName}}{}
 	for rows.Next() {
 		if entity, err = rows.Get(); err != nil {
-			requestDeps.RequestError.Error(312, err)
+			deps.RequestError.Error(312, err)
 			return
 		}
 		collection = append(collection, entity)
 	}
 	requestScope.On(app.ErrorEvent, func(erri interface{}) error {
 		scopeErr := erri.(error)
-		requestDeps.RequestError.Errorf(403, "%s", scopeErr.Error())
+		deps.RequestError.Errorf(403, "%s", scopeErr.Error())
 		return nil
 	})
-	if err = requestDeps.Responser.Execute(c.view, map[string]interface{}{
+	if err = deps.Responser.Execute(c.view, map[string]interface{}{
 		"Collection": collection,
 		"Labels":     entities.{{$entityName}}MainFields,
 	}); err != nil {
-		requestDeps.RequestError.Error(312, err)
+		deps.RequestError.Error(312, err)
 		return
 	}
 }

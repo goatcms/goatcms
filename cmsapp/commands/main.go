@@ -6,10 +6,12 @@ const (
 	DBExportHelp = "print all create table sql queries"
 	DBLoadHelp   = "load all sql file from path (--path=database/fixtures)"
 
+	UserUpdateRolesHelp = "set new user roles list (--by=username/email --roles=firstrole&secondrole...)"
+
 	EnvArg    = "set app environment (env=prod|test|dev, prod by default)"
 	LoglvlArg = "set app log level (loglvl=prod|test|dev, prod by default)"
 	HostArg   = "set server host (host=:5555, :5555 by default)"
 
-	// FixtureDir is default path to fixtures directory
+	// DefaultFixtureDir is default path to fixtures directory
 	DefaultFixtureDir = "database/fixtures"
 )
