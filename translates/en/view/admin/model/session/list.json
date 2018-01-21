@@ -1,9 +1,0 @@
-{
-  "en.view.admin.model.session.list": {
-    "title": "Session",
-    "description": "Add a new session here.",
-    "submit": "Submit",
-    "edit_btn": "Edit",
-    "delete_btn": "Delete"
-  }
-}

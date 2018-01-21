@@ -1,9 +1,0 @@
-{
-  "pl.view.admin.model.fragment.list": {
-    "title": "Fragment",
-    "description": "Add a new fragment here.",
-    "submit": "Submit",
-    "edit_btn": "Edit",
-    "delete_btn": "Delete"
-  }
-}
