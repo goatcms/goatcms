@@ -9,6 +9,7 @@ cmsapp/http
 cmsapp/controllers/adminctrl
 templates/layouts/default/forms
 templates/views/admin
+translates
 
 # config
 config/config_prod.json
