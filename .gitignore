@@ -31,7 +31,6 @@ web/node_modules
 web/dist
 web/coverage
 assets/images
-main
 npm-debug.log
 
 # system
@@ -39,6 +38,9 @@ npm-debug.log
 *~
 *.exe
 *.log
+
+# build
+./main
 
 # debug
 debug

@@ -1,0 +1,28 @@
+{{- define "translates.form.valid_json" -}}
+{{- $main := . -}}
+
+{
+  "{{$main.LangID}}.form.valid": {
+    {{- $key := (print $main.LangKey ".form.valid.email") -}}
+    {{- $value := (index $main.Context.Data $key) }}
+    "email": "{{- if eq $value "" -}}Wrong email address{{- else -}}{{$value}}{{- end -}}",
+
+    {{- $key := (print $main.LangKey ".form.valid.length_max") -}}
+    {{- $value := (index $main.Context.Data $key) }}
+    "length_max": "{{- if eq $value "" -}}The text exceeds the maximum length{{- else -}}{{$value}}{{- end -}}",
+
+    {{- $key := (print $main.LangKey ".form.valid.length_min") -}}
+    {{- $value := (index $main.Context.Data $key) }}
+    "length_min": "{{- if eq $value "" -}}The text is too short{{- else -}}{{$value}}{{- end -}}",
+
+    {{- $key := (print $main.LangKey ".form.valid.required") -}}
+    {{- $value := (index $main.Context.Data $key) }}
+    "required": "{{- if eq $value "" -}}The field is required{{- else -}}{{$value}}{{- end -}}",
+
+    {{- $key := (print $main.LangKey ".form.valid.identical_password") -}}
+    {{- $value := (index $main.Context.Data $key) }}
+    "identical_password": "{{- if eq $value "" -}}Passwords must be the same{{- else -}}{{$value}}{{- end -}}"
+  }
+}
+
+{{- end -}}

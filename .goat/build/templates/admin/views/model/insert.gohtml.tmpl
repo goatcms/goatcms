@@ -1,0 +1,29 @@
+{{- define "admin.views.model.insert" -}}
+{{- $ctx := . -}}
+{{- $name := (index $ctx.Data (print .From ".entity")) -}}
+{{- $entityName := (camelcaseuf $name) -}}
+
+{{- noescape "{{- define \"content\" -}}" }}
+
+{{ "{{" }} $prefix := (print .Lang ".view.admin.model.{{lower $name}}.insert.") }}
+{{ "{{" }} $validPrefix := (print .Lang ".form.valid.") }}
+{{ "{{" }} $formPrefix := (print .Lang ".form.fields.") }}
+<div class="row">
+  <div class="col-sm-6 col-sm-offset-3">
+    <h1>{{ "{{" }} TranslateFor "title" $prefix}}</h1>
+    {{ "{{" }} TranslateFor "description" $prefix}}
+    <br />
+
+    {{ "{{" }}- template "form.model.{{lower $entityName}}" (dict "Data" .Data.Entity "Lang" .Lang "Valid" .Data.Valid "Fields" .Data.Fields) -}}
+
+    <div class="footer-menu">
+      {{- $hrefAttr := (print "href=\"/admin/" (lower $entityName) "\"" ) | safeHTMLAttr }}
+      <a {{$hrefAttr}}>{{ "{{" }} TranslateFor "go_back_to_list" $prefix}}</a>
+    </div>
+
+  </div>
+</div>
+
+{{ noescape "{{- end }}" }}
+
+{{end}}

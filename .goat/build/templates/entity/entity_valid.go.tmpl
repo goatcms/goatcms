@@ -12,18 +12,19 @@ import (
 	"github.com/goatcms/goatcore/messages"
 	"github.com/goatcms/goatcore/messages/msgcollection"
 	"github.com/goatcms/goatcore/varutil/validator"
+	"github.com/goatcms/goatcore/varutil"
 )
 
 
-func Valid{{$name}}(e *{{$name}}) (mm messages.MessageMap, err error) {
+func Valid{{$name}}(e *{{$name}}, fields []string) (mm messages.MessageMap, err error) {
 	mm = msgcollection.NewMessageMap()
-	if err = Add{{$name}}Valid("", mm, e); err != nil {
+	if err = Add{{$name}}Valid("", mm, e, fields); err != nil {
 		return nil, err
 	}
 	return mm, nil
 }
 
-func Add{{$name}}Valid(basekey string, mm messages.MessageMap, e *{{$name}}) error {
+func Add{{$name}}Valid(basekey string, mm messages.MessageMap, e *{{$name}}, fields []string) error {
 	var messageKey string
   {{- range $index, $field := $fields -}}
     {{- $key := (print $fieldsBaseKey $field) -}}
@@ -32,54 +33,58 @@ func Add{{$name}}Valid(basekey string, mm messages.MessageMap, e *{{$name}}) err
     {{- $required := (lower (index $ctx.Data (print $key ".required"))) }}
 
 		// {{$fieldName}} field
-    messageKey = basekey+"{{$fieldName}}"
+		if varutil.IsArrContainStr(fields, "{{$fieldName}}") {
+			messageKey = basekey+"{{$fieldName}}"
 
-    {{- if eq $required "y" }}
-      if e.{{$fieldName}} == nil {
-				mm.Add(messageKey, validator.FieldIsRequired)
-  	  } {{ if eq $fieldType "text" "string" "email" "password" "lang" -}}
-        else if len(*e.{{$fieldName}}) == 0 {
-      		mm.Add(messageKey, validator.FieldIsRequired)
-    	  }
-      {{- end -}}
-    {{- end -}}
+			{{- if eq $required "y" }}
+				if e.{{$fieldName}} == nil {
+					mm.Add(messageKey, validator.FieldIsRequired)
+				} {{ if eq $fieldType "text" "string" "email" "password" "lang" -}}
+					else if len(*e.{{$fieldName}}) == 0 {
+						mm.Add(messageKey, validator.FieldIsRequired)
+					}
+				{{- end -}}
+			{{- end -}}
 
-    {{- if eq $fieldType "text" "string" "password" -}}
-      {{- /* NO VALID INT TYPE*/ -}}
-    {{- else if eq $fieldType "email" }}
-      if e.{{$fieldName}} != nil {
-        if err := validator.EmailValid(*e.{{$fieldName}}, messageKey, mm); err != nil {
-      		return err
-      	}
-      }
-    {{- else if eq $fieldType "lang" }}
-      if e.{{$fieldName}} != nil {
-        if err := validator.MinStringValid(*e.{{$fieldName}}, basekey+"{{$fieldName}}", mm, 2); err != nil {
-      		return err
-      	}
-        if err := validator.MaxStringValid(*e.{{$fieldName}}, basekey+"{{$fieldName}}", mm, 3); err != nil {
-        	return err
-        }
-      }
-    {{- else if eq $fieldType "int" -}}
-      {{- /* NO VALID INT TYPE*/ -}}
-    {{- else -}}
-      {{- error (print "bad type" $fieldType) -}}
-    {{- end }}
-  {{- end }}
+			{{- if eq $fieldType "text" "string" "password" -}}
+				{{- /* NO VALID INT TYPE*/ -}}
+			{{- else if eq $fieldType "email" }}
+				if e.{{$fieldName}} != nil {
+					if err := validator.EmailValid(*e.{{$fieldName}}, messageKey, mm); err != nil {
+						return err
+					}
+				}
+			{{- else if eq $fieldType "lang" }}
+				if e.{{$fieldName}} != nil {
+					if err := validator.MinStringValid(*e.{{$fieldName}}, basekey+"{{$fieldName}}", mm, 2); err != nil {
+						return err
+					}
+					if err := validator.MaxStringValid(*e.{{$fieldName}}, basekey+"{{$fieldName}}", mm, 3); err != nil {
+						return err
+					}
+				}
+			{{- else if eq $fieldType "int" -}}
+				{{- /* NO VALID INT TYPE*/ -}}
+			{{- else -}}
+				{{- error (print "bad type" $fieldType) -}}
+			{{- end }}
+		}
+	{{- end }}
 	{{- range $index, $relation := $relations -}}
-    {{- $key := (print $relationsBaseKey $relation) -}}
-    {{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
-    {{- $required := (lower (index $ctx.Data (print $key ".required"))) }}
+		{{- $key := (print $relationsBaseKey $relation) -}}
+		{{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
+		{{- $required := (lower (index $ctx.Data (print $key ".required"))) }}
 
 		// {{$fieldName}} relation field
-    messageKey = basekey+"{{$fieldName}}"
+		if varutil.IsArrContainStr(fields, "{{$fieldName}}") {
+			messageKey = basekey+"{{$fieldName}}"
 
-    {{- if eq $required "y" }}
-      if e.{{$fieldName}} == nil {
-				mm.Add(messageKey, validator.FieldIsRequired)
-  	  }
-    {{- end -}}
+			{{- if eq $required "y" }}
+				if e.{{$fieldName}} == nil {
+					mm.Add(messageKey, validator.FieldIsRequired)
+				}
+			{{- end -}}
+		}
   {{- end }}
 
 	return nil

@@ -1,0 +1,38 @@
+{{define "content"}}
+  {{$prefix:=(print .Lang ".view.custom.home.main.")}}
+
+  <div class="jumbotron">
+    <h1>{{TranslateFor "welcome" $prefix}}</h1>
+    <p class="lead">{{TranslateFor "lead" $prefix}}</p>
+    <p><a class="btn btn-lg btn-success" href="#" role="button">{{TranslateFor "learn_more_btn" $prefix}}</a></p>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6 col-sm-12">
+      <h4>{{TranslateFor "goal1_title" $prefix}}</h4>
+      <p>{{TranslateFor "goal1_content" $prefix}}</p>
+      <h4>{{TranslateFor "goal2_title" $prefix}}</h4>
+      <p>{{TranslateFor "goal2_content" $prefix}}</p>
+      <h4>{{TranslateFor "goal3_title" $prefix}}</h4>
+      <p>{{TranslateFor "goal3_content" $prefix}}</p>
+    </div>
+
+    <div class="col-md-6 col-sm-12">
+      <h4>{{TranslateFor "try_it_title" $prefix}}</h4>
+        <div class="row">
+          <p>
+            <a class="btn btn-md btn-primary btn-block" href="/article/add" role="button">
+              {{TranslateFor "add_new_article_btn" $prefix}}
+            </a>
+          </p>
+        </div>
+        <div class="row">
+          <p>
+            <a class="btn btn-md btn-primary btn-block" href="/article" role="button">
+                {{TranslateFor "see_article_list_btn" $prefix}}
+            </a>
+          </p>
+        </div>
+    </div>
+  </div>
+{{end}}

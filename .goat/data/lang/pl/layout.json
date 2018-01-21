@@ -1,0 +1,12 @@
+{
+  "lang.pl.layout": {
+    "footer": "GoatCMS",
+    "head_title": "GoatCMS",
+    "navbar": {
+      "home": "GoatCMS",
+      "signup": "Rejestracja",
+      "signin": "Logowanie",
+      "signout": "Wylogowanie"
+    },
+  }
+}

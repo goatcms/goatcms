@@ -1,15 +1,17 @@
 {
-  "en": {
-    "form": {
-      "fields": {
-        "username": "Username",
-        "password": "Password",
-        "repeat_password": "Repeat password",
-        "title": "Title",
-        "content": "Content",
-        "firstname": "Firstname",
-        "lastname": "Lastname"
-      }
-    }
+  "en.form.fields": {
+    "expires": "Expires",
+    "username": "Username",
+    "email": "Email",
+    "lastname": "Lastname",
+    "content": "Content",
+    "roles": "Roles",
+    "firstname": "Firstname",
+    "lang": "Lang",
+    "secret": "Secret",
+    "name": "Name",
+    "password": "Password",
+    "repeat_password": "Repeat password",
+    "submit": "Submit"
   }
 }

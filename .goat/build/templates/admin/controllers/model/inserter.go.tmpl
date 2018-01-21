@@ -1,0 +1,114 @@
+{{- define "admin.controllers.model.inserter" -}}
+{{- $ctx := . -}}
+{{- $name := (index $ctx.Data (print .From ".entity")) -}}
+{{- $entityName := (camelcaseuf $name) -}}
+{{- $typeName := (print $entityName "CreateTable") -}}
+{{- $fieldsBaseKey := (print .From ".fields.") -}}
+
+package {{lower $name}}
+
+import (
+	"fmt"
+	"html/template"
+
+	entities "{{index $ctx.Properties.Build "entities_path"}}"
+	httpmodel "github.com/goatcms/goatcms/cmsapp/http/httpmodel/{{lower $name}}"
+	"github.com/goatcms/goatcms/cmsapp/services"
+	"github.com/goatcms/goatcms/cmsapp/dao"
+	"github.com/goatcms/goatcms/cmsapp/services/requestdep"
+	"github.com/goatcms/goatcore/app"
+	"github.com/goatcms/goatcore/dependency"
+	"github.com/goatcms/goatcore/goathtml"
+	"github.com/goatcms/goatcore/messages"
+	"github.com/goatcms/goatcore/messages/msgcollection"
+)
+
+// Insert is {{lower $name}} insert controller
+type Inserter struct {
+	deps struct {
+		Template services.Template     `dependency:"TemplateService"`
+		Logger   services.Logger       `dependency:"LoggerService"`
+		Inserter dao.{{$entityName}}Insert            `dependency:"{{$entityName}}Insert"`
+	}
+	view *template.Template
+}
+
+// NewInserter create instance of a Inserter form controller
+func NewInserter(dp dependency.Provider) (*Inserter, error) {
+	var err error
+	ctrl := &Inserter{}
+	if err = dp.InjectTo(&ctrl.deps); err != nil {
+		return nil, err
+	}
+	if ctrl.view, err = ctrl.deps.Template.View(goathtml.DefaultLayout, "admin/model/{{lower $name}}/insert", nil); err != nil {
+		return nil, err
+	}
+	return ctrl, nil
+}
+
+// Get is handler to serve template where one can add new article
+func (c *Inserter) Get(scope app.Scope) {
+	var deps struct {
+		RequestError requestdep.Error     `request:"ErrorService"`
+		Responser    requestdep.Responser `request:"ResponserService"`
+	}
+	if err := scope.InjectTo(&deps); err != nil {
+		c.deps.Logger.ErrorLog("%v", err)
+		return
+	}
+	if err := deps.Responser.Execute(c.view, map[string]interface{}{
+		"Valid": msgcollection.NewMessageMap(),
+		"Entity":  map[string]interface{}{},
+		"Fields": entities.{{$entityName}}MainFields,
+	}); err != nil {
+		c.deps.Logger.ErrorLog("%v", err)
+		deps.RequestError.Error(312, err)
+		return
+	}
+}
+
+func (c *Inserter) Post(scope app.Scope) {
+	var (
+		err  error
+		msgs messages.MessageMap
+		entity *entities.{{$entityName}}
+		deps struct {
+			RequestError requestdep.Error     `request:"ErrorService"`
+			Responser    requestdep.Responser `request:"ResponserService"`
+		}
+	)
+	if err = scope.InjectTo(&deps); err != nil {
+		fmt.Println(err)
+		return
+	}
+	if entity, err = httpmodel.NewForm(scope, entities.{{$entityName}}MainFields); err != nil {
+		c.deps.Logger.ErrorLog("%v", err)
+		deps.RequestError.Error(312, err)
+		return
+	}
+	if msgs, err = entities.Valid{{$entityName}}(entity, entities.{{$entityName}}MainFields); err != nil {
+		c.deps.Logger.ErrorLog("%v", err)
+		deps.RequestError.Error(312, err)
+		return
+	}
+	if len(msgs.GetAll()) == 0 {
+		if _, err = c.deps.Inserter.Insert(scope, entity); err != nil {
+			c.deps.Logger.ErrorLog("%v", err)
+			deps.RequestError.Error(312, err)
+			return
+		}
+		deps.Responser.Redirect("/admin/{{lower $name}}")
+		return
+	}
+	if err := deps.Responser.Execute(c.view, map[string]interface{}{
+		"Valid": msgs,
+		"Entity": entity,
+		"Fields": entities.{{$entityName}}MainFields,
+	}); err != nil {
+		c.deps.Logger.ErrorLog("%v", err)
+		deps.RequestError.Error(312, err)
+		return
+	}
+}
+
+{{- end -}}

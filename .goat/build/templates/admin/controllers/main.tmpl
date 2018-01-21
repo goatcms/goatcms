@@ -9,17 +9,42 @@
 {{- end -}}
 
 {{- range $index, $key := (keys .Data "model.") -}}
+  {{- $entityName := (index $ctx.Data (print "model." $key ".entity")) -}}
 
   {{- /* List */ -}}
-  {{- $listPath := (print $ctx.To "/model/" (lower $key) "/list.go") -}}
-  {{- if not ($ctx.Filesystem.IsFile $listPath) -}}
-    {{- $ctx.Out.File $listPath -}}
+  {{- $path := (print $ctx.To "/model/" (lower $entityName) "/list.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $path) -}}
+    {{- $ctx.Out.File $path -}}
       {{- template "admin.controllers.model.list" (ctx $ctx (print "model." $key) "") -}}
     {{- $ctx.Out.EOF -}}
   {{- end -}}
 
+  {{- /* Inserter */ -}}
+  {{- $path := (print $ctx.To "/model/" (lower $entityName) "/inserter.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $path) -}}
+    {{- $ctx.Out.File $path -}}
+      {{- template "admin.controllers.model.inserter" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{- /* Updater */ -}}
+  {{- $path := (print $ctx.To "/model/" (lower $entityName) "/updater.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $path) -}}
+    {{- $ctx.Out.File $path -}}
+      {{- template "admin.controllers.model.updater" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{- /* Deleter */ -}}
+  {{- $path := (print $ctx.To "/model/" (lower $entityName) "/deleter.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $path) -}}
+    {{- $ctx.Out.File $path -}}
+      {{- template "admin.controllers.model.deleter" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
   {{- /* Module */ -}}
-  {{- $modulePath := (print $ctx.To "/model/" (lower $key) "/module.go") -}}
+  {{- $modulePath := (print $ctx.To "/model/" (lower $entityName) "/module.go") -}}
   {{- if not ($ctx.Filesystem.IsFile $modulePath) -}}
     {{- $ctx.Out.File $modulePath -}}
       {{- template "admin.controllers.model.module" (ctx $ctx (print "model." $key) "") -}}

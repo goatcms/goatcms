@@ -10,4 +10,19 @@
     {{- $ctx.Out.EOF -}}
   {{- end -}}
 
+  {{- /* insert */ -}}
+  {{- $listPath := (print $ctx.To "/model/" $key "/insert/main.gohtml") -}}
+  {{- if not ($ctx.Filesystem.IsFile $listPath) -}}
+    {{- $ctx.Out.File $listPath -}}
+      {{- template "admin.views.model.insert" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{- /* edit */ -}}
+  {{- $listPath := (print $ctx.To "/model/" $key "/edit/main.gohtml") -}}
+  {{- if not ($ctx.Filesystem.IsFile $listPath) -}}
+    {{- $ctx.Out.File $listPath -}}
+      {{- template "admin.views.model.edit" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
 {{- end -}}

@@ -1,0 +1,17 @@
+{
+  "lang.en.view.custom.home.main": {
+    "welcome": "Welcome!",
+    "lead": "This is a GoatCMS homepage.",
+    "learn_more_btn": "Learn more",
+    "goal1_title": "Make your web portal great again!",
+    "goal1_content": "With GoatCMS making your content will be easy as never.",
+    "goal2_title": "Ready for your needs!",
+    "goal2_content": "GoatCMS was made to perfectly fit your requirements.",
+    "goal3_title": "Give GoatCMS a try!",
+    "goal3_content": "You'll love it and never go back to your previous CMS.",
+
+    "try_it_title": "Try some actions:",
+    "add_new_article_btn": "Click to add new article",
+    "see_article_list_btn": "Click to see article list",
+  }
+}

@@ -12,9 +12,9 @@ package simple
 
 import (
 	"fmt"
+	"strconv"
 	"database/sql"
 	"github.com/goatcms/goatcore/app"
-	"database/sql"
 	"github.com/goatcms/goatcore/dependency"
 	helpers "{{index $ctx.Properties.Build "path"}}/sqlitedao/helpers"
 	maindef "{{index $ctx.Properties.Build "path"}}"
@@ -59,6 +59,7 @@ func (dao {{$typeName}}) Update(scope app.Scope, entity *entities.{{$entityName}
 		return fmt.Errorf("%s: %s", err.Error(), query)
 	}
 	if res, err = tx.Exec(query); err != nil {
+		return fmt.Errorf("%s: %s", err.Error(), query)
 	}
 	if count, err = res.RowsAffected(); err != nil {
 		return fmt.Errorf("%s: %s", err.Error(), query)
@@ -99,6 +100,7 @@ func (dao {{$typeName}}) SQL(fields []string, entity *entities.{{$entityName}}) 
 			{{- end -}}
 		}
 	}
+	sql += " WHERE ID=" + strconv.FormatInt(*entity.ID, 10)
 	return sql, nil
 }
 

@@ -1,0 +1,19 @@
+{{- define "translates.form.main" -}}
+{{- $main := . -}}
+
+
+{{- $path := (print $main.Context.To "/" (lower $main.LangID) "/form/fields.json") -}}
+{{- if not ($main.Context.Filesystem.IsFile $path) -}}
+  {{- $main.Context.Out.File $path -}}
+    {{- template "translates.form.fields_json" $main -}}
+  {{- $main.Context.Out.EOF -}}
+{{- end -}}
+
+{{- $path := (print $main.Context.To "/" (lower $main.LangID) "/form/valid.json") -}}
+{{- if not ($main.Context.Filesystem.IsFile $path) -}}
+  {{- $main.Context.Out.File $path -}}
+    {{- template "translates.form.valid_json" $main -}}
+  {{- $main.Context.Out.EOF -}}
+{{- end -}}
+
+{{- end -}}

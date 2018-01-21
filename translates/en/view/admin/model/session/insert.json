@@ -1,0 +1,8 @@
+{
+  "en.view.admin.model.session.insert": {
+    "title": "Session",
+    "description": "Add a new session here.",
+    "submit": "Submit",
+    "go_back_to_list": "Go back to list"
+  }
+}

@@ -1,14 +1,10 @@
-{
-  "pl": {
-    "layout": {
-      "footer": "GoatCMS",
-      "head_title": "GoatCMS",
-      "navbar": {
-        "home": "GoatCMS",
-        "signup": "rejestracja",
-        "signin": "logowanie",
-        "signout": "wylogowanie"
-      },
-    }
+{"pl.layout":{
+  "footer": "GoatCMS",
+  "head_title": "GoatCMS",
+  "navbar": {
+    "home": "GoatCMS",
+    "signin": "Logowanie",
+    "signout": "Wylogowanie",
+    "signup": "Rejestracja"
   }
-}
+}}

@@ -1,0 +1,15 @@
+{{- define "translates.layout.main" -}}
+{{- $main := . -}}
+{{- $langID := (lower $main.LangID) -}}
+{{- $translateBesKey := (print $main.LangKey ".layout.") -}}
+
+{{- $path := (print $main.Context.To "/" $langID "/layout.json") -}}
+{{- if not ($main.Context.Filesystem.IsFile $path) -}}
+  {{- $jsonData := (subMap $translateBesKey "" $main.Context.Data) -}}
+  {{- $mainx := (dict "LangKey" $main.LangKey "LangID" $main.LangID "Context" $main.Context "Data" $jsonData) -}}
+  {{- $main.Context.Out.File $path -}}
+    {{- template "translates.layout.json" $mainx -}}
+  {{- $main.Context.Out.EOF -}}
+{{- end -}}
+
+{{- end -}}

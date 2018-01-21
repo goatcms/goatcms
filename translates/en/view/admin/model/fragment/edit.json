@@ -1,0 +1,9 @@
+{
+  "en.view.admin.model.fragment.edit": {
+    "title": "Fragment",
+    "description": "Add a new fragment here.",
+    "submit": "Submit",
+    "go_back_to_list": "Go back to list",
+    "is_updated": "Updated data"
+  }
+}

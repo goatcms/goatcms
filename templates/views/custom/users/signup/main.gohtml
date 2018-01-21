@@ -1,0 +1,15 @@
+{{define "content"}}
+  {{$prefix:=(print .Lang ".view.custom.user.register.")}}
+  {{$validPrefix:=(print .Lang ".form.valid.")}}
+  {{$formPrefix:=(print .Lang ".form.fields.")}}
+  <div class="row">
+    <div class="col-sm-6 col-sm-offset-3">
+      <h1>{{TranslateFor "title" $prefix}}</h1>
+      {{TranslateFor "description" $prefix}}
+      <br />
+
+      {{- template "form.custom.signup" (dict "Data" .Data.Form "Lang" .Lang "Valid" .Data.Valid) -}}
+
+    </div>
+  </div>
+{{end}}

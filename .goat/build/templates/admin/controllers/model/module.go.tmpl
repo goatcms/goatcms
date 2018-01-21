@@ -24,6 +24,26 @@ func InitDependencies(a app.App) error {
 		return err
 	}
 	deps.Router.OnGet("/admin/{{lower $entityName}}", list.Get)
+	// add inserter
+	inserter, err := NewInserter(dp)
+	if err != nil {
+		return err
+	}
+	deps.Router.OnGet("/admin/{{lower $entityName}}/insert", inserter.Get)
+	deps.Router.OnPost("/admin/{{lower $entityName}}/insert", inserter.Post)
+	// add updater
+	updater, err := NewUpdater(dp)
+	if err != nil {
+		return err
+	}
+	deps.Router.OnGet("/admin/{{lower $entityName}}/{id:[0-9]+}", updater.Get)
+	deps.Router.OnPost("/admin/{{lower $entityName}}/{id:[0-9]+}", updater.Post)
+	// add deleter
+	deleter, err := NewDeleter(dp)
+	if err != nil {
+		return err
+	}
+	deps.Router.OnPost("/admin/{{lower $entityName}}/{id:[0-9]+}$delete", deleter.DO)
 	return nil
 }
 

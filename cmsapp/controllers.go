@@ -2,8 +2,8 @@ package cmsapp
 
 import (
 	"github.com/goatcms/goatcms/cmsapp/controllers/adminctrl"
-	"github.com/goatcms/goatcms/cmsapp/controllers/homectrl"
-	"github.com/goatcms/goatcms/cmsapp/controllers/userctrl"
+	"github.com/goatcms/goatcms/cmsapp/controllers/custom/homectrl"
+	"github.com/goatcms/goatcms/cmsapp/controllers/custom/userctrl"
 	"github.com/goatcms/goatcore/app"
 )
 

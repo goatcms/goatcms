@@ -1,0 +1,9 @@
+{
+  "lang.pl.form.valid": {
+    "email": "Nipoprawny adres email",
+    "length_max": "Tekst przekracza dopuszczalną długość",
+    "length_min": "Tekst jest zbyt krótki",
+    "required": "To pole jest wymagane",
+    "identical_password": "Hasła muszą być jednakowe"
+  }
+}

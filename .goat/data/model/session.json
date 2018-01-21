@@ -23,7 +23,7 @@
           "model": "user",
           "name": "user",
           "required": "y",
-          "system": "n",
+          "system": "y",
           "unique": "n"
         }
       }

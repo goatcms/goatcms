@@ -1,0 +1,11 @@
+{{- define "translates.main_json" -}}
+{{- $main := . -}}
+
+{
+  "{{$main.LangID}}.app": {
+    "name": "{{index $main.Context.Properties.Project "app.name"}}",
+    "id":   "{{index $main.Context.Properties.Project "app.id"}}"
+  }
+}
+
+{{- end -}}

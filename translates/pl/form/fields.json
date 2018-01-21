@@ -1,16 +1,17 @@
 {
-  "pl": {
-    "form": {
-      "fields": {
-        "username": "Nazwa użytkownika",
-        "password": "Hasło",
-        "repeat_password": "Powtórz hasło",
-        "email": "Email",
-        "title": "Tytuł",
-        "content": "Treść",
-        "firstname": "Imię",
-        "lastname": "Nazwisko"
-      }
-    }
+  "pl.form.fields": {
+    "email": "Email",
+    "lastname": "Nazwisko",
+    "content": "Treść",
+    "roles": "Roles",
+    "firstname": "Imię",
+    "secret": "Secret",
+    "lang": "Lang",
+    "name": "Name",
+    "password": "Haslo",
+    "expires": "Expires",
+    "username": "Nazwa użytkownika",
+    "repeat_password": "Repeat password",
+    "submit": "Submit"
   }
 }

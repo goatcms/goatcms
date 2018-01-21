@@ -1,0 +1,17 @@
+{
+  "lang.pl.view.custom.home.main": {
+    "welcome": "Witamy!",
+    "lead": "To jest strona główna GoatCMS.",
+    "learn_more_btn": "Dowiedz się więcej",
+    "goal1_title": "Spraw, by Twoja strona znów była niesamowita!",
+    "goal1_content": "Dzięki GoatCMS dodawanie treści będzie łatwe, jak nigdy.",
+    "goal2_title": "Gotowy na twoje potrzeby!",
+    "goal2_content": "GoatCMS został stworzony, aby idealnie dopasować się do Twoich wymagań.",
+    "goal3_title": "Wypróbuj GoatCMS!",
+    "goal3_content": "Pokochasz go i nigdy nie wrócisz do poprzedniego CMS.",
+
+    "try_it_title": "Spróbuj wykonać kilka czynności:",
+    "add_new_article_btn": "Kliknij, aby dodać nowy artykuł",
+    "see_article_list_btn": "Click to display the list of articles",
+  }
+}

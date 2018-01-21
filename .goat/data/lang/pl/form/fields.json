@@ -1,0 +1,11 @@
+{
+  "lang.pl.form.fields": {
+    "username": "Nazwa użytkownika",
+    "password": "Haslo",
+    "repeat_password": "Powtórz hasło",
+    "title": "Tytuł",
+    "content": "Treść",
+    "firstname": "Imię",
+    "lastname": "Nazwisko"
+  }
+}

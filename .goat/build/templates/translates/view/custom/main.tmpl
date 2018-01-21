@@ -1,0 +1,28 @@
+{{- define "translates.view.custom.main" -}}
+{{- $main := . -}}
+{{- $langID := (lower $main.LangID) -}}
+{{- $customBaseKey := (print "lang." $langID ".view.custom.") -}}
+{{- $customs := (keys $main.Context.Data $customBaseKey) -}}
+
+{{- range $i, $customID := $customs -}}
+  {{- $customKey := (print $customBaseKey $customID) -}}
+  {{- $elementBaseKey := (print $customKey ".") -}}
+  {{- $elemsnts := (keys $main.Context.Data $elementBaseKey) -}}
+
+  {{- range $i, $elementID := $elemsnts -}}
+    {{- $customKey := (print $elementBaseKey $elementID) -}}
+    {{- $translateBesKey := (print $customKey ".") -}}
+
+    {{- $path := (print $main.Context.To "/" (lower $main.LangID) "/view/custom/" (lower $customID) "/" (lower $elementID) ".json") -}}
+    {{- if not ($main.Context.Filesystem.IsFile $path) -}}
+      {{- $jsonData := (subMap $translateBesKey "" $main.Context.Data) -}}
+      {{- $mainx := (dict "LangKey" $main.LangKey "LangID" $main.LangID "Context" $main.Context "Data" $jsonData "ElementID" $elementID "CustomID" $customID) -}}
+      {{- $main.Context.Out.File $path -}}
+        {{- template "translates.view.custom.json" $mainx -}}
+      {{- $main.Context.Out.EOF -}}
+    {{- end -}}
+  {{- end -}}
+
+{{- end -}}
+
+{{- end -}}

@@ -1,0 +1,31 @@
+{{- define "translates.view.admin.model.edit_json" -}}
+{{- $main := . -}}
+{{- $entityName := (camelcaseuf (index $main.Context.Data (print $main.ModelKey ".entity"))) -}}
+{{- $translateKey := (print "lang." $main.LangID ".view.admin.model." (lower $entityName) ".edit") -}}
+
+{
+  "{{print $main.LangID ".view.admin.model." (lower $entityName) ".edit"}}": {
+    {{- $key := (print $translateKey ".title") -}}
+    {{- $value := (index $main.Context.Data $key) }}
+    "title": "{{- if eq $value "" -}}{{camelcaseuf $entityName}}{{- else -}}{{$value}}{{- end -}}",
+
+    {{- $key := (print $translateKey ".description") -}}
+    {{- $value := (index $main.Context.Data $key) }}
+    "description": "{{- if eq $value "" -}}Add a new {{lower $entityName}} here.{{- else -}}{{$value}}{{- end -}}",
+
+    {{- $key := (print $translateKey ".submit") -}}
+    {{- $value := (index $main.Context.Data $key) }}
+    "submit": "{{- if eq $value "" -}}Submit{{- else -}}{{$value}}{{- end -}}",
+
+
+    {{- $key := (print $translateKey ".return_to_list") -}}
+    {{- $value := (index $main.Context.Data $key) }}
+    "go_back_to_list": "{{- if eq $value "" -}}Go back to list{{- else -}}{{$value}}{{- end -}}",
+
+    {{- $key := (print $translateKey ".is_updated") -}}
+    {{- $value := (index $main.Context.Data $key) }}
+    "is_updated": "{{- if eq $value "" -}}Updated data{{- else -}}{{$value}}{{- end -}}"
+  }
+}
+
+{{- end -}}

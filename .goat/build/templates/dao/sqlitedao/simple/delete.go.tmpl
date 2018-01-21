@@ -64,7 +64,7 @@ func (dao {{$typeName}}) Delete(scope app.Scope, id int64) error {
 }
 
 func (dao {{$typeName}}) SQL(id int64) string {
-	return "DELETE FROM {{$entityName}} WHERE " + strconv.FormatInt(id, 10)
+	return "DELETE FROM {{$entityName}} WHERE ID=" + strconv.FormatInt(id, 10)
 }
 
 {{- end -}}

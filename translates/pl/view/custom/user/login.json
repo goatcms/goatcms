@@ -1,0 +1,6 @@
+{"pl.view.custom.user.login":{
+  "description": "Miło nam zobaczyć Cie ponownie. W celu autoryzacji musisz wprowadzić swoją nazwę użytkownika (lub email) i hasło.",
+  "login_fail": "Niepoprawna nazwa użytkownika lub hasło",
+  "submit": "Zaczynamy",
+  "title": "Witamy na stronie logowania"
+}}

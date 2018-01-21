@@ -2,6 +2,7 @@ package template
 
 import (
 	"github.com/goatcms/goatcms/cmsapp/services"
+	"github.com/goatcms/goatcms/cmsapp/services/template/templatex"
 	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/dependency"
 )
@@ -15,11 +16,13 @@ func RegisterDependencies(dp dependency.Provider) error {
 }
 
 // InitDependencies is init callback to inject dependencies inside module
-func InitDependencies(a app.App) error {
-	df, err := NewDefaultFuncs(a.DependencyProvider())
-	if err != nil {
+func InitDependencies(a app.App) (err error) {
+	var xmodule *templatex.Module
+	if xmodule, err = templatex.NewModule(a.DependencyProvider()); err != nil {
 		return err
 	}
-	df.Register()
+	if err = xmodule.Register(); err != nil {
+		return err
+	}
 	return nil
 }

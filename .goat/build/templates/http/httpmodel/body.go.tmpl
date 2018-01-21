@@ -5,10 +5,14 @@
 {{- $typeName := (print $entityName "FindAll") -}}
 {{- $fieldsBaseKey := (print .From ".fields.") -}}
 {{- $fields := (keys .Data $fieldsBaseKey) -}}
+{{- $firstIntValue := (findRow (print .From ".fields.") "^[A-Za-z0-9]+$" ".type" "int" $ctx.Data) -}}
 package {{lower $name}}
 
 import (
 	"net/http"
+	{{- if ne $firstIntValue ""}}
+	"strconv"
+	{{- end }}
 
 	entities "{{index $ctx.Properties.Build "entities_path"}}"
 	"github.com/goatcms/goatcore/app"
@@ -40,13 +44,29 @@ func DecodeFields(prefix string, e *entities.{{$entityName}}, req *http.Request,
 			{{- range $index, $field := $fields -}}
 		    {{- $key := (print $fieldsBaseKey $field) -}}
 		    {{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
-		    {{- $fieldType := (index $ctx.Data (print $key ".type")) }}
-			case "{{$fieldName}}":
-				plain{{$fieldName}}, ok := req.Form[prefix + "{{$fieldName}}"]
-				if !ok {
-					continue
-				}
-				e.{{$fieldName}} = &plain{{$fieldName}}[0]
+		    {{- $fieldType := (lower (index $ctx.Data (print $key ".type"))) }}
+
+				{{- if eq $fieldType "text" "string" "email" "password" "lang" }}
+				case "{{$fieldName}}":
+					plain{{$fieldName}}, ok := req.Form[prefix + "{{$fieldName}}"]
+					if !ok {
+						continue
+					}
+					e.{{$fieldName}} = &plain{{$fieldName}}[0]
+				{{- else if eq $fieldType "int" }}
+				case "{{$fieldName}}":
+					var number int64
+					plain{{$fieldName}}, ok := req.Form[prefix + "{{$fieldName}}"]
+					if !ok {
+						continue
+					}
+					if number, err = strconv.ParseInt(plain{{$fieldName}}[0], 10, 64); err != nil {
+						return err
+					}
+					e.{{$fieldName}} = &number
+				{{- else -}}
+				  {{- error (print "bad type" .) -}}
+				{{- end -}}
 		  {{- end }}
 		}
 	}

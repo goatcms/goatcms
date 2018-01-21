@@ -1,0 +1,19 @@
+{{- $ctx := . -}}
+{{- $langs := (keys $ctx.Data "lang.") -}}
+
+{{- range $i, $langID := $langs -}}
+  {{- $langKey := (print "lang." $langID) -}}
+  {{- $main   := (dict "LangKey" $langKey "LangID" $langID "Context" $ctx ) -}}
+
+  {{- $path := (print $ctx.To "/" (lower $langID) "/" (lower $langID) ".json") -}}
+  {{- if not ($ctx.Filesystem.IsFile $path) -}}
+    {{- $ctx.Out.File $path -}}
+      {{- template "translates.main_json" $main -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{- template "translates.layout.main" $main -}}
+  {{- template "translates.view.admin.model.main" $main -}}
+  {{- template "translates.view.custom.main" $main -}}
+  {{- template "translates.form.main" $main -}}
+{{- end -}}

@@ -60,7 +60,7 @@ func (s *SessionsManager) Get(scope app.Scope, secret string) (session *entities
 		ok   bool
 	)
 	if session, ok = s.cache[secret]; ok {
-		if *session.Expires > time.Now().Unix() {
+		if *session.Expires < time.Now().Unix() {
 			delete(s.cache, secret)
 			return nil, fmt.Errorf("Session %v expired or is incorrect", secret)
 		}

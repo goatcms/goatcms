@@ -11,13 +11,27 @@
   "layout":"default",
   "template":"form/view",
 },{
+  "to":"translates",
+  "layout":"default",
+  "template":"translates",
+},{
   "to":"cmsapp/entities",
   "layout":"default",
   "template":"entity",
   "properties": {
     "package":"entities"
   },
-  "afterBuild": "gofmt -w {{argument.cwd}}cmsapp/entities/",
+  "afterBuild": "gofmt -w {{argument.cwd}}/cmsapp/entities/",
+},{
+  "to":"cmsapp/controllers/adminctrl",
+  "layout":"default",
+  "template":"admin/controllers",
+  "properties": {
+    "package":"adminctrl",
+    "path":"github.com/goatcms/goatcms/cmsapp/controllers/adminctrl",
+    "entities_path":"github.com/goatcms/goatcms/cmsapp/entities"
+  },
+  "afterBuild": "gofmt -w {{argument.cwd}}/cmsapp/controllers/adminctrl/",
 },{
   "to":"cmsapp/forms",
   "layout":"default",
@@ -25,7 +39,7 @@
   "properties": {
     "package":"forms"
   },
-  "afterBuild": "gofmt -w {{argument.cwd}}cmsapp/forms/",
+  "afterBuild": "gofmt -w {{argument.cwd}}/cmsapp/forms/",
 },{
   "to":"cmsapp/http",
   "layout":"default",
@@ -36,7 +50,7 @@
     "entities_path":"github.com/goatcms/goatcms/cmsapp/entities",
     "forms_path":"github.com/goatcms/goatcms/cmsapp/forms"
   },
-  "afterBuild": "gofmt -w {{argument.cwd}}cmsapp/http/",
+  "afterBuild": "gofmt -w {{argument.cwd}}/cmsapp/http/",
 },{
   "to":"cmsapp/dao",
   "layout":"default",
@@ -46,15 +60,5 @@
     "path":"github.com/goatcms/goatcms/cmsapp/dao",
     "entities_path":"github.com/goatcms/goatcms/cmsapp/entities"
   },
-  "afterBuild": "gofmt -w {{argument.cwd}}cmsapp/dao/",
-},{
-  "to":"cmsapp/controllers/adminctrl",
-  "layout":"default",
-  "template":"admin/controllers",
-  "properties": {
-    "package":"adminctrl",
-    "path":"github.com/goatcms/goatcms/cmsapp/controllers/adminctrl",
-    "entities_path":"github.com/goatcms/goatcms/cmsapp/entities"
-  },
-  "afterBuild": "gofmt -w {{argument.cwd}}cmsapp/controllers/admin/",
+  "afterBuild": "gofmt -w {{argument.cwd}}/cmsapp/dao/",
 }]

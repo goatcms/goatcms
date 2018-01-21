@@ -1,10 +1,22 @@
 {{- $ctx := . -}}
 
-{{- range $index, $key := (keys .Data "form.") -}}
-  {{- $path := (print $ctx.To "/" $key "/main.gohtml") -}}
+{{- range $index, $formID := (keys .Data "form.") -}}
+
+  {{- $path := (print $ctx.To "/custom/" $formID "/main.gohtml") -}}
   {{- if not ($ctx.Filesystem.IsFile $path) -}}
     {{- $ctx.Out.File $path -}}
-      {{- template "form.views.main_gohtml" (ctx $ctx (print "form." $key) "") -}}
+      {{- template "form.views.custom_gohtml" (ctx $ctx (print "form." $formID) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+{{- end -}}
+
+{{- range $index, $modelID := (keys .Data "model.") -}}
+
+  {{- $path := (print $ctx.To "/model/" $modelID "/main.gohtml") -}}
+  {{- if not ($ctx.Filesystem.IsFile $path) -}}
+    {{- $ctx.Out.File $path -}}
+      {{- template "form.views.model_gohtml" (ctx $ctx (print "model." $modelID) "") -}}
     {{- $ctx.Out.EOF -}}
   {{- end -}}
 {{- end -}}

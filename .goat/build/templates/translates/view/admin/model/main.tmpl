@@ -1,0 +1,32 @@
+{{- define "translates.view.admin.model.main" -}}
+{{- $main := . -}}
+{{- $models := (keys $main.Context.Data "model.") -}}
+
+{{- range $i, $modelID := $models -}}
+  {{- $modelKey := (print "model." $modelID) -}}
+  {{- $entityName := (index $main.Context.Data (print $modelKey ".entity")) -}}
+  {{- $mainx := (dict "LangKey" $main.LangKey "LangID" $main.LangID "Context" $main.Context "ModelKey" $modelKey ) -}}
+
+  {{- $path := (print $main.Context.To "/" $main.LangID "/view/admin/model/" (lower $entityName) "/insert.json") -}}
+  {{- if not ($main.Context.Filesystem.IsFile $path) -}}
+    {{- $main.Context.Out.File $path -}}
+      {{- template "translates.view.admin.model.insert_json" $mainx -}}
+    {{- $main.Context.Out.EOF -}}
+  {{- end -}}
+
+  {{- $path := (print $main.Context.To "/" $main.LangID "/view/admin/model/" (lower $entityName) "/edit.json") -}}
+  {{- if not ($main.Context.Filesystem.IsFile $path) -}}
+    {{- $main.Context.Out.File $path -}}
+      {{- template "translates.view.admin.model.edit_json" $mainx -}}
+    {{- $main.Context.Out.EOF -}}
+  {{- end -}}
+
+  {{- $path := (print $main.Context.To "/" $main.LangID "/view/admin/model/" (lower $entityName) "/list.json") -}}
+  {{- if not ($main.Context.Filesystem.IsFile $path) -}}
+    {{- $main.Context.Out.File $path -}}
+      {{- template "translates.view.admin.model.list_json" $mainx -}}
+    {{- $main.Context.Out.EOF -}}
+  {{- end -}}
+{{- end -}}
+
+{{- end -}}

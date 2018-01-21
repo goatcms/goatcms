@@ -1,0 +1,9 @@
+{
+  "pl.view.admin.model.user.list": {
+    "title": "User",
+    "description": "Add a new user here.",
+    "submit": "Submit",
+    "edit_btn": "Edit",
+    "delete_btn": "Delete"
+  }
+}

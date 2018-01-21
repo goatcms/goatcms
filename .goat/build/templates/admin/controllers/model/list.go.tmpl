@@ -60,7 +60,7 @@ func (c *List) Get(requestScope app.Scope) {
 		fmt.Println(err)
 		return
 	}
-	if rows, err = c.deps.Finder.Search(requestScope, entities.{{$entityName}}MainFields, &searchParams); err != nil {
+	if rows, err = c.deps.Finder.Search(requestScope, entities.{{$entityName}}MainFieldsAndID, &searchParams); err != nil {
 		requestDeps.RequestError.Error(312, err)
 		return
 	}

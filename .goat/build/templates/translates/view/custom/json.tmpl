@@ -1,0 +1,8 @@
+{{- define "translates.view.custom.json" -}}
+{{- $main := . -}}
+
+{"{{lower $main.LangID}}.view.custom.{{lower $main.CustomID}}.{{lower $main.ElementID}}": 
+    {{- noescape (json $main.Data) -}}
+}
+
+{{- end -}}

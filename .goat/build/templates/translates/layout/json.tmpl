@@ -1,0 +1,8 @@
+{{- define "translates.layout.json" -}}
+{{- $main := . -}}
+
+{"{{lower $main.LangID}}.layout":
+    {{- noescape (json $main.Data) -}}
+}
+
+{{- end -}}

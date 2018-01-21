@@ -1,0 +1,78 @@
+{{- define "admin.controllers.model.deleter" -}}
+{{- $ctx := . -}}
+{{- $name := (index $ctx.Data (print .From ".entity")) -}}
+{{- $entityName := (camelcaseuf $name) -}}
+{{- $typeName := (print $entityName "CreateTable") -}}
+{{- $fieldsBaseKey := (print .From ".fields.") -}}
+
+package {{lower $name}}
+
+import (
+	"fmt"
+	"strconv"
+	"html/template"
+
+	"github.com/goatcms/goatcms/cmsapp/services"
+	"github.com/goatcms/goatcms/cmsapp/dao"
+	"github.com/goatcms/goatcms/cmsapp/services/requestdep"
+	"github.com/goatcms/goatcore/app"
+	"github.com/goatcms/goatcore/dependency"
+	"github.com/goatcms/goatcore/goathtml"
+)
+
+// Deleter is {{lower $name}} updat controller
+type Deleter struct {
+	deps struct {
+		Template services.Template  `dependency:"TemplateService"`
+		Logger   services.Logger    `dependency:"LoggerService"`
+		Deleter  dao.Delete         `dependency:"{{$entityName}}Delete"`
+	}
+	view *template.Template
+}
+
+// NewDeleter create instance of a Deleter form controller
+func NewDeleter(dp dependency.Provider) (*Deleter, error) {
+	var err error
+	ctrl := &Deleter{}
+	if err = dp.InjectTo(&ctrl.deps); err != nil {
+		return nil, err
+	}
+	if ctrl.view, err = ctrl.deps.Template.View(goathtml.DefaultLayout, "admin/model/{{lower $name}}/edit", nil); err != nil {
+		return nil, err
+	}
+	return ctrl, nil
+}
+
+func (c *Deleter) DO(scope app.Scope) {
+	var (
+		err  error
+		deps struct {
+			RequestError requestdep.Error     `request:"ErrorService"`
+			Responser    requestdep.Responser `request:"ResponserService"`
+			ID           string               `parameter:"id"`
+		}
+		id        int64
+	)
+	if err = scope.InjectTo(&deps); err != nil {
+		fmt.Println(err)
+		return
+	}
+	if id, err = strconv.ParseInt(deps.ID, 10, 64); err != nil {
+		c.deps.Logger.ErrorLog("%v", err)
+		deps.RequestError.Error(312, err)
+		return
+	}
+	if err = c.deps.Deleter.Delete(scope, id); err != nil {
+		c.deps.Logger.ErrorLog("%v", err)
+		deps.RequestError.Error(312, err)
+		return
+	}
+	if err = scope.Trigger(app.CommitEvent, nil); err != nil {
+		c.deps.Logger.ErrorLog("%v", err)
+		deps.RequestError.Error(312, err)
+		return
+	}
+	deps.Responser.Redirect("/admin/{{lower $name}}")
+}
+
+{{- end -}}

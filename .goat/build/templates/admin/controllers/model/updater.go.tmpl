@@ -1,0 +1,147 @@
+{{- define "admin.controllers.model.updater" -}}
+{{- $ctx := . -}}
+{{- $name := (index $ctx.Data (print .From ".entity")) -}}
+{{- $entityName := (camelcaseuf $name) -}}
+{{- $typeName := (print $entityName "CreateTable") -}}
+{{- $fieldsBaseKey := (print .From ".fields.") -}}
+
+package {{lower $name}}
+
+import (
+	"fmt"
+	"strconv"
+	"html/template"
+
+	entities "{{index $ctx.Properties.Build "entities_path"}}"
+	httpmodel "github.com/goatcms/goatcms/cmsapp/http/httpmodel/{{lower $name}}"
+	"github.com/goatcms/goatcms/cmsapp/services"
+	"github.com/goatcms/goatcms/cmsapp/dao"
+	"github.com/goatcms/goatcms/cmsapp/services/requestdep"
+	"github.com/goatcms/goatcore/app"
+	"github.com/goatcms/goatcore/dependency"
+	"github.com/goatcms/goatcore/goathtml"
+	"github.com/goatcms/goatcore/messages"
+	"github.com/goatcms/goatcore/messages/msgcollection"
+)
+
+// Updater is {{lower $name}} updat controller
+type Updater struct {
+	deps struct {
+		Template services.Template           `dependency:"TemplateService"`
+		Logger   services.Logger             `dependency:"LoggerService"`
+		Finder   dao.{{$entityName}}FindByID `dependency:"{{$entityName}}FindByID"`
+		Updater  dao.{{$entityName}}Update   `dependency:"{{$entityName}}Update"`
+	}
+	view *template.Template
+}
+
+// NewUpdater create instance of a Updater form controller
+func NewUpdater(dp dependency.Provider) (*Updater, error) {
+	var err error
+	ctrl := &Updater{}
+	if err = dp.InjectTo(&ctrl.deps); err != nil {
+		return nil, err
+	}
+	if ctrl.view, err = ctrl.deps.Template.View(goathtml.DefaultLayout, "admin/model/{{lower $name}}/edit", nil); err != nil {
+		return nil, err
+	}
+	return ctrl, nil
+}
+
+// Get is handler to serve template where one can add new article
+func (c *Updater) Get(scope app.Scope) {
+	var (
+		err error
+		entity *entities.{{$entityName}}
+		deps struct {
+			RequestError requestdep.Error     `request:"ErrorService"`
+			Responser    requestdep.Responser `request:"ResponserService"`
+			ID           string               `parameter:"id"`
+		}
+		id int64
+	)
+	if err = scope.InjectTo(&deps); err != nil {
+		c.deps.Logger.ErrorLog("%v", err)
+		return
+	}
+	if id, err = strconv.ParseInt(deps.ID, 10, 64); err != nil {
+		c.deps.Logger.ErrorLog("%v", err)
+		deps.RequestError.Error(312, err)
+		return
+	}
+	if entity, err = c.deps.Finder.Find(scope, entities.{{$entityName}}MainFields, id); err != nil {
+		c.deps.Logger.ErrorLog("%v", err)
+		deps.RequestError.Error(312, err)
+		return
+	}
+	if err := deps.Responser.Execute(c.view, map[string]interface{}{
+		"Valid": msgcollection.NewMessageMap(),
+		"Entity":  entity,
+		"Fields": entities.{{$entityName}}MainFields,
+		"IsUpdated": false,
+	}); err != nil {
+		c.deps.Logger.ErrorLog("%v", err)
+		deps.RequestError.Error(312, err)
+		return
+	}
+}
+
+func (c *Updater) Post(scope app.Scope) {
+	var (
+		err  error
+		msgs messages.MessageMap
+		entity *entities.{{$entityName}}
+		deps struct {
+			RequestError requestdep.Error     `request:"ErrorService"`
+			Responser    requestdep.Responser `request:"ResponserService"`
+			ID           string               `parameter:"id"`
+		}
+		id        int64
+		isUpdated bool = false
+	)
+	if err = scope.InjectTo(&deps); err != nil {
+		fmt.Println(err)
+		return
+	}
+	if id, err = strconv.ParseInt(deps.ID, 10, 64); err != nil {
+		c.deps.Logger.ErrorLog("%v", err)
+		deps.RequestError.Error(312, err)
+		return
+	}
+	if entity, err = httpmodel.NewForm(scope, entities.{{$entityName}}MainFields); err != nil {
+		c.deps.Logger.ErrorLog("%v", err)
+		deps.RequestError.Error(312, err)
+		return
+	}
+	if msgs, err = entities.Valid{{$entityName}}(entity, entities.{{$entityName}}MainFields); err != nil {
+		c.deps.Logger.ErrorLog("%v", err)
+		deps.RequestError.Error(312, err)
+		return
+	}
+	if len(msgs.GetAll()) == 0 {
+		entity.ID = &id
+		if err = c.deps.Updater.Update(scope, entity, entities.{{$entityName}}MainFields); err != nil {
+			c.deps.Logger.ErrorLog("%v", err)
+			deps.RequestError.Error(312, err)
+			return
+		}
+		if err = scope.Trigger(app.CommitEvent, nil); err != nil {
+			c.deps.Logger.ErrorLog("%v", err)
+			deps.RequestError.Error(312, err)
+			return
+		}
+		isUpdated = true
+	}
+	if err := deps.Responser.Execute(c.view, map[string]interface{}{
+		"Valid": msgs,
+		"Entity": entity,
+		"Fields": entities.{{$entityName}}MainFields,
+		"IsUpdated": isUpdated,
+	}); err != nil {
+		c.deps.Logger.ErrorLog("%v", err)
+		deps.RequestError.Error(312, err)
+		return
+	}
+}
+
+{{- end -}}

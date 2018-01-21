@@ -1,0 +1,6 @@
+{"en.view.custom.user.login":{
+  "description": "Nice to see you again :-)",
+  "login_fail": "Username or password incorrect",
+  "submit": "start",
+  "title": "Login"
+}}

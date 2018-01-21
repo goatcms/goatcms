@@ -1,0 +1,30 @@
+{{- define "translates.view.admin.model.list_json" -}}
+{{- $main := . -}}
+{{- $entityName := (camelcaseuf (index $main.Context.Data (print $main.ModelKey ".entity"))) -}}
+{{- $translateKey := (print "lang." $main.LangID ".view.admin." (lower $entityName) ".list") -}}
+
+{
+  "{{print $main.LangID ".view.admin.model." (lower $entityName) ".list"}}": {
+    {{- $key := (print $translateKey ".title") -}}
+    {{- $value := (index $main.Context.Data $key) }}
+    "title": "{{- if eq $value "" -}}{{camelcaseuf $entityName}}{{- else -}}{{$value}}{{- end -}}",
+
+    {{- $key := (print $translateKey ".description") -}}
+    {{- $value := (index $main.Context.Data $key) }}
+    "description": "{{- if eq $value "" -}}Add a new {{lower $entityName}} here.{{- else -}}{{$value}}{{- end -}}",
+
+    {{- $key := (print $translateKey ".submit") -}}
+    {{- $value := (index $main.Context.Data $key) }}
+    "submit": "{{- if eq $value "" -}}Submit{{- else -}}{{$value}}{{- end -}}",
+
+    {{- $key := (print $translateKey ".edit_btn") -}}
+    {{- $value := (index $main.Context.Data $key) }}
+    "edit_btn": "{{- if eq $value "" -}}Edit{{- else -}}{{$value}}{{- end -}}",
+
+    {{- $key := (print $translateKey ".delete_btn") -}}
+    {{- $value := (index $main.Context.Data $key) }}
+    "delete_btn": "{{- if eq $value "" -}}Delete{{- else -}}{{$value}}{{- end -}}"
+  }
+}
+
+{{- end -}}

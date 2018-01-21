@@ -1,0 +1,25 @@
+{{- define "translates.form.fields_json" -}}
+{{- $main := . -}}
+{{- $modelFieldsNames := (valuesFor "model.[a-zA-Z0-9]+.fields.[a-zA-Z0-9]+.name" $main.Context.Data) -}}
+{{- $formFieldsNames := (valuesFor "form.[a-zA-Z0-9]+.fields.[a-zA-Z0-9]+.name" $main.Context.Data) -}}
+{{- $fieldNames := (union $modelFieldsNames $formFieldsNames) -}}
+
+{
+  "{{$main.LangID}}.form.fields": {
+    {{- range $i, $fieldName := $fieldNames -}}
+    {{- $key := (print $main.LangKey ".form.fields." (underscore $fieldName)) -}}
+    {{- $value := (index $main.Context.Data $key) }}
+    "{{underscore $fieldName}}": "{{- if eq $value "" -}}{{camelcaseuf $fieldName}}{{- else -}}{{$value}}{{- end -}}",
+    {{- end }}
+
+    {{- $key := (print "lang." $main.Lang ".form.fields.repeat_password") -}}
+    {{- $value := (index $main.Context.Data $key) }}
+    "repeat_password": "{{- if eq $value "" -}}Repeat password{{- else -}}{{$value}}{{- end -}}",
+
+    {{- $key := (print "lang." $main.Lang ".form.fields.submit") -}}
+    {{- $value := (index $main.Context.Data $key) }}
+    "submit": "{{- if eq $value "" -}}Submit{{- else -}}{{$value}}{{- end -}}"
+  }
+}
+
+{{- end -}}

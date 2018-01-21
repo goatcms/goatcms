@@ -1,0 +1,8 @@
+{
+  "en.view.admin.model.user.insert": {
+    "title": "User",
+    "description": "Add a new user here.",
+    "submit": "Submit",
+    "go_back_to_list": "Go back to list"
+  }
+}

@@ -1,0 +1,21 @@
+{{define "content"}}
+  {{$prefix:=(print .Lang ".view.custom.user.login.")}}
+  {{$validPrefix:=(print .Lang ".form.valid.")}}
+  {{$formPrefix:=(print .Lang ".form.fields.")}}
+  <div class="row">
+    <div class="col-sm-6 col-sm-offset-3">
+      <h1>{{TranslateFor "title" $prefix}}</h1>
+      {{if eq .Data.Error false }}
+        {{TranslateFor "description" $prefix}}
+      {{ end}}
+      <br />
+
+      {{if .Data.Error}}
+          <p class="text-danger">{{TranslateFor "login_fail" $prefix}}</p>
+      {{ end}}
+
+      {{- template "form.custom.signin" (dict "Data" .Data "Lang" .Lang) -}}
+
+    </div>
+  </div>
+{{end}}
