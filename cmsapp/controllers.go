@@ -4,6 +4,7 @@ import (
 	"github.com/goatcms/goatcms/cmsapp/controllers/adminctrl"
 	"github.com/goatcms/goatcms/cmsapp/controllers/custom/homectrl"
 	"github.com/goatcms/goatcms/cmsapp/controllers/custom/userctrl"
+	"github.com/goatcms/goatcms/cmsapp/controllers/restctrl"
 	"github.com/goatcms/goatcore/app"
 )
 
@@ -15,6 +16,9 @@ func InitControllers(a app.App) error {
 		return err
 	}
 	if err := homectrl.InitDependencies(a); err != nil {
+		return err
+	}
+	if err := restctrl.InitDependencies(a); err != nil {
 		return err
 	}
 	return nil

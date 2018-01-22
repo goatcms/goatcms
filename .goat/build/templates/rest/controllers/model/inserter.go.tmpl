@@ -1,0 +1,99 @@
+{{- define "rest.controllers.model.inserter" -}}
+{{- $ctx := . -}}
+{{- $name := (index $ctx.Data (print .From ".entity")) -}}
+{{- $entityName := (camelcaseuf $name) -}}
+{{- $typeName := (print $entityName "CreateTable") -}}
+{{- $fieldsBaseKey := (print .From ".fields.") -}}
+{{- $requiredRolesStr := (index $ctx.Data (print .From ".admin_insert_roles")) -}}
+{{- $requiredRoles := (unique (split $requiredRolesStr " ")) -}}
+
+package {{lower $name}}
+
+import (
+	"net/http"
+	"encoding/json"
+
+	entities "{{index $ctx.Properties.Build "entities_path"}}"
+	"github.com/goatcms/goatcms/cmsapp/services"
+	"github.com/goatcms/goatcms/cmsapp/dao"
+	"github.com/goatcms/goatcms/cmsapp/services/requestdep"
+	"github.com/goatcms/goatcore/app"
+	"github.com/goatcms/goatcore/dependency"
+	"github.com/goatcms/goatcore/messages"
+)
+
+var (
+	insertRequiredRoles = []string{
+		{{- range $i, $role := $requiredRoles -}}
+		{{- if ne $i 0 }}, {{ end -}}
+		"{{$role}}"
+		{{- end -}}
+	}
+)
+
+// Insert is {{lower $name}} insert controller
+type Inserter struct {
+	deps struct {
+		Template services.Template         `dependency:"TemplateService"`
+		Logger   services.Logger           `dependency:"LoggerService"`
+		Inserter dao.{{$entityName}}Insert `dependency:"{{$entityName}}Insert"`
+	}
+}
+
+// NewInserter create instance of a Inserter form controller
+func NewInserter(dp dependency.Provider) (*Inserter, error) {
+	var err error
+	ctrl := &Inserter{}
+	if err = dp.InjectTo(&ctrl.deps); err != nil {
+		return nil, err
+	}
+	return ctrl, nil
+}
+
+func (c *Inserter) Post(scope app.Scope) {
+	var (
+		err  error
+		msgs messages.MessageMap
+		entity entities.{{$entityName}}
+		deps struct {
+			ACL          requestdep.ACL       `request:"ACLService"`
+			RequestError requestdep.Error     `request:"ErrorService"`
+			Responser    requestdep.Responser `request:"ResponserService"`
+			Request      *http.Request        `request:"Request"`
+		}
+	)
+	if err = scope.InjectTo(&deps); err != nil {
+		c.deps.Logger.ErrorLog("%v", err)
+		deps.Responser.JSON(http.StatusInternalServerError, "{\"status\":\"StatusInternalServerError\"}")
+		return
+	}
+	if !deps.ACL.HasAnyRole(insertRequiredRoles) {
+		c.deps.Logger.ErrorLog("Access denied")
+		deps.Responser.JSON(http.StatusForbidden, "{\"status\":\"StatusForbidden\"}")
+		return
+	}
+	decoder := json.NewDecoder(deps.Request.Body)
+	if err = decoder.Decode(&entity); err != nil {
+		c.deps.Logger.ErrorLog("%v", err)
+		deps.Responser.JSON(http.StatusBadRequest, "{\"status\":\"StatusInternalServerError\"}")
+		return
+	}
+	if msgs, err = entities.Valid{{$entityName}}(&entity, entities.{{$entityName}}MainFields); err != nil {
+		c.deps.Logger.ErrorLog("%v", err)
+		deps.Responser.JSON(http.StatusBadRequest, "{\"status\":\"StatusInternalServerError\"}")
+		return
+	}
+	if len(msgs.GetAll()) != 0 {
+		c.deps.Logger.ErrorLog("%v", err)
+		deps.Responser.JSON(http.StatusBadRequest, msgs.ToJSON())
+		return
+	}
+	if _, err = c.deps.Inserter.Insert(scope, &entity); err != nil {
+		c.deps.Logger.ErrorLog("%v", err)
+		deps.Responser.JSON(http.StatusBadRequest, "{\"status\":\"StatusInternalServerError\"}")
+		return
+	}
+	deps.Responser.JSON(http.StatusCreated, "{\"status\":\"success\"}")
+}
+
+{{- end -}}

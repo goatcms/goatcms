@@ -42,10 +42,11 @@ func (rs *ResponserService) Execute(view *template.Template, data interface{}) e
 		session      *entities.Session
 		err          error
 	)
-	if rs.IsSended() {
+	rs.muSended.Lock()
+	if rs.sended {
+		rs.muSended.Unlock()
 		return fmt.Errorf("Response sended")
 	}
-	rs.muSended.Lock()
 	rs.sended = true
 	rs.muSended.Unlock()
 	if session, err = rs.deps.SessionManager.Get(); err == nil {
@@ -60,6 +61,20 @@ func (rs *ResponserService) Execute(view *template.Template, data interface{}) e
 	}); err != nil {
 		return err
 	}
+	return nil
+}
+
+func (rs *ResponserService) JSON(code int, json string) (err error) {
+	rs.muSended.Lock()
+	if rs.sended {
+		rs.muSended.Unlock()
+		return fmt.Errorf("Response sended")
+	}
+	rs.sended = true
+	rs.muSended.Unlock()
+	rs.deps.Response.Header().Set("Content-Type", "application/json")
+	rs.deps.Response.WriteHeader(code)
+	rs.deps.Response.Write([]byte(json))
 	return nil
 }
 

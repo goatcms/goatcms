@@ -33,6 +33,16 @@
   },
   "afterBuild": "gofmt -w {{argument.cwd}}/cmsapp/controllers/adminctrl/",
 },{
+  "to":"cmsapp/controllers/restctrl",
+  "layout":"default",
+  "template":"rest/controllers",
+  "properties": {
+    "package":"restctrl",
+    "path":"github.com/goatcms/goatcms/cmsapp/controllers/restctrl",
+    "entities_path":"github.com/goatcms/goatcms/cmsapp/entities"
+  },
+  "afterBuild": "gofmt -w {{argument.cwd}}/cmsapp/controllers/restctrl/",
+},{
   "to":"cmsapp/forms",
   "layout":"default",
   "template":"form/gocode",

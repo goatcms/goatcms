@@ -1,0 +1,99 @@
+{{- define "rest.controllers.model.list" -}}
+{{- $ctx := . -}}
+{{- $name := (index $ctx.Data (print .From ".entity")) -}}
+{{- $entityName := (camelcaseuf $name) -}}
+{{- $typeName := (print $entityName "CreateTable") -}}
+{{- $fieldsBaseKey := (print .From ".fields.") -}}
+{{- $requiredRolesStr := (index $ctx.Data (print .From ".admin_read_roles")) -}}
+{{- $requiredRoles := (unique (split $requiredRolesStr " ")) -}}
+
+package {{lower $name}}
+
+import (
+	"net/http"
+
+	"github.com/goatcms/goatcms/cmsapp/dao"
+	"github.com/goatcms/goatcms/cmsapp/entities"
+	"github.com/goatcms/goatcms/cmsapp/services"
+	"github.com/goatcms/goatcms/cmsapp/services/requestdep"
+	"github.com/goatcms/goatcore/app"
+	"github.com/goatcms/goatcore/dependency"
+	"github.com/goatcms/goatcore/varutil"
+)
+
+var (
+	listRequiredRoles = []string{
+		{{- range $i, $role := $requiredRoles -}}
+		{{- if ne $i 0 }}, {{ end -}}
+		"{{$role}}"
+		{{- end -}}
+	}
+)
+
+// List is a controler to show a list of article
+type List struct {
+	deps struct {
+		Template services.Template 					`dependency:"TemplateService"`
+		Logger   services.Logger            `dependency:"LoggerService"`
+		Finder   dao.{{$entityName}}Search  `dependency:"{{$entityName}}Search"`
+	}
+}
+
+// NewList create instance of a list {{lower $name}} controller
+func NewList(dp dependency.Provider) (*List, error) {
+	var err error
+	ctrl := &List{}
+	if err = dp.InjectTo(&ctrl.deps); err != nil {
+		return nil, err
+	}
+	return ctrl, nil
+}
+
+// Get is handler to serve template where one can add new article
+func (c *List) Get(requestScope app.Scope) {
+	var (
+		rows        dao.{{$entityName}}Rows
+		err         error
+		entity      *entities.{{$entityName}}
+		deps struct {
+			ACL          requestdep.ACL       `request:"ACLService"`
+			RequestError requestdep.Error     `request:"ErrorService"`
+			Responser    requestdep.Responser `request:"ResponserService"`
+			Request      *http.Request        `request:"Request"`
+		}
+		searchParams dao.{{$entityName}}SearchParams
+		json         string
+	)
+	if err = requestScope.InjectTo(&deps); err != nil {
+		c.deps.Logger.ErrorLog("%v", err)
+		deps.Responser.JSON(http.StatusInternalServerError, "{\"status\":\"StatusInternalServerError\"}")
+		return
+	}
+	if !deps.ACL.HasAnyRole(listRequiredRoles) {
+		c.deps.Logger.ErrorLog("Access denied")
+		deps.Responser.JSON(http.StatusForbidden, "{\"status\":\"StatusForbidden\"}")
+		return
+	}
+	if rows, err = c.deps.Finder.Search(requestScope, entities.{{$entityName}}MainFieldsAndID, &searchParams); err != nil {
+		c.deps.Logger.ErrorLog("%v", err)
+		deps.Responser.JSON(http.StatusInternalServerError, "{\"status\":\"StatusInternalServerError\"}")
+		return
+	}
+	collection := []*entities.{{$entityName}}{}
+	for rows.Next() {
+		if entity, err = rows.Get(); err != nil {
+			c.deps.Logger.ErrorLog("%v", err)
+			deps.Responser.JSON(http.StatusInternalServerError, "{\"status\":\"StatusInternalServerError\"}")
+			return
+		}
+		collection = append(collection, entity)
+	}
+	if json, err = varutil.ObjectToJSON(collection); err != nil {
+		c.deps.Logger.ErrorLog("%v", err)
+		deps.Responser.JSON(http.StatusInternalServerError, "{\"status\":\"StatusInternalServerError\"}")
+		return
+	}
+	deps.Responser.JSON(200, json)
+}
+
+{{- end -}}

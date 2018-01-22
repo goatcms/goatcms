@@ -1,0 +1,49 @@
+{{define "rest.controllers.model.module" -}}
+{{- $ctx := . -}}
+{{- $entityName := (camelcaseuf (index $ctx.Data (print .From ".entity"))) -}}
+
+package {{lower $entityName}}
+
+import (
+	"github.com/goatcms/goatcore/app"
+	"github.com/goatcms/goatcms/cmsapp/services"
+)
+
+// InitDependencies initialize the {{$entityName}} rest controllers
+func InitDependencies(a app.App) error {
+	var deps struct {
+		Router services.Router `dependency:"RouterService"`
+	}
+	dp := a.DependencyProvider()
+	if err := dp.InjectTo(&deps); err != nil {
+		return err
+	}
+	// add list controller
+	list, err := NewList(dp)
+	if err != nil {
+		return err
+	}
+	deps.Router.OnGet("/rest/{{lower $entityName}}", list.Get)
+	// add inserter
+	inserter, err := NewInserter(dp)
+	if err != nil {
+		return err
+	}
+	deps.Router.OnPost("/rest/{{lower $entityName}}", inserter.Post)
+	// add updater
+	updater, err := NewUpdater(dp)
+	if err != nil {
+		return err
+	}
+	deps.Router.OnPut("/rest/{{lower $entityName}}/{id:[0-9]+}", updater.DO)
+	// add deleter
+	deleter, err := NewDeleter(dp)
+	if err != nil {
+		return err
+	}
+	deps.Router.OnDelete("/rest/{{lower $entityName}}/{id:[0-9]+}", deleter.DO)
+	return nil
+}
+
+
+{{- end -}}

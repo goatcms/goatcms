@@ -54,6 +54,7 @@ type Translate interface {
 
 type Responser interface {
 	Execute(template *template.Template, data interface{}) error
+	JSON(code int, json string) (err error)
 	Redirect(url string)
 	IsSended() bool
 }

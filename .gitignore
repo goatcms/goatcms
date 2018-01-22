@@ -7,6 +7,7 @@ cmsapp/dao
 cmsapp/forms
 cmsapp/http
 cmsapp/controllers/adminctrl
+cmsapp/controllers/restctrl
 templates/layouts/default/forms
 templates/views/admin
 translates

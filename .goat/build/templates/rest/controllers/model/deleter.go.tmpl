@@ -1,0 +1,90 @@
+{{- define "rest.controllers.model.deleter" -}}
+{{- $ctx := . -}}
+{{- $name := (index $ctx.Data (print .From ".entity")) -}}
+{{- $entityName := (camelcaseuf $name) -}}
+{{- $typeName := (print $entityName "CreateTable") -}}
+{{- $fieldsBaseKey := (print .From ".fields.") -}}
+{{- $requiredRolesStr := (index $ctx.Data (print .From ".admin_delete_roles")) -}}
+{{- $requiredRoles := (unique (split $requiredRolesStr " ")) -}}
+
+package {{lower $name}}
+
+import (
+	"strconv"
+	"net/http"
+
+	"github.com/goatcms/goatcms/cmsapp/services"
+	"github.com/goatcms/goatcms/cmsapp/dao"
+	"github.com/goatcms/goatcms/cmsapp/services/requestdep"
+	"github.com/goatcms/goatcore/app"
+	"github.com/goatcms/goatcore/dependency"
+)
+
+var (
+	deleterRequiredRoles = []string{
+		{{- range $i, $role := $requiredRoles -}}
+		{{- if ne $i 0 }}, {{ end -}}
+		"{{$role}}"
+		{{- end -}}
+	}
+)
+
+// Deleter is {{lower $name}} updat controller
+type Deleter struct {
+	deps struct {
+		Template services.Template  `dependency:"TemplateService"`
+		Logger   services.Logger    `dependency:"LoggerService"`
+		Deleter  dao.Delete         `dependency:"{{$entityName}}Delete"`
+	}
+}
+
+// NewDeleter create instance of a Deleter form controller
+func NewDeleter(dp dependency.Provider) (*Deleter, error) {
+	var err error
+	ctrl := &Deleter{}
+	if err = dp.InjectTo(&ctrl.deps); err != nil {
+		return nil, err
+	}
+	return ctrl, nil
+}
+
+func (c *Deleter) DO(scope app.Scope) {
+	var (
+		err  error
+		deps struct {
+			ACL          requestdep.ACL       `request:"ACLService"`
+			RequestError requestdep.Error     `request:"ErrorService"`
+			Responser    requestdep.Responser `request:"ResponserService"`
+			ID           string               `parameter:"id"`
+		}
+		id        int64
+	)
+	if err = scope.InjectTo(&deps); err != nil {
+		c.deps.Logger.ErrorLog("%v", err)
+		deps.Responser.JSON(http.StatusInternalServerError, "{\"status\":\"StatusInternalServerError\"}")
+		return
+	}
+	if !deps.ACL.HasAnyRole(deleterRequiredRoles) {
+		c.deps.Logger.ErrorLog("Access denied")
+		deps.Responser.JSON(http.StatusForbidden, "{\"status\":\"StatusForbidden\"}")
+		return
+	}
+	if id, err = strconv.ParseInt(deps.ID, 10, 64); err != nil {
+		c.deps.Logger.ErrorLog("%v", err)
+		deps.Responser.JSON(http.StatusInternalServerError, "{\"status\":\"StatusInternalServerError\"}")
+		return
+	}
+	if err = c.deps.Deleter.Delete(scope, id); err != nil {
+		c.deps.Logger.ErrorLog("%v", err)
+		deps.Responser.JSON(http.StatusInternalServerError, "{\"status\":\"StatusInternalServerError\"}")
+		return
+	}
+	if err = scope.Trigger(app.CommitEvent, nil); err != nil {
+		c.deps.Logger.ErrorLog("%v", err)
+		deps.Responser.JSON(http.StatusInternalServerError, "{\"status\":\"StatusInternalServerError\"}")
+		return
+	}
+	deps.Responser.JSON(200, "{\"status\":\"OK\"}")
+}
+
+{{- end -}}

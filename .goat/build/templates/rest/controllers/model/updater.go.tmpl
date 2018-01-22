@@ -1,0 +1,114 @@
+{{- define "rest.controllers.model.updater" -}}
+{{- $ctx := . -}}
+{{- $name := (index $ctx.Data (print .From ".entity")) -}}
+{{- $entityName := (camelcaseuf $name) -}}
+{{- $typeName := (print $entityName "CreateTable") -}}
+{{- $fieldsBaseKey := (print .From ".fields.") -}}
+{{- $requiredRolesStr := (index $ctx.Data (print .From ".admin_read_roles")) -}}
+{{- $requiredRoles := (unique (split $requiredRolesStr " ")) -}}
+
+package {{lower $name}}
+
+import (
+	"strconv"
+	"net/http"
+	"encoding/json"
+
+	entities "{{index $ctx.Properties.Build "entities_path"}}"
+	"github.com/goatcms/goatcms/cmsapp/services"
+	"github.com/goatcms/goatcms/cmsapp/dao"
+	"github.com/goatcms/goatcms/cmsapp/services/requestdep"
+	"github.com/goatcms/goatcore/app"
+	"github.com/goatcms/goatcore/dependency"
+	"github.com/goatcms/goatcore/messages"
+)
+
+var (
+	updateRequiredRoles = []string{
+		{{- range $i, $role := $requiredRoles -}}
+		{{- if ne $i 0 }}, {{ end -}}
+		"{{$role}}"
+		{{- end -}}
+	}
+)
+
+// Updater is {{lower $name}} updat controller
+type Updater struct {
+	deps struct {
+		Template services.Template           `dependency:"TemplateService"`
+		Logger   services.Logger             `dependency:"LoggerService"`
+		Finder   dao.{{$entityName}}FindByID `dependency:"{{$entityName}}FindByID"`
+		Updater  dao.{{$entityName}}Update   `dependency:"{{$entityName}}Update"`
+	}
+}
+
+// NewUpdater create instance of a Updater form controller
+func NewUpdater(dp dependency.Provider) (*Updater, error) {
+	var err error
+	ctrl := &Updater{}
+	if err = dp.InjectTo(&ctrl.deps); err != nil {
+		return nil, err
+	}
+	return ctrl, nil
+}
+
+func (c *Updater) DO(scope app.Scope) {
+	var (
+		err  error
+		msgs messages.MessageMap
+		entity entities.{{$entityName}}
+		deps struct {
+			ACL          requestdep.ACL       `request:"ACLService"`
+			RequestError requestdep.Error     `request:"ErrorService"`
+			Responser    requestdep.Responser `request:"ResponserService"`
+			Request      *http.Request        `request:"Request"`
+			ID           string               `parameter:"id"`
+		}
+		id        int64
+	)
+	if err = scope.InjectTo(&deps); err != nil {
+		c.deps.Logger.ErrorLog("%v", err)
+		deps.Responser.JSON(http.StatusInternalServerError, "{\"status\":\"StatusInternalServerError\"}")
+		return
+	}
+	if !deps.ACL.HasAnyRole(updateRequiredRoles) {
+		c.deps.Logger.ErrorLog("Access denied")
+		deps.Responser.JSON(http.StatusForbidden, "{\"status\":\"StatusForbidden\"}")
+		return
+	}
+	if id, err = strconv.ParseInt(deps.ID, 10, 64); err != nil {
+		c.deps.Logger.ErrorLog("%v", err)
+		deps.Responser.JSON(http.StatusInternalServerError, "{\"status\":\"StatusInternalServerError\"}")
+		return
+	}
+	decoder := json.NewDecoder(deps.Request.Body)
+	if err = decoder.Decode(&entity); err != nil {
+		c.deps.Logger.ErrorLog("%v", err)
+		deps.Responser.JSON(http.StatusBadRequest, "{\"status\":\"StatusInternalServerError\"}")
+		return
+	}
+	if msgs, err = entities.Valid{{$entityName}}(&entity, entities.{{$entityName}}MainFields); err != nil {
+		c.deps.Logger.ErrorLog("%v", err)
+		deps.Responser.JSON(http.StatusBadRequest, "{\"status\":\"StatusInternalServerError\"}")
+		return
+	}
+	if len(msgs.GetAll()) != 0 {
+		c.deps.Logger.ErrorLog("%v", err)
+		deps.Responser.JSON(http.StatusBadRequest, msgs.ToJSON())
+		return
+	}
+	entity.ID = &id
+	if err = c.deps.Updater.Update(scope, &entity, entities.{{$entityName}}MainFields); err != nil {
+		c.deps.Logger.ErrorLog("%v", err)
+		deps.Responser.JSON(http.StatusBadRequest, "{\"status\":\"StatusInternalServerError\"}")
+		return
+	}
+	if err = scope.Trigger(app.CommitEvent, nil); err != nil {
+		c.deps.Logger.ErrorLog("%v", err)
+		deps.Responser.JSON(http.StatusBadRequest, "{\"status\":\"StatusInternalServerError\"}")
+		return
+	}
+	deps.Responser.JSON(http.StatusCreated, "{\"status\":\"success\"}")
+}
+
+{{- end -}}
