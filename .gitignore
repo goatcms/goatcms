@@ -1,38 +1,36 @@
 # .goat - personal data
-.goat/properties.json
+/.goat/properties.json
 
 # genereted files
-cmsapp/entities
-cmsapp/dao
-cmsapp/forms
-cmsapp/http
-cmsapp/controllers/adminctrl
-cmsapp/controllers/restctrl
-templates/layouts/default/forms
-templates/views/admin
-translates
+/cmsapp/entities
+/cmsapp/dao
+/cmsapp/forms
+/cmsapp/http
+/cmsapp/controllers/adminctrl
+/cmsapp/controllers/restctrl
+/templates/layouts/default/forms
+/templates/views/admin
+/translates
 
 # config
-config/config_prod.json
-config/config_dev.json
-config/config_test.json
-config/config_stage.json
+/config/config_prod.json
+/config/config_dev.json
+/config/config_test.json
+/config/config_stage.json
 
 # logs files
 *.log
 
 # database
-database/sqlite3_database.db
-database/sqlite3_database.db-journal
 *.db
 *.db-journal
 
 # web
-web/.DS_STORE
-web/node_modules
-web/dist
-web/coverage
-assets/images
+/web/.DS_STORE
+/web/node_modules
+/web/dist
+/web/coverage
+/assets/images
 npm-debug.log
 
 # system
@@ -49,4 +47,4 @@ debug
 
 # IDEs
 .idea/
-configuration.json
+/configuration.json
