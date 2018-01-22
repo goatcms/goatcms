@@ -12,6 +12,8 @@ import (
 	"github.com/goatcms/goatcore/dependency"
 )
 
+const X_AUTH_TOKEN_HEADER = "X-Auth-Token"
+
 // SessionManager provide session manager for reques (current user)
 type SessionManager struct {
 	deps struct {
@@ -35,13 +37,19 @@ func SessionFactory(dp dependency.Provider) (i interface{}, err error) {
 	return requestdep.SessionManager(s), nil
 }
 
-// LoadCookieSession read session secret from cookie and init session (create if not exists)
-func (s *SessionManager) LoadCookieSession() (err error) {
-	var cookie *http.Cookie
-	if cookie, err = s.deps.Request.Cookie(s.deps.SessionCookieID); err != nil {
-		return err
+// LoadSession read session secret from X-Auth-Token header or cookie
+func (s *SessionManager) LoadSession() (err error) {
+	var (
+		secret string
+	)
+	if secret = s.deps.Request.Header.Get(X_AUTH_TOKEN_HEADER); secret == "" {
+		var cookie *http.Cookie
+		if cookie, err = s.deps.Request.Cookie(s.deps.SessionCookieID); err != nil {
+			return err
+		}
+		secret = cookie.Value
 	}
-	if s.session, err = s.deps.Manager.Get(s.deps.RequestScope, cookie.Value); err != nil {
+	if s.session, err = s.deps.Manager.Get(s.deps.RequestScope, secret); err != nil {
 		s.deps.Logger.DevLog("%v: remove fail session", err)
 		if err = s.DestroySession(); err != nil {
 			return err

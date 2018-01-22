@@ -27,7 +27,7 @@ type ACL interface {
 }
 
 type SessionManager interface {
-	LoadCookieSession() (err error)
+	LoadSession() (err error)
 	Get() (session *entities.Session, err error)
 	CreateSession(user *entities.User) (err error)
 	DestroySession() (err error)

@@ -126,7 +126,7 @@ func (router *Router) scopeHandlerToMuxHandler(handler services.ScopeHandler) se
 		if err = scope.InjectTo(&deps); err != nil {
 			fmt.Printf("Error: %v", err)
 		}
-		if err = deps.Session.LoadCookieSession(); err != nil {
+		if err = deps.Session.LoadSession(); err != nil {
 			fmt.Printf("Error: %v", err)
 		}
 		handler(scope)
