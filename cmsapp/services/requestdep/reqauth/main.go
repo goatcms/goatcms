@@ -34,17 +34,18 @@ func AuthFactory(dp dependency.Provider) (interface{}, error) {
 }
 
 // Signin authorize user by username and passwrd and create session if success
-func (a *Auth) Signin(name, password string) (user *entities.User, err error) {
+func (a *Auth) Signin(name, password string) (session *entities.Session, err error) {
+	var user *entities.User
 	if user, err = a.deps.SigninQuery.Signin(a.deps.Scope, []string{"ID"}, &dao.UserSigninQueryParams{
 		Username: name,
 		Email:    name,
 	}); err != nil {
 		return nil, err
 	}
-	if err = a.deps.SessionManager.CreateSession(user); err != nil {
+	if session, err = a.deps.SessionManager.CreateSession(user); err != nil {
 		return nil, err
 	}
-	return user, nil
+	return session, nil
 }
 
 // Signout destroy user session (logout current user)

@@ -1,8 +1,8 @@
 package userctrl
 
 import (
-	"fmt"
 	"html/template"
+	"net/http"
 
 	"github.com/goatcms/goatcms/cmsapp/forms"
 	httpsignup "github.com/goatcms/goatcms/cmsapp/http/httpform/signup"
@@ -70,17 +70,18 @@ func (c *Signup) Post(scope app.Scope) {
 		}
 	)
 	if err = scope.InjectTo(&deps); err != nil {
-		fmt.Println(err)
+		c.deps.Logger.ErrorLog("%v", err)
+		deps.RequestError.Error(http.StatusInternalServerError, err)
 		return
 	}
 	if form, err = httpsignup.NewForm(scope, forms.SignupAllFields); err != nil {
 		c.deps.Logger.ErrorLog("%v", err)
-		deps.RequestError.Error(312, err)
+		deps.RequestError.Error(http.StatusInternalServerError, err)
 		return
 	}
 	if msgs, err = c.deps.Action.Signup(form, scope); err != nil {
 		c.deps.Logger.ErrorLog("%v", err)
-		deps.RequestError.Error(312, err)
+		deps.RequestError.Error(http.StatusInternalServerError, err)
 		return
 	}
 	if len(msgs.GetAll()) == 0 {
@@ -92,7 +93,7 @@ func (c *Signup) Post(scope app.Scope) {
 		"Form":  form,
 	}); err != nil {
 		c.deps.Logger.ErrorLog("%v", err)
-		deps.RequestError.Error(312, err)
+		deps.RequestError.Error(http.StatusInternalServerError, err)
 		return
 	}
 }

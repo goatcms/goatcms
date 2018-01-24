@@ -5,33 +5,58 @@
 {{- $typeName := (print $formName "FindAll") -}}
 {{- $fieldsBaseKey := (print .From ".fields.") -}}
 {{- $fields := (keys .Data $fieldsBaseKey) -}}
+{{- $firstIntValue := (findRow (print .From ".fields.") "^[A-Za-z0-9]+$" ".type" "int" $ctx.Data) -}}
+
+
 package {{lower $name}}
 
 import (
 	"net/http"
+	"strings"
+	"fmt"
+	"io/ioutil"
+	{{- if ne $firstIntValue ""}}
+	"strconv"
+	{{- end }}
 
 	forms "{{index $ctx.Properties.Build "forms_path"}}"
 	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/http/httphelpers"
+	"github.com/goatcms/goatcore/varutil"
+	"github.com/buger/jsonparser"
 )
 
 // NewForm create new form instance with data from HTTP request
-func NewForm(scope app.Scope, fields []string) (entity *forms.{{$formName}}, err error) {
-	var deps struct {
-		Req *http.Request `request:"Request"`
-	}
+func NewForm(scope app.Scope, fields []string) (form *forms.{{$formName}}, err error) {
+	var (
+		deps struct {
+			Req *http.Request `request:"Request"`
+		}
+		contentType string
+		body        []byte
+	)
 	if scope.InjectTo(&deps); err != nil {
 		return nil, err
 	}
-	entity = &forms.{{$formName}}{}
-	if err = DecodeFields("", entity, deps.Req, fields); err != nil {
+	form = &forms.{{$formName}}{}
+	contentType = deps.Req.Header.Get("Content-type")
+	if strings.HasPrefix(contentType, "application/json") {
+		if body, err = ioutil.ReadAll(deps.Req.Body); err != nil {
+			return nil, err
+		}
+		if err = DecodeJSON("", form, body, fields); err != nil {
+			return nil, err
+		}
+		return form, nil
+	}
+	if err = DecodeForm("", form, deps.Req, fields); err != nil {
 		return nil, err
 	}
-	return entity, nil
+	return form, nil
 }
 
-// DecodeFields decode HTTP request and set result do form
-func DecodeFields(prefix string, form *forms.{{$formName}}, req *http.Request, fields []string) (err error) {
+// DecodeForm decode HTTP request and set result do form
+func DecodeForm(prefix string, form *forms.{{$formName}}, req *http.Request, fields []string) (err error) {
 	if err = httphelpers.ParseForm(req); err != nil {
 		return err
 	}
@@ -42,7 +67,7 @@ func DecodeFields(prefix string, form *forms.{{$formName}}, req *http.Request, f
 		    {{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
 		    {{- $fieldType := (lower (index $ctx.Data (print $key ".type"))) }}
 			case "{{$fieldName}}":
-				{{- if eq $fieldType "repassword" -}}
+				{{- if eq $fieldType "repassword" }}
 					plain{{$fieldName}}First, ok := req.Form[prefix + "{{$fieldName}}.First"]
 					if !ok {
 						continue
@@ -55,17 +80,82 @@ func DecodeFields(prefix string, form *forms.{{$formName}}, req *http.Request, f
 						First: plain{{$fieldName}}First[0],
 						Second: plain{{$fieldName}}Second[0],
 					}
-				{{- else -}}
+				{{- else if eq $fieldType "text" "string" "email" "password" "lang" }}
 					plain{{$fieldName}}, ok := req.Form[prefix + "{{$fieldName}}"]
 					if !ok {
 						continue
 					}
 					form.{{$fieldName}} = &plain{{$fieldName}}[0]
+				{{- else if eq $fieldType "int" }}
+					var number int64
+					if number, err = strconv.ParseInt(string(value), 10, 64); err != nil {
+						return err
+					}
+					e.{{$fieldName}} = &number
 				{{- end -}}
 		  {{- end }}
 		}
 	}
 	return nil
+}
+
+
+// DecodeJSON decode HTTP JSON request and set result do form
+func DecodeJSON(prefix string, e *forms.{{$formName}}, json []byte, fields []string) (err error) {
+	return jsonparser.ObjectEach(json, func(key []byte, value []byte, dataType jsonparser.ValueType, offset int) error {
+		switch strings.ToLower(string(key)) {
+			{{- range $index, $field := $fields -}}
+		    {{- $key := (print $fieldsBaseKey $field) -}}
+		    {{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
+		    {{- $fieldType := (lower (index $ctx.Data (print $key ".type"))) }}
+
+				{{- if eq $fieldType "repassword" }}
+				case "{{lower $fieldName}}":
+					var str string
+					if !varutil.IsArrContainStr(fields, "{{$fieldName}}") {
+						return fmt.Errorf("{{$formName}}.DecodeJSON haven't got {{$fieldName}} permissions")
+					}
+					if dataType != jsonparser.String {
+						return fmt.Errorf("{{$formName}}.DecodeJSON expected string and take %s", value)
+					}
+					str = string(value)
+					e.{{$fieldName}} = &forms.RepeatPassword{
+						First: str,
+						Second: str,
+					}
+
+				{{- else if eq $fieldType "text" "string" "email" "password" "lang" }}
+				case "{{lower $fieldName}}":
+					var str string
+					if !varutil.IsArrContainStr(fields, "{{$fieldName}}") {
+						return fmt.Errorf("{{$formName}}.DecodeJSON haven't got {{$fieldName}} permissions")
+					}
+					if dataType != jsonparser.String {
+						return fmt.Errorf("{{$formName}}.DecodeJSON expected string and take %s", value)
+					}
+					str = string(value)
+					e.{{$fieldName}} = &str
+
+				{{- else if eq $fieldType "int" }}
+				case "{{lower $fieldName}}":
+					var number int64
+					if !varutil.IsArrContainStr(fields, "{{$fieldName}}") {
+						return fmt.Errorf("{{$formName}}.DecodeJSON haven't got {{$fieldName}} permissions")
+					}
+					if number, err = strconv.ParseInt(string(value), 10, 64); err != nil {
+						return err
+					}
+					e.{{$fieldName}} = &number
+				{{- else -}}
+				  {{- error (print "bad type" .) -}}
+				{{- end -}}
+		  {{- end }}
+
+		default:
+			return fmt.Errorf("{{$formName}}.DecodeJSON: Unknow key %s (value: %s)", key, value)
+		}
+		return nil
+	})
 }
 
 {{- end -}}

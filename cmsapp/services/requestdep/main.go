@@ -29,12 +29,12 @@ type ACL interface {
 type SessionManager interface {
 	LoadSession() (err error)
 	Get() (session *entities.Session, err error)
-	CreateSession(user *entities.User) (err error)
+	CreateSession(user *entities.User) (session *entities.Session, err error)
 	DestroySession() (err error)
 }
 
 type Auth interface {
-	Signin(name, password string) (*entities.User, error)
+	Signin(name, password string) (*entities.Session, error)
 	Signout() error
 }
 

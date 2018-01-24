@@ -68,9 +68,9 @@ func (s *SessionManager) Get() (session *entities.Session, err error) {
 }
 
 // CreateSession build new session for user
-func (s *SessionManager) CreateSession(user *entities.User) (err error) {
+func (s *SessionManager) CreateSession(user *entities.User) (session *entities.Session, err error) {
 	if s.session, err = s.deps.Manager.Create(s.deps.RequestScope, user); err != nil {
-		return err
+		return nil, err
 	}
 	expires := time.Unix(*s.session.Expires, 0)
 	cookie := http.Cookie{
@@ -81,7 +81,7 @@ func (s *SessionManager) CreateSession(user *entities.User) (err error) {
 		Path:     "/",
 	}
 	http.SetCookie(s.deps.Response, &cookie)
-	return nil
+	return s.session, nil
 }
 
 // DestroySession remove session cookie
