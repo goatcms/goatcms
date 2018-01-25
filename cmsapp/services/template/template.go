@@ -41,7 +41,7 @@ func (t *TemplateProvider) init() {
 	if t.provider != nil {
 		return
 	}
-	t.provider = ghprovider.NewProvider(t.deps.Filespace, goathtml.LayoutPath, goathtml.ViewPath, goathtml.FileExtension, t.funcs)
+	t.provider = ghprovider.NewProvider(t.deps.Filespace, goathtml.HelpersPath, goathtml.LayoutPath, goathtml.ViewPath, goathtml.FileExtension, t.funcs)
 }
 
 // Funcs adds the elements of the argument map to the template's function map.
