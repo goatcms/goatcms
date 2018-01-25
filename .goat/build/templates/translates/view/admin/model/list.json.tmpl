@@ -21,6 +21,10 @@
     {{- $value := (index $main.Context.Data $key) }}
     "edit_btn": "{{- if eq $value "" -}}Edit{{- else -}}{{$value}}{{- end -}}",
 
+    {{- $key := (print $translateKey ".insert_btn") -}}
+    {{- $value := (index $main.Context.Data $key) }}
+    "insert_btn": "{{- if eq $value "" -}}Insert{{- else -}}{{$value}}{{- end -}}",
+
     {{- $key := (print $translateKey ".delete_btn") -}}
     {{- $value := (index $main.Context.Data $key) }}
     "delete_btn": "{{- if eq $value "" -}}Delete{{- else -}}{{$value}}{{- end -}}"

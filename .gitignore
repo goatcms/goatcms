@@ -8,7 +8,7 @@
 /cmsapp/http
 /cmsapp/controllers/adminctrl
 /cmsapp/controllers/restctrl
-/templates/layouts/default/forms
+/templates/helpers/forms
 /templates/views/admin
 /translates
 

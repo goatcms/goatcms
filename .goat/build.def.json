@@ -1,22 +1,17 @@
 [{
   "to":"config",
-  "layout":"default",
   "template":"config",
 },{
   "to":"templates/views/admin",
-  "layout":"default",
   "template":"admin/views",
 },{
-  "to":"templates/layouts/default/forms",
-  "layout":"default",
+  "to":"templates/helpers/forms",
   "template":"form/view",
 },{
   "to":"translates",
-  "layout":"default",
   "template":"translates",
 },{
   "to":"cmsapp/entities",
-  "layout":"default",
   "template":"entity",
   "properties": {
     "package":"entities"
@@ -24,7 +19,6 @@
   "afterBuild": "gofmt -w {{argument.cwd}}/cmsapp/entities/",
 },{
   "to":"cmsapp/controllers/adminctrl",
-  "layout":"default",
   "template":"admin/controllers",
   "properties": {
     "package":"adminctrl",
@@ -34,7 +28,6 @@
   "afterBuild": "gofmt -w {{argument.cwd}}/cmsapp/controllers/adminctrl/",
 },{
   "to":"cmsapp/controllers/restctrl",
-  "layout":"default",
   "template":"rest/controllers",
   "properties": {
     "package":"restctrl",
@@ -44,7 +37,6 @@
   "afterBuild": "gofmt -w {{argument.cwd}}/cmsapp/controllers/restctrl/",
 },{
   "to":"cmsapp/forms",
-  "layout":"default",
   "template":"form/gocode",
   "properties": {
     "package":"forms"
@@ -52,7 +44,6 @@
   "afterBuild": "gofmt -w {{argument.cwd}}/cmsapp/forms/",
 },{
   "to":"cmsapp/http",
-  "layout":"default",
   "template":"http",
   "properties": {
     "package":"http",
@@ -63,7 +54,6 @@
   "afterBuild": "gofmt -w {{argument.cwd}}/cmsapp/http/",
 },{
   "to":"cmsapp/dao",
-  "layout":"default",
   "template":"dao",
   "properties": {
     "package":"dao",

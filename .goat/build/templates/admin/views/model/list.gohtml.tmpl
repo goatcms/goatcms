@@ -13,38 +13,44 @@
 
 <h1>{{$entityName}}</h1>
 
+<div class="top-nav">
+  {{- $hrefAttr := (print "href=\"/admin/" (lower $entityName) "/insert\"") }}
+  <a type="button" class="btn btn-link" {{$hrefAttr|safeHTMLAttr}}>
+    {{noescape "{{" }} TranslateFor "insert_btn" $prefix }}</a>
+  </a>
+</div>
+
 {{ noescape "{{ if eq (len .Data.Collection) 0 -}}" }}
 No data to show
 {{ noescape "{{- else }}" }}
-  <table>
-    <thead>
-      <tr>
+  <div class="admin-table">
+    <div class="row">
       {{- range $i, $fieldkey := $mainFields -}}
       {{- $fieldName := (camelcaseuf (index $ctx.Data (print $fieldsBaseKey $fieldkey ".name"))) }}
-        <th>{{$fieldName}}</th>
+        <div class="col">{{$fieldName}}</div>
       {{- end }}
-      <td>Actions</td>
-      </tr>
-    </thead>
-    <tbody>
+      <div class="col">Actions</div>
+    </div>
     {{- noescape "{{- " -}} range $i, $row := .Data.Collection }}
-      <tr>
+    <div class="row">
       {{- range $i, $fieldkey := $mainFields -}}
       {{- $fieldName := (camelcaseuf (index $ctx.Data (print $fieldsBaseKey $fieldkey ".name"))) }}
-        <td>{{- noescape "{{- " -}} $row.{{$fieldName}} -}}</td>
+        <div class="col">{{- noescape "{{- " -}} $row.{{$fieldName}} -}}</div>
       {{- end }}
-      <td>
-        {{noescape "<a href=\"/admin/"}} {{- lower $entityName -}} / {{- noescape "{{$row.ID}}\"" }}>{{ "{{" }} TranslateFor "edit_btn" $prefix}}</a>
+      <div class="col">
+        {{- $hrefAttr := (print "href=\"/admin/" (lower $entityName) "/{{$row.ID}}\"") }}
+        <a {{$hrefAttr|safeHTMLAttr}}>
+          {{ noescape "{{" }} TranslateFor "edit_btn" $prefix }}
+        </a>
         {{- $actionAttr := (print "action=\"/admin/" (lower $entityName) "/{{$row.ID}}$delete\"") }}
         <form method="POST" {{$actionAttr|safeHTMLAttr}}>
           {{- $valueAttr := "value=\"{{TranslateFor \"delete_btn\" $prefix}}\"" }}
           <input type="submit" {{$valueAttr|safeHTMLAttr}} />
         </form>
-      </td>
-      <tr>
+      </div>
+    </div>
     {{ noescape "{{- end }}" }}
-  </tbody>
-</table>
+</div>
 {{ noescape "{{- end }}" }}
 
 
