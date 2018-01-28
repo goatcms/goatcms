@@ -70,9 +70,16 @@ func (c *Signin) Post(scope app.Scope) {
 		return
 	}
 	if _, err = deps.RequestAuth.Signin(deps.Username, deps.Password); err != nil {
+		// there can be incorrect password error - only log it
 		c.deps.Logger.ErrorLog("%v", err)
-		deps.RequestError.Error(http.StatusBadRequest, err)
-		return
+		// show login panel again
+		if err := deps.Responser.Execute(c.view, map[string]interface{}{
+			"Error": true,
+		}); err != nil {
+			c.deps.Logger.ErrorLog("%v", err)
+			deps.RequestError.Error(http.StatusInternalServerError, err)
+			return
+		}
 	}
 	if err = scope.Trigger(app.CommitEvent, nil); err != nil {
 		c.deps.Logger.ErrorLog("%v", err)
@@ -81,13 +88,6 @@ func (c *Signin) Post(scope app.Scope) {
 	}
 	if err == nil {
 		deps.Responser.Redirect("/")
-		return
-	}
-	if err := deps.Responser.Execute(c.view, map[string]interface{}{
-		"Error": true,
-	}); err != nil {
-		c.deps.Logger.ErrorLog("%v", err)
-		deps.RequestError.Error(http.StatusInternalServerError, err)
 		return
 	}
 }
