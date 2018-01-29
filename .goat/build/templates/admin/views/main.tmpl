@@ -3,10 +3,17 @@
 {{- range $index, $key := (keys .Data "model.") -}}
 
   {{- /* List */ -}}
-  {{- $listPath := (print $ctx.To "/model/" $key "/list/main.gohtml") -}}
-  {{- if not ($ctx.Filesystem.IsFile $listPath) -}}
-    {{- $ctx.Out.File $listPath -}}
+  {{- $path := (print $ctx.To "/model/" $key "/list/main.gohtml") -}}
+  {{- if not ($ctx.Filesystem.IsFile $path) -}}
+    {{- $ctx.Out.File $path -}}
       {{- template "admin.views.model.list" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{- $path := (print $ctx.To "/model/" $key "/list/tools.gohtml") -}}
+  {{- if not ($ctx.Filesystem.IsFile $path) -}}
+    {{- $ctx.Out.File $path -}}
+      {{- template "admin.views.model.list_tools" (ctx $ctx (print "model." $key) "") -}}
     {{- $ctx.Out.EOF -}}
   {{- end -}}
 

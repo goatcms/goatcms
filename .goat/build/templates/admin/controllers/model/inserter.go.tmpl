@@ -120,6 +120,11 @@ func (c *Inserter) Post(scope app.Scope) {
 			deps.RequestError.Error(312, err)
 			return
 		}
+		if err = scope.Trigger(app.CommitEvent, nil); err != nil {
+			c.deps.Logger.ErrorLog("%v", err)
+			deps.RequestError.Error(312, err)
+			return
+		}
 		deps.Responser.Redirect("/admin/{{lower $name}}")
 		return
 	}

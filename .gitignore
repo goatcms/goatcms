@@ -28,7 +28,7 @@
 # web
 /web/.DS_STORE
 /web/node_modules
-/web/dist
+/web/dist/build
 /web/coverage
 /assets/images
 npm-debug.log

@@ -6,6 +6,7 @@
       "admin_insert_roles": "admin",
       "admin_edit_roles":   "admin",
       "admin_delete_roles": "admin",
+      "label":"name",
       "fields": {
         "0": {
           "name": "lang",

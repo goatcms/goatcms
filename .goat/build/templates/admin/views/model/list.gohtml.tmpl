@@ -1,6 +1,7 @@
 {{- define "admin.views.model.list" -}}
 {{- $ctx := . -}}
 {{- $name := (index $ctx.Data (print .From ".entity")) -}}
+{{- $labelField := (index $ctx.Data (print .From ".label")) -}}
 {{- $entityName := (camelcaseuf $name) -}}
 {{- $fieldsBaseKey := (print .From ".fields.") -}}
 {{- $fields := (sort (keys $ctx.Data $fieldsBaseKey)) -}}
@@ -10,12 +11,13 @@
 {{- noescape "{{- define \"content\" -}}" }}
 
 {{ "{{" }} $prefix := (print .Lang ".view.admin.model.{{lower $name}}.list.") }}
+<div class="admin-view {{lower $entityName}}-admin-view">
 
 <h1>{{$entityName}}</h1>
 
 <div class="top-nav">
   {{- $hrefAttr := (print "href=\"/admin/" (lower $entityName) "/insert\"") }}
-  <a type="button" class="btn btn-link" {{$hrefAttr|safeHTMLAttr}}>
+  <a type="button" class="btn btn-primary" {{$hrefAttr|safeHTMLAttr}}>
     {{noescape "{{" }} TranslateFor "insert_btn" $prefix }}</a>
   </a>
 </div>
@@ -24,35 +26,29 @@
 No data to show
 {{ noescape "{{- else }}" }}
   <div class="admin-table">
-    <div class="row">
+    <div class="row head">
       {{- range $i, $fieldkey := $mainFields -}}
       {{- $fieldName := (camelcaseuf (index $ctx.Data (print $fieldsBaseKey $fieldkey ".name"))) }}
-        <div class="col">{{$fieldName}}</div>
+      {{- $fieldType := (lower (index $ctx.Data (print $fieldsBaseKey $fieldkey ".type"))) }}
+        <div class="col {{$fieldType}} {{- if eq (lower $labelField) (lower $fieldName)}} main{{- end -}}">{{$fieldName}}</div>
       {{- end }}
-      <div class="col">Actions</div>
+      <div class="col tools"></div>
     </div>
     {{- noescape "{{- " -}} range $i, $row := .Data.Collection }}
     <div class="row">
       {{- range $i, $fieldkey := $mainFields -}}
       {{- $fieldName := (camelcaseuf (index $ctx.Data (print $fieldsBaseKey $fieldkey ".name"))) }}
-        <div class="col">{{- noescape "{{- " -}} $row.{{$fieldName}} -}}</div>
+      {{- $fieldType := (lower (index $ctx.Data (print $fieldsBaseKey $fieldkey ".type"))) }}
+        <div class="col {{$fieldType}} {{- if eq (lower $labelField) (lower $fieldName)}} main{{- end -}}">{{- noescape "{{- " -}} $row.{{$fieldName}} -}}</div>
       {{- end }}
-      <div class="col">
-        {{- $hrefAttr := (print "href=\"/admin/" (lower $entityName) "/{{$row.ID}}\"") }}
-        <a {{$hrefAttr|safeHTMLAttr}}>
-          {{ noescape "{{" }} TranslateFor "edit_btn" $prefix }}
-        </a>
-        {{- $actionAttr := (print "action=\"/admin/" (lower $entityName) "/{{$row.ID}}$delete\"") }}
-        <form method="POST" {{$actionAttr|safeHTMLAttr}}>
-          {{- $valueAttr := "value=\"{{TranslateFor \"delete_btn\" $prefix}}\"" }}
-          <input type="submit" {{$valueAttr|safeHTMLAttr}} />
-        </form>
+      <div class="col tools">
+          {{noescape "{{-" }} template "tools" (dict "Row" $row "Prefix" $prefix) -}}
       </div>
     </div>
     {{ noescape "{{- end }}" }}
-</div>
+  </div>
 {{ noescape "{{- end }}" }}
-
+</div>
 
 {{ noescape "{{- end }}" }}
 {{- end -}}

@@ -35,6 +35,13 @@
     "min":1,
     "max":30,
     "pattern": "^([a-zA-z]+[a-zA-Z0-9]*\s)*[a-zA-z]+[a-zA-Z0-9]$"
+  },{
+    "prompt":"insert label fields name (it will be used as label for dictionaries)",
+    "key":"label",
+    "type":"line",
+    "min":1,
+    "max":30,
+    "pattern": "^[a-zA-z]+[a-zA-Z0-9]*$"
   }],
   "collections":[{
     "key": "fields",

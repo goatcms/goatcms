@@ -1,0 +1,26 @@
+{{- define "admin.views.model.list_tools" -}}
+{{- $ctx := . -}}
+{{- $name := (index $ctx.Data (print .From ".entity")) -}}
+{{- $labelField := (index $ctx.Data (print .From ".label")) -}}
+{{- $entityName := (camelcaseuf $name) -}}
+{{- $fieldsBaseKey := (print .From ".fields.") -}}
+{{- $fields := (sort (keys $ctx.Data $fieldsBaseKey)) -}}
+{{- $systemFields := (findRows $fieldsBaseKey "^[A-Za-z0-9]+$" ".system" "y" $ctx.Data) -}}
+{{- $mainFields := (except $fields $systemFields) -}}
+
+{{- noescape "{{-" }} define "tools" -}}
+
+{{- noescape "{{-" }} $root := . -}}
+
+{{- $hrefAttr := (print "href=\"/admin/" (lower $entityName) "/{{$root.Row.ID}}\"") }}
+<a class="btn btn-primary" {{$hrefAttr|safeHTMLAttr}}>
+  {{ noescape "{{" }} TranslateFor "edit_btn" $root.Prefix }}
+</a>
+{{- $actionAttr := (print "action=\"/admin/" (lower $entityName) "/{{$root.Row.ID}}$delete\"") }}
+<form method="POST" {{$actionAttr|safeHTMLAttr}}>
+  {{- $valueAttr := "value=\"{{TranslateFor \"delete_btn\" $root.Prefix}}\"" }}
+  <input class="btn btn-danger" type="submit" {{$valueAttr|safeHTMLAttr}} />
+</form>
+
+{{ noescape "{{- end -}}" }}
+{{- end -}}
