@@ -1,7 +1,7 @@
 {{- define "sqlite.helpers.main" -}}
 {{- $ctx := . -}}
 
-{{- /* Helpers */ -}}
+{{- /* Main */ -}}
 {{- $path := (print $ctx.To "/sqlitedao/helpers/main.go") -}}
 {{- if not ($ctx.Filesystem.IsFile $path) -}}
   {{- $ctx.Out.File $path -}}
@@ -9,11 +9,19 @@
   {{- $ctx.Out.EOF -}}
 {{- end -}}
 
-{{- /* Helpers - Rows */ -}}
+{{- /*  Rows */ -}}
 {{- $path := (print $ctx.To "/sqlitedao/helpers/rows.go") -}}
 {{- if not ($ctx.Filesystem.IsFile $path) -}}
   {{- $ctx.Out.File $path -}}
     {{- template "sqlite.helpers.rows_go" $ctx -}}
+  {{- $ctx.Out.EOF -}}
+{{- end -}}
+
+{{- /* fields */ -}}
+{{- $path := (print $ctx.To "/sqlitedao/helpers/fields.go") -}}
+{{- if not ($ctx.Filesystem.IsFile $path) -}}
+  {{- $ctx.Out.File $path -}}
+    {{- template "sqlite.helpers.fields_go" $ctx -}}
   {{- $ctx.Out.EOF -}}
 {{- end -}}
 

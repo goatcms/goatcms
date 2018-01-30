@@ -13,22 +13,39 @@
 package {{index $ctx.Properties.Build "package"}}
 
 // {{camelcaseuf $name}}AllFields is a array contains list of all {{camelcaseuf $name}} fields (except ID)
-var {{camelcaseuf $name}}AllFields = {{template "fields_array_helper" (dict "Fields" $fields "Relations" $relations "Context" $ctx)}}
+var {{camelcaseuf $name}}AllFields = {{template "fields_array_helper" (dict "WithID" false "EntityName" $name "AllFields" $fields "AllRelations" $relations "Fields" $fields "Relations" $relations "Context" $ctx)}}
 
 // {{camelcaseuf $name}}AllFieldsAndID is a array contains list of all {{camelcaseuf $name}} fields (with ID)
-var {{camelcaseuf $name}}AllFieldsAndID = append({{camelcaseuf $name}}AllFields, "ID")
+var {{camelcaseuf $name}}AllFieldsAndID = {{template "fields_array_helper" (dict "WithID" true "EntityName" $name "AllFields" $fields "AllRelations" $relations "Fields" $fields "Relations" $relations "Context" $ctx)}}
 
 // {{camelcaseuf $name}}MainFields is a array contains list of main {{camelcaseuf $name}} fields (except ID)
-var {{camelcaseuf $name}}MainFields = {{template "fields_array_helper" (dict "Fields" $mainFields "Relations" $mainRelations "Context" $ctx)}}
+var {{camelcaseuf $name}}MainFields = {{template "fields_array_helper" (dict "WithID" false "EntityName" $name "AllFields" $fields "AllRelations" $relations "Fields" $mainFields "Relations" $mainRelations "Context" $ctx)}}
 
 // {{camelcaseuf $name}}MainFieldsAndID is a array contains list of main {{camelcaseuf $name}} fields (with ID)
-var {{camelcaseuf $name}}MainFieldsAndID = append({{camelcaseuf $name}}MainFields, "ID")
+var {{camelcaseuf $name}}MainFieldsAndID = {{template "fields_array_helper" (dict "WithID" true "EntityName" $name "AllFields" $fields "AllRelations" $relations "Fields" $mainFields "Relations" $mainRelations "Context" $ctx)}}
 
 // {{camelcaseuf $name}}SystemFields is a array contains list of system {{camelcaseuf $name}} fields (except ID)
-var {{camelcaseuf $name}}SystemFields = {{template "fields_array_helper" (dict "Fields" $systemFields "Relations" $systemRelations "Context" $ctx)}}
+var {{camelcaseuf $name}}SystemFields = {{template "fields_array_helper" (dict "WithID" false "EntityName" $name "AllFields" $fields "AllRelations" $relations "Fields" $systemFields "Relations" $systemRelations "Context" $ctx)}}
 
 // {{camelcaseuf $name}}SystemFieldsAndID is a array contains list of system {{camelcaseuf $name}} fields (with ID)
-var {{camelcaseuf $name}}SystemFieldsAndID = append({{camelcaseuf $name}}SystemFields, "ID")
+var {{camelcaseuf $name}}SystemFieldsAndID = {{template "fields_array_helper" (dict "WithID" true "EntityName" $name "AllFields" $fields "AllRelations" $relations "Fields" $systemFields "Relations" $systemRelations "Context" $ctx)}}
+
+// {{camelcaseuf $name}} select {{lower $name}} entity fields
+type {{camelcaseuf $name}}Fields struct {
+  ID bool
+{{- range $index, $field := $fields -}}
+  {{- $key := (print $fieldsBaseKey $field) -}}
+  {{- $fieldName := (index $ctx.Data (print $key ".name")) -}}
+  {{- $fieldType := (index $ctx.Data (print $key ".type")) }}
+  {{camelcaseuf $fieldName}} bool
+{{- end -}}
+{{- range $index, $relation := $relations -}}
+  {{- $key := (print $relationsBaseKey $relation) -}}
+  {{- $fieldName := (index $ctx.Data (print $key ".name")) -}}
+  {{- $foreignModel := (camelcaseuf (index $ctx.Data (print $key ".model"))) }}
+  {{camelcaseuf $fieldName}}ID bool
+{{- end }}
+}
 
 // {{camelcaseuf $name}} storages {{lower $name}} data
 type {{camelcaseuf $name}} struct {

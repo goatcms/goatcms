@@ -39,7 +39,7 @@ func doSearchStory(t *testing.T) (bool, *sql.DB) {
 	if rows, err = searcher.Search(s, entities.{{$entityName}}AllFields, &maindef.{{$entityName}}SearchParams{
 	{{- range $index, $field := $fields -}}
 		{{- $fieldName := (camelcaseuf (index $ctx.Data (print $fieldsBaseKey $field ".name"))) }}
-		{{$fieldName}}: *expectedEntity.{{$fieldName}},
+		{{$fieldName}}: expectedEntity.{{$fieldName}},
 	{{- end }}
 	}); err != nil {
 		t.Error(err)

@@ -12,11 +12,10 @@ import (
 	"github.com/goatcms/goatcore/messages"
 	"github.com/goatcms/goatcore/messages/msgcollection"
 	"github.com/goatcms/goatcore/varutil/validator"
-	"github.com/goatcms/goatcore/varutil"
 )
 
 
-func Valid{{$name}}(e *{{$name}}, fields []string) (mm messages.MessageMap, err error) {
+func Valid{{$name}}(e *{{$name}}, fields *{{camelcaseuf $name}}Fields) (mm messages.MessageMap, err error) {
 	mm = msgcollection.NewMessageMap()
 	if err = Add{{$name}}Valid("", mm, e, fields); err != nil {
 		return nil, err
@@ -24,7 +23,7 @@ func Valid{{$name}}(e *{{$name}}, fields []string) (mm messages.MessageMap, err 
 	return mm, nil
 }
 
-func Add{{$name}}Valid(basekey string, mm messages.MessageMap, e *{{$name}}, fields []string) error {
+func Add{{$name}}Valid(basekey string, mm messages.MessageMap, e *{{$name}}, fields *{{camelcaseuf $name}}Fields) error {
 	var messageKey string
   {{- range $index, $field := $fields -}}
     {{- $key := (print $fieldsBaseKey $field) -}}
@@ -33,7 +32,7 @@ func Add{{$name}}Valid(basekey string, mm messages.MessageMap, e *{{$name}}, fie
     {{- $required := (lower (index $ctx.Data (print $key ".required"))) }}
 
 		// {{$fieldName}} field
-		if varutil.IsArrContainStr(fields, "{{$fieldName}}") {
+		if fields.{{$fieldName}} {
 			messageKey = basekey+"{{$fieldName}}"
 
 			{{- if eq $required "y" }}
@@ -76,8 +75,8 @@ func Add{{$name}}Valid(basekey string, mm messages.MessageMap, e *{{$name}}, fie
 		{{- $required := (lower (index $ctx.Data (print $key ".required"))) }}
 
 		// {{$fieldName}} relation field
-		if varutil.IsArrContainStr(fields, "{{$fieldName}}") {
-			messageKey = basekey+"{{$fieldName}}"
+		if fields.{{$fieldName}}ID {
+			messageKey = basekey+"{{$fieldName}}ID"
 
 			{{- if eq $required "y" }}
 				if e.{{$fieldName}} == nil {

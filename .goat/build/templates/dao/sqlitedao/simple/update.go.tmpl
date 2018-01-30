@@ -13,6 +13,7 @@ package simple
 import (
 	"fmt"
 	"strconv"
+	"strings"
 	"database/sql"
 	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/dependency"
@@ -45,7 +46,7 @@ func {{$typeName}}Factory(dp dependency.Provider) (interface{}, error) {
 	return maindef.{{$entityName}}Update(instance), nil
 }
 
-func (dao {{$typeName}}) Update(scope app.Scope, entity *entities.{{$entityName}}, fields []string) (err error) {
+func (dao {{$typeName}}) Update(scope app.Scope, entity *entities.{{$entityName}}, fields *entities.{{camelcaseuf $name}}Fields) (err error) {
 	var (
 		res   sql.Result
 		count int64
@@ -70,37 +71,34 @@ func (dao {{$typeName}}) Update(scope app.Scope, entity *entities.{{$entityName}
 	return nil
 }
 
-func (dao {{$typeName}}) SQL(fields []string, entity *entities.{{$entityName}}) (string, error) {
+func (dao {{$typeName}}) SQL(fields *entities.{{camelcaseuf $name}}Fields, entity *entities.{{$entityName}}) (string, error) {
+	array := make([]string, {{sum (len $fields) (len $relations)}})
 	sql := "UPDATE {{camelcaseuf $name}} SET "
-	for i, row := range fields {
-		if i == 0 {
-			sql += row + "="
-		} else {
-			sql += ", " + row + "="
-		}
-		switch(row) {
-			{{- range $fi, $field := $fields -}}
-				{{- $key := (print $fieldsBaseKey $field) -}}
-				{{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
-				{{- $fieldType := (index $ctx.Data (print $key ".type")) }}
-				case "{{$fieldName}}":
-				{{- if eq (lower $fieldType) "text" "string" "email" "password" "lang" }}
-					sql += helpers.Quote(entity.{{$fieldName}})
-				{{- else if (lower $fieldType) "int" }}
-					sql += helpers.FormatInt(entity.{{$fieldName}}, 10)
-				{{- else -}}
-					{{- error (print "bad type" $fieldType) -}}
-				{{- end -}}
-			{{- end -}}
-			{{- range $fi, $relation := $relations -}}
-				{{- $key := (print $relationsBaseKey $relation) -}}
-				{{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) }}
-				case "{{$fieldName}}ID":
-					sql += helpers.FormatInt(entity.{{$fieldName}}ID, 10)
-			{{- end -}}
-		}
+	i := 0
+{{- range $fi, $field := $fields -}}
+{{- $key := (print $fieldsBaseKey $field) -}}
+{{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
+{{- $fieldType := (index $ctx.Data (print $key ".type")) }}
+	if fields.{{$fieldName}} {
+{{- if eq (lower $fieldType) "text" "string" "email" "password" "lang" }}
+	  array[i] = "{{$fieldName}}=" + helpers.Quote(entity.{{$fieldName}})
+{{- else if (lower $fieldType) "int" }}
+		array[i] = "{{$fieldName}}=" + helpers.FormatInt(entity.{{$fieldName}}, 10)
+{{- else -}}
+		{{- error (print "bad type" $fieldType) -}}
+{{- end }}
+		i++
 	}
-	sql += " WHERE ID=" + strconv.FormatInt(*entity.ID, 10)
+{{- end -}}
+{{- range $fi, $relation := $relations -}}
+{{- $key := (print $relationsBaseKey $relation) -}}
+{{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) }}
+	if fields.{{$fieldName}}ID {
+		array[i] = "{{$fieldName}}ID=" + helpers.FormatInt(entity.{{$fieldName}}ID, 10)
+		i++
+	}
+{{- end }}
+	sql += strings.Join(array[0:i], ", ") + " WHERE ID=" + strconv.FormatInt(*entity.ID, 10)
 	return sql, nil
 }
 

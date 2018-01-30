@@ -26,7 +26,9 @@ func RunUpdateRoles(a app.App) (err error) {
 	if err = a.DependencyProvider().InjectTo(&deps); err != nil {
 		return err
 	}
-	if user, err = deps.Search.Signin(scope, []string{"ID"}, &dao.UserSigninQueryParams{
+	if user, err = deps.Search.Signin(scope, &entities.UserFields{
+		ID: true,
+	}, &dao.UserSigninQueryParams{
 		Username: deps.Identyfier,
 		Email:    deps.Identyfier,
 	}); err != nil {
@@ -34,7 +36,9 @@ func RunUpdateRoles(a app.App) (err error) {
 	}
 	deps.Roles = strings.Replace(deps.Roles, "&", " ", -1)
 	user.Roles = &deps.Roles
-	if err = deps.Updater.Update(scope, user, []string{"Roles"}); err != nil {
+	if err = deps.Updater.Update(scope, user, &entities.UserFields{
+		Roles: true,
+	}); err != nil {
 		return err
 	}
 	if err = scope.Trigger(app.CommitEvent, nil); err != nil {

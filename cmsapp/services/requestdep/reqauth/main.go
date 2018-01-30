@@ -43,7 +43,10 @@ func (a *Auth) Signin(name, password string) (session *entities.Session, err err
 		ok   bool
 		user *entities.User
 	)
-	if user, err = a.deps.SigninQuery.Signin(a.deps.Scope, []string{"ID", "Password"}, &dao.UserSigninQueryParams{
+	if user, err = a.deps.SigninQuery.Signin(a.deps.Scope, &entities.UserFields{
+		ID:       true,
+		Password: true,
+	}, &dao.UserSigninQueryParams{
 		Username: name,
 		Email:    name,
 	}); err != nil {

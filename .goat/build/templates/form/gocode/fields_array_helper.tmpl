@@ -2,16 +2,10 @@
 {{- $root := . -}}
 
 &{{camelcaseuf $root.EntityName}}Fields {
-  ID: {{if $root.WithID}}true{{- else -}}false{{- end -}},
 {{- range $index, $fieldID := $root.AllFields -}}
   {{- $key := (print $root.Context.From ".fields." $fieldID) -}}
   {{- $fieldName := (index $root.Context.Data (print $key ".name")) }}
   {{camelcaseuf $fieldName}}: {{if contains $root.Fields $fieldID}}true{{- else -}}false{{- end -}},
-{{- end -}}
-{{- range $index, $relationID := $root.AllRelations -}}
-  {{- $key := (print $root.Context.From ".relations." $relationID) -}}
-  {{- $fieldName := (index $root.Context.Data (print $key ".name")) }}
-  {{camelcaseuf $fieldName}}ID: {{if contains $root.Relations $relationID}}true{{- else -}}false{{- end -}},
 {{- end }}
 }
 

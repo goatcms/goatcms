@@ -12,6 +12,8 @@ import (
 	"github.com/goatcms/goatcore/app"
 	"database/sql"
 	"github.com/goatcms/goatcore/dependency"
+	"strings"
+	entities "{{index $ctx.Properties.Build "entities_path"}}"
 	helpers "{{index $ctx.Properties.Build "path"}}/sqlitedao/helpers"
 	maindef "{{index $ctx.Properties.Build "path"}}"
 )
@@ -39,7 +41,7 @@ func {{$typeName}}Factory(dp dependency.Provider) (interface{}, error) {
 	return maindef.{{$entityName}}FindAll(instance), nil
 }
 
-func (dao {{$typeName}}) Find(scope app.Scope, fields []string) (maindef.{{$entityName}}Rows, error) {
+func (dao {{$typeName}}) Find(scope app.Scope, fields *entities.{{camelcaseuf $name}}Fields) (maindef.{{$entityName}}Rows, error) {
 	var (
 		err   error
 		query string
@@ -58,16 +60,8 @@ func (dao {{$typeName}}) Find(scope app.Scope, fields []string) (maindef.{{$enti
 	return New{{$entityName}}Rows(rows), nil
 }
 
-func (dao {{$typeName}}) SQL(fields []string) (string, error) {
-	sql := "SELECT "
-	i := 0
-	for _, row := range fields {
-		if i > 0 {
-			sql += ", "
-		}
-		sql += row
-		i++
-	}
+func (dao {{$typeName}}) SQL(fields *entities.{{camelcaseuf $name}}Fields) (string, error) {
+	sql := "SELECT " + strings.Join(helpers.{{$entityName}}ToArray(fields), ",")
 	return sql + " FROM {{camelcaseuf $name}}", nil
 }
 

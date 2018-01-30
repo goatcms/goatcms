@@ -73,8 +73,10 @@ func (q *Query) AddEntity(entityName string, fields []string) (alias string, err
 	alias = "t" + strconv.Itoa(q.aliasCounter)
 	q.From = append(q.From, entityName + " AS " + alias)
 	// add to select fields
-	for _, field := range fields {
-		q.Fields = append(q.Fields, alias + "." + field)
+	if fields != nil {
+		for _, field := range fields {
+			q.Fields = append(q.Fields, alias + "." + field)
+		}
 	}
 	return alias, nil
 }

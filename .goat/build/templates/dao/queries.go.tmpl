@@ -29,7 +29,7 @@ type {{camelcaseuf $queryModel}}{{camelcaseuf $queryName}}QueryParams struct {
 }
 
 type {{camelcaseuf $queryModel}}{{camelcaseuf $queryName}}Query interface {
-	{{camelcaseuf $queryName}}(scope app.Scope, fields []string, params *{{camelcaseuf $queryModel}}{{camelcaseuf $queryName}}QueryParams) (
+	{{camelcaseuf $queryName}}(scope app.Scope, fields *entities.{{camelcaseuf $queryModel}}Fields, params *{{camelcaseuf $queryModel}}{{camelcaseuf $queryName}}QueryParams) (
 		{{- if eq $isSingleResult "y" -}}
 			*entities.{{camelcaseuf $queryModel}}
 		{{- else -}}

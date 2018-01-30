@@ -12,6 +12,7 @@ package criteria
 
 import (
 	"fmt"
+	helpers "{{index $ctx.Properties.Build "path"}}/sqlitedao/helpers"
 	maindef "{{index $ctx.Properties.Build "path"}}"
 )
 
@@ -22,7 +23,8 @@ func Add{{$entityName}}CriteriaToQuery(criteria *maindef.{{$entityName}}Criteria
 	if criteria == nil {
 		return fmt.Errorf("Add{{$entityName}}CriteriaToQuery: Criteria is required")
 	}
-	if alias, err = q.AddEntity("{{$entityName}}", criteria.Fields); err != nil {
+	fieldsArr := helpers.{{camelcaseuf $entityName}}ToArray(criteria.Fields)
+	if alias, err = q.AddEntity("{{$entityName}}", fieldsArr); err != nil {
 		return err
 	}
 	return add{{$entityName}}CriteriaToQuery(alias, criteria, q)
@@ -60,7 +62,8 @@ func add{{$entityName}}CriteriaToQuery(alias string, criteria *maindef.{{$entity
     {{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
     {{- $relatedModel := (camelcaseuf (index $ctx.Data (print $key ".model"))) }}
 			if criteria.Related.{{$fieldName}} != nil {
-				if relatedAlias, err = q.AddEntity("{{$relatedModel}}", criteria.Related.{{$fieldName}}.Fields); err != nil {
+				fieldsArr := helpers.{{camelcaseuf $relatedModel}}ToArray(criteria.Related.{{$fieldName}}.Fields)
+				if relatedAlias, err = q.AddEntity("{{$relatedModel}}", fieldsArr); err != nil {
 					return err
 				}
 				if err = q.AddRelation(alias, "{{$fieldName}}ID", relatedAlias); err != nil {

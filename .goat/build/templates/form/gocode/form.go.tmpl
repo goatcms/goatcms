@@ -7,31 +7,24 @@
 package {{index $ctx.Properties.Build "package"}}
 
 // {{camelcaseuf $name}}AllFields is a array contains list of all {{camelcaseuf $name}} fields (except ID)
-var {{camelcaseuf $name}}AllFields = []string{
-{{- range $index, $field := $fields -}}
-  {{- $key := (print $fieldsBaseKey $field) -}}
-  {{- $fieldName := (index $ctx.Data (print $key ".name")) -}}
-  {{- if not (eq $index 0) -}},{{- end -}}
-  "{{camelcaseuf $fieldName}}"
-{{- end -}}
-}
+var {{camelcaseuf $name}}AllFields = {{template "fields_array_helper" (dict "EntityName" $name "AllFields" $fields "Fields" $fields "Context" $ctx)}}
 
-// {{camelcaseuf $name}}MainFields is a array contains list of main {{camelcaseuf $name}} fields (except ID)
-var {{camelcaseuf $name}}MainFields = []string{
-{{- range $index, $field := $fields -}}
-  {{- $key := (print $fieldsBaseKey $field) -}}
-  {{- $fieldName := (index $ctx.Data (print $key ".name")) -}}
-  {{- if not (eq $index 0) -}},{{- end -}}
-  "{{camelcaseuf $fieldName}}"
-{{- end -}}
+// {{camelcaseuf $name}}Fields select {{lower $name}} form fields
+type {{camelcaseuf $name}}Fields struct {
+{{- range $index, $field := (keys .Data $fieldsBaseKey) -}}
+{{- $key := (print $fieldsBaseKey $field) -}}
+{{- $fieldName := (index $ctx.Data (print $key ".name")) -}}
+{{- $fieldType := (index $ctx.Data (print $key ".type")) }}
+  {{camelcaseuf $fieldName}} bool
+{{- end }}
 }
 
 // {{camelcaseuf $name}} storages {{lower $name}} data
 type {{camelcaseuf $name}} struct {
 {{- range $index, $field := (keys .Data $fieldsBaseKey) -}}
-  {{- $key := (print $fieldsBaseKey $field) -}}
-  {{- $fieldName := (index $ctx.Data (print $key ".name")) -}}
-  {{- $fieldType := (index $ctx.Data (print $key ".type")) }}
+{{- $key := (print $fieldsBaseKey $field) -}}
+{{- $fieldName := (index $ctx.Data (print $key ".name")) -}}
+{{- $fieldType := (index $ctx.Data (print $key ".type")) }}
   {{camelcaseuf $fieldName}} *{{template "gotype" $fieldType}} `json:"{{camelcaself $fieldName}}" form:"{{camelcaself $fieldName}}"`
 {{- end -}}
 }

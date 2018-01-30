@@ -13,6 +13,7 @@ package queries
 import (
 	"strconv"
 	"fmt"
+	"strings"
 	"github.com/goatcms/goatcore/app"
 	"database/sql"
 	"github.com/goatcms/goatcore/dependency"
@@ -45,7 +46,7 @@ func {{$typeName}}Factory(dp dependency.Provider) (interface{}, error) {
 	return maindef.{{$typeName}}(instance), nil
 }
 
-func (query {{$typeName}}) {{$queryNameUF}}(scope app.Scope, fields []string, params *maindef.{{$typeName}}Params) (
+func (query {{$typeName}}) {{$queryNameUF}}(scope app.Scope, fields *entities.{{$modelNameUF}}Fields, params *maindef.{{$typeName}}Params) (
 	{{- if eq $isSingleResult "y" -}}
 		*entities.{{$modelNameUF}}
 	{{- else -}}
@@ -81,19 +82,8 @@ func (query {{$typeName}}) {{$queryNameUF}}(scope app.Scope, fields []string, pa
 	{{- end }}
 }
 
-func (query {{$typeName}}) SQL(fields []string, params *maindef.{{$typeName}}Params) string {
-	sqlq := "SELECT "
-	// selected fields
-	i := 0
-	for _, row := range fields {
-		if i > 0 {
-			sqlq += ", "
-		}
-		sqlq += row
-		i++
-	}
-	// fields
-	sqlq += " FROM {{camelcaseuf $modelName}} WHERE ";
+func (query {{$typeName}}) SQL(fields *entities.{{$modelNameUF}}Fields, params *maindef.{{$typeName}}Params) string {
+	sqlq := "SELECT " + strings.Join(helpers.{{$modelNameUF}}ToArray(fields), ",") + " FROM {{$modelNameUF}} WHERE ";
 	{{- $fieldsets := (valuesFor (print "^" .From  ".fit.[A-Za-z0-9]+.fields$") $ctx.Data) -}}
 	{{- $fields := (unique (split (join $fieldsets " ") " ")) -}}
 

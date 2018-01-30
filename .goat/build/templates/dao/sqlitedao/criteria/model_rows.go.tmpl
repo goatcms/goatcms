@@ -64,45 +64,44 @@ func (rows *{{$entityName}}Rows) Get() (entity *entities.{{$entityName}}, err er
 func get{{$entityName}}Mapping(criteria *maindef.{{$entityName}}Criteria, entity *entities.{{$entityName}}) (mapping []interface{}, err error) {
 	mapping = make([]interface{}, {{sum (len $fields) (len $relations) 1}})
 	i := 0
-	for _, fieldName := range criteria.Fields {
-		switch(fieldName) {
-			case "ID":
-				mapping[i] = &entity.ID
-				i++
-			{{- range $index, $field := $fields -}}
-				{{- $key := (print $fieldsBaseKey $field) -}}
-				{{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
-				{{- $fieldType := (lower (index $ctx.Data (print $key ".type"))) }}
-			case "{{$fieldName}}":
-				mapping[i] = &entity.{{$fieldName}}
-				i++
-			{{- end }}
-			{{- range $i, $relation := $relations -}}
-				{{- $key := (print $relationsBaseKey $relation) -}}
-				{{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
-				{{- $relatedModel := (camelcaseuf (index $ctx.Data (print $key ".model"))) }}
-			case "{{$fieldName}}ID":
-				mapping[i] = &entity.{{$fieldName}}ID
-				i++
-			{{- end }}
-		}
+	if criteria.Fields.ID {
+		mapping[i] = &entity.ID
+		i++
 	}
+{{- range $index, $field := $fields -}}
+{{- $key := (print $fieldsBaseKey $field) -}}
+{{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
+{{- $fieldType := (lower (index $ctx.Data (print $key ".type"))) }}
+	if criteria.Fields.{{$fieldName}} {
+		mapping[i] = &entity.{{$fieldName}}
+		i++
+	}
+{{- end }}
+{{- range $i, $relation := $relations -}}
+{{- $key := (print $relationsBaseKey $relation) -}}
+{{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
+{{- $relatedModel := (camelcaseuf (index $ctx.Data (print $key ".model"))) }}
+	if criteria.Fields.{{$fieldName}}ID {
+		mapping[i] = &entity.{{$fieldName}}ID
+		i++
+	}
+{{- end }}
 	mapping = mapping[:i]
-	{{- range $i, $relation := $relations -}}
-    {{- $key := (print $relationsBaseKey $relation) -}}
-    {{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
-    {{- $relatedModel := (camelcaseuf (index $ctx.Data (print $key ".model"))) }}
-			if criteria.Related.{{$fieldName}} != nil {
-				var recurMapping []interface{}
-				if entity.{{$fieldName}} == nil {
-					entity.{{$fieldName}} = &entities.{{$relatedModel}}{}
-				}
-				if recurMapping, err = get{{$relatedModel}}Mapping(criteria.Related.{{$fieldName}}, entity.{{$fieldName}}); err != nil {
-					return nil, err
-				}
-				mapping = append(mapping, recurMapping...)
-			}
-  {{- end }}
+{{- range $i, $relation := $relations -}}
+{{- $key := (print $relationsBaseKey $relation) -}}
+{{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
+{{- $relatedModel := (camelcaseuf (index $ctx.Data (print $key ".model"))) }}
+	if criteria.Related.{{$fieldName}} != nil {
+		var recurMapping []interface{}
+		if entity.{{$fieldName}} == nil {
+			entity.{{$fieldName}} = &entities.{{$relatedModel}}{}
+		}
+		if recurMapping, err = get{{$relatedModel}}Mapping(criteria.Related.{{$fieldName}}, entity.{{$fieldName}}); err != nil {
+			return nil, err
+		}
+		mapping = append(mapping, recurMapping...)
+	}
+{{- end }}
 	return mapping, nil
 }
 

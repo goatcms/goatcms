@@ -10,6 +10,7 @@ package {{index $ctx.Properties.Build "package"}}
 
 import (
 	"github.com/goatcms/goatcore/app"
+	entities "{{index $ctx.Properties.Build "entities_path"}}"
 )
 
 type {{camelcaseuf $name}}CriteriaWhere struct {
@@ -37,8 +38,8 @@ type {{camelcaseuf $name}}CriteriaRelated struct {
 }
 
 type {{camelcaseuf $name}}Criteria struct {
-  Fields []string
-  Where {{camelcaseuf $name}}CriteriaWhere
+  Fields  *entities.{{camelcaseuf $name}}Fields
+  Where   {{camelcaseuf $name}}CriteriaWhere
 	Related {{camelcaseuf $name}}CriteriaRelated
 }
 

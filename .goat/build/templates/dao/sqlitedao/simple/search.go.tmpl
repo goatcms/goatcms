@@ -16,6 +16,7 @@ import (
 
 	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/dependency"
+	entities "{{index $ctx.Properties.Build "entities_path"}}"
 	helpers "{{index $ctx.Properties.Build "path"}}/sqlitedao/helpers"
 	maindef "{{index $ctx.Properties.Build "path"}}"
 )
@@ -43,7 +44,7 @@ func {{$typeName}}Factory(dp dependency.Provider) (interface{}, error) {
 	return maindef.{{$entityName}}Search(instance), nil
 }
 
-func (dao {{$typeName}}) Search(scope app.Scope, fields []string, params *maindef.{{$entityName}}SearchParams) (maindef.{{$entityName}}Rows, error) {
+func (dao {{$typeName}}) Search(scope app.Scope, fields *entities.{{camelcaseuf $name}}Fields, params *maindef.{{$entityName}}SearchParams) (maindef.{{$entityName}}Rows, error) {
 	var (
 		err  error
 		sqlq string
@@ -60,39 +61,22 @@ func (dao {{$typeName}}) Search(scope app.Scope, fields []string, params *mainde
 	return New{{$entityName}}Rows(rows), nil
 }
 
-func (query {{$typeName}}) SQL(fields []string, params *maindef.{{$typeName}}Params) string {
+func (query {{$typeName}}) SQL(fields *entities.{{camelcaseuf $name}}Fields, params *maindef.{{$typeName}}Params) string {
+	sqlq := "SELECT " + strings.Join(helpers.{{$entityName}}ToArray(fields), ",") + " FROM {{$entityName}}"
 	var criterias []string = []string{}
-	sqlq := "SELECT "
-	// selected fields
-	i := 0
-	for _, row := range fields {
-		if i > 0 {
-			sqlq += ", "
-		}
-		sqlq += row
-		i++
-	}
-	// fields
-	sqlq += " FROM {{$entityName}}";
-	{{- range $fi, $fieldkey := $fields -}}
-		{{- $fieldName := (index $ctx.Data (print $fieldsBaseKey $fieldkey ".name")) -}}
-		{{- $fieldType := (lower (index $ctx.Data (print $fieldsBaseKey $fieldkey ".type"))) }}
-		if {{ if eq $fieldType "text" "string" "email" "password" "lang" -}}
-			params.{{camelcaseuf $fieldName}} != ""
-		{{- else if eq $fieldType "int" -}}
-			params.{{camelcaseuf $fieldName}} != 0
-		{{- else -}}
-			{{- error (print "bad type" $fieldType) -}}
-		{{- end }} {
+{{- range $fi, $fieldkey := $fields -}}
+{{- $fieldName := (index $ctx.Data (print $fieldsBaseKey $fieldkey ".name")) -}}
+{{- $fieldType := (lower (index $ctx.Data (print $fieldsBaseKey $fieldkey ".type"))) }}
+	if params.{{camelcaseuf $fieldName}} != nil {
 		criterias = append(criterias, "{{camelcaseuf $fieldName}}=" + {{ if eq $fieldType "text" "string" "email" "password" "lang" -}}
-			strconv.Quote(params.{{camelcaseuf $fieldName}})
+			strconv.Quote(*params.{{camelcaseuf $fieldName}})
 		{{- else if eq $fieldType "int" -}}
-			strconv.FormatInt(params.{{camelcaseuf $fieldName}}, 10)
+			strconv.FormatInt(*params.{{camelcaseuf $fieldName}}, 10)
 		{{- else -}}
 			{{- error (print "bad type" $fieldType) -}}
 		{{- end }})
 	}
-	{{- end }}
+{{- end }}
 	if len(criterias) > 0 {
 		sqlq += " WHERE " + strings.Join(criterias, " AND ")
 	}

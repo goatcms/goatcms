@@ -15,7 +15,7 @@
     {{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
     {{- $fieldType := (lower (index $ctx.Data (print $key ".type"))) }}
 
-    {{ noescape "{{- " -}} if contains .Fields "{{$fieldName}}" -}}
+    {{ noescape "{{- " -}} if .Fields.{{$fieldName}} -}}
 
     {{- if eq $fieldType "repassword" }}
     <div class="form-group">

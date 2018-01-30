@@ -9,6 +9,7 @@ package simple
 
 import (
 	"strconv"
+	"strings"
 	"github.com/goatcms/goatcore/app"
 	"database/sql"
 	"github.com/goatcms/goatcore/dependency"
@@ -41,7 +42,7 @@ func {{$typeName}}Factory(dp dependency.Provider) (interface{}, error) {
 	return maindef.{{$entityName}}FindByID(instance), nil
 }
 
-func (dao {{$typeName}}) Find(scope app.Scope, fields []string, id int64) (*entities.{{$entityName}}, error) {
+func (dao {{$typeName}}) Find(scope app.Scope, fields *entities.{{camelcaseuf $name}}Fields, id int64) (*entities.{{$entityName}}, error) {
 	var (
 		err   error
 		query string
@@ -58,16 +59,8 @@ func (dao {{$typeName}}) Find(scope app.Scope, fields []string, id int64) (*enti
 	return row.Get()
 }
 
-func (dao {{$typeName}}) SQL(fields []string, id int64) (string, error) {
-	sql := "SELECT "
-	i := 0
-	for _, row := range fields {
-		if i > 0 {
-			sql += ", "
-		}
-		sql += row
-		i++
-	}
+func (dao {{$typeName}}) SQL(fields *entities.{{camelcaseuf $name}}Fields, id int64) (string, error) {
+	sql := "SELECT " + strings.Join(helpers.{{$entityName}}ToArray(fields), ",")
 	return sql + " FROM {{camelcaseuf $name}} WHERE id="+strconv.FormatInt(id, 10)+" LIMIT 1", nil
 }
 

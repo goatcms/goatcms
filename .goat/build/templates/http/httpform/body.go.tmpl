@@ -22,12 +22,11 @@ import (
 	forms "{{index $ctx.Properties.Build "forms_path"}}"
 	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/http/httphelpers"
-	"github.com/goatcms/goatcore/varutil"
 	"github.com/buger/jsonparser"
 )
 
 // NewForm create new form instance with data from HTTP request
-func NewForm(scope app.Scope, fields []string) (form *forms.{{$formName}}, err error) {
+func NewForm(scope app.Scope, fields *forms.{{camelcaseuf $name}}Fields) (form *forms.{{$formName}}, err error) {
 	var (
 		deps struct {
 			Req *http.Request `request:"Request"`
@@ -56,52 +55,47 @@ func NewForm(scope app.Scope, fields []string) (form *forms.{{$formName}}, err e
 }
 
 // DecodeForm decode HTTP request and set result do form
-func DecodeForm(prefix string, form *forms.{{$formName}}, req *http.Request, fields []string) (err error) {
+func DecodeForm(prefix string, form *forms.{{$formName}}, req *http.Request, fields *forms.{{camelcaseuf $name}}Fields) (err error) {
 	if err = httphelpers.ParseForm(req); err != nil {
 		return err
 	}
-	for _, fieldName := range fields {
-		switch(fieldName) {
-			{{- range $index, $field := $fields -}}
-		    {{- $key := (print $fieldsBaseKey $field) -}}
-		    {{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
-		    {{- $fieldType := (lower (index $ctx.Data (print $key ".type"))) }}
-			case "{{$fieldName}}":
-				{{- if eq $fieldType "repassword" }}
-					plain{{$fieldName}}First, ok := req.Form[prefix + "{{$fieldName}}.First"]
-					if !ok {
-						continue
-					}
-					plain{{$fieldName}}Second, ok := req.Form[prefix + "{{$fieldName}}.Second"]
-					if !ok {
-						continue
-					}
-					form.{{$fieldName}} = &forms.RepeatPassword{
-						First: plain{{$fieldName}}First[0],
-						Second: plain{{$fieldName}}Second[0],
-					}
-				{{- else if eq $fieldType "text" "string" "email" "password" "lang" }}
-					plain{{$fieldName}}, ok := req.Form[prefix + "{{$fieldName}}"]
-					if !ok {
-						continue
-					}
-					form.{{$fieldName}} = &plain{{$fieldName}}[0]
-				{{- else if eq $fieldType "int" }}
-					var number int64
-					if number, err = strconv.ParseInt(string(value), 10, 64); err != nil {
-						return err
-					}
-					e.{{$fieldName}} = &number
-				{{- end -}}
-		  {{- end }}
-		}
+	{{- range $index, $field := $fields -}}
+    {{- $key := (print $fieldsBaseKey $field) -}}
+    {{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
+    {{- $fieldType := (lower (index $ctx.Data (print $key ".type"))) }}
+	if fields.{{$fieldName}} {
+		{{- if eq $fieldType "repassword" }}
+			plain{{$fieldName}}First, ok1 := req.Form[prefix + "{{$fieldName}}.First"]
+			plain{{$fieldName}}Second, ok2 := req.Form[prefix + "{{$fieldName}}.Second"]
+			if ok1 && ok2 {
+				form.{{$fieldName}} = &forms.RepeatPassword{
+					First: plain{{$fieldName}}First[0],
+					Second: plain{{$fieldName}}Second[0],
+				}
+			}
+		{{- else if eq $fieldType "text" "string" "email" "password" "lang" }}
+			plain{{$fieldName}}, ok := req.Form[prefix + "{{$fieldName}}"]
+			if ok {
+				form.{{$fieldName}} = &plain{{$fieldName}}[0]
+			}
+		{{- else if eq $fieldType "int" }}
+			plain{{$fieldName}}, ok := req.Form[prefix + "{{$fieldName}}"]
+			if ok {
+				var number int64
+				if number, err = strconv.ParseInt(string(plain{{$fieldName}}[0]), 10, 64); err != nil {
+					return err
+				}
+				form.{{$fieldName}} = &number
+			}
+		{{- end -}}
 	}
+  {{- end }}
 	return nil
 }
 
 
 // DecodeJSON decode HTTP JSON request and set result do form
-func DecodeJSON(prefix string, e *forms.{{$formName}}, json []byte, fields []string) (err error) {
+func DecodeJSON(prefix string, e *forms.{{$formName}}, json []byte, fields *forms.{{camelcaseuf $name}}Fields) (err error) {
 	return jsonparser.ObjectEach(json, func(key []byte, value []byte, dataType jsonparser.ValueType, offset int) error {
 		switch strings.ToLower(string(key)) {
 			{{- range $index, $field := $fields -}}
@@ -112,7 +106,7 @@ func DecodeJSON(prefix string, e *forms.{{$formName}}, json []byte, fields []str
 				{{- if eq $fieldType "repassword" }}
 				case "{{lower $fieldName}}":
 					var str string
-					if !varutil.IsArrContainStr(fields, "{{$fieldName}}") {
+					if !fields.{{$fieldName}} {
 						return fmt.Errorf("{{$formName}}.DecodeJSON haven't got {{$fieldName}} permissions")
 					}
 					if dataType != jsonparser.String {
@@ -127,7 +121,7 @@ func DecodeJSON(prefix string, e *forms.{{$formName}}, json []byte, fields []str
 				{{- else if eq $fieldType "text" "string" "email" "password" "lang" }}
 				case "{{lower $fieldName}}":
 					var str string
-					if !varutil.IsArrContainStr(fields, "{{$fieldName}}") {
+					if !fields.{{$fieldName}} {
 						return fmt.Errorf("{{$formName}}.DecodeJSON haven't got {{$fieldName}} permissions")
 					}
 					if dataType != jsonparser.String {
@@ -139,7 +133,7 @@ func DecodeJSON(prefix string, e *forms.{{$formName}}, json []byte, fields []str
 				{{- else if eq $fieldType "int" }}
 				case "{{lower $fieldName}}":
 					var number int64
-					if !varutil.IsArrContainStr(fields, "{{$fieldName}}") {
+					if !fields.{{$fieldName}} {
 						return fmt.Errorf("{{$formName}}.DecodeJSON haven't got {{$fieldName}} permissions")
 					}
 					if number, err = strconv.ParseInt(string(value), 10, 64); err != nil {
