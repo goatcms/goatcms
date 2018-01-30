@@ -76,6 +76,14 @@
     {{- $ctx.Out.EOF -}}
   {{- end -}}
 
+  {{- /* model search - test order */ -}}
+  {{- $path := (print $ctx.To "/sqlitedao/criteria/" $modelName "_search_order_test.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $path) -}}
+    {{- $ctx.Out.File $path -}}
+      {{- template "sqlite.criteria.model_search_order_test_go" (ctx $ctx (print "model." $modelID) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
   {{- /* model counter  */ -}}
   {{- $path := (print $ctx.To "/sqlitedao/criteria/" $modelName "_counter.go") -}}
   {{- if not ($ctx.Filesystem.IsFile $path) -}}

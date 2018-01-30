@@ -6,6 +6,13 @@ package {{index $ctx.Properties.Build "package"}}
 import "github.com/goatcms/goatcore/app"
 
 const (
+	// order DESC (descending)
+	DESC = iota
+	// order ASC (ascending)
+	ASC
+)
+
+const (
 	// EQ returns the boolean truth of  arg1 == arg2 // IN for multi values array
 	EQ = iota
 	// NE returns the boolean truth of arg1 != arg2  // NOT IN for multi values array
@@ -33,6 +40,11 @@ type StringFieldCriteria struct {
 type Int64FieldCriteria struct {
 	Value []int64
 	Type  int
+}
+
+type FieldOrder struct {
+	Priority int
+	Type  	 byte
 }
 
 // Pager represent position and size of query page

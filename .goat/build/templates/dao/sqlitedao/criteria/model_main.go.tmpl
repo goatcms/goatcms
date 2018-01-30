@@ -33,8 +33,12 @@ func Add{{$entityName}}CriteriaToQuery(criteria *maindef.{{$entityName}}Criteria
 func add{{$entityName}}CriteriaToQuery(alias string, criteria *maindef.{{$entityName}}Criteria, q *Query) (err error) {
 	{{- if ne (len $relations) 0 }}
 	var relatedAlias string
-	{{- end -}}
-
+	{{- end }}
+	if criteria.Order.ID != nil {
+		if err = q.AddOrder(alias, "ID", criteria.Order.ID); err != nil {
+			return err
+		}
+	}
 	{{- range $index, $field := $fields -}}
     {{- $key := (print $fieldsBaseKey $field) -}}
     {{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
@@ -46,9 +50,19 @@ func add{{$entityName}}CriteriaToQuery(alias string, criteria *maindef.{{$entity
 					return err
 				}
 			}
+			if criteria.Order.{{$fieldName}} != nil {
+				if err = q.AddOrder(alias, "{{$fieldName}}", criteria.Order.{{$fieldName}}); err != nil {
+					return err
+				}
+			}
 		{{- else if eq $fieldType "int" }}
 			if criteria.Where.{{$fieldName}} != nil {
 				if err = q.AddInt64Criteria(alias, "{{$fieldName}}", criteria.Where.{{$fieldName}}); err != nil {
+					return err
+				}
+			}
+			if criteria.Order.{{$fieldName}} != nil {
+				if err = q.AddOrder(alias, "{{$fieldName}}", criteria.Order.{{$fieldName}}); err != nil {
 					return err
 				}
 			}
@@ -70,6 +84,11 @@ func add{{$entityName}}CriteriaToQuery(alias string, criteria *maindef.{{$entity
 					return err
 				}
 				if err = add{{$relatedModel}}CriteriaToQuery(relatedAlias, criteria.Related.{{$fieldName}}, q); err != nil {
+					return err
+				}
+			}
+			if criteria.Order.{{$fieldName}}ID != nil {
+				if err = q.AddOrder(alias, "{{$fieldName}}ID", criteria.Order.{{$fieldName}}ID); err != nil {
 					return err
 				}
 			}

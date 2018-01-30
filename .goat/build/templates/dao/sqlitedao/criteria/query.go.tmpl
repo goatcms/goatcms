@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"sort"
 	helpers "{{index $ctx.Properties.Build "path"}}/sqlitedao/helpers"
 	maindef "{{index $ctx.Properties.Build "path"}}"
 )
@@ -15,6 +16,7 @@ type Query struct {
 	From   			 []string
 	Where  		   []string
 	Fields       []string
+	Order        []helpers.SQLOrderRow
 	aliasCounter int
 }
 
@@ -27,6 +29,11 @@ func (q *Query) CompileSelectQuery(pager *maindef.Pager) (sql string, err error)
 		" FROM " + strings.Join(q.From, ",");
 	if len(q.Where) != 0 {
 		sql += " WHERE " + strings.Join(q.Where, " AND ")
+	}
+	if len(q.Order) != 0 {
+		sqlOrder := helpers.SQLOrder(q.Order)
+		sort.Sort(sqlOrder)
+		sql += " ORDER BY " + sqlOrder.String()
 	}
 	if pager != nil {
 		if pager.Limit == 0 {
@@ -100,13 +107,13 @@ func (q *Query) AddStringCriteria(entityAlias, field string, c *maindef.StringFi
 			}
 		case maindef.LT:
 			if len(c.Value) == 1 {
-				q.Where = append(q.Where, entityAlias + "." + field + "<" + c.Value[0])
+				q.Where = append(q.Where, entityAlias + "." + field + "{{noescape "<"}}" + c.Value[0])
 			} else {
 				return fmt.Errorf("Criteria for %v (of %v) require only one parameter", field, entityAlias)
 			}
 		case maindef.LE:
 			if len(c.Value) == 1 {
-				q.Where = append(q.Where, entityAlias + "." + field + "<=" + c.Value[0])
+				q.Where = append(q.Where, entityAlias + "." + field + "{{noescape "<"}}=" + c.Value[0])
 			} else {
 				return fmt.Errorf("Criteria for %v (of %v) require only one parameter", field, entityAlias)
 			}
@@ -157,13 +164,13 @@ func (q *Query) AddInt64Criteria(entityAlias, field string, c *maindef.Int64Fiel
 			}
 		case maindef.LT:
 			if len(c.Value) == 1 {
-				q.Where = append(q.Where, entityAlias + "." + field + "<" + strconv.FormatInt(c.Value[0], 10))
+				q.Where = append(q.Where, entityAlias + "." + field + "{{noescape "<"}}" + strconv.FormatInt(c.Value[0], 10))
 			} else {
 				return fmt.Errorf("Criteria for %v (of %v) require only one parameter", field, entityAlias)
 			}
 		case maindef.LE:
 			if len(c.Value) == 1 {
-				q.Where = append(q.Where, entityAlias + "." + field + "<=" + strconv.FormatInt(c.Value[0], 10))
+				q.Where = append(q.Where, entityAlias + "." + field + "{{noescape "<"}}=" + strconv.FormatInt(c.Value[0], 10))
 			} else {
 				return fmt.Errorf("Criteria for %v (of %v) require only one parameter", field, entityAlias)
 			}
@@ -185,5 +192,19 @@ func (q *Query) AddInt64Criteria(entityAlias, field string, c *maindef.Int64Fiel
 	return nil
 }
 
+func (q *Query) AddOrder(entityAlias, field string, o *maindef.FieldOrder) (err error) {
+	if o.Type == maindef.ASC {
+		q.Order = append(q.Order, helpers.SQLOrderRow{
+			SQL:  entityAlias + "." + field + " ASC",
+			Base: o,
+		})
+	} else {
+		q.Order = append(q.Order, helpers.SQLOrderRow{
+			SQL:  entityAlias + "." + field + " DESC",
+			Base: o,
+		})
+	}
+	return nil
+}
 
 {{- end -}}

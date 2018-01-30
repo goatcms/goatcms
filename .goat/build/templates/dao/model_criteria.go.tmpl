@@ -28,6 +28,31 @@ type {{camelcaseuf $name}}CriteriaWhere struct {
 	{{- end }}
 }
 
+type {{camelcaseuf $name}}CriteriaOrder struct {
+	ID  *FieldOrder
+{{- range $index, $fieldID := $fields -}}
+{{- $key := (print $fieldsBaseKey $fieldID) -}}
+{{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
+{{- $fieldType := (lower (index $ctx.Data (print $key ".type"))) -}}
+
+{{- if eq  $fieldType "text" "string" "email" "password" "lang" }}
+	{{camelcaseuf $fieldName}} *FieldOrder
+{{- else if eq $fieldType "int" }}
+	{{camelcaseuf $fieldName}} *FieldOrder
+{{- else -}}
+	{{- error (print "bad type" .) -}}
+{{- end -}}
+
+{{- end }}
+
+{{- range $index, $relationID := $relations -}}
+{{- $key := (print $relationsBaseKey $relationID) -}}
+{{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
+{{- $relatedModel := (camelcaseuf (index $ctx.Data (print $key ".model"))) }}
+	{{$fieldName}}ID *FieldOrder
+{{- end }}
+}
+
 type {{camelcaseuf $name}}CriteriaRelated struct {
 	{{- range $index, $relationID := $relations -}}
 		{{- $key := (print $relationsBaseKey $relationID) -}}
@@ -41,6 +66,7 @@ type {{camelcaseuf $name}}Criteria struct {
   Fields  *entities.{{camelcaseuf $name}}Fields
   Where   {{camelcaseuf $name}}CriteriaWhere
 	Related {{camelcaseuf $name}}CriteriaRelated
+	Order   {{camelcaseuf $name}}CriteriaOrder
 }
 
 type {{camelcaseuf $name}}CriteriaSearch interface {

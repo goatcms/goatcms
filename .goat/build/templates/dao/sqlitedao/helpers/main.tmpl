@@ -25,4 +25,13 @@
   {{- $ctx.Out.EOF -}}
 {{- end -}}
 
+
+{{- /* order */ -}}
+{{- $path := (print $ctx.To "/sqlitedao/helpers/order.go") -}}
+{{- if not ($ctx.Filesystem.IsFile $path) -}}
+  {{- $ctx.Out.File $path -}}
+    {{- template "sqlite.helpers.order_go" $ctx -}}
+  {{- $ctx.Out.EOF -}}
+{{- end -}}
+
 {{- end -}}
