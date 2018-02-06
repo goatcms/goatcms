@@ -9,6 +9,7 @@ import (
 	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/db"
 	"github.com/goatcms/goatcore/dependency"
+	"github.com/goatcms/goatcore/filesystem"
 	"github.com/goatcms/goatcore/goatmail"
 	"github.com/goatcms/goatcore/messages"
 )
@@ -103,4 +104,12 @@ type Translate interface {
 
 type SignupAction interface {
 	Signup(form *forms.Signup, scope app.Scope) (msgs messages.MessageMap, err error)
+}
+
+type Fixture interface {
+	Load(dp app.Injector, scope app.Scope, filespace filesystem.Filespace, path string) (err error)
+}
+
+type SchemaCreator interface {
+	CreateSchema() error
 }

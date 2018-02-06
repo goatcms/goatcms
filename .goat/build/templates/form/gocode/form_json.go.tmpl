@@ -1,0 +1,159 @@
+{{define "form_json" -}}
+{{- $ctx := . -}}
+{{- $name := (camelcaseuf (index $ctx.Data (print .From ".name"))) -}}
+{{- $fieldsBaseKey := (print .From ".fields.") -}}
+{{- $fields := (keys .Data $fieldsBaseKey) -}}
+{{- $firstIntValue := (findRow (print .From ".fields.") "^[A-Za-z0-9]+$" ".type" "int" $ctx.Data) -}}
+{{- $firstRepasswordValue := (findRow (print .From ".fields.") "^[A-Za-z0-9]+$" ".type" "repassword" $ctx.Data) -}}
+
+package {{index $ctx.Properties.Build "package"}}
+
+import (
+	"fmt"
+	"strings"
+	{{- if or (ne $firstIntValue "") (ne $firstRepasswordValue "") }}
+	"strconv"
+	{{- end }}
+	"github.com/goatcms/goatcore/varutil"
+	"github.com/buger/jsonparser"
+)
+
+
+// {{$name}}FromJSON decode JSON data to entity
+func {{$name}}FromJSON(e *{{$name}}, json []byte, fields *{{camelcaseuf $name}}Fields) (err error) {
+	return jsonparser.ObjectEach(json, func(key []byte, value []byte, dataType jsonparser.ValueType, offset int) error {
+		switch strings.ToLower(string(key)) {
+{{- range $index, $field := $fields -}}
+{{- $key := (print $fieldsBaseKey $field) -}}
+{{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
+{{- $fieldType := (lower (index $ctx.Data (print $key ".type"))) }}
+
+{{- if eq $fieldType "text" "string" "email" "password" "lang" }}
+				case "{{lower $fieldName}}":
+					var str string
+					if !fields.{{$fieldName}} {
+						return fmt.Errorf("{{$name}}.DecodeJSON haven't got {{$fieldName}} permissions")
+					}
+					if dataType != jsonparser.String {
+						return fmt.Errorf("{{$name}}.DecodeJSON expected string and take %s", value)
+					}
+					str = string(value)
+					e.{{$fieldName}} = &str
+
+{{- else if eq $fieldType "repassword" }}
+				case "{{lower $fieldName}}":
+					var str string
+					if !fields.{{$fieldName}} {
+						return fmt.Errorf("{{$name}}.DecodeJSON haven't got {{$fieldName}} permissions")
+					}
+					if dataType != jsonparser.String {
+						return fmt.Errorf("{{$name}}.DecodeJSON expected string and take %s", value)
+					}
+					str = string(value)
+					e.{{$fieldName}} = &RepeatPassword{
+						First:  str,
+						Second: str,
+					}
+{{- else if eq $fieldType "int" }}
+				case "{{lower $fieldName}}":
+					var number int64
+					if !fields.{{$fieldName}} {
+						return fmt.Errorf("{{$name}}.DecodeJSON haven't got {{$fieldName}} permissions")
+					}
+					if number, err = strconv.ParseInt(string(value), 10, 64); err != nil {
+						return err
+					}
+					e.{{$fieldName}} = &number
+{{- else -}}
+	{{- error (print "bad type " $fieldType) -}}
+{{- end -}}
+
+{{- end }}
+		default:
+			return fmt.Errorf("{{$name}}FromJSON: Unknow key %s (value: %s)", key, value)
+		}
+		return nil
+	})
+}
+
+func New{{$name}}FromJSON(json []byte, fields *{{camelcaseuf $name}}Fields) (entity *{{$name}}, err error) {
+	entity = &{{camelcaseuf $name}}{}
+	return  entity, {{$name}}FromJSON(entity, json, fields)
+}
+
+func New{{$name}}sFromJSON(json []byte, fields *{{camelcaseuf $name}}Fields) (entities []*{{$name}}, de error) {
+	var (
+		err2 error
+		entity *{{$name}}
+	)
+	entities = []*{{$name}}{}
+	if _, err := jsonparser.ArrayEach(json, func(value []byte, dataType jsonparser.ValueType, offset int, err error) {
+		if err != nil || de != nil {
+			return
+		}
+		if dataType != jsonparser.Object {
+			de = fmt.Errorf("NewBuild array  must contains replace objects only")
+			return
+		}
+		if entity, err2 = New{{$name}}FromJSON(value, fields); err2 != nil {
+			de = err2
+			return
+		}
+		entities = append(entities, entity)
+	}); err != nil {
+		return nil, err
+	}
+	if de != nil {
+		return nil, de
+	}
+	return entities, nil
+}
+
+// {{$name}}ToJSON convert entity to JSON
+func {{$name}}ToJSON(e *{{$name}}, fields *{{camelcaseuf $name}}Fields) (json string, err error) {
+	rows := make([]string, {{sum (len $fields) 1}})
+	i := 0
+{{- range $index, $field := $fields -}}
+{{- $key := (print $fieldsBaseKey $field) -}}
+{{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
+{{- $fieldType := (lower (index $ctx.Data (print $key ".type"))) }}
+
+{{- if eq $fieldType "text" "string" "email" "password" "lang"}}
+				if fields.{{camelcaseuf $fieldName}} {
+					rows[i] = "\"{{lower $fieldName}}\":" + varutil.Quote(e.{{$fieldName}})
+					i++
+				}
+{{- else if eq $fieldType "repassword"}}
+				if fields.{{camelcaseuf $fieldName}} {
+					if e.{{$fieldName}} == nil {
+						rows[i] = "\"{{lower $fieldName}}\":null"
+					} else {
+						rows[i] = "\"{{lower $fieldName}}\":" + strconv.Quote(e.{{$fieldName}}.First)
+					}
+					i++
+				}
+{{- else if eq $fieldType "int" }}
+				if fields.{{camelcaseuf $fieldName}} {
+					rows[i] = "\"{{lower $fieldName}}\":" + varutil.FormatInt(e.{{$fieldName}}, 10)
+					i++
+				}
+{{- else -}}
+	{{- error (print "bad type " $fieldType) -}}
+{{- end -}}
+
+{{- end }}
+	return "{" + strings.Join(rows[0:i], ",") + "}", nil
+}
+
+// {{$name}}sToJSON convert entities to JSON
+func {{$name}}sToJSON(e []*{{$name}}, fields *{{camelcaseuf $name}}Fields) (json string, err error) {
+	rows := make([]string, len(e))
+	for i, entity := range e {
+		if rows[i], err = {{camelcaseuf $name}}ToJSON(entity, fields); err != nil {
+			return "", err
+		}
+	}
+	return "[" + strings.Join(rows, ",") + "]", nil
+}
+
+{{- end -}}

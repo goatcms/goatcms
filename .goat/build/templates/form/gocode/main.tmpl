@@ -22,4 +22,11 @@
     {{- $ctx.Out.EOF -}}
   {{- end -}}
 
+  {{- $path := (print $ctx.To "/" $key "_json.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $path) -}}
+    {{- $ctx.Out.File $path -}}
+      {{- template "form_json" (ctx $ctx (print "form." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
 {{- end -}}

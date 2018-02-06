@@ -92,10 +92,16 @@ func (router *Router) Host() string {
 
 // Start add routing to global pool
 func (router *Router) Start() error {
-	http.Handle("/", router.grouter)
-	if err := http.ListenAndServe(router.deps.Host, nil); err != nil {
+	srv := &http.Server{
+		Addr:    router.deps.Host,
+		Handler: router.grouter,
+	}
+	if err := srv.ListenAndServe(); err != nil {
 		return err
 	}
+	router.deps.AppScope.On(app.CloseEvent, func(interface{}) (err error) {
+		return srv.Shutdown(nil)
+	})
 	return nil
 }
 

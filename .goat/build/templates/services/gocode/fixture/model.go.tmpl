@@ -1,0 +1,55 @@
+{{- define "fixture.model_go" -}}
+{{- $ctx := . -}}
+{{- $entityName := (index $ctx.Data (print .From ".entity")) -}}
+{{- $fieldsBaseKey := (print .From ".fields.") -}}
+{{- $fields := (keys .Data $fieldsBaseKey) -}}
+
+package fixture
+
+import (
+	"os"
+	"strings"
+
+	"github.com/goatcms/goatcms/cmsapp/dao"
+	"github.com/goatcms/goatcms/cmsapp/entities"
+	"github.com/goatcms/goatcore/app"
+	"github.com/goatcms/goatcore/filesystem"
+)
+
+// load{{camelcaseuf $entityName}} load fixture from path to current database
+func load{{camelcaseuf $entityName}}s(dp app.Injector, scope app.Scope, filespace filesystem.Filespace, path, sufix string, fields *entities.{{camelcaseuf $entityName}}Fields) (err error) {
+	var (
+		list []*entities.{{camelcaseuf $entityName}}
+		data []byte
+		dirs []os.FileInfo
+		deps struct {
+			Inserter dao.{{camelcaseuf $entityName}}Insert `dependency:"{{camelcaseuf $entityName}}Insert"`
+		}
+	)
+	if err = dp.InjectTo(&deps); err != nil {
+		return err
+	}
+	if dirs, err = filespace.ReadDir(path); err != nil {
+		return err
+	}
+	for _, fileinfo := range dirs {
+		filename := fileinfo.Name()
+		if !strings.HasSuffix(filename, sufix) || fileinfo.IsDir() {
+			continue
+		}
+		if data, err = filespace.ReadFile(path + "/" + filename); err != nil {
+			return
+		}
+		if list, err = entities.New{{camelcaseuf $entityName}}sFromJSON(data, fields); err != nil {
+			return err
+		}
+		for _, entity := range list {
+			if _, err = deps.Inserter.Insert(scope, entity); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+{{- end -}}

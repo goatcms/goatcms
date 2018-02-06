@@ -1,0 +1,38 @@
+{{- define "fixture.service_go" -}}
+{{- $ctx := . -}}
+
+package fixture
+
+import (
+	"fmt"
+	
+	"github.com/goatcms/goatcms/cmsapp/entities"
+	"github.com/goatcms/goatcms/cmsapp/services"
+	"github.com/goatcms/goatcore/app"
+	"github.com/goatcms/goatcore/dependency"
+	"github.com/goatcms/goatcore/filesystem"
+)
+
+// Fixture is fixture service default implementation
+type Fixture struct{}
+
+// Factory create a fixture service instance
+func Factory(dp dependency.Provider) (interface{}, error) {
+	return services.Fixture(&Fixture{}), nil
+}
+
+// Load load fixture from path to current database
+func (fixture *Fixture) Load(dp app.Injector, scope app.Scope, filespace filesystem.Filespace, path string) (err error) {
+	if !filespace.IsDir(path) {
+		return fmt.Errorf("%s is not directory", path)
+	}
+{{- range $index, $modelID := (keys .Data "model.") -}}
+{{- $entityName := (index $ctx.Data (print "model." $modelID ".entity")) }}
+	if err = load{{camelcaseuf $entityName}}s(dp, scope, filespace, path, ".{{lower $entityName}}s.json", entities.{{camelcaseuf $entityName}}AllFieldsAndID); err != nil {
+		return err
+	}
+{{- end }}
+	return nil
+}
+
+{{- end -}}

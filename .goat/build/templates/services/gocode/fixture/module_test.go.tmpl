@@ -1,0 +1,93 @@
+{{- define "fixture.module_test_go" -}}
+{{- $ctx := . -}}
+
+package fixture
+
+import (
+	"testing"
+
+	"github.com/goatcms/goatcms/cmsapp/dao/sqlitedao"
+	"github.com/goatcms/goatcms/cmsapp/services"
+	"github.com/goatcms/goatcms/cmsapp/services/databases"
+	"github.com/goatcms/goatcore/app"
+	"github.com/goatcms/goatcore/app/mockupapp"
+	"github.com/goatcms/goatcore/filesystem"
+)
+
+func TestCreatedRows(t *testing.T) {
+	var (
+		err  error
+		mapp app.App
+		counter int
+		deps struct {
+			Fixture services.Fixture `dependency:"FixtureService"`
+			SchemaCreator services.SchemaCreator `dependency:"SchemaCreator"`
+			{{- range $i, $modelID := (keys $ctx.Data "model.") -}}
+			{{- $entityName := (index $ctx.Data (print "model." $modelID ".entity")) }}
+			{{camelcaseuf $entityName}}Finder    dao.{{camelcaseuf $entityName}}FindAll   `dependency:"{{camelcaseuf $entityName}}FindAll"`
+			{{- end }}
+		}
+	)
+	if mapp, err = mockupapp.NewApp(mockupapp.MockupOptions{}); err != nil {
+		t.Error(err)
+		return
+	}
+	dp := mapp.DependencyProvider()
+	if err = sqlitedao.RegisterDependencies(dp); err != nil {
+		t.Error(err)
+		return
+	}
+	if err = databases.RegisterDependencies(dp); err != nil {
+		t.Error(err)
+		return
+	}
+	if err = RegisterDependencies(dp); err != nil {
+		t.Error(err)
+		return
+	}
+	if err = dp.InjectTo(&deps); err != nil {
+		t.Error(err)
+		return
+	}
+	if err = deps.SchemaCreator.CreateSchema(); err != nil {
+		t.Error(err)
+		return
+	}
+{{- range $i, $modelID := (keys $ctx.Data "model.") -}}
+{{- $entityName := (index $ctx.Data (print "model." $modelID ".entity")) }}
+	if err = mapp.RootFilespace().WriteFile("database/fixtures/tests/random/random.{{lower $entityName}}s.json", []byte({{camelcaseuf $entityName}}MockJSON), filesystem.DefaultUnixFileMode); err != nil {
+		t.Error(err)
+		return
+	}
+{{- end }}
+	if err = deps.Fixture.Load(mapp.DependencyProvider(), mapp.AppScope(), mapp.RootFilespace(), "database/fixtures/tests/random"); err != nil {
+		t.Error(err)
+		return
+	}
+	if err = mapp.AppScope().Trigger(app.CommitEvent, nil); err != nil {
+		t.Error(err)
+		return
+	}
+	{{- range $i, $modelID := (keys $ctx.Data "model.") -}}
+	{{- $entityName := (index $ctx.Data (print "model." $modelID ".entity")) }}
+	{{lower $entityName}}Result, err := deps.{{camelcaseuf $entityName}}Finder.Find(mapp.AppScope(), &entities.{{camelcaseuf $entityName}}Fields{
+		ID: true,
+	})
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	counter = 0
+	for {{lower $entityName}}Result.Next() {
+		{{lower $entityName}}Result.Get()
+		counter++
+	}
+	{{lower $entityName}}Result.Close()
+	if counter != 3 {
+		t.Errorf("Expected exacly 3 {{lower $entityName}} in {{camelcaseuf $entityName}}s table and get %v", counter)
+		return
+	}
+	{{- end }}
+}
+
+{{- end -}}

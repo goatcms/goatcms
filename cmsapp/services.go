@@ -2,6 +2,8 @@ package cmsapp
 
 import (
 	"github.com/goatcms/goatcms/cmsapp/services/crypt"
+	"github.com/goatcms/goatcms/cmsapp/services/databases"
+	"github.com/goatcms/goatcms/cmsapp/services/genservices/fixture"
 	"github.com/goatcms/goatcms/cmsapp/services/logger"
 	"github.com/goatcms/goatcms/cmsapp/services/mailer"
 	"github.com/goatcms/goatcms/cmsapp/services/requestdep/reqacl"
@@ -43,6 +45,12 @@ func RegisterServices(a app.App) error {
 		return err
 	}
 	if err := signup.RegisterDependencies(dp); err != nil {
+		return err
+	}
+	if err := fixture.RegisterDependencies(dp); err != nil {
+		return err
+	}
+	if err := databases.RegisterDependencies(dp); err != nil {
 		return err
 	}
 	return nil

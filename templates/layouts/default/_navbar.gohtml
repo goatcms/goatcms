@@ -8,14 +8,14 @@
       <div class="collapse navbar-collapse">
         {{- if .LoggedInUser }}
         <p class="navbar-text navbar-right">
-          <a href="/user/signout" role="button" class="btn btn-primary">{{TranslateFor "signout" $prefix}}</a>
+          <a href="/user/signout" role="button" class="btn btn-primary" id="signout-btn">{{TranslateFor "signout" $prefix}}</a>
         </p>
         {{- else }}
         <p class="navbar-text navbar-right">
-          <a href="/user/signup" role="button" class="btn btn-default">{{TranslateFor "signup" $prefix}}</a>
+          <a href="/user/signup" role="button" class="btn btn-default" id="signup-btn">{{TranslateFor "signup" $prefix}}</a>
         </p>
         <p class="navbar-text navbar-right">
-          <a href="/user/signin" role="button" class="btn btn-primary">{{TranslateFor "signin" $prefix}}</a>
+          <a href="/user/signin" role="button" class="btn btn-primary" id="signin-btn">{{TranslateFor "signin" $prefix}}</a>
         </p>
         {{- end }}
       </div>

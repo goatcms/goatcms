@@ -1,0 +1,16 @@
+{{- define "fixtures.tests.main" -}}
+{{- $ctx := . -}}
+
+{{- range $index, $modelID := (keys .Data "model.") -}}
+  {{- $entityName := (index $ctx.Data (print "model." $modelID ".entity")) -}}
+
+  {{- $path := (print $ctx.To "/random." (lower $entityName) "s.json") -}}
+  {{- if not ($ctx.Filesystem.IsFile $path) -}}
+    {{- $ctx.Out.File $path -}}
+      {{- template "fixtures.tests.model_json" (ctx $ctx (print "model." $modelID) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+{{- end -}}
+
+{{- end -}}

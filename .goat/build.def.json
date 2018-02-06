@@ -27,6 +27,15 @@
   },
   "afterBuild": "gofmt -w {{argument.cwd}}/cmsapp/controllers/adminctrl/",
 },{
+  "to":"cmsapp/services/genservices",
+  "template":"services/gocode",
+  "properties": {
+    "package":"genservices",
+    "path":"github.com/goatcms/goatcms/cmsapp/services/genservices",
+    "entities_path":"github.com/goatcms/goatcms/cmsapp/entities"
+  },
+  "afterBuild": "gofmt -w {{argument.cwd}}/cmsapp/services/genservices/",
+},{
   "to":"cmsapp/controllers/restctrl",
   "template":"rest/controllers",
   "properties": {
@@ -61,4 +70,7 @@
     "entities_path":"github.com/goatcms/goatcms/cmsapp/entities"
   },
   "afterBuild": "gofmt -w {{argument.cwd}}/cmsapp/dao/",
+},{
+  "to":"database/fixtures/tests/random",
+  "template":"fixtures"
 }]

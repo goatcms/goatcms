@@ -9,7 +9,7 @@
 {{ noescape "{{- " -}} $validPrefix:=(print .Lang ".form.valid.") -}}
 {{ noescape "{{- " -}} $formPrefix:=(print .Lang ".form.fields.") -}}
 
-<form method="post" enctype="application/x-www-form-urlencoded">
+<form method="post" enctype="application/x-www-form-urlencoded" class="custom-{{lower $name}}-form">
   {{- range $I, $field := $fields -}}
     {{- $key := (print $fieldsBaseKey $field) -}}
     {{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}

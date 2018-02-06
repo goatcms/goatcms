@@ -11,6 +11,7 @@
 /templates/helpers/forms
 /templates/views/admin
 /translates
+/cmsapp/services/genservices
 
 # config
 /config/config_prod.json

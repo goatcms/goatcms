@@ -1,0 +1,43 @@
+{{- define "fixture.main" -}}
+{{- $ctx := . -}}
+
+{{- $path := (print $ctx.To "/fixture/module.go") -}}
+{{- if not ($ctx.Filesystem.IsFile $path) -}}
+  {{- $ctx.Out.File $path -}}
+    {{- template "fixture.module_go" $ctx -}}
+  {{- $ctx.Out.EOF -}}
+{{- end -}}
+
+{{- $path := (print $ctx.To "/fixture/mock_test.go") -}}
+{{- if not ($ctx.Filesystem.IsFile $path) -}}
+  {{- $ctx.Out.File $path -}}
+    {{- template "fixture.mock_test_go" $ctx -}}
+  {{- $ctx.Out.EOF -}}
+{{- end -}}
+
+{{- $path := (print $ctx.To "/fixture/module_test.go") -}}
+{{- if not ($ctx.Filesystem.IsFile $path) -}}
+  {{- $ctx.Out.File $path -}}
+    {{- template "fixture.module_test_go" $ctx -}}
+  {{- $ctx.Out.EOF -}}
+{{- end -}}
+
+{{- $path := (print $ctx.To "/fixture/service.go") -}}
+{{- if not ($ctx.Filesystem.IsFile $path) -}}
+  {{- $ctx.Out.File $path -}}
+    {{- template "fixture.service_go" $ctx -}}
+  {{- $ctx.Out.EOF -}}
+{{- end -}}
+
+{{- range $index, $key := (keys .Data "model.") -}}
+
+  {{- $path := (print $ctx.To "/fixture/" $key "_loader.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $path) -}}
+    {{- $ctx.Out.File $path -}}
+      {{- template "fixture.model_go" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+{{- end -}}
+
+{{- end -}}

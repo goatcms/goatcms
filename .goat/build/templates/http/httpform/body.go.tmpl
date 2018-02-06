@@ -43,7 +43,7 @@ func NewForm(scope app.Scope, fields *forms.{{camelcaseuf $name}}Fields) (form *
 		if body, err = ioutil.ReadAll(deps.Req.Body); err != nil {
 			return nil, err
 		}
-		if err = DecodeJSON("", form, body, fields); err != nil {
+		if err = form.{{$formName}}FromJSON(form, body, fields); err != nil {
 			return nil, err
 		}
 		return form, nil
@@ -95,61 +95,8 @@ func DecodeForm(prefix string, form *forms.{{$formName}}, req *http.Request, fie
 
 
 // DecodeJSON decode HTTP JSON request and set result do form
-func DecodeJSON(prefix string, e *forms.{{$formName}}, json []byte, fields *forms.{{camelcaseuf $name}}Fields) (err error) {
-	return jsonparser.ObjectEach(json, func(key []byte, value []byte, dataType jsonparser.ValueType, offset int) error {
-		switch strings.ToLower(string(key)) {
-			{{- range $index, $field := $fields -}}
-		    {{- $key := (print $fieldsBaseKey $field) -}}
-		    {{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
-		    {{- $fieldType := (lower (index $ctx.Data (print $key ".type"))) }}
-
-				{{- if eq $fieldType "repassword" }}
-				case "{{lower $fieldName}}":
-					var str string
-					if !fields.{{$fieldName}} {
-						return fmt.Errorf("{{$formName}}.DecodeJSON haven't got {{$fieldName}} permissions")
-					}
-					if dataType != jsonparser.String {
-						return fmt.Errorf("{{$formName}}.DecodeJSON expected string and take %s", value)
-					}
-					str = string(value)
-					e.{{$fieldName}} = &forms.RepeatPassword{
-						First: str,
-						Second: str,
-					}
-
-				{{- else if eq $fieldType "text" "string" "email" "password" "lang" }}
-				case "{{lower $fieldName}}":
-					var str string
-					if !fields.{{$fieldName}} {
-						return fmt.Errorf("{{$formName}}.DecodeJSON haven't got {{$fieldName}} permissions")
-					}
-					if dataType != jsonparser.String {
-						return fmt.Errorf("{{$formName}}.DecodeJSON expected string and take %s", value)
-					}
-					str = string(value)
-					e.{{$fieldName}} = &str
-
-				{{- else if eq $fieldType "int" }}
-				case "{{lower $fieldName}}":
-					var number int64
-					if !fields.{{$fieldName}} {
-						return fmt.Errorf("{{$formName}}.DecodeJSON haven't got {{$fieldName}} permissions")
-					}
-					if number, err = strconv.ParseInt(string(value), 10, 64); err != nil {
-						return err
-					}
-					e.{{$fieldName}} = &number
-				{{- else -}}
-				  {{- error (print "bad type" .) -}}
-				{{- end -}}
-		  {{- end }}
-
-		default:
-			return fmt.Errorf("{{$formName}}.DecodeJSON: Unknow key %s (value: %s)", key, value)
-		}
-		return nil
-	})
-}
+/*func DecodeJSON(e *forms.{{$formName}}, json []byte, fields *forms.{{camelcaseuf $name}}Fields) (err error) {
+	return form.{{$formName}}FromJSON(e, json, fields)
+}*/
 
 {{- end -}}

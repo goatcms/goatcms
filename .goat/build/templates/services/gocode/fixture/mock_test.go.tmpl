@@ -1,0 +1,47 @@
+{{define "fixture.mock_test_go" -}}
+{{- $ctx := . -}}
+
+package fixture
+
+{{- range $index, $modelID := (keys $ctx.Data "model.") -}}
+{{- $modelBaseKey := (print "model." $modelID) -}}
+{{- $entityName := (index $ctx.Data (print $modelBaseKey ".entity")) -}}
+{{- $fieldsBaseKey := (print $modelBaseKey ".fields.") -}}
+{{- $fields := (keys $ctx.Data $fieldsBaseKey) -}}
+{{- $relationsBaseKey := (print $modelBaseKey ".relations.") -}}
+{{- $relations := (keys $ctx.Data $relationsBaseKey) -}}
+
+{{ $N := 3 }}
+
+var {{camelcaseuf $entityName}}MockJSON = `[
+{{- range $i, $_ := (repeatNTimes $N) }}
+{{- if ne $i 0 -}}, {{- end }}
+		{"ID": {{ sum $i 1 -}}
+{{- range $i, $fieldID := $fields -}}
+{{- $key := (print $fieldsBaseKey $fieldID) -}}
+{{- $fieldName := (index $ctx.Data (print $key ".name")) -}}
+{{- $fieldType := (index $ctx.Data (print $key ".type")) -}}
+		, "{{camelcaseuf $fieldName}}": {{template "mockvalue" $fieldType}}
+{{- end }}
+
+{{- if and (ne (len $fields) 0) (ne (len $relations) 0) }}, {{ end -}}
+
+{{- range $i, $relation := $relations -}}
+{{- $key := (print $relationsBaseKey $relation) -}}
+{{- $fieldName := (index $ctx.Data (print $key ".name")) -}}
+{{- $fieldName := (index $ctx.Data (print $key ".name")) -}}
+{{- $isRequired := (index $ctx.Data (print $key ".required")) -}}
+		{{- if ne $i 0 -}}, {{- end -}}
+		{{- if eq $isRequired "y" -}}
+		"{{camelcaseuf $fieldName}}ID": {{ sum (randIntn $N) 1 }}
+		{{- else -}}
+		"{{camelcaseuf $fieldName}}ID": null
+		{{- end -}}
+{{- end -}}
+}
+{{- end }}
+]`
+
+{{- end -}}
+
+{{- end -}}

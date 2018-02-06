@@ -16,4 +16,11 @@
     {{- $ctx.Out.EOF -}}
   {{- end -}}
 
+  {{- $path := (print $ctx.To "/" $key "_json.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $path) -}}
+    {{- $ctx.Out.File $path -}}
+      {{- template "entity_json" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
 {{- end -}}
