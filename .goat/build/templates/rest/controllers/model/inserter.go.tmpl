@@ -93,6 +93,11 @@ func (c *Inserter) Post(scope app.Scope) {
 		deps.Responser.JSON(http.StatusBadRequest, "{\"status\":\"StatusInternalServerError\"}")
 		return
 	}
+	if err = scope.Trigger(app.CommitEvent, nil); err != nil {
+		c.deps.Logger.ErrorLog("%v", err)
+		deps.Responser.JSON(http.StatusInternalServerError, "{\"status\":\"StatusInternalServerError\"}")
+		return
+	}
 	deps.Responser.JSON(http.StatusCreated, "{\"status\":\"success\"}")
 }
 
