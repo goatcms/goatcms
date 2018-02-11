@@ -12,7 +12,6 @@ package {{lower $name}}
 import (
 	"net/http"
 	"strings"
-	"fmt"
 	"io/ioutil"
 	{{- if ne $firstIntValue ""}}
 	"strconv"
@@ -21,7 +20,6 @@ import (
 	entities "{{index $ctx.Properties.Build "entities_path"}}"
 	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/http/httphelpers"
-	//"github.com/buger/jsonparser"
 )
 
 // NewForm create new entity instance with data from HTTP request
@@ -87,10 +85,5 @@ func DecodeForm(prefix string, e *entities.{{$entityName}}, req *http.Request, f
   {{- end }}
 	return nil
 }
-
-// DecodeJSON decode HTTP JSON request and set result do entity
-/*func DecodeJSON(e *entities.{{$entityName}}, json []byte, fields *entities.{{camelcaseuf $name}}Fields) (err error) {
-	return entities.{{$entityName}}FromJSON(e, json, fields)
-}*/
 
 {{- end -}}

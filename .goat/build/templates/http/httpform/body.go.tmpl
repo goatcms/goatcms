@@ -13,7 +13,6 @@ package {{lower $name}}
 import (
 	"net/http"
 	"strings"
-	"fmt"
 	"io/ioutil"
 	{{- if ne $firstIntValue ""}}
 	"strconv"
@@ -22,7 +21,6 @@ import (
 	forms "{{index $ctx.Properties.Build "forms_path"}}"
 	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/http/httphelpers"
-	"github.com/buger/jsonparser"
 )
 
 // NewForm create new form instance with data from HTTP request
@@ -43,7 +41,7 @@ func NewForm(scope app.Scope, fields *forms.{{camelcaseuf $name}}Fields) (form *
 		if body, err = ioutil.ReadAll(deps.Req.Body); err != nil {
 			return nil, err
 		}
-		if err = form.{{$formName}}FromJSON(form, body, fields); err != nil {
+		if err = forms.{{$formName}}FromJSON(form, body, fields); err != nil {
 			return nil, err
 		}
 		return form, nil
@@ -92,11 +90,5 @@ func DecodeForm(prefix string, form *forms.{{$formName}}, req *http.Request, fie
   {{- end }}
 	return nil
 }
-
-
-// DecodeJSON decode HTTP JSON request and set result do form
-/*func DecodeJSON(e *forms.{{$formName}}, json []byte, fields *forms.{{camelcaseuf $name}}Fields) (err error) {
-	return form.{{$formName}}FromJSON(e, json, fields)
-}*/
 
 {{- end -}}
