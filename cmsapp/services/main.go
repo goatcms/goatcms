@@ -7,7 +7,6 @@ import (
 	"github.com/goatcms/goatcms/cmsapp/entities"
 	"github.com/goatcms/goatcms/cmsapp/forms"
 	"github.com/goatcms/goatcore/app"
-	"github.com/goatcms/goatcore/db"
 	"github.com/goatcms/goatcore/dependency"
 	"github.com/goatcms/goatcore/filesystem"
 	"github.com/goatcms/goatcore/goatmail"
@@ -44,12 +43,21 @@ type MuxHandler func(http.ResponseWriter, *http.Request)
 type ScopeHandler func(app.Scope)
 
 // Database is global elementary database interface
-type Database interface {
+/*type Database interface {
 	Open() error
 	Close() error
 	TX() (db.TX, error)
 	FlushTX() (db.TX, error)
 }
+
+type TX interface {
+	Queryx(query string, args ...interface{}) (Rows, error)
+	QueryRowx(query string, args ...interface{}) (Row, error)
+	NamedExec(query string, arg interface{}) (sql.Result, error)
+	MustExec(query string, args ...interface{}) sql.Result
+	Commit() error
+	Rollback() error
+}*/
 
 type Router interface {
 	OnGet(path string, handler ScopeHandler)

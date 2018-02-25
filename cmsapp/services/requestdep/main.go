@@ -4,7 +4,6 @@ import (
 	"html/template"
 
 	"github.com/goatcms/goatcms/cmsapp/entities"
-	"github.com/goatcms/goatcore/db"
 )
 
 const (
@@ -43,9 +42,10 @@ type Error interface {
 	Error(httpCode int, err error)
 }
 
+/*
 type DB interface {
 	TX() (db.TX, error)
-}
+}*/
 
 type Translate interface {
 	Translate(key string, values ...interface{}) (string, error)

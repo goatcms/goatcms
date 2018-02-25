@@ -20,14 +20,14 @@ const (
 // Mailer
 type Mailer struct {
 	smtpConfig struct {
-		SmtpAddr     string `config:"mailer.smtp.addr"`
+		SMTPAddr     string `config:"mailer.smtp.addr"`
 		AuthUsername string `config:"mailer.smtp.auth.username"`
 		AuthPassword string `config:"mailer.smtp.auth.password"`
 		AuthIdentity string `config:"?mailer.smtp.auth.identity"`
 	}
 	deps struct {
 		Template   services.Template `dependency:"TemplateService"`
-		HtmlLayout string            `config:"?mailer.layout.html"`
+		HTMLLayout string            `config:"?mailer.layout.html"`
 		TextLayout string            `config:"?mailer.layout.text"`
 	}
 	sender *smtpmail.MailSender
@@ -42,11 +42,11 @@ func MailerFactory(dp dependency.Provider) (interface{}, error) {
 	if err := dp.InjectTo(&m.deps); err != nil {
 		return nil, err
 	}
-	if m.deps.HtmlLayout == "" {
-		m.deps.HtmlLayout = htmlLayout
+	if m.deps.HTMLLayout == "" {
+		m.deps.HTMLLayout = htmlLayout
 	}
 	if m.deps.TextLayout == "" {
-		m.deps.HtmlLayout = textLayout
+		m.deps.HTMLLayout = textLayout
 	}
 	config := smtpmail.Config(m.smtpConfig)
 	m.sender = smtpmail.NewMailSender(config)

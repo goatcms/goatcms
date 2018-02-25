@@ -25,7 +25,7 @@ func Run(a app.App) (err error) {
 	if err = a.DependencyProvider().InjectTo(deps); err != nil {
 		return err
 	}
-	if err = deps.FixtureService.Load(deps.AppScope, deps.Filespace, deps.Path); err != nil {
+	if err = deps.FixtureService.Load(a.DependencyProvider(), deps.AppScope, deps.Filespace, deps.Path); err != nil {
 		return err
 	}
 	if err = deps.Database.Commit(deps.AppScope); err != nil {

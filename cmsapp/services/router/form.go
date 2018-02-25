@@ -10,7 +10,7 @@ import (
 
 	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/filesystem"
-	"github.com/goatcms/goatcore/filesystem/file"
+	"github.com/goatcms/goatcore/filesystem/fsstandalone"
 	"github.com/goatcms/goatcore/varutil/r"
 )
 
@@ -76,7 +76,7 @@ func (fi FormInjector) injectToL2(structValue reflect.Value, base string) error 
 				return err
 			}
 			defer multipartFile.Close()
-			tmpFile, err := file.NewTMPFile(fi.filespace, multipartHeader.Filename, multipartHeader.Header.Get("Content-Type"))
+			tmpFile, err := fsstandalone.NewTMPStandaloneFile(fi.filespace, multipartHeader.Filename, multipartHeader.Header.Get("Content-Type"))
 			if err != nil {
 				return err
 			}
@@ -104,7 +104,7 @@ func (fi FormInjector) injectToL2(structValue reflect.Value, base string) error 
 				if err != nil {
 					return err
 				}
-				tmpFile, err := file.NewTMPFile(fi.filespace, fileRow.Filename, fileRow.Header.Get("Content-Type"))
+				tmpFile, err := fsstandalone.NewTMPStandaloneFile(fi.filespace, fileRow.Filename, fileRow.Header.Get("Content-Type"))
 				if err != nil {
 					return err
 				}
