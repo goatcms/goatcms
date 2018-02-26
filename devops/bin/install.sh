@@ -9,8 +9,8 @@
 # It is windows formatting style. Use command to remove extra \r chars:
 # sed -i 's/\r$//' install.sh
 
-# It is strong recomended to uncomment upgrade command
-# apt-get update && apt-get -y upgrade
+# It is strong recomended upgrade
+apt-get update && apt-get -y upgrade
 
 apt-get -y remove docker docker-engine docker.io
 apt-get update
