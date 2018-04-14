@@ -5,6 +5,12 @@
   "min":1,
   "max":50
 },{
+  "prompt":"Insert application default web port",
+  "key":"app.port",
+  "type":"numeric",
+  "min":1,
+  "max":4
+},{
   "prompt":"Insert application id name",
   "key":"app.id",
   "type":"line",
@@ -12,66 +18,10 @@
   "max":50,
   "pattern": "^[a-zA-Z]+[a-zA-Z0-9_]*$"
 },{
-  "prompt":"Insert application default web port",
-  "key":"app.port",
-  "type":"numeric",
-  "min":1,
-  "max":4
-},{
   "prompt":"Insert application default language (ISO 3166-1 ALFA-2 like pl, en...)",
   "key":"app.lang.default",
   "type":"line",
   "min":1,
   "max":4,
   "pattern": "^[a-zA-Z]+$"
-},{
-  "prompt":"Insert SMTP address (like smtp.gmail.com:465)",
-  "key":"smtp.address",
-  "type":"line",
-  "min":1,
-  "max":1024,
-  "pattern": "^[a-zA-Z0-9]+[a-zA-Z0-9\\.]*[a-zA-Z0-9]+(:[0-9]+)?$"
-},{
-  "prompt":"Insert SMTP username",
-  "key":"smtp.user",
-  "type":"line",
-  "min":1,
-  "max":1024,
-  "pattern": "^[a-zA-Z0-9_\\.\\@]+?$"
-},{
-  "prompt":"Insert SMTP password",
-  "key":"smtp.password",
-  "type":"line",
-  "min":1,
-  "max":1024
-},{
-  "prompt":"Insert SMTP identity",
-  "key":"smtp.identity",
-  "type":"line",
-  "min":0,
-  "max":1024
-},{
-  "prompt":"Insert database username",
-  "key":"database.username",
-  "type":"line",
-  "min":0,
-  "max":1024
-},{
-  "prompt":"Insert database password",
-  "key":"database.password",
-  "type":"line",
-  "min":0,
-  "max":1024
-},{
-  "prompt":"Insert database host",
-  "key":"database.host",
-  "type":"line",
-  "min":0,
-  "max":1024
-},{
-  "prompt":"Insert database name",
-  "key":"database.name",
-  "type":"line",
-  "min":0,
-  "max":1024
 }]

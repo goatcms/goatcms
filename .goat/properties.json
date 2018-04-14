@@ -1,1 +1,10 @@
-{"app":{"id":"goatcms","lang":{"default":"PL"},"name":"Goat CMS","port":"3937"},"database":{"host":"db","name":"testdb","password":"testpass","username":"testuser"},"smtp":{"address":"smtp.gmail.com:465","identity":"","password":"password","user":"prog255"}}
+{
+  "app": {
+    "id": "goatcms",
+    "lang": {
+      "default": "en"
+    },
+    "name": "Goat CMS",
+    "port": "3937"
+  }
+}

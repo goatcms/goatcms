@@ -2,11 +2,11 @@
 {
   "mailer": {
     "smtp": {
-      "addr": "{{index .Properties.Project "smtp.address"}}",
+      "addr": "{{index .Properties.Secrets "smtp.address"}}",
       "auth": {
-        "username": "{{index .Properties.Project "smtp.user"}}",
-        "password": "{{index .Properties.Project "smtp.password"}}",
-        "identity": "{{index .Properties.Project "smtp.identity"}}"
+        "username": "{{index .Properties.Secrets "smtp.user"}}",
+        "password": "{{index .Properties.Secrets "smtp.password"}}",
+        "identity": "{{index .Properties.Secrets "smtp.identity"}}"
       }
     }
   },
@@ -23,7 +23,7 @@
   },
   "database": {
     "engine": "postgres",
-    "url": "postgres://{{index .Properties.Project "database.username"}}:{{index .Properties.Project "database.password"}}@{{index .Properties.Project "database.host"}}/{{index .Properties.Project "database.name"}}?sslmode=disable"
+    "url": "postgres://{{index .Properties.Secrets "database.username"}}:{{index .Properties.Secrets "database.password"}}@{{index .Properties.Secrets "database.host"}}/{{index .Properties.Secrets "database.name"}}?sslmode=disable"
   }
 }
 {{end}}
