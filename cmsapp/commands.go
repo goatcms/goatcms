@@ -27,6 +27,9 @@ func RegisterCommands(a app.App) error {
 	// user:roles:update
 	commandScope.Set("help.command.user:roles:update", commands.UserUpdateRolesHelp)
 	commandScope.Set("command.user:roles:update", userc.RunUpdateRoles)
+	// user:roles:update
+	commandScope.Set("help.command.user:add", commands.UserAddHelp)
+	commandScope.Set("command.user:add", userc.RunAdd)
 	// arguments
 	commandScope.Set("help.argument.env", commands.EnvArg)
 	commandScope.Set("help.argument.loglvl", commands.LoglvlArg)

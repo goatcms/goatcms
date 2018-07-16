@@ -1,0 +1,85 @@
+{{define "userc.add" -}}
+{{- $ctx := . -}}
+{{- $userID := (findRow "model." "^[A-Za-z0-9]+$" ".entity" "user" $ctx.Data) -}}
+{{- $fieldsBaseKey := (print "model." $userID ".fields.") -}}
+{{- $firstIntField := (findRow $fieldsBaseKey "^[A-Za-z0-9]+$" ".type" "int" $ctx.Data) -}}
+{{- $fields := (keys $ctx.Data $fieldsBaseKey) -}}
+
+package userc
+
+import (
+{{- if ne $firstIntField ""}}
+  "strconv"
+{{- end }}
+	"github.com/goatcms/goatcms/cmsapp/dao"
+	entities "{{index $ctx.Properties.Build "entities_path"}}"
+	"github.com/goatcms/goatcore/app"
+)
+
+// RunAdd execute user:add command to a new user
+func RunAdd(a app.App) (err error) {
+	var (
+		deps struct {
+			Input  app.Input  `dependency:"InputService"`
+			Output app.Output `dependency:"OutputService"`
+
+			Inserter      dao.UserInsert `dependency:"UserInsert"`
+			InteractiveMode    string         `argument:"?interactive"`
+{{- range $index, $field := $fields -}}
+{{- $key := (print $fieldsBaseKey $field) -}}
+{{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) }}
+      User{{camelcaseuf $fieldName}} string         `argument:"?{{camelcaself $fieldName}}"`
+{{- end }}
+		}
+		user       *entities.User
+		scope      = a.AppScope()
+		InteractiveMode bool
+{{- if ne $firstIntField ""}}
+  	number     int64
+{{- end }}
+	)
+	if err = a.DependencyProvider().InjectTo(&deps); err != nil {
+		return err
+	}
+	InteractiveMode = deps.InteractiveMode != "false"
+	user = &entities.User{}
+{{- range $index, $field := $fields -}}
+{{- $key := (print $fieldsBaseKey $field) -}}
+{{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
+{{- $fieldType := (lower (index $ctx.Data (print $key ".type"))) }}
+  // {{camelcaseuf $fieldName}}
+{{- if eq $fieldType "text" "string" "email" "password" "lang" }}
+	if InteractiveMode && deps.User{{camelcaseuf $fieldName}} == "" {
+    deps.Output.Printf("{{camelcaseuf $fieldName}}: ")
+		if deps.User{{camelcaseuf $fieldName}}, err = deps.Input.ReadLine(); err != nil {
+			return err
+		}
+	}
+  user.{{camelcaseuf $fieldName}} = &deps.User{{camelcaseuf $fieldName}}
+{{- else if eq $fieldType "int" }}
+	if InteractiveMode && deps.User{{camelcaseuf $fieldName}} == "" {
+		if deps.User{{camelcaseuf $fieldName}}, err = deps.Input.ReadLine(); err != nil {
+			return err
+		}
+	}
+  if number, err = strconv.ParseInt(deps.User{{camelcaseuf $fieldName}}, 10, 64); err != nil {
+    return err
+  }
+  user.{{camelcaseuf $fieldName}} = &number
+{{- else -}}
+	{{- error (print "bad type" .) -}}
+{{- end -}}
+
+{{- end }}
+	if _, err = deps.Inserter.Insert(scope, user); err != nil {
+		return err
+	}
+	if err = scope.Trigger(app.CommitEvent, nil); err != nil {
+		return err
+	}
+	deps.Output.Printf("Add user... success\n")
+	return nil
+}
+
+
+{{- end -}}

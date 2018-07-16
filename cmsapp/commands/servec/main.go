@@ -1,8 +1,8 @@
 package servec
 
 import (
-	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcms/cmsapp/services"
+	"github.com/goatcms/goatcore/app"
 )
 
 // Run run command

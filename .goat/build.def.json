@@ -18,6 +18,15 @@
   },
   "afterBuild": "gofmt -w {{argument.cwd}}/cmsapp/entities/",
 },{
+  "to":"cmsapp/commands",
+  "template":"commands",
+  "properties": {
+    "package":"commands",
+    "path":"github.com/goatcms/goatcms/cmsapp/commands",
+    "entities_path":"github.com/goatcms/goatcms/cmsapp/entities"
+  },
+  "afterBuild": "gofmt -w {{argument.cwd}}/cmsapp/commands/",
+},{
   "to":"cmsapp/controllers/adminctrl",
   "template":"admin/controllers",
   "properties": {

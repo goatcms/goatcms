@@ -7,6 +7,7 @@ const (
 	DBLoadHelp   = "load all sql file from path (--path=database/fixtures)"
 
 	UserUpdateRolesHelp = "set new user roles list (--by=username/email --roles=firstrole&secondrole...)"
+	UserAddHelp         = "add new user (--userproperty=value...)"
 
 	EnvArg    = "set app environment (env=prod|test|dev, prod by default)"
 	LoglvlArg = "set app log level (loglvl=prod|test|dev, prod by default)"

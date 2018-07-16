@@ -1,0 +1,9 @@
+{{- $ctx := . -}}
+
+{{- /* user:add */ -}}
+{{- $path := (print $ctx.To "/userc/add.go") -}}
+{{- if not ($ctx.Filesystem.IsFile $path) -}}
+  {{- $ctx.Out.File $path -}}
+    {{- template "userc.add" $ctx -}}
+  {{- $ctx.Out.EOF -}}
+{{- end -}}

@@ -12,6 +12,7 @@
 /templates/views/admin
 /translates
 /cmsapp/services/genservices
+/cmsapp/commands/userc/add.go
 
 # config
 /config/config_prod.json
