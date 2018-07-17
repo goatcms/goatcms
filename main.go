@@ -15,25 +15,30 @@ func main() {
 	app, err := goatapp.NewGoatApp("GoatCMS", "0.0.1", "./")
 	if err != nil {
 		errLogs.Println(err)
+		os.Exit(1)
 		return
 	}
 
 	bootstrap := bootstrap.NewBootstrap(app)
 	if err = bootstrap.Register(terminal.NewModule()); err != nil {
 		errLogs.Println(err)
+		os.Exit(1)
 		return
 	}
 	if err = bootstrap.Register(cmsapp.NewModule()); err != nil {
 		errLogs.Println(err)
+		os.Exit(1)
 		return
 	}
 
 	if err := bootstrap.Init(); err != nil {
 		errLogs.Println(err)
+		os.Exit(1)
 		return
 	}
 	if err := bootstrap.Run(); err != nil {
 		errLogs.Println(err)
+		os.Exit(1)
 		return
 	}
 }

@@ -34,6 +34,8 @@ const (
 	TranslateService = "TranslateService"
 	// SignupActionService provide user register service
 	SignupActionService = "SignupAction"
+	// ResetPasswordActionService provide user reset password service
+	ResetPasswordActionService = "ResetPasswordAction"
 )
 
 // MuxHandler is function for standard mux input
@@ -112,6 +114,10 @@ type Translate interface {
 
 type SignupAction interface {
 	Signup(form *forms.Signup, scope app.Scope) (msgs messages.MessageMap, err error)
+}
+
+type ResetPasswordAction interface {
+	SimpleReset(scope app.Scope, user *entities.User, password string) (err error)
 }
 
 type Fixture interface {

@@ -6,8 +6,9 @@ const (
 	DBExportHelp = "print all create table sql queries"
 	DBLoadHelp   = "load all sql file from path (--path=database/fixtures)"
 
-	UserUpdateRolesHelp = "set new user roles list (--by=username/email --roles=firstrole&secondrole...)"
-	UserAddHelp         = "add new user (--userproperty=value...)"
+	UserUpdateRolesHelp    = "set new user roles list (--by=username/email --roles=firstrole&secondrole...)"
+	UserAddHelp            = "add new user (--userproperty=value...)"
+	UserUpdatePasswordHelp = "set new password for user (--by=username/email --password=somePassword)"
 
 	EnvArg    = "set app environment (env=prod|test|dev, prod by default)"
 	LoglvlArg = "set app log level (loglvl=prod|test|dev, prod by default)"
