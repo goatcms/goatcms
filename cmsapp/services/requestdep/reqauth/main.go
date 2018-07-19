@@ -59,6 +59,11 @@ func (a *Auth) Signin(name, password string) (session *entities.Session, err err
 	if !ok {
 		return nil, fmt.Errorf("incorrect password")
 	}
+	return a.ForceSignin(user)
+}
+
+// ForceSignin authorize user by user entity
+func (a *Auth) ForceSignin(user *entities.User) (session *entities.Session, err error) {
 	if session, err = a.deps.SessionManager.CreateSession(user); err != nil {
 		return nil, err
 	}

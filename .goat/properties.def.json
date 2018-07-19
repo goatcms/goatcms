@@ -24,4 +24,10 @@
   "min":1,
   "max":4,
   "pattern": "^[a-zA-Z]+$"
+},{
+  "prompt":"Insert application base URL (like 'www.mysilt.pl')",
+  "key":"app.baseURL",
+  "type":"line",
+  "min":1,
+  "max":500
 }]

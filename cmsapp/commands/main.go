@@ -9,6 +9,7 @@ const (
 	UserUpdateRolesHelp    = "set new user roles list (--by=username/email --roles=firstrole&secondrole...)"
 	UserAddHelp            = "add new user (--userproperty=value...)"
 	UserUpdatePasswordHelp = "set new password for user (--by=username/email --password=somePassword)"
+	UserConnectAddHelp     = "add new user connection to remote service (--service=serviceName --remote=remoteID --local=username/email)"
 
 	EnvArg    = "set app environment (env=prod|test|dev, prod by default)"
 	LoglvlArg = "set app log level (loglvl=prod|test|dev, prod by default)"

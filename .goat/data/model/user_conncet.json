@@ -1,0 +1,37 @@
+{
+  "model": {
+    "user_connect": {
+      "entity": "userConnect",
+      "admin_read_roles":   "admin",
+      "admin_insert_roles": "admin",
+      "admin_edit_roles":   "admin",
+      "admin_delete_roles": "admin",
+      "label":"userConnect",
+      "fields": {
+        "0": {
+          "name": "service",
+          "system": "y",
+          "type": "string",
+          "unique": "n",
+          "required": "y"
+        },
+        "1": {
+          "name": "remoteID",
+          "system": "y",
+          "type": "string",
+          "unique": "n",
+          "required": "y"
+        }
+      },
+      "relations": {
+        "0": {
+          "model": "user",
+          "name": "user",
+          "required": "y",
+          "system": "y",
+          "unique": "n"
+        }
+      }
+    }
+  }
+}

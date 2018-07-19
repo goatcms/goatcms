@@ -1,6 +1,7 @@
 {
   "app": {
     "id": "goatcms",
+    "baseURL": "http://localhost:555",
     "lang": {
       "default": "en"
     },

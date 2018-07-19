@@ -3,6 +3,7 @@ package cmsapp
 import (
 	"github.com/goatcms/goatcms/cmsapp/controllers/adminctrl"
 	"github.com/goatcms/goatcms/cmsapp/controllers/custom/homectrl"
+	"github.com/goatcms/goatcms/cmsapp/controllers/custom/oauthctrl"
 	"github.com/goatcms/goatcms/cmsapp/controllers/custom/userctrl"
 	"github.com/goatcms/goatcms/cmsapp/controllers/customrest/ruserctrl"
 	"github.com/goatcms/goatcms/cmsapp/controllers/restctrl"
@@ -15,6 +16,9 @@ func InitControllers(a app.App) error {
 		return err
 	}
 	if err := userctrl.InitDependencies(a); err != nil {
+		return err
+	}
+	if err := oauthctrl.InitDependencies(a); err != nil {
 		return err
 	}
 	if err := homectrl.InitDependencies(a); err != nil {

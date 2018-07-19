@@ -30,6 +30,9 @@ func RegisterCommands(a app.App) error {
 	// user:password:update
 	commandScope.Set("help.command.user:password:update", commands.UserUpdatePasswordHelp)
 	commandScope.Set("command.user:password:update", userc.RunUpdatePassword)
+	// user:connected:add
+	commandScope.Set("help.command.user:connected:add", commands.UserConnectAddHelp)
+	commandScope.Set("command.user:connected:add", userc.RunConnectAdd)
 	// user:roles:update
 	commandScope.Set("help.command.user:add", commands.UserAddHelp)
 	commandScope.Set("command.user:add", userc.RunAdd)
