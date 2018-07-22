@@ -1,16 +1,17 @@
 {{- $ctx := . -}}
 
 {{- range $index, $key := (keys .Data "model.") -}}
+  {{- $entityName := (index $ctx.Data (print "model." $key ".entity")) -}}
 
   {{- /* List */ -}}
-  {{- $path := (print $ctx.To "/model/" $key "/list/main.gohtml") -}}
+  {{- $path := (print $ctx.To "/model/" (lower $entityName) "/list/main.gohtml") -}}
   {{- if not ($ctx.Filesystem.IsFile $path) -}}
     {{- $ctx.Out.File $path -}}
       {{- template "admin.views.model.list" (ctx $ctx (print "model." $key) "") -}}
     {{- $ctx.Out.EOF -}}
   {{- end -}}
 
-  {{- $path := (print $ctx.To "/model/" $key "/list/tools.gohtml") -}}
+  {{- $path := (print $ctx.To "/model/" (lower $entityName) "/list/tools.gohtml") -}}
   {{- if not ($ctx.Filesystem.IsFile $path) -}}
     {{- $ctx.Out.File $path -}}
       {{- template "admin.views.model.list_tools" (ctx $ctx (print "model." $key) "") -}}
@@ -18,7 +19,7 @@
   {{- end -}}
 
   {{- /* insert */ -}}
-  {{- $listPath := (print $ctx.To "/model/" $key "/insert/main.gohtml") -}}
+  {{- $listPath := (print $ctx.To "/model/" (lower $entityName) "/insert/main.gohtml") -}}
   {{- if not ($ctx.Filesystem.IsFile $listPath) -}}
     {{- $ctx.Out.File $listPath -}}
       {{- template "admin.views.model.insert" (ctx $ctx (print "model." $key) "") -}}
@@ -26,7 +27,7 @@
   {{- end -}}
 
   {{- /* edit */ -}}
-  {{- $listPath := (print $ctx.To "/model/" $key "/edit/main.gohtml") -}}
+  {{- $listPath := (print $ctx.To "/model/" (lower $entityName) "/edit/main.gohtml") -}}
   {{- if not ($ctx.Filesystem.IsFile $listPath) -}}
     {{- $ctx.Out.File $listPath -}}
       {{- template "admin.views.model.edit" (ctx $ctx (print "model." $key) "") -}}
