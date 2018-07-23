@@ -20,6 +20,9 @@
 /config/config_test.json
 /config/config_stage.json
 
+# dependencies
+/vendor
+
 # logs files
 *.log
 
