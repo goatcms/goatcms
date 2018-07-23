@@ -24,6 +24,15 @@
   "database": {
     "engine": "postgres",
     "url": "postgres://{{index .Properties.Secrets "database.username"}}:{{index .Properties.Secrets "database.password"}}@{{index .Properties.Secrets "database.host"}}/{{index .Properties.Secrets "database.name"}}?sslmode=disable"
+  },
+  "app": {
+    "baseURL": "{{index .Properties.Secrets "app.baseURL"}}"
+  },
+  "oauth": {
+    "github": {
+      "app": "{{index .Properties.Secrets "oauth.github.app"}}",
+      "secret": "{{index .Properties.Secrets "oauth.github.secret"}}"
+    }
   }
 }
 {{end}}
