@@ -5,7 +5,7 @@
   {{- $entityName := (index $ctx.Data (print "model." $modelKey ".entity")) -}}
 
   {{/* Model */}}
-  {{- $modelPath := (print $ctx.To "/httpmodel/" $entityName "/main.go") -}}
+  {{- $modelPath := (print $ctx.To "/httpmodel/" (lower $entityName) "/main.go") -}}
   {{- if not ($ctx.Filesystem.IsFile $modelPath) -}}
     {{- $ctx.Out.File $modelPath -}}
       {{- template "httpmodel.body" (ctx $ctx (print "model." $modelKey) "") -}}
