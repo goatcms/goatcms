@@ -161,11 +161,12 @@ func (c *GithubSignin) Post(scope app.Scope) {
 	}
 	githubUserID := strconv.FormatInt(githubUser.GetID(), 10)
 	githubUseEmail := githubUser.GetEmail()
+	githubUseLogin := githubUser.GetLogin()
 	if rows, err = c.deps.UserConnectCriteriaSearch.Find(scope, &dao.UserConnectCriteria{
 		Fields: &entities.UserConnectFields{},
 		Where: dao.UserConnectCriteriaWhere{
 			RemoteID: &dao.StringFieldCriteria{
-				Value: []string{githubUserID, githubUseEmail},
+				Value: []string{githubUserID, githubUseEmail, githubUseLogin},
 				Type:  dao.EQ,
 			},
 		},
