@@ -70,7 +70,7 @@ func NewGithubSignin(dp dependency.Provider) (*GithubSignin, error) {
 }
 
 // Get is a endpoint to start signin process
-func (c *GithubSignin) Get(scope app.Scope) {
+func (c *GithubSignin) Get(scope app.Scope) (err error) {
 	var (
 		deps struct {
 			SessionManager requestdep.SessionManager `request:"SessionService"`
@@ -78,13 +78,10 @@ func (c *GithubSignin) Get(scope app.Scope) {
 			Response       http.ResponseWriter       `request:"Response"`
 			RequestError   requestdep.Error          `request:"ErrorService"`
 		}
-		err    error
 		secret string
 	)
 	if err = scope.InjectTo(&deps); err != nil {
-		c.deps.Logger.ErrorLog("%v", err)
-		deps.RequestError.Error(http.StatusInternalServerError, err)
-		return
+		return err
 	}
 	secret = varutil.RandString(20, varutil.StrongBytes)
 	http.SetCookie(deps.Response, &http.Cookie{
@@ -96,10 +93,11 @@ func (c *GithubSignin) Get(scope app.Scope) {
 	})
 	url := c.oauthCfg.AuthCodeURL(secret)
 	deps.Responser.Redirect(url)
+	return nil
 }
 
 // Post is a endpoint fo user auth callback
-func (c *GithubSignin) Post(scope app.Scope) {
+func (c *GithubSignin) Post(scope app.Scope) (err error) {
 	var (
 		deps struct {
 			SessionManager requestdep.SessionManager `request:"SessionService"`
@@ -109,7 +107,6 @@ func (c *GithubSignin) Post(scope app.Scope) {
 			RequestAuth    requestdep.Auth           `request:"AuthService"`
 			Responser      requestdep.Responser      `request:"ResponserService"`
 		}
-		err         error
 		token       *oauth2.Token
 		githubUser  *github.User
 		rows        dao.UserConnectRows
@@ -117,14 +114,10 @@ func (c *GithubSignin) Post(scope app.Scope) {
 		cookie      *http.Cookie
 	)
 	if err = scope.InjectTo(&deps); err != nil {
-		c.deps.Logger.ErrorLog("%v", err)
-		deps.RequestError.Error(http.StatusInternalServerError, err)
-		return
+		return err
 	}
 	if cookie, err = deps.Request.Cookie(githubCSRFCookie); err != nil {
-		c.deps.Logger.ErrorLog("%v", err)
-		deps.RequestError.Error(http.StatusInternalServerError, err)
-		return
+		return err
 	}
 	http.SetCookie(deps.Response, &http.Cookie{
 		Name:    githubCSRFCookie,
@@ -133,31 +126,20 @@ func (c *GithubSignin) Post(scope app.Scope) {
 		Path:    "/",
 	})
 	if deps.Request.URL.Query().Get("state") != cookie.Value {
-		err = fmt.Errorf("no state match; possible csrf OR cookies not enabled")
-		c.deps.Logger.ErrorLog("%v", err)
-		deps.RequestError.Error(http.StatusInternalServerError, err)
-		return
+		return fmt.Errorf("no state match; possible csrf OR cookies not enabled")
 	}
 	if token, err = c.oauthCfg.Exchange(oauth2.NoContext, deps.Request.URL.Query().Get("code")); err != nil {
-		err = fmt.Errorf("there was an issue getting your token")
-		c.deps.Logger.ErrorLog("%v", err)
-		deps.RequestError.Error(http.StatusInternalServerError, err)
-		return
+		return fmt.Errorf("there was an issue getting your token")
 	}
 	if !token.Valid() {
-		err = fmt.Errorf("retreived invalid token")
-		c.deps.Logger.ErrorLog("%v", err)
-		deps.RequestError.Error(http.StatusInternalServerError, err)
-		return
+		return fmt.Errorf("retreived invalid token")
 	}
 	client := github.NewClient(c.oauthCfg.Client(oauth2.NoContext, token))
 	deadline := time.Now().Add(5000 * time.Millisecond)
 	ctx, cancel := context.WithDeadline(context.Background(), deadline)
 	defer cancel()
 	if githubUser, _, err = client.Users.Get(ctx, ""); err != nil {
-		c.deps.Logger.ErrorLog("%v", err)
-		deps.RequestError.Error(http.StatusInternalServerError, err)
-		return
+		return err
 	}
 	githubUserID := strconv.FormatInt(githubUser.GetID(), 10)
 	githubUseEmail := githubUser.GetEmail()
@@ -180,31 +162,21 @@ func (c *GithubSignin) Post(scope app.Scope) {
 		Limit:  1,
 		Offset: 0,
 	}); err != nil {
-		c.deps.Logger.ErrorLog("%v", err)
-		deps.RequestError.Error(http.StatusInternalServerError, err)
-		return
+		return err
 	}
 	defer rows.Close()
 	if !rows.Next() {
-		err = fmt.Errorf("no results for %v / %v", githubUserID, githubUseEmail)
-		c.deps.Logger.ErrorLog("%v", err)
-		deps.RequestError.Error(http.StatusInternalServerError, err)
-		return
+		return fmt.Errorf("no results for %v / %v", githubUserID, githubUseEmail)
 	}
 	if userConnect, err = rows.Get(); err != nil {
-		c.deps.Logger.ErrorLog("%v", err)
-		deps.RequestError.Error(http.StatusInternalServerError, err)
-		return
+		return err
 	}
 	if _, err = deps.RequestAuth.ForceSignin(userConnect.User); err != nil {
-		c.deps.Logger.ErrorLog("%v", err)
-		deps.RequestError.Error(http.StatusInternalServerError, err)
-		return
+		return err
 	}
 	if err = scope.Trigger(app.CommitEvent, nil); err != nil {
-		c.deps.Logger.ErrorLog("%v", err)
-		deps.RequestError.Error(http.StatusInternalServerError, err)
-		return
+		return err
 	}
 	deps.Responser.Redirect(c.deps.BaseURL + c.deps.RedirectAfterSigninURL)
+	return err
 }

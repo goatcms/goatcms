@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/goatcms/goatcms/cmsapp/cmserror"
 	"github.com/goatcms/goatcms/cmsapp/entities"
 	"github.com/goatcms/goatcms/cmsapp/forms"
 	"github.com/goatcms/goatcms/cmsapp/http/httpform/signin"
@@ -39,9 +40,9 @@ func NewSignin(dp dependency.Provider) (*Signin, error) {
 	return ctrl, nil
 }
 
-func (c *Signin) DO(scope app.Scope) {
+// DO is signin endpoint for POST and GET queries
+func (c *Signin) DO(scope app.Scope) (err error) {
 	var (
-		err  error
 		deps struct {
 			Logger       services.Logger      `dependency:"LoggerService"`
 			Request      *http.Request        `request:"Request"`
@@ -54,24 +55,16 @@ func (c *Signin) DO(scope app.Scope) {
 		rolesJSON string
 	)
 	if err = scope.InjectTo(&deps); err != nil {
-		deps.Logger.ErrorLog("%v", err)
-		deps.Responser.JSON(http.StatusBadRequest, "{\"status\":\"StatusInternalServerError\"}")
-		return
+		return cmserror.NewJSONError(err, http.StatusBadRequest, "{\"status\":\"StatusInternalServerError\"}")
 	}
 	if form, err = signin.NewForm(scope, forms.SigninAllFields); err != nil {
-		deps.Logger.ErrorLog("%v", err)
-		deps.Responser.JSON(http.StatusBadRequest, "{\"status\":\"StatusInternalServerError\"}")
-		return
+		return cmserror.NewJSONError(err, http.StatusBadRequest, "{\"status\":\"StatusInternalServerError\"}")
 	}
 	if session, err = deps.RequestAuth.Signin(*form.Username, *form.Password); err != nil {
-		deps.Logger.ErrorLog("%v", err)
-		deps.Responser.JSON(http.StatusBadRequest, "{\"status\":\"StatusBadRequest\"}")
-		return
+		return cmserror.NewJSONError(err, http.StatusBadRequest, "{\"status\":\"StatusBadRequest\"}")
 	}
 	if err = scope.Trigger(app.CommitEvent, nil); err != nil {
-		deps.Logger.ErrorLog("%v", err)
-		deps.Responser.JSON(http.StatusBadRequest, "{\"status\":\"StatusInternalServerError\"}")
-		return
+		return cmserror.NewJSONError(err, http.StatusBadRequest, "{\"status\":\"StatusInternalServerError\"}")
 	}
 	if session.User != nil && session.User.Roles != nil {
 		arr := strings.Split(*session.User.Roles, " ")
@@ -83,4 +76,5 @@ func (c *Signin) DO(scope app.Scope) {
 		rolesJSON = "[]"
 	}
 	deps.Responser.JSON(http.StatusOK, "{\"status\":\"success\", \"secret\":"+strconv.Quote(*session.Secret)+", \"roles\":"+rolesJSON+"}")
+	return nil
 }

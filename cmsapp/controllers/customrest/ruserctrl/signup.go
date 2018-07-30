@@ -3,6 +3,7 @@ package ruserctrl
 import (
 	"net/http"
 
+	"github.com/goatcms/goatcms/cmsapp/cmserror"
 	"github.com/goatcms/goatcms/cmsapp/forms"
 	httpsignup "github.com/goatcms/goatcms/cmsapp/http/httpform/signup"
 	"github.com/goatcms/goatcms/cmsapp/services"
@@ -31,9 +32,9 @@ func NewSignup(dp dependency.Provider) (*Signup, error) {
 	return ctrl, nil
 }
 
-func (c *Signup) DO(scope app.Scope) {
+// DO is signup endpoint for POST and GET queries
+func (c *Signup) DO(scope app.Scope) (err error) {
 	var (
-		err  error
 		msgs messages.MessageMap
 		form *forms.Signup
 		deps struct {
@@ -43,19 +44,13 @@ func (c *Signup) DO(scope app.Scope) {
 		}
 	)
 	if err = scope.InjectTo(&deps); err != nil {
-		deps.Logger.ErrorLog("%v", err)
-		deps.Responser.JSON(http.StatusBadRequest, "{\"status\":\"StatusInternalServerError\"}")
-		return
+		return cmserror.NewJSONError(err, http.StatusBadRequest, "{\"status\":\"StatusInternalServerError\"}")
 	}
 	if form, err = httpsignup.NewForm(scope, forms.SignupAllFields); err != nil {
-		deps.Logger.ErrorLog("%v", err)
-		deps.Responser.JSON(http.StatusBadRequest, "{\"status\":\"StatusInternalServerError\"}")
-		return
+		return cmserror.NewJSONError(err, http.StatusBadRequest, "{\"status\":\"StatusInternalServerError\"}")
 	}
 	if msgs, err = c.deps.Action.Signup(form, scope); err != nil {
-		c.deps.Logger.ErrorLog("%v", err)
-		deps.RequestError.Error(http.StatusBadRequest, err)
-		return
+		return cmserror.NewJSONError(err, http.StatusBadRequest, "{\"status\":\"StatusBadRequest\"}")
 	}
 	if len(msgs.GetAll()) != 0 {
 		deps.Logger.ErrorLog("%v", err)
@@ -63,4 +58,5 @@ func (c *Signup) DO(scope app.Scope) {
 		return
 	}
 	deps.Responser.JSON(http.StatusCreated, "{\"status\":\"success\"}")
+	return nil
 }

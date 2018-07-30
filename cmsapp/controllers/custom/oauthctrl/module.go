@@ -6,20 +6,22 @@ import (
 )
 
 // InitDependencies init all dependency modules
-func InitDependencies(a app.App) error {
-	var deps struct {
-		Router services.Router `dependency:"RouterService"`
-	}
-	if err := a.DependencyProvider().InjectTo(&deps); err != nil {
+func InitDependencies(a app.App) (err error) {
+	var (
+		deps struct {
+			Router services.Router `dependency:"RouterService"`
+		}
+		githubSignin *GithubSignin
+	)
+	if err = a.DependencyProvider().InjectTo(&deps); err != nil {
 		return err
 	}
 	// signup
-	github, err := NewGithubSignin(a.DependencyProvider())
-	if err != nil {
+	if githubSignin, err = NewGithubSignin(a.DependencyProvider()); err != nil {
 		return err
 	}
-	deps.Router.OnGet("/user/signin/github/start", github.Get)
-	deps.Router.OnGet(githubRedirectURL, github.Post)
-	deps.Router.OnPost(githubRedirectURL, github.Post)
+	deps.Router.OnGet(githubStartURL, githubSignin.Get)
+	deps.Router.OnGet(githubRedirectURL, githubSignin.Post)
+	deps.Router.OnPost(githubRedirectURL, githubSignin.Post)
 	return nil
 }

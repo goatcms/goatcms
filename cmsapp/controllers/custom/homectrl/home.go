@@ -1,7 +1,6 @@
 package homectrl
 
 import (
-	"fmt"
 	"html/template"
 
 	"github.com/goatcms/goatcms/cmsapp/services"
@@ -11,6 +10,7 @@ import (
 	"github.com/goatcms/goatcore/goathtml"
 )
 
+// Home is home page controller
 type Home struct {
 	deps struct {
 		Template services.Template `dependency:"TemplateService"`
@@ -18,6 +18,7 @@ type Home struct {
 	view *template.Template
 }
 
+// NewHome create new Home controller instance
 func NewHome(dp dependency.Provider) (*Home, error) {
 	var err error
 	ctrl := &Home{}
@@ -31,17 +32,17 @@ func NewHome(dp dependency.Provider) (*Home, error) {
 	return ctrl, nil
 }
 
-func (c *Home) Get(requestScope app.Scope) {
+// Get render Home controller
+func (c *Home) Get(requestScope app.Scope) (err error) {
 	var requestDeps struct {
 		RequestError requestdep.Error     `request:"ErrorService"`
 		Responser    requestdep.Responser `request:"ResponserService"`
 	}
-	if err := requestScope.InjectTo(&requestDeps); err != nil {
-		fmt.Println(err)
-		return
+	if err = requestScope.InjectTo(&requestDeps); err != nil {
+		return err
 	}
-	if err := requestDeps.Responser.Execute(c.view, nil); err != nil {
-		requestDeps.RequestError.Error(312, err)
-		return
+	if err = requestDeps.Responser.Execute(c.view, nil); err != nil {
+		return err
 	}
+	return err
 }

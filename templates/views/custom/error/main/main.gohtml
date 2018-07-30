@@ -1,0 +1,11 @@
+{{define "content"}}
+  {{$prefix:=(print .Lang ".view.custom.error.main.")}}
+
+  <div class="error">
+    <h1>{{TranslateFor "title" $prefix}}</h1>
+    {{ if .Data.Error}}
+      <p>{{.Data.Error}}</p>
+    {{ end }}
+  </div>
+
+{{end}}

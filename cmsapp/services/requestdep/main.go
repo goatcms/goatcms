@@ -41,6 +41,7 @@ type Auth interface {
 type Error interface {
 	Errorf(httpCode int, msgKey string, params ...interface{}) error
 	Error(httpCode int, err error)
+	DO(err error)
 }
 
 type Translate interface {

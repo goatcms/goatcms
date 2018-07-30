@@ -1,9 +1,9 @@
 package homectrl
 
 import (
-	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcms/cmsapp/controllers"
 	"github.com/goatcms/goatcms/cmsapp/services"
+	"github.com/goatcms/goatcore/app"
 )
 
 // InitDependencies init all dependency modules

@@ -13,6 +13,7 @@ import (
 	"net/http"
 
 	"github.com/goatcms/goatcms/cmsapp/dao"
+	"github.com/goatcms/goatcms/cmsapp/cmserror"
 	"github.com/goatcms/goatcms/cmsapp/entities"
 	"github.com/goatcms/goatcms/cmsapp/services"
 	"github.com/goatcms/goatcms/cmsapp/services/requestdep"
@@ -50,10 +51,9 @@ func NewList(dp dependency.Provider) (*List, error) {
 }
 
 // Get is handler to serve template where one can add new article
-func (c *List) Get(requestScope app.Scope) {
+func (c *List) Get(requestScope app.Scope) (err error) {
 	var (
 		rows        dao.{{$entityName}}Rows
-		err         error
 		entity      *entities.{{$entityName}}
 		deps struct {
 			ACL          requestdep.ACL       `request:"ACLService"`
@@ -65,35 +65,26 @@ func (c *List) Get(requestScope app.Scope) {
 		json         string
 	)
 	if err = requestScope.InjectTo(&deps); err != nil {
-		c.deps.Logger.ErrorLog("%v", err)
-		deps.Responser.JSON(http.StatusInternalServerError, "{\"status\":\"StatusInternalServerError\"}")
-		return
+		return cmserror.NewJSONError(err, http.StatusInternalServerError, "{\"status\":\"StatusInternalServerError\"}")
 	}
 	if !deps.ACL.HasAnyRole(listRequiredRoles) {
-		c.deps.Logger.ErrorLog("Access denied")
-		deps.Responser.JSON(http.StatusForbidden, "{\"status\":\"StatusForbidden\"}")
-		return
+		return cmserror.NewJSONError(err, http.StatusForbidden, "{\"status\":\"StatusForbidden\"}")
 	}
 	if rows, err = c.deps.Finder.Search(requestScope, entities.{{$entityName}}MainFieldsAndID, &searchParams); err != nil {
-		c.deps.Logger.ErrorLog("%v", err)
-		deps.Responser.JSON(http.StatusInternalServerError, "{\"status\":\"StatusInternalServerError\"}")
-		return
+		return cmserror.NewJSONError(err, http.StatusInternalServerError, "{\"status\":\"StatusInternalServerError\"}")
 	}
 	collection := []*entities.{{$entityName}}{}
 	for rows.Next() {
 		if entity, err = rows.Get(); err != nil {
-			c.deps.Logger.ErrorLog("%v", err)
-			deps.Responser.JSON(http.StatusInternalServerError, "{\"status\":\"StatusInternalServerError\"}")
-			return
+			return cmserror.NewJSONError(err, http.StatusInternalServerError, "{\"status\":\"StatusInternalServerError\"}")
 		}
 		collection = append(collection, entity)
 	}
 	if json, err = varutil.ObjectToJSON(collection); err != nil {
-		c.deps.Logger.ErrorLog("%v", err)
-		deps.Responser.JSON(http.StatusInternalServerError, "{\"status\":\"StatusInternalServerError\"}")
-		return
+		return cmserror.NewJSONError(err, http.StatusInternalServerError, "{\"status\":\"StatusInternalServerError\"}")
 	}
 	deps.Responser.JSON(200, json)
+	return nil
 }
 
 {{- end -}}

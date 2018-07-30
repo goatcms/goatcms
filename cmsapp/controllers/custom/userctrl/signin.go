@@ -1,7 +1,6 @@
 package userctrl
 
 import (
-	"fmt"
 	"html/template"
 	"net/http"
 
@@ -35,59 +34,44 @@ func NewSignin(dp dependency.Provider) (*Signin, error) {
 	return ctrl, nil
 }
 
-func (c *Signin) Get(scope app.Scope) {
-	var deps struct {
-		RequestError requestdep.Error     `request:"ErrorService"`
-		Responser    requestdep.Responser `request:"ResponserService"`
-	}
-	if err := scope.InjectTo(&deps); err != nil {
-		fmt.Println(err)
-		return
-	}
-	if err := deps.Responser.Execute(c.view, map[string]interface{}{
-		"Error": false,
-	}); err != nil {
-		deps.RequestError.Error(312, err)
-		return
-	}
-}
-
-func (c *Signin) Post(scope app.Scope) {
+// Get is signin endpoint for GET method
+func (c *Signin) Get(scope app.Scope) (err error) {
 	var (
-		err  error
 		deps struct {
-			Request      *http.Request        `request:"Request"`
-			Responser    requestdep.Responser `request:"ResponserService"`
-			RequestAuth  requestdep.Auth      `request:"AuthService"`
-			RequestError requestdep.Error     `request:"ErrorService"`
-			Username     string               `form:"Username"`
-			Password     string               `form:"Password"`
+			Responser requestdep.Responser `request:"ResponserService"`
 		}
 	)
 	if err = scope.InjectTo(&deps); err != nil {
-		c.deps.Logger.ErrorLog("%v", err)
-		deps.RequestError.Error(http.StatusInternalServerError, err)
-		return
+		return err
+	}
+	return deps.Responser.Execute(c.view, map[string]interface{}{
+		"Error": false,
+	})
+}
+
+// Post is signin endpoint for POST method
+func (c *Signin) Post(scope app.Scope) (err error) {
+	var (
+		deps struct {
+			Request     *http.Request        `request:"Request"`
+			Responser   requestdep.Responser `request:"ResponserService"`
+			RequestAuth requestdep.Auth      `request:"AuthService"`
+			Username    string               `form:"Username"`
+			Password    string               `form:"Password"`
+		}
+	)
+	if err = scope.InjectTo(&deps); err != nil {
+		return err
 	}
 	if _, err = deps.RequestAuth.Signin(deps.Username, deps.Password); err != nil {
-		// there can be incorrect password error - only log it
 		c.deps.Logger.ErrorLog("%v", err)
-		// show login panel again
-		if err := deps.Responser.Execute(c.view, map[string]interface{}{
+		return deps.Responser.Execute(c.view, map[string]interface{}{
 			"Error": true,
-		}); err != nil {
-			c.deps.Logger.ErrorLog("%v", err)
-			deps.RequestError.Error(http.StatusInternalServerError, err)
-			return
-		}
+		})
 	}
 	if err = scope.Trigger(app.CommitEvent, nil); err != nil {
-		c.deps.Logger.ErrorLog("%v", err)
-		deps.RequestError.Error(http.StatusInternalServerError, err)
-		return
+		return err
 	}
-	if err == nil {
-		deps.Responser.Redirect("/")
-		return
-	}
+	deps.Responser.Redirect("/")
+	return nil
 }

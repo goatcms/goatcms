@@ -42,7 +42,7 @@ const (
 type MuxHandler func(http.ResponseWriter, *http.Request)
 
 // ScopeHandler is a router service handler
-type ScopeHandler func(app.Scope)
+type ScopeHandler func(app.Scope) error
 
 // Database is global elementary database interface
 /*type Database interface {
@@ -103,6 +103,9 @@ type Logger interface {
 	TestLog(format string, data ...interface{})
 	ProdLog(format string, data ...interface{})
 	ErrorLog(format string, data ...interface{})
+	IsProdLVL() bool
+	IsDevLVL() bool
+	IsTestLVL() bool
 }
 
 type Translate interface {

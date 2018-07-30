@@ -14,6 +14,7 @@ import (
 	"encoding/json"
 
 	entities "{{index $ctx.Properties.Build "entities_path"}}"
+	"github.com/goatcms/goatcms/cmsapp/cmserror"
 	"github.com/goatcms/goatcms/cmsapp/services"
 	"github.com/goatcms/goatcms/cmsapp/dao"
 	"github.com/goatcms/goatcms/cmsapp/services/requestdep"
@@ -31,7 +32,7 @@ var (
 	}
 )
 
-// Insert is {{lower $name}} insert controller
+// Inserter is {{lower $name}} insert controller
 type Inserter struct {
 	deps struct {
 		Template services.Template         `dependency:"TemplateService"`
@@ -50,9 +51,9 @@ func NewInserter(dp dependency.Provider) (*Inserter, error) {
 	return ctrl, nil
 }
 
-func (c *Inserter) Post(scope app.Scope) {
+// Post is {{lower $entityName}} api insert endpoint for HTTP POST method
+func (c *Inserter) Post(scope app.Scope) (err error) {
 	var (
-		err  error
 		msgs messages.MessageMap
 		entity entities.{{$entityName}}
 		deps struct {
@@ -63,25 +64,17 @@ func (c *Inserter) Post(scope app.Scope) {
 		}
 	)
 	if err = scope.InjectTo(&deps); err != nil {
-		c.deps.Logger.ErrorLog("%v", err)
-		deps.Responser.JSON(http.StatusInternalServerError, "{\"status\":\"StatusInternalServerError\"}")
-		return
+		return cmserror.NewJSONError(err, http.StatusInternalServerError, "{\"status\":\"StatusInternalServerError\"}")
 	}
 	if !deps.ACL.HasAnyRole(insertRequiredRoles) {
-		c.deps.Logger.ErrorLog("Access denied")
-		deps.Responser.JSON(http.StatusForbidden, "{\"status\":\"StatusForbidden\"}")
-		return
+		return cmserror.NewJSONError(err, http.StatusForbidden, "{\"status\":\"StatusForbidden\"}")
 	}
 	decoder := json.NewDecoder(deps.Request.Body)
 	if err = decoder.Decode(&entity); err != nil {
-		c.deps.Logger.ErrorLog("%v", err)
-		deps.Responser.JSON(http.StatusBadRequest, "{\"status\":\"StatusInternalServerError\"}")
-		return
+		return cmserror.NewJSONError(err, http.StatusInternalServerError, "{\"status\":\"StatusInternalServerError\"}")
 	}
 	if msgs, err = entities.Valid{{$entityName}}(&entity, entities.{{$entityName}}MainFields); err != nil {
-		c.deps.Logger.ErrorLog("%v", err)
-		deps.Responser.JSON(http.StatusBadRequest, "{\"status\":\"StatusInternalServerError\"}")
-		return
+		return cmserror.NewJSONError(err, http.StatusInternalServerError, "{\"status\":\"StatusInternalServerError\"}")
 	}
 	if len(msgs.GetAll()) != 0 {
 		c.deps.Logger.ErrorLog("%v", err)
@@ -89,16 +82,13 @@ func (c *Inserter) Post(scope app.Scope) {
 		return
 	}
 	if _, err = c.deps.Inserter.Insert(scope, &entity); err != nil {
-		c.deps.Logger.ErrorLog("%v", err)
-		deps.Responser.JSON(http.StatusBadRequest, "{\"status\":\"StatusInternalServerError\"}")
-		return
+		return cmserror.NewJSONError(err, http.StatusInternalServerError, "{\"status\":\"StatusInternalServerError\"}")
 	}
 	if err = scope.Trigger(app.CommitEvent, nil); err != nil {
-		c.deps.Logger.ErrorLog("%v", err)
-		deps.Responser.JSON(http.StatusInternalServerError, "{\"status\":\"StatusInternalServerError\"}")
-		return
+		return cmserror.NewJSONError(err, http.StatusInternalServerError, "{\"status\":\"StatusInternalServerError\"}")
 	}
 	deps.Responser.JSON(http.StatusCreated, "{\"status\":\"success\"}")
+	return nil
 }
 
 {{- end -}}

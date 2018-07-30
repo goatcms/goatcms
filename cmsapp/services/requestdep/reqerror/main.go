@@ -2,16 +2,22 @@ package reqerror
 
 import (
 	"fmt"
+	"html/template"
 
+	"github.com/goatcms/goatcms/cmsapp/services"
 	"github.com/goatcms/goatcms/cmsapp/services/requestdep"
 	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/dependency"
+	"github.com/goatcms/goatcore/goathtml"
 )
 
 // RequestError is error manager for request
 type RequestError struct {
 	deps struct {
-		RequestScope app.Scope `request:"RequestScope"`
+		RequestScope app.Scope            `request:"RequestScope"`
+		Responser    requestdep.Responser `request:"ResponserService"`
+		Logger       services.Logger      `dependency:"LoggerService"`
+		Template     services.Template    `dependency:"TemplateService"`
 	}
 }
 
@@ -33,6 +39,30 @@ func (re *RequestError) Errorf(httpCode int, msgKey string, params ...interface{
 
 // Error print request errror
 func (re *RequestError) Error(httpCode int, err error) {
-	fmt.Printf("\n error: %v\n", err)
+	re.deps.Logger.ErrorLog("%v", err)
 	re.deps.RequestScope.Trigger(app.ErrorEvent, err)
+}
+
+// DO process a error: log the error and send a error response to client
+func (re *RequestError) DO(berr error) {
+	var (
+		err    error
+		errmsg string
+		view   *template.Template
+	)
+	re.Error(503, berr)
+	//re.deps.Responser.JSON(503, err.Error())
+	if view, err = re.deps.Template.View(goathtml.DefaultLayout, "custom/error/main", nil); err != nil {
+		re.deps.Logger.ErrorLog("%v", err)
+		panic(err)
+	}
+	if re.deps.Logger.IsTestLVL() {
+		errmsg = berr.Error()
+	}
+	if err = re.deps.Responser.Execute(view, map[string]interface{}{
+		"Error": errmsg,
+	}); err != nil {
+		re.deps.Logger.ErrorLog("%v", err)
+		panic(err)
+	}
 }

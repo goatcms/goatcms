@@ -10,7 +10,6 @@
 package {{lower $name}}
 
 import (
-	"fmt"
 	"strconv"
 	"html/template"
 
@@ -18,6 +17,7 @@ import (
 	httpmodel "github.com/goatcms/goatcms/cmsapp/http/httpmodel/{{lower $name}}"
 	"github.com/goatcms/goatcms/cmsapp/services"
 	"github.com/goatcms/goatcms/cmsapp/dao"
+	"github.com/goatcms/goatcms/cmsapp/cmserror"
 	"github.com/goatcms/goatcms/cmsapp/services/requestdep"
 	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/dependency"
@@ -60,9 +60,8 @@ func NewUpdater(dp dependency.Provider) (*Updater, error) {
 }
 
 // Get is handler to serve template where one can add new article
-func (c *Updater) Get(scope app.Scope) {
+func (c *Updater) Get(scope app.Scope) (err error) {
 	var (
-		err error
 		entity *entities.{{$entityName}}
 		deps struct {
 			ACL          requestdep.ACL       `request:"ACLService"`
@@ -73,39 +72,28 @@ func (c *Updater) Get(scope app.Scope) {
 		id int64
 	)
 	if err = scope.InjectTo(&deps); err != nil {
-		c.deps.Logger.ErrorLog("%v", err)
-		return
+		return err
 	}
 	if !deps.ACL.HasAnyRole(updateRequiredRoles) {
-		c.deps.Logger.ErrorLog("Access denied")
-		deps.RequestError.Error(403, fmt.Errorf("Access denied 403"))
-		return
+		return cmserror.NewAccessDenideError(nil)
 	}
 	if id, err = strconv.ParseInt(deps.ID, 10, 64); err != nil {
-		c.deps.Logger.ErrorLog("%v", err)
-		deps.RequestError.Error(312, err)
-		return
+		return err
 	}
 	if entity, err = c.deps.Finder.Find(scope, entities.{{$entityName}}MainFields, id); err != nil {
-		c.deps.Logger.ErrorLog("%v", err)
-		deps.RequestError.Error(312, err)
-		return
+		return err
 	}
-	if err := deps.Responser.Execute(c.view, map[string]interface{}{
+	return deps.Responser.Execute(c.view, map[string]interface{}{
 		"Valid": msgcollection.NewMessageMap(),
 		"Entity":  entity,
 		"Fields": entities.{{$entityName}}MainFields,
 		"IsUpdated": false,
-	}); err != nil {
-		c.deps.Logger.ErrorLog("%v", err)
-		deps.RequestError.Error(312, err)
-		return
-	}
+	})
 }
 
-func (c *Updater) Post(scope app.Scope) {
+// Post is {{lower $entityName}} update endpoint for HTTP post method
+func (c *Updater) Post(scope app.Scope) (err error) {
 	var (
-		err  error
 		msgs messages.MessageMap
 		entity *entities.{{$entityName}}
 		deps struct {
@@ -115,56 +103,39 @@ func (c *Updater) Post(scope app.Scope) {
 			ID           string               `parameter:"id"`
 		}
 		id        int64
-		isUpdated bool = false
+		isUpdated = false
 	)
 	if err = scope.InjectTo(&deps); err != nil {
-		fmt.Println(err)
-		return
+		return err
 	}
 	if !deps.ACL.HasAnyRole(updateRequiredRoles) {
-		c.deps.Logger.ErrorLog("Access denied")
-		deps.RequestError.Error(403, fmt.Errorf("Access denied 403"))
-		return
+		return cmserror.NewAccessDenideError(nil)
 	}
 	if id, err = strconv.ParseInt(deps.ID, 10, 64); err != nil {
-		c.deps.Logger.ErrorLog("%v", err)
-		deps.RequestError.Error(312, err)
-		return
+		return err
 	}
 	if entity, err = httpmodel.NewForm(scope, entities.{{$entityName}}MainFields); err != nil {
-		c.deps.Logger.ErrorLog("%v", err)
-		deps.RequestError.Error(312, err)
-		return
+		return err
 	}
 	if msgs, err = entities.Valid{{$entityName}}(entity, entities.{{$entityName}}MainFields); err != nil {
-		c.deps.Logger.ErrorLog("%v", err)
-		deps.RequestError.Error(312, err)
-		return
+		return err
 	}
 	if len(msgs.GetAll()) == 0 {
 		entity.ID = &id
 		if err = c.deps.Updater.Update(scope, entity, entities.{{$entityName}}MainFields); err != nil {
-			c.deps.Logger.ErrorLog("%v", err)
-			deps.RequestError.Error(312, err)
-			return
+			return err
 		}
 		if err = scope.Trigger(app.CommitEvent, nil); err != nil {
-			c.deps.Logger.ErrorLog("%v", err)
-			deps.RequestError.Error(312, err)
-			return
+			return err
 		}
 		isUpdated = true
 	}
-	if err := deps.Responser.Execute(c.view, map[string]interface{}{
+	return deps.Responser.Execute(c.view, map[string]interface{}{
 		"Valid": msgs,
 		"Entity": entity,
 		"Fields": entities.{{$entityName}}MainFields,
 		"IsUpdated": isUpdated,
-	}); err != nil {
-		c.deps.Logger.ErrorLog("%v", err)
-		deps.RequestError.Error(312, err)
-		return
-	}
+	})
 }
 
 {{- end -}}

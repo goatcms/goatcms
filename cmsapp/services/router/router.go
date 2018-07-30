@@ -12,16 +12,12 @@ import (
 	"github.com/gorilla/mux"
 )
 
-const (
-	DefaultHost         = ":5555"
-	DefaultStaticPath   = "./web/dist/"
-	DefaultStaticPrefix = "/static/"
-)
-
+// Router is request router system
 type Router struct {
 	deps struct {
 		EventScope   app.Scope            `dependency:"EngineScope"`
 		AppScope     app.Scope            `dependency:"AppScope"`
+		Logger       services.Logger      `dependency:"LoggerService"`
 		Host         string               `config:"?router.host"`
 		StaticPrefix string               `config:"?router.static.prefix"`
 		StaticPath   string               `config:"?router.static.path"`
@@ -33,6 +29,7 @@ type Router struct {
 	dp                  dependency.Provider
 }
 
+// RouterFactory is Router instance builder
 func RouterFactory(dp dependency.Provider) (interface{}, error) {
 	router := &Router{
 		dependencyFactories: map[string]dependency.Factory{},
@@ -60,27 +57,27 @@ func RouterFactory(dp dependency.Provider) (interface{}, error) {
 	return services.Router(router), nil
 }
 
-// Get append http get routing to global pool
+// OnGet append http get routing to global pool
 func (router *Router) OnGet(path string, handler services.ScopeHandler) {
 	router.grouter.HandleFunc(path, router.scopeHandlerToMuxHandler(handler)).Methods("GET")
 }
 
-// Post append http post routing to global pool
+// OnPost append http post routing to global pool
 func (router *Router) OnPost(path string, handler services.ScopeHandler) {
 	router.grouter.HandleFunc(path, router.scopeHandlerToMuxHandler(handler)).Methods("POST")
 }
 
-// Put append http put routing to global pool
+// OnPut append http put routing to global pool
 func (router *Router) OnPut(path string, handler services.ScopeHandler) {
 	router.grouter.HandleFunc(path, router.scopeHandlerToMuxHandler(handler)).Methods("PUT")
 }
 
-// Delete append http delete routing to global pool
+// OnDelete append http delete routing to global pool
 func (router *Router) OnDelete(path string, handler services.ScopeHandler) {
 	router.grouter.HandleFunc(path, router.scopeHandlerToMuxHandler(handler)).Methods("DELETE")
 }
 
-// Delete append http delete routing to global pool
+// On append http delete routing to global pool
 func (router *Router) On(methods []string, path string, handler services.ScopeHandler) {
 	router.grouter.HandleFunc(path, router.scopeHandlerToMuxHandler(handler)).Methods(methods...)
 }
@@ -90,13 +87,13 @@ func (router *Router) Host() string {
 	return router.deps.Host
 }
 
-// Start add routing to global pool
-func (router *Router) Start() error {
+// Start add http server
+func (router *Router) Start() (err error) {
 	srv := &http.Server{
 		Addr:    router.deps.Host,
 		Handler: router.grouter,
 	}
-	if err := srv.ListenAndServe(); err != nil {
+	if err = srv.ListenAndServe(); err != nil {
 		return err
 	}
 	router.deps.AppScope.On(app.CloseEvent, func(interface{}) (err error) {
@@ -105,7 +102,7 @@ func (router *Router) Start() error {
 	return nil
 }
 
-// Start add routing to global pool
+// AddFactory add routing to global pool
 func (router *Router) AddFactory(name string, factory dependency.Factory) error {
 	if _, ok := router.dependencyFactories[name]; ok {
 		return fmt.Errorf("router.AddFactory: Add %s dependency twice", name)
@@ -123,21 +120,27 @@ func (router *Router) newRequestScope(w http.ResponseWriter, r *http.Request) ap
 func (router *Router) scopeHandlerToMuxHandler(handler services.ScopeHandler) services.MuxHandler {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var (
-			err  error
 			deps struct {
-				Session requestdep.SessionManager `request:"SessionService"`
+				RequestError requestdep.Error          `request:"ErrorService"`
+				Session      requestdep.SessionManager `request:"SessionService"`
+				Logger       services.Logger           `dependency:"LoggerService"`
 			}
+			err   error
+			scope = router.newRequestScope(w, r)
 		)
-		scope := router.newRequestScope(w, r)
 		if err = scope.InjectTo(&deps); err != nil {
-			fmt.Printf("Error: %v", err)
+			panic(err)
 		}
 		if err = deps.Session.LoadSession(); err != nil {
-			fmt.Printf("Error: %v", err)
+			deps.Logger.TestLog("%v", err)
 		}
-		handler(scope)
+		if err = handler(scope); err != nil {
+			deps.RequestError.DO(err)
+			return
+		}
 		if err := scope.Trigger(app.CloseEvent, nil); err != nil {
-			fmt.Printf("Error: %v", err)
+			deps.RequestError.DO(err)
+			return
 		}
 	}
 }

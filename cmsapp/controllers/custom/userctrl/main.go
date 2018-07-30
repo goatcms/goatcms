@@ -6,16 +6,20 @@ import (
 )
 
 // InitDependencies init all dependency modules
-func InitDependencies(a app.App) error {
-	var deps struct {
-		Router services.Router `dependency:"RouterService"`
-	}
-	if err := a.DependencyProvider().InjectTo(&deps); err != nil {
+func InitDependencies(a app.App) (err error) {
+	var (
+		deps struct {
+			Router services.Router `dependency:"RouterService"`
+		}
+		signup  *Signup
+		signin  *Signin
+		signout *Signout
+	)
+	if err = a.DependencyProvider().InjectTo(&deps); err != nil {
 		return err
 	}
 	// signup
-	signup, err := NewSignup(a.DependencyProvider())
-	if err != nil {
+	if signup, err = NewSignup(a.DependencyProvider()); err != nil {
 		return err
 	}
 	deps.Router.OnGet("/user/signup", signup.Get)
@@ -23,8 +27,7 @@ func InitDependencies(a app.App) error {
 	deps.Router.OnGet("/user/register", signup.Get)
 	deps.Router.OnPost("/user/register", signup.Post)
 	// signin
-	signin, err := NewSignin(a.DependencyProvider())
-	if err != nil {
+	if signin, err = NewSignin(a.DependencyProvider()); err != nil {
 		return err
 	}
 	deps.Router.OnGet("/user/signin", signin.Get)
@@ -32,8 +35,7 @@ func InitDependencies(a app.App) error {
 	deps.Router.OnGet("/user/login", signin.Get)
 	deps.Router.OnPost("/user/login", signin.Post)
 	// signout
-	signout, err := NewSignout(a.DependencyProvider())
-	if err != nil {
+	if signout, err = NewSignout(a.DependencyProvider()); err != nil {
 		return err
 	}
 	deps.Router.OnGet("/user/signout", signout.Do)

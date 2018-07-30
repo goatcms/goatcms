@@ -3,6 +3,7 @@ package ruserctrl
 import (
 	"net/http"
 
+	"github.com/goatcms/goatcms/cmsapp/cmserror"
 	"github.com/goatcms/goatcms/cmsapp/services"
 	"github.com/goatcms/goatcms/cmsapp/services/requestdep"
 	"github.com/goatcms/goatcore/app"
@@ -14,6 +15,7 @@ type Signout struct {
 	deps struct{}
 }
 
+// NewSignout create new signout controller instance
 func NewSignout(dp dependency.Provider) (*Signout, error) {
 	ctrl := &Signout{}
 	if err := dp.InjectTo(&ctrl.deps); err != nil {
@@ -22,7 +24,8 @@ func NewSignout(dp dependency.Provider) (*Signout, error) {
 	return ctrl, nil
 }
 
-func (c *Signout) DO(requestScope app.Scope) {
+// DO is signout endpoint for POST and GET queries
+func (c *Signout) DO(requestScope app.Scope) (err error) {
 	var deps struct {
 		Logger         services.Logger           `dependency:"LoggerService"`
 		Responser      requestdep.Responser      `request:"ResponserService"`
@@ -30,15 +33,12 @@ func (c *Signout) DO(requestScope app.Scope) {
 		RequestAuth    requestdep.Auth           `request:"AuthService"`
 		RequestSession requestdep.SessionManager `request:"SessionService"`
 	}
-	if err := requestScope.InjectTo(&deps); err != nil {
-		deps.Logger.ErrorLog("%v", err)
-		deps.Responser.JSON(http.StatusBadRequest, "{\"status\":\"StatusInternalServerError\"}")
-		return
+	if err = requestScope.InjectTo(&deps); err != nil {
+		return cmserror.NewJSONError(err, http.StatusBadRequest, "{\"status\":\"StatusInternalServerError\"}")
 	}
-	if err := deps.RequestSession.DestroySession(); err != nil {
-		deps.Logger.ErrorLog("%v", err)
-		deps.Responser.JSON(http.StatusBadRequest, "{\"status\":\"StatusInternalServerError\"}")
-		return
+	if err = deps.RequestSession.DestroySession(); err != nil {
+		return cmserror.NewJSONError(err, http.StatusBadRequest, "{\"status\":\"StatusInternalServerError\"}")
 	}
 	deps.Responser.JSON(http.StatusCreated, "{\"status\":\"success\"}")
+	return nil
 }

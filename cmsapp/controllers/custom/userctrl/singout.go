@@ -1,8 +1,6 @@
 package userctrl
 
 import (
-	"net/http"
-
 	"github.com/goatcms/goatcms/cmsapp/services"
 	"github.com/goatcms/goatcms/cmsapp/services/requestdep"
 	"github.com/goatcms/goatcore/app"
@@ -16,6 +14,7 @@ type Signout struct {
 	}
 }
 
+// NewSignout create new Signout controller
 func NewSignout(dp dependency.Provider) (*Signout, error) {
 	ctrl := &Signout{}
 	if err := dp.InjectTo(&ctrl.deps); err != nil {
@@ -24,30 +23,24 @@ func NewSignout(dp dependency.Provider) (*Signout, error) {
 	return ctrl, nil
 }
 
-func (c *Signout) Do(scope app.Scope) {
+// Do is a standard endpoint for GET and POST request
+func (c *Signout) Do(scope app.Scope) (err error) {
 	var (
-		err  error
 		deps struct {
 			Responser      requestdep.Responser      `request:"ResponserService"`
-			RequestError   requestdep.Error          `request:"ErrorService"`
 			RequestAuth    requestdep.Auth           `request:"AuthService"`
 			RequestSession requestdep.SessionManager `request:"SessionService"`
 		}
 	)
 	if err = scope.InjectTo(&deps); err != nil {
-		c.deps.Logger.ErrorLog("%v", err)
-		deps.RequestError.Error(http.StatusInternalServerError, err)
-		return
+		return err
 	}
 	if err = deps.RequestSession.DestroySession(); err != nil {
-		c.deps.Logger.ErrorLog("%v", err)
-		deps.RequestError.Error(http.StatusInternalServerError, err)
-		return
+		return err
 	}
 	if err = scope.Trigger(app.CommitEvent, nil); err != nil {
-		c.deps.Logger.ErrorLog("%v", err)
-		deps.RequestError.Error(http.StatusInternalServerError, err)
-		return
+		return err
 	}
 	deps.Responser.Redirect("/")
+	return nil
 }

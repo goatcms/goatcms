@@ -10,7 +10,6 @@
 package {{lower $name}}
 
 import (
-	"fmt"
 	"strconv"
 	"html/template"
 
@@ -20,6 +19,7 @@ import (
 	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/dependency"
 	"github.com/goatcms/goatcore/goathtml"
+	"github.com/goatcms/goatcms/cmsapp/cmserror"
 )
 
 var (
@@ -54,9 +54,9 @@ func NewDeleter(dp dependency.Provider) (*Deleter, error) {
 	return ctrl, nil
 }
 
-func (c *Deleter) DO(scope app.Scope) {
+// DO is {{lower $entityName}} insert endpoint for HTTP post and get methods
+func (c *Deleter) DO(scope app.Scope) (err error) {
 	var (
-		err  error
 		deps struct {
 			ACL          requestdep.ACL       `request:"ACLService"`
 			RequestError requestdep.Error     `request:"ErrorService"`
@@ -66,30 +66,22 @@ func (c *Deleter) DO(scope app.Scope) {
 		id        int64
 	)
 	if err = scope.InjectTo(&deps); err != nil {
-		fmt.Println(err)
-		return
+		return err
 	}
 	if !deps.ACL.HasAnyRole(deleterRequiredRoles) {
-		c.deps.Logger.ErrorLog("Access denied")
-		deps.RequestError.Error(403, fmt.Errorf("Access denied 403"))
-		return
+		return cmserror.NewAccessDenideError(nil)
 	}
 	if id, err = strconv.ParseInt(deps.ID, 10, 64); err != nil {
-		c.deps.Logger.ErrorLog("%v", err)
-		deps.RequestError.Error(312, err)
-		return
+		return err
 	}
 	if err = c.deps.Deleter.Delete(scope, id); err != nil {
-		c.deps.Logger.ErrorLog("%v", err)
-		deps.RequestError.Error(312, err)
-		return
+		return err
 	}
 	if err = scope.Trigger(app.CommitEvent, nil); err != nil {
-		c.deps.Logger.ErrorLog("%v", err)
-		deps.RequestError.Error(312, err)
-		return
+		return err
 	}
 	deps.Responser.Redirect("/admin/{{lower $name}}")
+	return nil
 }
 
 {{- end -}}

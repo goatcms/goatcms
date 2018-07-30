@@ -56,10 +56,9 @@ func NewList(dp dependency.Provider) (*List, error) {
 }
 
 // Get is handler to serve template where one can add new article
-func (c *List) Get(requestScope app.Scope) {
+func (c *List) Get(requestScope app.Scope) (err error) {
 	var (
 		rows        dao.{{$entityName}}Rows
-		err         error
 		entity      *entities.{{$entityName}}
 		deps struct {
 			ACL          requestdep.ACL       `request:"ACLService"`
@@ -70,8 +69,7 @@ func (c *List) Get(requestScope app.Scope) {
 		searchParams dao.{{$entityName}}SearchParams
 	)
 	if err = requestScope.InjectTo(&deps); err != nil {
-		fmt.Println(err)
-		return
+		return err
 	}
 	if !deps.ACL.HasAnyRole(listRequiredRoles) {
 		c.deps.Logger.ErrorLog("Access denied")
@@ -102,6 +100,7 @@ func (c *List) Get(requestScope app.Scope) {
 		deps.RequestError.Error(312, err)
 		return
 	}
+	return nil
 }
 
 {{- end -}}

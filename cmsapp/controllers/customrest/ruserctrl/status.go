@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/goatcms/goatcms/cmsapp/cmserror"
 	"github.com/goatcms/goatcms/cmsapp/entities"
 	"github.com/goatcms/goatcms/cmsapp/services"
 	"github.com/goatcms/goatcms/cmsapp/services/requestdep"
@@ -19,7 +20,7 @@ type Status struct {
 	}
 }
 
-// NewStatus create instance of a register form controller
+// NewStatus create instance of a status controller
 func NewStatus(dp dependency.Provider) (*Status, error) {
 	var err error
 	ctrl := &Status{}
@@ -29,9 +30,9 @@ func NewStatus(dp dependency.Provider) (*Status, error) {
 	return ctrl, nil
 }
 
-func (c *Status) DO(scope app.Scope) {
+// DO is status endpoint for POST and GET queries
+func (c *Status) DO(scope app.Scope) (err error) {
 	var (
-		err  error
 		deps struct {
 			Logger         services.Logger           `dependency:"LoggerService"`
 			Request        *http.Request             `request:"Request"`
@@ -43,14 +44,12 @@ func (c *Status) DO(scope app.Scope) {
 		rolesJSON string
 	)
 	if err = scope.InjectTo(&deps); err != nil {
-		deps.Logger.ErrorLog("%v", err)
-		deps.Responser.JSON(http.StatusBadRequest, "{\"status\":\"StatusInternalServerError\"}")
-		return
+		return cmserror.NewJSONError(err, http.StatusBadRequest, "{\"status\":\"StatusInternalServerError\"}")
 	}
 	if session, err = deps.SessionManager.Get(); err != nil {
 		deps.Logger.ErrorLog("%v", err)
 		deps.Responser.JSON(http.StatusOK, "{\"engine\":\"goatapp\",\"status\":\"unauthorized\", \"roles\":[]}")
-		return
+		return nil
 	}
 	if session.User != nil && session.User.Roles != nil {
 		arr := strings.Split(*session.User.Roles, " ")
@@ -62,4 +61,5 @@ func (c *Status) DO(scope app.Scope) {
 		rolesJSON = "[]"
 	}
 	deps.Responser.JSON(http.StatusOK, "{\"engine\":\"goatapp\",\"status\":\"loggedin\", \"roles\":"+rolesJSON+"}")
+	return nil
 }

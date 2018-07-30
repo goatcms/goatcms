@@ -13,6 +13,7 @@ import (
 	"strconv"
 	"net/http"
 
+	"github.com/goatcms/goatcms/cmsapp/cmserror"
 	"github.com/goatcms/goatcms/cmsapp/services"
 	"github.com/goatcms/goatcms/cmsapp/dao"
 	"github.com/goatcms/goatcms/cmsapp/services/requestdep"
@@ -48,9 +49,9 @@ func NewDeleter(dp dependency.Provider) (*Deleter, error) {
 	return ctrl, nil
 }
 
-func (c *Deleter) DO(scope app.Scope) {
+// DO is {{lower $entityName}} api delete endpoint for HTTP DELETE method
+func (c *Deleter) DO(scope app.Scope) (err error) {
 	var (
-		err  error
 		deps struct {
 			ACL          requestdep.ACL       `request:"ACLService"`
 			RequestError requestdep.Error     `request:"ErrorService"`
@@ -60,31 +61,22 @@ func (c *Deleter) DO(scope app.Scope) {
 		id        int64
 	)
 	if err = scope.InjectTo(&deps); err != nil {
-		c.deps.Logger.ErrorLog("%v", err)
-		deps.Responser.JSON(http.StatusInternalServerError, "{\"status\":\"StatusInternalServerError\"}")
-		return
+		return cmserror.NewJSONError(err, http.StatusInternalServerError, "{\"status\":\"StatusInternalServerError\"}")
 	}
 	if !deps.ACL.HasAnyRole(deleterRequiredRoles) {
-		c.deps.Logger.ErrorLog("Access denied")
-		deps.Responser.JSON(http.StatusForbidden, "{\"status\":\"StatusForbidden\"}")
-		return
+		return cmserror.NewJSONError(err, http.StatusForbidden, "{\"status\":\"StatusForbidden\"}")
 	}
 	if id, err = strconv.ParseInt(deps.ID, 10, 64); err != nil {
-		c.deps.Logger.ErrorLog("%v", err)
-		deps.Responser.JSON(http.StatusInternalServerError, "{\"status\":\"StatusInternalServerError\"}")
-		return
+		return cmserror.NewJSONError(err, http.StatusInternalServerError, "{\"status\":\"StatusInternalServerError\"}")
 	}
 	if err = c.deps.Deleter.Delete(scope, id); err != nil {
-		c.deps.Logger.ErrorLog("%v", err)
-		deps.Responser.JSON(http.StatusInternalServerError, "{\"status\":\"StatusInternalServerError\"}")
-		return
+		return cmserror.NewJSONError(err, http.StatusInternalServerError, "{\"status\":\"StatusInternalServerError\"}")
 	}
 	if err = scope.Trigger(app.CommitEvent, nil); err != nil {
-		c.deps.Logger.ErrorLog("%v", err)
-		deps.Responser.JSON(http.StatusInternalServerError, "{\"status\":\"StatusInternalServerError\"}")
-		return
+		return cmserror.NewJSONError(err, http.StatusInternalServerError, "{\"status\":\"StatusInternalServerError\"}")
 	}
 	deps.Responser.JSON(200, "{\"status\":\"OK\"}")
+	return nil
 }
 
 {{- end -}}
