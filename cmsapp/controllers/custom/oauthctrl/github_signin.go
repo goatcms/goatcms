@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"strconv"
+	"strings"
 	"time"
 
 	"github.com/goatcms/goatcms/cmsapp/dao"
@@ -141,14 +141,16 @@ func (c *GithubSignin) Post(scope app.Scope) (err error) {
 	if githubUser, _, err = client.Users.Get(ctx, ""); err != nil {
 		return err
 	}
-	githubUserID := strconv.FormatInt(githubUser.GetID(), 10)
-	githubUseEmail := githubUser.GetEmail()
-	githubUseLogin := githubUser.GetLogin()
+	githubUseLogin := strings.ToLower(githubUser.GetLogin())
 	if rows, err = c.deps.UserConnectCriteriaSearch.Find(scope, &dao.UserConnectCriteria{
 		Fields: &entities.UserConnectFields{},
 		Where: dao.UserConnectCriteriaWhere{
 			RemoteID: &dao.StringFieldCriteria{
-				Value: []string{githubUserID, githubUseEmail, githubUseLogin},
+				Value: []string{githubUseLogin},
+				Type:  dao.EQ,
+			},
+			Service: &dao.StringFieldCriteria{
+				Value: []string{"github"},
 				Type:  dao.EQ,
 			},
 		},
@@ -166,7 +168,7 @@ func (c *GithubSignin) Post(scope app.Scope) (err error) {
 	}
 	defer rows.Close()
 	if !rows.Next() {
-		return fmt.Errorf("no results for %v / %v", githubUserID, githubUseEmail)
+		return fmt.Errorf("no results for %v", githubUseLogin)
 	}
 	if userConnect, err = rows.Get(); err != nil {
 		return err

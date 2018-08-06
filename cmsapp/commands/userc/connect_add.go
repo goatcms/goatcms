@@ -2,6 +2,7 @@ package userc
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/goatcms/goatcms/cmsapp/dao"
 	"github.com/goatcms/goatcms/cmsapp/entities"
@@ -30,6 +31,8 @@ func RunConnectAdd(a app.App) (err error) {
 	if deps.LocalIdentyfier == "" {
 		return fmt.Errorf("User identyfier (email/username) is required")
 	}
+	deps.ServiceName = strings.ToLower(deps.ServiceName)
+	deps.RemoteIdentyfier = strings.ToLower(deps.RemoteIdentyfier)
 	if user, err = deps.Query.Signin(scope, &entities.UserFields{
 		ID:       true,
 		Username: true,
@@ -40,9 +43,6 @@ func RunConnectAdd(a app.App) (err error) {
 	}); err != nil {
 		return err
 	}
-	/*if err = deps.Action.SimpleReset(scope, user, deps.Password); err != nil {
-		return err
-	}*/
 	if _, err = deps.UserConnectInsert.Insert(scope, &entities.UserConnect{
 		Service:  &deps.ServiceName,
 		RemoteID: &deps.RemoteIdentyfier,
