@@ -19,6 +19,7 @@ const (
 // Auth is global auth provider
 type Auth struct {
 	deps struct {
+		Logger         services.Logger           `dependency:"LoggerService"`
 		SessionManager requestdep.SessionManager `request:"SessionService"`
 		Scope          app.Scope                 `request:"RequestScope"`
 		SigninQuery    dao.UserSigninQuery       `dependency:"UserSigninQuery"`
@@ -50,6 +51,7 @@ func (a *Auth) Signin(name, password string) (session *entities.Session, err err
 		Username: name,
 		Email:    name,
 	}); err != nil {
+		a.deps.Logger.TestLog("User %v is not exist", name)
 		return nil, err
 	}
 	// todo: check password
@@ -57,6 +59,7 @@ func (a *Auth) Signin(name, password string) (session *entities.Session, err err
 		return nil, err
 	}
 	if !ok {
+		a.deps.Logger.TestLog("User %v password is incorrect", name)
 		return nil, fmt.Errorf("incorrect password")
 	}
 	return a.ForceSignin(user)
@@ -64,6 +67,7 @@ func (a *Auth) Signin(name, password string) (session *entities.Session, err err
 
 // ForceSignin authorize user by user entity
 func (a *Auth) ForceSignin(user *entities.User) (session *entities.Session, err error) {
+	a.deps.Logger.TestLog("Force signin %v () user", user.Username, user.Email)
 	if session, err = a.deps.SessionManager.CreateSession(user); err != nil {
 		return nil, err
 	}
@@ -75,5 +79,6 @@ func (a *Auth) Signout() error {
 	if err := a.deps.SessionManager.DestroySession(); err != nil {
 		return err
 	}
+	a.deps.Logger.TestLog("Destroyed user session to signout")
 	return nil
 }

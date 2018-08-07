@@ -10,26 +10,30 @@ import (
 	"github.com/goatcms/goatcore/varutil"
 )
 
-// TranslateService provide translate system
+// TranslateService provide translate service
 type TranslateService struct {
 	prefix    string
 	translate services.Translate
 }
 
+// Translate a key for current lang
 func (ts *TranslateService) Translate(key string, values ...interface{}) (string, error) {
 	return ts.translate.Translate(ts.prefix+key, values...)
 }
 
+// Lang return current lang id
 func (ts *TranslateService) Lang() string {
 	return ts.prefix[:len(ts.prefix)-1]
 }
 
+// isLangSepChar check if character is lang separate character
+// (different browser can use different separators)
 func isLangSepChar(r rune) bool {
 	return r == ';' || r == ','
 }
 
-// TranslateFactory create new Translate provider
-func TranslateFactory(dp dependency.Provider) (interface{}, error) {
+// Factory create new Translate service instance
+func Factory(dp dependency.Provider) (interface{}, error) {
 	var deps struct {
 		Translate services.Translate `dependency:"TranslateService"`
 		Logger    services.Logger    `dependency:"LoggerService"`
@@ -48,6 +52,7 @@ func TranslateFactory(dp dependency.Provider) (interface{}, error) {
 			break
 		}
 	}
+	deps.Logger.TestLog("reqtranslate.Factory: Current language is %v", prefix)
 	prefix = prefix + "."
 	service := &TranslateService{
 		translate: deps.Translate,

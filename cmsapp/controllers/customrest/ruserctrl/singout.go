@@ -36,6 +36,7 @@ func (c *Signout) DO(requestScope app.Scope) (err error) {
 	if err = requestScope.InjectTo(&deps); err != nil {
 		return cmserror.NewJSONError(err, http.StatusBadRequest, "{\"status\":\"StatusInternalServerError\"}")
 	}
+	deps.Logger.TestLog("ruserctrl.Signout: Session destroyed")
 	if err = deps.RequestSession.DestroySession(); err != nil {
 		return cmserror.NewJSONError(err, http.StatusBadRequest, "{\"status\":\"StatusInternalServerError\"}")
 	}

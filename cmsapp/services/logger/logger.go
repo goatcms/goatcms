@@ -4,8 +4,9 @@ import (
 	"log"
 	"os"
 
-	"github.com/goatcms/goatcms/cmsapp/services"
 	"github.com/goatcms/goatcore/dependency"
+	"github.com/goatcms/goatcore/varutil"
+	"github.com/goatcms/webslots/modules/goatcms/cmsapp/services"
 )
 
 // Logger show logger messages
@@ -37,27 +38,27 @@ func Factory(dp dependency.Provider) (interface{}, error) {
 // DevLog print dev level logs
 func (logger *Logger) DevLog(format string, data ...interface{}) {
 	if logger.devLvl {
-		logger.log.Printf(format, data...)
+		logger.printf(format, data...)
 	}
 }
 
 // TestLog print test level logs
 func (logger *Logger) TestLog(format string, data ...interface{}) {
 	if logger.testLvl {
-		logger.log.Printf(format, data...)
+		logger.printf(format, data...)
 	}
 }
 
 // ProdLog print prod level logs
 func (logger *Logger) ProdLog(format string, data ...interface{}) {
 	if logger.prodLvl {
-		logger.log.Printf(format, data...)
+		logger.printf(format, data...)
 	}
 }
 
 // ErrorLog print error level logs
 func (logger *Logger) ErrorLog(format string, data ...interface{}) {
-	logger.log.Printf("ERROR: "+format, data...)
+	logger.printf("ERROR: "+format, data...)
 }
 
 // IsProdLVL return true if prod level messages v set
@@ -73,4 +74,19 @@ func (logger *Logger) IsDevLVL() bool {
 // IsTestLVL return true if test level messages is set
 func (logger *Logger) IsTestLVL() bool {
 	return logger.devLvl
+}
+
+// print value to logs
+func (logger *Logger) printf(format string, data ...interface{}) {
+	var (
+		err      error
+		jsonData []interface{}
+	)
+	jsonData = make([]interface{}, len(data))
+	for i, val := range data {
+		if jsonData[i], err = varutil.ObjectToJSON(val); err != nil {
+			panic(err)
+		}
+	}
+	logger.log.Printf(format, jsonData...)
 }

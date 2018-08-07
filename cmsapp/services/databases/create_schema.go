@@ -10,18 +10,19 @@ import (
 	"github.com/goatcms/goatcore/dependency"
 )
 
-// SchemaCreator is object to create database
+// SchemaCreator is object to create database schema
 type SchemaCreator struct {
 	dp dependency.Provider
 }
 
-// DatabaseCreatorFactory create n
+// SchemaCreatorFactory return new SchemaCreator instance
 func SchemaCreatorFactory(dp dependency.Provider) (interface{}, error) {
 	return services.SchemaCreator(&SchemaCreator{
 		dp: dp,
 	}), nil
 }
 
+// CreateSchema build database schema
 func (creator *SchemaCreator) CreateSchema() (err error) {
 	var (
 		ok           bool
@@ -29,11 +30,12 @@ func (creator *SchemaCreator) CreateSchema() (err error) {
 		tableCreator dao.CreateTable
 		keys         []string
 		deps         struct {
-			DependencyScope app.Scope `dependency:"DependencyScope"`
-			AppScope        app.Scope `dependency:"AppScope"`
+			Logger          services.Logger `dependency:"LoggerService"`
+			DependencyScope app.Scope       `dependency:"DependencyScope"`
+			AppScope        app.Scope       `dependency:"AppScope"`
 		}
 	)
-	if err := creator.dp.InjectTo(&deps); err != nil {
+	if err = creator.dp.InjectTo(&deps); err != nil {
 		return err
 	}
 	if keys, err = deps.DependencyScope.Keys(); err != nil {
@@ -41,6 +43,8 @@ func (creator *SchemaCreator) CreateSchema() (err error) {
 	}
 	for _, key := range keys {
 		if strings.HasSuffix(key, "CreateTable") {
+			deps.Logger.DevLog("databases.CreateSchema: run %v", key)
+			deps.Logger.DevLog("Create database schema")
 			if tableIns, err = deps.DependencyScope.Get(key); err != nil {
 				return err
 			}

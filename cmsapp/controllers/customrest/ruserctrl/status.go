@@ -60,6 +60,8 @@ func (c *Status) DO(scope app.Scope) (err error) {
 	} else {
 		rolesJSON = "[]"
 	}
-	deps.Responser.JSON(http.StatusOK, "{\"engine\":\"goatapp\",\"status\":\"loggedin\", \"roles\":"+rolesJSON+"}")
+	statusJSON := "{\"engine\":\"goatapp\",\"status\":\"loggedin\", \"roles\":" + rolesJSON + "}"
+	c.deps.Logger.DevLog("ruserctrl.Status: Response status %v", statusJSON)
+	deps.Responser.JSON(http.StatusOK, statusJSON)
 	return nil
 }

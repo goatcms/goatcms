@@ -68,13 +68,16 @@ func (c *Signup) Post(scope app.Scope) (err error) {
 	if form, err = httpsignup.NewForm(scope, forms.SignupAllFields); err != nil {
 		return err
 	}
+	c.deps.Logger.DevLog("userctrl.Signup: Process signup form %v", form)
 	if msgs, err = c.deps.Action.Signup(form, scope); err != nil {
 		return err
 	}
 	if len(msgs.GetAll()) == 0 {
+		c.deps.Logger.TestLog("userctrl.Signup: Process signup form correct")
 		deps.Responser.Redirect("/")
 		return nil
 	}
+	c.deps.Logger.TestLog("userctrl.Signup: Process signup form incorrect %v", msgs.GetAll())
 	return deps.Responser.Execute(c.view, map[string]interface{}{
 		"Valid": msgs,
 		"Form":  form,

@@ -14,7 +14,7 @@ func InitDependencies(a app.App) error {
 	if err := a.DependencyProvider().InjectTo(&deps); err != nil {
 		return err
 	}
-	if err := deps.Router.AddFactory(requestdep.ResponserService, ResponserFactory); err != nil {
+	if err := deps.Router.AddFactory(requestdep.ResponserService, Factory); err != nil {
 		return err
 	}
 	return nil

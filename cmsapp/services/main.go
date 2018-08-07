@@ -95,7 +95,7 @@ type Crypt interface {
 }
 
 type Mailer interface {
-	Send(to, name string, data interface{}, attachments []goatmail.Attachment, scope app.Scope)
+	Send(to, name string, data interface{}, attachments []goatmail.Attachment, scope app.Scope) error
 }
 
 type Logger interface {

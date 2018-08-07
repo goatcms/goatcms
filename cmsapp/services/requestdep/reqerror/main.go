@@ -51,7 +51,6 @@ func (re *RequestError) DO(berr error) {
 		view   *template.Template
 	)
 	re.Error(503, berr)
-	//re.deps.Responser.JSON(503, err.Error())
 	if view, err = re.deps.Template.View(goathtml.DefaultLayout, "custom/error/main", nil); err != nil {
 		re.deps.Logger.ErrorLog("%v", err)
 		panic(err)

@@ -66,6 +66,7 @@ func NewGithubSignin(dp dependency.Provider) (*GithubSignin, error) {
 		RedirectURL: ctrl.deps.BaseURL + ctrl.deps.GithubRedirectURL,
 		Scopes:      []string{"read:user"},
 	}
+	ctrl.deps.Logger.DevLog("GithubSignin instance created %v", ctrl)
 	return ctrl, nil
 }
 
@@ -80,6 +81,7 @@ func (c *GithubSignin) Get(scope app.Scope) (err error) {
 		}
 		secret string
 	)
+	c.deps.Logger.TestLog("GithubSignin: Start signin by github")
 	if err = scope.InjectTo(&deps); err != nil {
 		return err
 	}
@@ -91,8 +93,10 @@ func (c *GithubSignin) Get(scope app.Scope) (err error) {
 		HttpOnly: true,
 		Path:     "/",
 	})
+	c.deps.Logger.DevLog("GithubSignin: Created CSRF cookie token %v", secret)
 	url := c.oauthCfg.AuthCodeURL(secret)
 	deps.Responser.Redirect(url)
+	c.deps.Logger.TestLog("GithubSignin: Redirect to github %v", url)
 	return nil
 }
 
@@ -113,20 +117,23 @@ func (c *GithubSignin) Post(scope app.Scope) (err error) {
 		userConnect *entities.UserConnect
 		cookie      *http.Cookie
 	)
+	c.deps.Logger.TestLog("GithubSignin: User comeback from github outh service")
 	if err = scope.InjectTo(&deps); err != nil {
 		return err
 	}
 	if cookie, err = deps.Request.Cookie(githubCSRFCookie); err != nil {
 		return err
 	}
+	c.deps.Logger.DevLog("GithubSignin: Remove CSRF cookie (the cookie is expired and can be used once)")
 	http.SetCookie(deps.Response, &http.Cookie{
 		Name:    githubCSRFCookie,
 		Value:   "",
 		Expires: time.Unix(0, 0),
 		Path:    "/",
 	})
+	c.deps.Logger.TestLog("GithubSignin: Test CSRF cookie")
 	if deps.Request.URL.Query().Get("state") != cookie.Value {
-		return fmt.Errorf("no state match; possible csrf OR cookies not enabled")
+		return fmt.Errorf("no state match; possible CSRF or cookie is not enabled")
 	}
 	if token, err = c.oauthCfg.Exchange(oauth2.NoContext, deps.Request.URL.Query().Get("code")); err != nil {
 		return fmt.Errorf("there was an issue getting your token")
@@ -134,6 +141,7 @@ func (c *GithubSignin) Post(scope app.Scope) (err error) {
 	if !token.Valid() {
 		return fmt.Errorf("retreived invalid token")
 	}
+	c.deps.Logger.TestLog("GithubSignin: Get user data from github")
 	client := github.NewClient(c.oauthCfg.Client(oauth2.NoContext, token))
 	deadline := time.Now().Add(5000 * time.Millisecond)
 	ctx, cancel := context.WithDeadline(context.Background(), deadline)
@@ -141,6 +149,7 @@ func (c *GithubSignin) Post(scope app.Scope) (err error) {
 	if githubUser, _, err = client.Users.Get(ctx, ""); err != nil {
 		return err
 	}
+	c.deps.Logger.DevLog("GithubSignin: Get user data %v", *githubUser)
 	githubUseLogin := strings.ToLower(githubUser.GetLogin())
 	if rows, err = c.deps.UserConnectCriteriaSearch.Find(scope, &dao.UserConnectCriteria{
 		Fields: &entities.UserConnectFields{},
@@ -173,6 +182,7 @@ func (c *GithubSignin) Post(scope app.Scope) (err error) {
 	if userConnect, err = rows.Get(); err != nil {
 		return err
 	}
+	c.deps.Logger.TestLog("GithubSignin: Find local user %v and force signin", *userConnect)
 	if _, err = deps.RequestAuth.ForceSignin(userConnect.User); err != nil {
 		return err
 	}

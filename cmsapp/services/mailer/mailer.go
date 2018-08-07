@@ -17,7 +17,7 @@ const (
 	textLayout = "mail/text"
 )
 
-// Mailer
+// Mailer is email sender service
 type Mailer struct {
 	smtpConfig struct {
 		SMTPAddr     string `config:"mailer.smtp.addr"`
@@ -26,6 +26,7 @@ type Mailer struct {
 		AuthIdentity string `config:"?mailer.smtp.auth.identity"`
 	}
 	deps struct {
+		Logger     services.Logger   `dependency:"LoggerService"`
 		Template   services.Template `dependency:"TemplateService"`
 		HTMLLayout string            `config:"?mailer.layout.html"`
 		TextLayout string            `config:"?mailer.layout.text"`
@@ -33,8 +34,8 @@ type Mailer struct {
 	sender *smtpmail.MailSender
 }
 
-// Mailer create a mailer instance
-func MailerFactory(dp dependency.Provider) (interface{}, error) {
+// Factory create a Mailer instance
+func Factory(dp dependency.Provider) (interface{}, error) {
 	m := &Mailer{}
 	if err := dp.InjectTo(&m.smtpConfig); err != nil {
 		return nil, err
@@ -53,8 +54,10 @@ func MailerFactory(dp dependency.Provider) (interface{}, error) {
 	return services.Mailer(m), nil
 }
 
-// getSession return session map by session id
-func (m *Mailer) Send(to, name string, data interface{}, attachments []goatmail.Attachment, scope app.Scope) {
+// Send render text and html email by named template.
+// Next send it to users by smtp server.
+func (m *Mailer) Send(to, name string, data interface{}, attachments []goatmail.Attachment, scope app.Scope) (err error) {
+	m.deps.Logger.TestLog("Mailer.Send: send to: %v; name: %v; data: %v", to, name, data)
 	lifecycle := scopesync.Lifecycle(scope)
 	htmlTemplate, err := m.deps.Template.View("mail/html", name, scope)
 	if err != nil {
@@ -80,7 +83,7 @@ func (m *Mailer) Send(to, name string, data interface{}, attachments []goatmail.
 		}
 		textWriter.Close()
 	}()
-	mail := &goatmail.Mail{
+	m.sender.Send(&goatmail.Mail{
 		Date:    time.Now(),
 		Subject: name,
 		Body: map[string]io.Reader{
@@ -88,6 +91,6 @@ func (m *Mailer) Send(to, name string, data interface{}, attachments []goatmail.
 			"text/html":  htmlReader,
 		},
 		Attachments: attachments,
-	}
-	m.sender.Send(mail, lifecycle)
+	}, lifecycle)
+	return nil
 }

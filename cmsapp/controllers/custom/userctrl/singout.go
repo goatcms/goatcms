@@ -38,6 +38,7 @@ func (c *Signout) Do(scope app.Scope) (err error) {
 	if err = deps.RequestSession.DestroySession(); err != nil {
 		return err
 	}
+	c.deps.Logger.TestLog("userctrl.Signout: Session destroyed")
 	if err = scope.Trigger(app.CommitEvent, nil); err != nil {
 		return err
 	}

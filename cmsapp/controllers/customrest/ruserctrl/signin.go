@@ -60,6 +60,7 @@ func (c *Signin) DO(scope app.Scope) (err error) {
 	if form, err = signin.NewForm(scope, forms.SigninAllFields); err != nil {
 		return cmserror.NewJSONError(err, http.StatusBadRequest, "{\"status\":\"StatusInternalServerError\"}")
 	}
+	c.deps.Logger.DevLog("restctrl.Signin: Created user session %v", session)
 	if session, err = deps.RequestAuth.Signin(*form.Username, *form.Password); err != nil {
 		return cmserror.NewJSONError(err, http.StatusBadRequest, "{\"status\":\"StatusBadRequest\"}")
 	}

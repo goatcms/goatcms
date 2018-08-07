@@ -49,14 +49,14 @@ func (c *Signup) DO(scope app.Scope) (err error) {
 	if form, err = httpsignup.NewForm(scope, forms.SignupAllFields); err != nil {
 		return cmserror.NewJSONError(err, http.StatusBadRequest, "{\"status\":\"StatusInternalServerError\"}")
 	}
+	c.deps.Logger.TestLog("restctrl.Signup: Signup for data %v", form)
 	if msgs, err = c.deps.Action.Signup(form, scope); err != nil {
 		return cmserror.NewJSONError(err, http.StatusBadRequest, "{\"status\":\"StatusBadRequest\"}")
 	}
 	if len(msgs.GetAll()) != 0 {
-		deps.Logger.ErrorLog("%v", err)
-		deps.Responser.JSON(http.StatusBadRequest, msgs.ToJSON())
-		return
+		c.deps.Logger.TestLog("restctrl.Signup: Signup fail %v", msgs.GetAll())
+		return deps.Responser.JSON(http.StatusBadRequest, msgs.ToJSON())
 	}
-	deps.Responser.JSON(http.StatusCreated, "{\"status\":\"success\"}")
-	return nil
+	c.deps.Logger.TestLog("restctrl.Signup: Signup success")
+	return deps.Responser.JSON(http.StatusCreated, "{\"status\":\"success\"}")
 }

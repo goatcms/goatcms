@@ -1,7 +1,6 @@
 package reqsession
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
@@ -42,6 +41,9 @@ func (s *SessionManager) LoadSession() (err error) {
 	var (
 		secret string
 	)
+	if s.session != nil {
+		return nil
+	}
 	if secret = s.deps.Request.Header.Get(X_AUTH_TOKEN_HEADER); secret == "" {
 		var cookie *http.Cookie
 		if cookie, err = s.deps.Request.Cookie(s.deps.SessionCookieID); err != nil {
@@ -61,8 +63,8 @@ func (s *SessionManager) LoadSession() (err error) {
 
 // Get return request session
 func (s *SessionManager) Get() (session *entities.Session, err error) {
-	if s.session == nil {
-		return nil, fmt.Errorf("session does not inited")
+	if err = s.LoadSession(); err != nil {
+		return nil, err
 	}
 	return s.session, nil
 }

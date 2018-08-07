@@ -13,7 +13,8 @@ import (
 	"github.com/goatcms/goatcore/dependency"
 )
 
-// TranslateService provide translate system
+// ResponserService provide response helper service
+// It is used to send a http response of user request
 type ResponserService struct {
 	deps struct {
 		Template        services.Template         `dependency:"TemplateService"`
@@ -30,12 +31,14 @@ type ResponserService struct {
 	sended   bool
 }
 
+// IsSended check if response has been sent
 func (rs *ResponserService) IsSended() bool {
 	rs.muSended.RLock()
 	defer rs.muSended.RUnlock()
 	return rs.sended
 }
 
+// Execute render template and send html response to user
 func (rs *ResponserService) Execute(view *template.Template, data interface{}) error {
 	var (
 		loggedInUser *entities.User
@@ -64,6 +67,7 @@ func (rs *ResponserService) Execute(view *template.Template, data interface{}) e
 	return nil
 }
 
+// JSON send json string to user
 func (rs *ResponserService) JSON(code int, json string) (err error) {
 	rs.muSended.Lock()
 	if rs.sended {
@@ -78,12 +82,13 @@ func (rs *ResponserService) JSON(code int, json string) (err error) {
 	return nil
 }
 
+// Redirect send redirect response to user
 func (rs *ResponserService) Redirect(url string) {
 	http.Redirect(rs.deps.Response, rs.deps.Request, url, http.StatusSeeOther)
 }
 
-// ResponseFactory create new Response service
-func ResponserFactory(dp dependency.Provider) (interface{}, error) {
+// Factory create new Response service instance
+func Factory(dp dependency.Provider) (interface{}, error) {
 	responser := &ResponserService{
 		sended: false,
 	}

@@ -56,16 +56,19 @@ func ACLFactory(dp dependency.Provider) (interface{}, error) {
 		instance.roles = append(instance.roles, UserAdditionalRoles...)
 	}
 	instance.isSuperAdmin = varutil.IsArrContainStr(instance.roles, SuperAdminRole)
+	instance.deps.Logger.DevLog("ACL.ACLFactory: Is superadmin %v and has %v roles", instance.isSuperAdmin, instance.roles)
 	return requestdep.ACL(instance), nil
 }
 
 // HasAnyRole return true if has any of roles
 func (acl *ACL) HasAnyRole(roles []string) bool {
 	if acl.isSuperAdmin {
+		acl.deps.Logger.DevLog("ACL.HasAnyRole: User is superadmin. Superadmin has all privileges. (asked for roles: %v)", roles)
 		return true
 	}
 	for _, role := range roles {
 		if varutil.IsArrContainStr(acl.roles, role) {
+			acl.deps.Logger.DevLog("ACL.HasAnyRole: User must have one role of %v. And the user has %v (%v) role", roles, role, acl.roles)
 			return true
 		}
 	}

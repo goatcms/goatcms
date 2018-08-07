@@ -63,8 +63,9 @@ func (c *Signin) Post(scope app.Scope) (err error) {
 	if err = scope.InjectTo(&deps); err != nil {
 		return err
 	}
+	c.deps.Logger.TestLog("userctrl.Signin: Try signin %v", deps.Username)
 	if _, err = deps.RequestAuth.Signin(deps.Username, deps.Password); err != nil {
-		c.deps.Logger.ErrorLog("%v", err)
+		c.deps.Logger.TestLog("userctrl.Signin: Password for %v is invalid", deps.Username)
 		return deps.Responser.Execute(c.view, map[string]interface{}{
 			"Error": true,
 		})

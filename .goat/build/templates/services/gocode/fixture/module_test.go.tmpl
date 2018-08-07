@@ -9,7 +9,9 @@ import (
 	"github.com/goatcms/goatcms/cmsapp/dao"
 	"github.com/goatcms/goatcms/cmsapp/dao/sqlitedao"
 	"github.com/goatcms/goatcms/cmsapp/services"
+	"github.com/goatcms/goatcms/cmsapp/entities"
 	"github.com/goatcms/goatcms/cmsapp/services/databases"
+	"github.com/goatcms/goatcms/cmsapp/services/logger"
 	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/app/mockupapp"
 	"github.com/goatcms/goatcore/filesystem"
@@ -39,6 +41,10 @@ func TestCreatedRows(t *testing.T) {
 		return
 	}
 	if err = databases.RegisterDependencies(dp); err != nil {
+		t.Error(err)
+		return
+	}
+	if err = logger.RegisterDependencies(dp); err != nil {
 		t.Error(err)
 		return
 	}
