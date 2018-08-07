@@ -1,6 +1,7 @@
 package reqsession
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -65,6 +66,9 @@ func (s *SessionManager) LoadSession() (err error) {
 func (s *SessionManager) Get() (session *entities.Session, err error) {
 	if err = s.LoadSession(); err != nil {
 		return nil, err
+	}
+	if s.session == nil {
+		return nil, fmt.Errorf("the session was not created")
 	}
 	return s.session, nil
 }
