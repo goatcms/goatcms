@@ -48,7 +48,7 @@ func ACLFactory(dp dependency.Provider) (interface{}, error) {
 		instance.deps.Logger.DevLog("%v", err)
 		instance.roles = DefaultRoles
 	} else {
-		if session.User != nil && session.User.Roles != nil {
+		if session != nil && session.User != nil && session.User.Roles != nil {
 			instance.roles = strings.Split(*session.User.Roles, " ")
 		} else {
 			instance.roles = []string{}
