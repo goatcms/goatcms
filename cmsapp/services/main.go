@@ -130,3 +130,7 @@ type Fixture interface {
 type SchemaCreator interface {
 	CreateSchema() error
 }
+
+type FragmentCache interface {
+	RenderFragment(key, defaultValue string) string
+}
