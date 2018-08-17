@@ -132,5 +132,5 @@ type SchemaCreator interface {
 }
 
 type FragmentCache interface {
-	RenderFragment(key, defaultValue string) string
+	RenderFragment(key, defaultValue string) (result template.HTML)
 }

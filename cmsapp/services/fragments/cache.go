@@ -1,6 +1,7 @@
 package fragments
 
 import (
+	"html/template"
 	"strconv"
 	"strings"
 	"time"
@@ -18,22 +19,31 @@ import (
 // Cache is fragment cache service
 type Cache struct {
 	deps struct {
+		Logger          services.Logger     `dependency:"LoggerService"`
 		AppScope        app.Scope           `dependency:"AppScope"`
 		FragmentFindAll dao.FragmentFindAll `dependency:"FragmentFindAll"`
 	}
-	data map[string]Row
+	inited bool
+	data   map[string]Row
 }
 
 // CacheFactory create new Cache instance
 func CacheFactory(dp dependency.Provider) (in interface{}, err error) {
 	cache := &Cache{
-		data: map[string]Row{},
+		data:   map[string]Row{},
+		inited: false,
 	}
 	if err = dp.InjectTo(&cache.deps); err != nil {
 		return nil, err
 	}
-	go cache.startRefreshLoop()
 	return services.FragmentCache(cache), nil
+}
+
+func (cache *Cache) init() {
+	if !cache.inited {
+		cache.inited = true
+		go cache.startRefreshLoop()
+	}
 }
 
 // startRefreshLoop start refresh cached data. Run it in background.
@@ -41,7 +51,7 @@ func (cache *Cache) startRefreshLoop() {
 	var err error
 	for {
 		if err = cache.Refresh(); err != nil {
-			panic(err)
+			cache.deps.Logger.ErrorLog("%v", err.Error())
 		}
 		time.Sleep(10 * time.Minute)
 	}
@@ -85,6 +95,7 @@ func (cache *Cache) Get(key string) *Row {
 		row Row
 		ok  bool
 	)
+	cache.init()
 	if row, ok = cache.data[key]; !ok {
 		return nil
 	}
@@ -92,22 +103,23 @@ func (cache *Cache) Get(key string) *Row {
 }
 
 // RenderFragment return a HTML content for fragment. It is uset for small block with inline editor
-func (cache *Cache) RenderFragment(key, defaultValue string) (result string) {
+func (cache *Cache) RenderFragment(key, defaultValue string) (result template.HTML) {
 	var (
 		row Row
 		ok  bool
 	)
+	cache.init()
 	if row, ok = cache.data[key]; !ok {
 		row.ID = 0
 		row.HTML = defaultValue
 	}
-	return strings.Join([]string{
+	return template.HTML(strings.Join([]string{
 		`<div class="fragment" g-small-fragment g-fragment-key="`,
 		key,
 		`" g-fragment-id="`,
 		strconv.FormatInt(row.ID, 10),
 		`">`,
-		result,
+		row.HTML,
 		`</div>`,
-	}, "")
+	}, ""))
 }
