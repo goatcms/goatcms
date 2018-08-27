@@ -1,0 +1,12 @@
+{{define "events" -}}
+{{- $ctx := . -}}
+
+const (
+	BaseEvent = 4000 + iota
+{{- range $index, $key := (keys .Data "model.") -}}
+{{- $entity := (index $ctx.Data (print "model." $key ".entity")) -}}
+	// {{camelcaseuf $entity}}CreateTableEvent is event triggered after create {{camelcaseuf $entity}} database table
+  {{camelcaseuf $entity}}CreateTableEvent
+	// {{camelcaseuf $entity}}UpdateEvent is event triggered after {{camelcaseuf $entity}} entity update
+	{{camelcaseuf $entity}}UpdateEvent
+{{- end -}}

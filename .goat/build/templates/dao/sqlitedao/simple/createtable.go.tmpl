@@ -21,7 +21,8 @@ import (
 // {{$typeName}} is a Data Access Object for {{lower $name}} entity
 type {{$typeName}} struct {
   deps struct{
-    DB *sql.DB `dependency:"db0.engine"`
+    DB *sql.DB            `dependency:"db0.engine"`
+		EngineScope app.Scope `dependency:"EngineScope"`
   }
 }
 
@@ -46,8 +47,10 @@ func (dao {{$typeName}}) CreateTable(scope app.Scope) (err error) {
 	if tx, err = helpers.TX(scope, dao.deps.DB); err != nil {
 		return err
 	}
-	_, err = tx.Exec(dao.SQL())
-	return err
+	if _, err = tx.Exec(dao.SQL()); err != nil {
+		return err
+	}
+	return dao.deps.EngineScope.Trigger(maindef.{{$typeName}}Event, nil)
 }
 
 func (dao {{$typeName}}) AlterTable(scope app.Scope) (err error) {
