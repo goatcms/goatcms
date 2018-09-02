@@ -4,6 +4,7 @@ import (
 	"html/template"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/goatcms/goatcms/cmsapp/dao"
@@ -23,15 +24,20 @@ type Cache struct {
 		AppScope        app.Scope           `dependency:"AppScope"`
 		FragmentFindAll dao.FragmentFindAll `dependency:"FragmentFindAll"`
 	}
-	inited bool
-	data   map[string]Row
+	expirationDuration  time.Duration
+	expirationDeadline  time.Time
+	isRefreshInProgress bool
+	inited              bool
+	dataMU              sync.Mutex
+	data                map[string]Row
 }
 
 // CacheFactory create new Cache instance
 func CacheFactory(dp dependency.Provider) (in interface{}, err error) {
 	cache := &Cache{
-		data:   map[string]Row{},
-		inited: false,
+		data:               map[string]Row{},
+		inited:             false,
+		expirationDuration: time.Hour,
 	}
 	if err = dp.InjectTo(&cache.deps); err != nil {
 		return nil, err
@@ -47,23 +53,38 @@ func (cache *Cache) init() {
 }
 
 // startRefreshLoop start refresh cached data. Run it in background.
+// It is used to sync changes from other app instances
 func (cache *Cache) startRefreshLoop() {
 	var err error
+	cache.Refresh()
 	for {
-		if err = cache.Refresh(); err != nil {
-			cache.deps.Logger.ErrorLog("%v", err.Error())
+		if time.Now().After(cache.expirationDeadline) {
+			cache.Refresh()
 		}
-		time.Sleep(10 * time.Minute)
+		time.Sleep(cache.expirationDuration)
 	}
 }
 
 // Refresh get new cached data
 func (cache *Cache) Refresh() (err error) {
+	if cache.isRefreshInProgress {
+		return nil
+	}
+	if err = cache.Refresh(); err != nil {
+		cache.deps.Logger.ErrorLog("%v", err.Error())
+		return err
+	}
+	return nil
+}
+
+func (cache *Cache) refresh() (err error) {
 	var (
 		data     = map[string]Row{}
 		rows     dao.FragmentRows
 		fragment *entities.Fragment
 	)
+	cache.isRefreshInProgress = true
+	defer cache.finishRefresh()
 	refreshScope := scope.NewScope("")
 	if rows, err = cache.deps.FragmentFindAll.Find(refreshScope, &entities.FragmentFields{
 		ID:      true,
@@ -86,7 +107,12 @@ func (cache *Cache) Refresh() (err error) {
 		}
 	}
 	cache.data = data
+	cache.expirationDeadline = time.Now().Add(cache.expirationDuration)
 	return nil
+}
+
+func (cache *Cache) finishRefresh() {
+	cache.isRefreshInProgress = false
 }
 
 // Get return fragment for key
