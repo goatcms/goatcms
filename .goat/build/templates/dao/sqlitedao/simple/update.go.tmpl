@@ -26,7 +26,8 @@ import (
 // {{$typeName}} is a Data Access Object for {{lower $name}} entity
 type {{$typeName}} struct {
   deps struct{
-    DB *sql.DB `dependency:"db0.engine"`
+    DB *sql.DB            `dependency:"db0.engine"`
+	  EngineScope app.Scope `dependency:"EngineScope"`
   }
 }
 
@@ -67,6 +68,9 @@ func (dao {{$typeName}}) Update(scope app.Scope, entity *entities.{{$entityName}
 	}
 	if count != 1 {
 		return fmt.Errorf("Update modified more then one record (%v records modyfieds): %s", count, query)
+	}
+	if err = dao.deps.EngineScope.Trigger(maindef.{{$entityName}}UpdateEvent, entity); err != nil {
+		return err
 	}
 	return nil
 }

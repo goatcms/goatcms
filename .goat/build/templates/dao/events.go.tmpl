@@ -1,12 +1,24 @@
 {{define "events" -}}
 {{- $ctx := . -}}
 
+package {{index $ctx.Properties.Build "package"}}
+
 const (
 	BaseEvent = 4000 + iota
-{{- range $index, $key := (keys .Data "model.") -}}
-{{- $entity := (index $ctx.Data (print "model." $key ".entity")) -}}
+{{- range $index, $key := (keys .Data "model.") }}
+{{- $entity := (index $ctx.Data (print "model." $key ".entity")) }}
+
 	// {{camelcaseuf $entity}}CreateTableEvent is event triggered after create {{camelcaseuf $entity}} database table
   {{camelcaseuf $entity}}CreateTableEvent
-	// {{camelcaseuf $entity}}UpdateEvent is event triggered after {{camelcaseuf $entity}} entity update
+	// {{camelcaseuf $entity}}DropTableEvent is event triggered after drop {{camelcaseuf $entity}} database table
+  {{camelcaseuf $entity}}DropTableEvent
+	// {{camelcaseuf $entity}}InsertEvent is event triggered after insert {{camelcaseuf $entity}} entity
+	{{camelcaseuf $entity}}InsertEvent
+	// {{camelcaseuf $entity}}UpdateEvent is event triggered after update {{camelcaseuf $entity}} entity
 	{{camelcaseuf $entity}}UpdateEvent
+	// {{camelcaseuf $entity}}DeleteEvent is event triggered after delete {{camelcaseuf $entity}} entity
+	{{camelcaseuf $entity}}DeleteEvent
+{{- end }}
+)
+
 {{- end -}}

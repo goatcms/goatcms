@@ -20,7 +20,8 @@ import (
 // {{$typeName}} is a Data Access Object for {{lower $name}} entity
 type {{$typeName}} struct {
   deps struct{
-    DB *sql.DB `dependency:"db0.engine"`
+    DB          *sql.DB   `dependency:"db0.engine"`
+		EngineScope app.Scope `dependency:"EngineScope"`
   }
 }
 
@@ -60,7 +61,7 @@ func (dao {{$typeName}}) Delete(scope app.Scope, id int64) error {
 	if count != 1 {
 		return fmt.Errorf("Delete more than one record (%v records deleted)", count)
 	}
-	return nil
+	return dao.deps.EngineScope.Trigger(maindef.{{$typeName}}Event, id)
 }
 
 func (dao {{$typeName}}) SQL(id int64) string {

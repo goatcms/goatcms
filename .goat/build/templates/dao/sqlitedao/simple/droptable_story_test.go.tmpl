@@ -12,6 +12,7 @@ import (
 	"database/sql"
 	"github.com/goatcms/goatcore/app/scope"
 	helpers "{{index $ctx.Properties.Build "path"}}/sqlitedao/helpers"
+	maindef "{{index $ctx.Properties.Build "path"}}"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -30,9 +31,10 @@ func doDropTable(t *testing.T) (bool, *sql.DB) {
 	if ok, db = doCreateTable(t); !ok {
 		return false, nil
 	}
+	s := scope.NewScope("testtag")
 	dropTable := {{$entityName}}DropTable{}
 	dropTable.deps.DB = db
-	s := scope.NewScope("testtag")
+	dropTable.deps.EngineScope = s
 	if err := dropTable.DropTable(s); err != nil {
 		t.Error(err)
 		return false, db
@@ -42,6 +44,38 @@ func doDropTable(t *testing.T) (bool, *sql.DB) {
 		return false, db
 	}
 	return true, db
+}
+
+func TestDropTableEvent(t *testing.T)  {
+	var (
+		db        *sql.DB
+		err       error
+		ok        bool
+		isTrigged = false
+	)
+	if ok, db = doCreateTable(t); !ok {
+		return
+	}
+	s := scope.NewScope("testtag")
+	s.On(maindef.{{$entityName}}DropTableEvent, func(ientity interface{}) (err error) {
+		isTrigged = true
+		return
+	})
+	dropTable := {{$entityName}}DropTable{}
+	dropTable.deps.DB = db
+	dropTable.deps.EngineScope = s
+	if err := dropTable.DropTable(s); err != nil {
+		t.Error(err)
+		return
+	}
+	if _, err = helpers.Commit(s); err != nil {
+		t.Error(err)
+		return
+	}
+	if isTrigged == false {
+		t.Errorf("{{$entityName}}DropTableEvent event must be called")
+		return
+	}
 }
 
 {{- end -}}

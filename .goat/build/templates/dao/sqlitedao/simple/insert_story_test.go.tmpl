@@ -12,6 +12,7 @@ import (
 	"github.com/goatcms/goatcore/app/scope"
 	entities "{{index $ctx.Properties.Build "entities_path"}}"
 	helpers "{{index $ctx.Properties.Build "path"}}/sqlitedao/helpers"
+	maindef "{{index $ctx.Properties.Build "path"}}"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -35,6 +36,7 @@ func doInsertWithoutIDStory(t *testing.T) (bool, *sql.DB, *entities.{{$entityNam
 	s := scope.NewScope("tag")
 	persister := {{$entityName}}Insert{}
 	persister.deps.DB = db
+	persister.deps.EngineScope = s
 	if resultID, err = persister.Insert(s, entity); err != nil {
 		t.Error(err)
 		return false, db, entity
@@ -82,6 +84,7 @@ func doInsertWithIDStory(t *testing.T) (bool, *sql.DB, *entities.{{$entityName}}
 	s := scope.NewScope("tag")
 	persister := {{$entityName}}Insert{}
 	persister.deps.DB = db
+	persister.deps.EngineScope = s
 	if resultID, err = persister.Insert(s, entity); err != nil {
 		t.Error(err)
 		return false, db, entity
@@ -104,6 +107,38 @@ func doInsertWithIDStory(t *testing.T) (bool, *sql.DB, *entities.{{$entityName}}
 		return false, db, entity
 	}
 	return true, db, entity
+}
+
+func TestInsertEvent(t *testing.T) {
+	var (
+		ok         bool
+		db         *sql.DB
+		err        error
+		entity     *entities.{{$entityName}}
+		expectedID int64 = 666
+		isTrigged   = false
+	)
+	if ok, db = doCreateTable(t); !ok {
+		return
+	}
+	entity = NewMockEntity1()
+	entity.ID = &expectedID
+	s := scope.NewScope("tag")
+	s.On(maindef.{{$entityName}}InsertEvent, func(ientity interface{}) (err error) {
+		isTrigged = true
+		return
+	})
+	persister := {{$entityName}}Insert{}
+	persister.deps.DB = db
+	persister.deps.EngineScope = s
+	if _, err = persister.Insert(s, entity); err != nil {
+		t.Error(err)
+		return
+	}
+	if isTrigged == false {
+		t.Errorf("{{$entityName}}InseEvent event must be called")
+		return
+	}
 }
 
 

@@ -11,6 +11,7 @@ import (
 	"testing"
 	"database/sql"
 	"github.com/goatcms/goatcore/app/scope"
+	maindef "{{index $ctx.Properties.Build "path"}}"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -25,14 +26,42 @@ func doDeleteEntityStory(t *testing.T) (bool, *sql.DB) {
 	if !ok {
 		return false, db
 	}
+	s := scope.NewScope("testtag")
 	deleteService := {{$entityName}}Delete{}
 	deleteService.deps.DB = db
-	s := scope.NewScope("testtag")
+	deleteService.deps.EngineScope = s
 	if err := deleteService.Delete(s, *entity.ID); err != nil {
 		t.Error(err)
 		return false, db
 	}
 	return true, db
+}
+
+func TestDeleteEntityEventTrigger(t *testing.T) {
+	var (
+		err       error
+		isTrigged = false
+	)
+	ok, db, entity := doInsertWithoutIDStory(t)
+	if !ok {
+		return
+	}
+	s := scope.NewScope("testtag")
+	s.On(maindef.{{$entityName}}DeleteEvent, func(ientity interface{}) (err error) {
+		isTrigged = true
+		return
+	})
+	deleteService := {{$entityName}}Delete{}
+	deleteService.deps.DB = db
+	deleteService.deps.EngineScope = s
+	if err = deleteService.Delete(s, *entity.ID); err != nil {
+		t.Error(err)
+		return
+	}
+	if isTrigged == false {
+		t.Errorf("{{$entityName}}DeleteEvent event must be called")
+		return
+	}
 }
 
 {{- end -}}

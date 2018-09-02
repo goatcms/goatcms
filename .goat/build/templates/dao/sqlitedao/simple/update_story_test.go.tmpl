@@ -11,6 +11,7 @@ import (
 	"database/sql"
 	"github.com/goatcms/goatcore/app/scope"
 	entities "{{index $ctx.Properties.Build "entities_path"}}"
+	maindef "{{index $ctx.Properties.Build "path"}}"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -41,6 +42,7 @@ func doUpdateStory(t *testing.T) (bool, *sql.DB) {
 	s := scope.NewScope("tag")
 	updater := {{$entityName}}Update{}
 	updater.deps.DB = db
+	updater.deps.EngineScope = s
 	if err = updater.Update(s, entity, entities.{{$entityName}}AllFields); err != nil {
 		t.Error(err)
 		return false, db
@@ -61,6 +63,43 @@ func doUpdateStory(t *testing.T) (bool, *sql.DB) {
 		}
 	{{- end }}
 	return true, db
+}
+
+func TestUpdateEventTrigger(t *testing.T) {
+	var (
+		ok             bool
+		db             *sql.DB
+		err            error
+		expectedEntity *entities.{{$entityName}}
+		entity         *entities.{{$entityName}}
+		isTrigged      = false
+	)
+	expectedEntity = NewMockEntity2()
+	if ok, db, entity = doInsertWithoutIDStory(t); !ok {
+		return
+	}
+	{{- range $index, $field := (keys .Data $fieldsBaseKey) -}}
+	  {{- $key := (print $fieldsBaseKey $field) -}}
+	  {{- $fieldName := (index $ctx.Data (print $key ".name")) -}}
+		{{- print "\n" -}}
+		entity.{{camelcaseuf $fieldName}} = expectedEntity.{{camelcaseuf $fieldName}}
+	{{- end }}
+	s := scope.NewScope("tag")
+	s.On(maindef.{{$entityName}}UpdateEvent, func(ientity interface{}) (err error) {
+		isTrigged = true
+		return
+	})
+	updater := {{$entityName}}Update{}
+	updater.deps.DB = db
+	updater.deps.EngineScope = s
+	if err = updater.Update(s, entity, entities.{{$entityName}}AllFields); err != nil {
+		t.Error(err)
+		return
+	}
+	if isTrigged == false {
+		t.Errorf("{{$entityName}}UpdateEvent event must be called")
+		return
+	}
 }
 
 {{- end -}}
