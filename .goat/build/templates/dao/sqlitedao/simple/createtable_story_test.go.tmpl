@@ -73,7 +73,7 @@ func TestCreateTableEventTrigger(t *testing.T) {
 		return
 	}
 	if isTrigged == false {
-		t.Errorf("{{$entityName}}UpdateEvent event must be called")
+		t.Errorf("{{$entityName}}CreateTable event must be called")
 		return
 	}
 }
