@@ -20,7 +20,8 @@ import (
 
 type {{$entityName}}CriteriaDeleter struct {
 	deps struct {
-    DB *sql.DB `dependency:"db0.engine"`
+    DB          *sql.DB `dependency:"db0.engine"`
+		EngineScope app.Scope `dependency:"EngineScope"`
 	}
 }
 
@@ -40,7 +41,7 @@ func {{$entityName}}CriteriaDeleterFactory(dp dependency.Provider) (interface{},
 	return maindef.{{$entityName}}CriteriaDeleter(instance), nil
 }
 
-func (search *{{camelcaseuf $name}}CriteriaDeleter) Delete(scope app.Scope, criteria *maindef.{{camelcaseuf $name}}Criteria) (err error) {
+func (deleter *{{camelcaseuf $name}}CriteriaDeleter) Delete(scope app.Scope, criteria *maindef.{{camelcaseuf $name}}Criteria) (err error) {
 	var (
 		sqlq string
 		tx   *sql.Tx
@@ -49,7 +50,7 @@ func (search *{{camelcaseuf $name}}CriteriaDeleter) Delete(scope app.Scope, crit
 	if err = Add{{$entityName}}CriteriaToQuery(criteria, query); err != nil {
 		return err
 	}
-	if tx, err = helpers.TX(scope, search.deps.DB); err != nil {
+	if tx, err = helpers.TX(scope, deleter.deps.DB); err != nil {
 		return err
 	}
 	if sqlq, err = query.CompileDeleteQuery(); err != nil {
@@ -58,7 +59,7 @@ func (search *{{camelcaseuf $name}}CriteriaDeleter) Delete(scope app.Scope, crit
 	if _, err = tx.Exec(sqlq); err != nil {
 		return fmt.Errorf("%s: %s", err.Error(), sqlq)
 	}
-	return nil
+	return deleter.deps.EngineScope.Trigger(maindef.{{$entityName}}DeleteEvent, nil)
 }
 
 {{- end -}}
