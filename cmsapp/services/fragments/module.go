@@ -8,20 +8,20 @@ import (
 
 // RegisterDependencies is init callback to register module dependencies
 func RegisterDependencies(dp dependency.Provider) error {
-	if err := dp.AddDefaultFactory("FragmentCache", CacheFactory); err != nil {
+	if err := dp.AddDefaultFactory("FragmentStorage", StorageFactory); err != nil {
 		return err
 	}
-	return nil
+	return dp.AddDefaultFactory("FragmentTemplateHelper", TemplateHelperFactory)
 }
 
 // InitDependencies is init callback to inject dependencies inside module
 func InitDependencies(a app.App) (err error) {
 	var deps struct {
-		Template      services.Template      `dependency:"TemplateService"`
-		FragmentCache services.FragmentCache `dependency:"FragmentCache"`
+		Template       services.Template               `dependency:"TemplateService"`
+		TemplateHelper services.FragmentTemplateHelper `dependency:"FragmentTemplateHelper"`
 	}
 	if err = a.DependencyProvider().InjectTo(&deps); err != nil {
 		return err
 	}
-	return deps.Template.AddFunc("Fragment", deps.FragmentCache.RenderFragment)
+	return deps.Template.AddFunc("Fragment", deps.TemplateHelper.RenderFragment)
 }

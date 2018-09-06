@@ -131,6 +131,15 @@ type SchemaCreator interface {
 	CreateSchema() error
 }
 
-type FragmentCache interface {
+type Fragment struct {
+	ID   int64
+	HTML string
+}
+
+type FragmentTemplateHelper interface {
 	RenderFragment(key, defaultValue string) (result template.HTML)
+}
+
+type FragmentStorage interface {
+	Get(key string) (result *Fragment)
 }
