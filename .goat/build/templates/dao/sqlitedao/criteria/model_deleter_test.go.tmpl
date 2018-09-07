@@ -123,6 +123,10 @@ func Test{{$entityName}}CriteriaDeleteEvent(t *testing.T) {
 		t.Error(err)
 		return
 	}
+	if err = mapp.AppScope().Trigger(app.CommitEvent, nil); err != nil {
+		t.Error(err)
+		return
+	}
 	if isTrigged == false {
 		t.Errorf("{{$entityName}}DeleteEvent event must be called")
 		return

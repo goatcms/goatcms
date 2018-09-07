@@ -10,6 +10,7 @@ package simple
 import (
 	"testing"
 	"database/sql"
+	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/app/scope"
 	helpers "{{index $ctx.Properties.Build "path"}}/sqlitedao/helpers"
 	maindef "{{index $ctx.Properties.Build "path"}}"
@@ -69,6 +70,10 @@ func TestCreateTableEventTrigger(t *testing.T) {
 	createTable.deps.DB = db
 	createTable.deps.EngineScope = s
 	if err := createTable.CreateTable(s); err != nil {
+		t.Error(err)
+		return
+	}
+	if err = s.Trigger(app.CommitEvent, nil); err != nil {
 		t.Error(err)
 		return
 	}

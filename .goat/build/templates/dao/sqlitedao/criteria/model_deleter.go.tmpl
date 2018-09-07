@@ -59,7 +59,10 @@ func (deleter *{{camelcaseuf $name}}CriteriaDeleter) Delete(scope app.Scope, cri
 	if _, err = tx.Exec(sqlq); err != nil {
 		return fmt.Errorf("%s: %s", err.Error(), sqlq)
 	}
-	return deleter.deps.EngineScope.Trigger(maindef.{{$entityName}}DeleteEvent, nil)
+	scope.On(app.AfterCommitEvent, func(interface{}) (err error) {
+		return deleter.deps.EngineScope.Trigger(maindef.{{$entityName}}DeleteEvent, nil)
+	})
+	return nil
 }
 
 {{- end -}}

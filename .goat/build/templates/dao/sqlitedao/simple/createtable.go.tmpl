@@ -50,7 +50,10 @@ func (dao {{$typeName}}) CreateTable(scope app.Scope) (err error) {
 	if _, err = tx.Exec(dao.SQL()); err != nil {
 		return err
 	}
-	return dao.deps.EngineScope.Trigger(maindef.{{$typeName}}Event, nil)
+	scope.On(app.AfterCommitEvent, func(interface{}) (err error) {
+		return dao.deps.EngineScope.Trigger(maindef.{{$typeName}}Event, nil)
+	})
+	return nil
 }
 
 func (dao {{$typeName}}) AlterTable(scope app.Scope) (err error) {

@@ -61,7 +61,10 @@ func (dao {{$typeName}}) Delete(scope app.Scope, id int64) error {
 	if count != 1 {
 		return fmt.Errorf("Delete more than one record (%v records deleted)", count)
 	}
-	return dao.deps.EngineScope.Trigger(maindef.{{$typeName}}Event, id)
+	scope.On(app.AfterCommitEvent, func(interface{}) (err error) {
+		return dao.deps.EngineScope.Trigger(maindef.{{$typeName}}Event, nil)
+	})
+	return nil
 }
 
 func (dao {{$typeName}}) SQL(id int64) string {

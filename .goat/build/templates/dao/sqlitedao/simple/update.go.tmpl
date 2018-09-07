@@ -72,6 +72,9 @@ func (dao {{$typeName}}) Update(scope app.Scope, entity *entities.{{$entityName}
 	if err = dao.deps.EngineScope.Trigger(maindef.{{$entityName}}UpdateEvent, entity); err != nil {
 		return err
 	}
+	scope.On(app.AfterCommitEvent, func(interface{}) (err error) {
+		return dao.deps.EngineScope.Trigger(maindef.{{$entityName}}UpdateEvent, entity)
+	})
 	return nil
 }
 

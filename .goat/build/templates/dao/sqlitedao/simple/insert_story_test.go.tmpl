@@ -9,6 +9,7 @@ package simple
 import (
 	"testing"
 	"database/sql"
+	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/app/scope"
 	entities "{{index $ctx.Properties.Build "entities_path"}}"
 	helpers "{{index $ctx.Properties.Build "path"}}/sqlitedao/helpers"
@@ -132,6 +133,10 @@ func TestInsertEvent(t *testing.T) {
 	persister.deps.DB = db
 	persister.deps.EngineScope = s
 	if _, err = persister.Insert(s, entity); err != nil {
+		t.Error(err)
+		return
+	}
+	if err = s.Trigger(app.CommitEvent, nil); err != nil {
 		t.Error(err)
 		return
 	}

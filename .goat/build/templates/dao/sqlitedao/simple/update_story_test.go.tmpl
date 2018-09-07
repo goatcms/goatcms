@@ -9,6 +9,7 @@ package simple
 import (
 	"testing"
 	"database/sql"
+	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/app/scope"
 	entities "{{index $ctx.Properties.Build "entities_path"}}"
 	maindef "{{index $ctx.Properties.Build "path"}}"
@@ -93,6 +94,10 @@ func TestUpdateEventTrigger(t *testing.T) {
 	updater.deps.DB = db
 	updater.deps.EngineScope = s
 	if err = updater.Update(s, entity, entities.{{$entityName}}AllFields); err != nil {
+		t.Error(err)
+		return
+	}
+	if err = s.Trigger(app.CommitEvent, nil); err != nil {
 		t.Error(err)
 		return
 	}
