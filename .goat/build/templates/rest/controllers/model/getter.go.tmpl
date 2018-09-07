@@ -73,10 +73,10 @@ func (c *Getter) Get(scope app.Scope) (err error) {
 	if id, err = strconv.ParseInt(deps.ID, 10, 64); err != nil {
 		return cmserror.NewJSONError(err, http.StatusInternalServerError, "{\"status\":\"StatusInternalServerError\"}")
 	}
-	if entity, err = c.deps.Finder.Find(deps.Scope, entities.FragmentMainFields, id); err != nil {
+	if entity, err = c.deps.Finder.Find(deps.Scope, entities.{{$entityName}}MainFields, id); err != nil {
 		return cmserror.NewJSONError(err, http.StatusInternalServerError, "{\"status\":\"StatusInternalServerError\"}")
 	}
-	if json, err = entities.FragmentToJSON(entity, entities.FragmentMainFields); err != nil {
+	if json, err = entities.{{$entityName}}ToJSON(entity, entities.{{$entityName}}MainFields); err != nil {
 		return cmserror.NewJSONError(err, http.StatusInternalServerError, "{\"status\":\"StatusInternalServerError\"}")
 	}
 	return deps.Responser.JSON(200, json)
