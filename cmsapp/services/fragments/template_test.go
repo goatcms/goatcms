@@ -1,6 +1,9 @@
 package fragments
 
 import (
+	"html/template"
+	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/goatcms/goatcms/cmsapp/dao"
@@ -15,14 +18,15 @@ func TestTemplateStory(t *testing.T) {
 		mapp app.App
 		err  error
 		deps struct {
-			FragmentInserter dao.FragmentInsert       `dependency:"FragmentInsert"`
-			FragmentStorage  services.FragmentStorage `dependency:"FragmentStorage"`
+			FragmentInserter dao.FragmentInsert              `dependency:"FragmentInsert"`
+			TemplateHelper   services.FragmentTemplateHelper `dependency:"FragmentTemplateHelper"`
 		}
-		entity          *entities.Fragment
-		ExpectedContent = "some content"
-		ExpectedLang    = "pl"
-		ExpectedName    = "first_fragment"
-		result          *services.Fragment
+		entity        *entities.Fragment
+		ExpectedText  = "some content"
+		EntityContent = "##" + ExpectedText + "\n"
+		ExpectedLang  = "pl"
+		ExpectedName  = "first_fragment"
+		result        template.HTML
 	)
 	if mapp, err = NewTestApp(); err != nil {
 		t.Error(err)
@@ -33,7 +37,7 @@ func TestTemplateStory(t *testing.T) {
 		return
 	}
 	entity = &entities.Fragment{
-		Content: &ExpectedContent,
+		Content: &EntityContent,
 		Lang:    &ExpectedLang,
 		Name:    &ExpectedName,
 	}
@@ -46,7 +50,22 @@ func TestTemplateStory(t *testing.T) {
 		t.Error(err)
 		return
 	}
-	/// ADD RENDER TEMPLATE HEREs
-	// TODO: ...
+	key := ExpectedLang + "." + ExpectedName
+	result = deps.TemplateHelper.RenderFragment(key, "")
+	// Content can by wrap by HTML elements
+	if !strings.Contains(string(result), ExpectedText) {
+		t.Errorf("Result don't contains '%s'", ExpectedText)
+		return
+	}
+	idSTR := " g-fragment-id=\"" + strconv.FormatInt(*entity.ID, 10) + "\""
+	if !strings.Contains(string(result), idSTR) {
+		t.Errorf("Result must contains g-fragment-id attribute")
+		return
+	}
+	keySTR := " g-fragment-key=\"" + key + "\""
+	if !strings.Contains(string(result), keySTR) {
+		t.Errorf("Result must contains g-fragment-key attribute")
+		return
+	}
 
 }
