@@ -19,6 +19,14 @@
     {{- $ctx.Out.EOF -}}
   {{- end -}}
 
+  {{- /* Getter */ -}}
+  {{- $path := (print $ctx.To "/model/" (lower $entityName) "/getter.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $path) -}}
+    {{- $ctx.Out.File $path -}}
+      {{- template "rest.controllers.model.getter" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
   {{- /* Inserter */ -}}
   {{- $path := (print $ctx.To "/model/" (lower $entityName) "/inserter.go") -}}
   {{- if not ($ctx.Filesystem.IsFile $path) -}}
