@@ -114,15 +114,20 @@ func Quote(s *string) string {
 	if s == nil {
 		return "null"
 	}
-  return strconv.Quote(*s)
+  return quote(*s)
 }
 
 func QuoteArray(s []string, sep string) string {
 	quoted := make([]string, len(s))
 	for i, value := range s {
-		quoted[i] = strconv.Quote(value)
+		quoted[i] = quote(value)
 	}
 	return strings.Join(quoted, sep)
+}
+
+func quote(s string) string {
+	s = strings.Replace(s, "'", "''", -1)
+	return "'" + s + "'"
 }
 
 func FormatInt(i *int64, base int) string {
