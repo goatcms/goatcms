@@ -1,6 +1,7 @@
 package fragments
 
 import (
+	"strings"
 	"sync"
 	"time"
 
@@ -87,13 +88,13 @@ func (storage *Storage) Refresh() (err error) {
 	storage.dataMU.Lock()
 	defer storage.dataMU.Unlock()
 	// do it for all waiting task
-	//for storage.lastExecutedCounter < storage.refreshCounter {
-	storage.lastExecutedCounter = storage.refreshCounter
-	if err = storage.refresh(); err != nil {
-		storage.deps.Logger.ErrorLog("%v", err.Error())
-		return err
+	for storage.lastExecutedCounter < storage.refreshCounter {
+		storage.lastExecutedCounter = storage.refreshCounter
+		if err = storage.refresh(); err != nil {
+			storage.deps.Logger.ErrorLog("%v", err.Error())
+			return err
+		}
 	}
-	//}
 	return nil
 }
 
@@ -117,7 +118,8 @@ func (storage *Storage) refresh() (err error) {
 	}); err != nil {
 		return err
 	}
-	defer rows.Close()
+	//defer rows.Close()
+	defer refreshScope.Trigger(app.CommitEvent, nil)
 	// process pragments
 	for rows.Next() {
 		// execute only last policy - break if new event come
@@ -129,6 +131,7 @@ func (storage *Storage) refresh() (err error) {
 			return err
 		}
 		key := *fragment.Lang + "." + *fragment.Name
+		*fragment.Content = strings.Replace(*fragment.Content, "\\n", "\n", -1)
 		unsafe := blackfriday.Run([]byte(*fragment.Content))
 		html := bluemonday.UGCPolicy().SanitizeBytes(unsafe)
 		data[key] = &services.Fragment{
