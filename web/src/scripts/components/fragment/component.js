@@ -48,8 +48,6 @@ function onSubmit(wrap, entity, e) {
   model.persist(entity).then(resp => {
     return resp.json();
   }).then(data => {
-    //TODO: update id for insert
-    debugger;
     let id;
     if(data.id) {
       id = data.id;
