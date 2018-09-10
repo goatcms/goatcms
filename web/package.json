@@ -4,6 +4,7 @@
   "description": "A light foundation for your next goatcms & frontend project based on webpack.",
   "scripts": {
     "build": "webpack --config webpack/webpack.config.prod.js  --colors",
+    "build-dev": "webpack --config webpack/webpack.config.dev.js  --colors",
     "dev": "webpack-dev-server --open --config webpack/webpack.config.dev.js"
   },
   "repository": {

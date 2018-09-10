@@ -18,7 +18,7 @@ export function create(entity) {
 
 export function update(entity) {
   if(!entity.id) {
-    throw "incorrect id " + entity.id
+    throw "incorrect id " + entity.id;
   }
   return fetch('/rest/model/fragment/' + entity.id, {
     method: 'PUT',
@@ -34,5 +34,9 @@ export function persist(entity) {
   if(entity.id) {
     return update(entity);
   }
-  return create(entity);
+  return create({
+    name: entity.name,
+    lang: entity.lang,
+    content: entity.content,
+  });
 }
