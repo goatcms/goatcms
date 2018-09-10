@@ -1,11 +1,16 @@
 import * as utils from '../../core/utils';
 
 export function $isOpen(el) {
-  return el.getAttribute('g-fragment-opened') === 'y';
+  return el.classList.contains('open');
+  //el.getAttribute('g-fragment-opened') === 'y';
 }
 
 export function $open(el, state) {
-  el.setAttribute('g-fragment-opened', state ? 'y' : 'n');
+  if(state) {
+    el.classList.add('open');
+  } else {
+    el.classList.remove('open');
+  }
 }
 
 export function $id(el, value) {
