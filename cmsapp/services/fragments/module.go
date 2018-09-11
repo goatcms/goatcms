@@ -23,5 +23,8 @@ func InitDependencies(a app.App) (err error) {
 	if err = a.DependencyProvider().InjectTo(&deps); err != nil {
 		return err
 	}
-	return deps.Template.AddFunc("Fragment", deps.TemplateHelper.RenderFragment)
+	if err = deps.Template.AddFunc("Fragment", deps.TemplateHelper.RenderFragment); err != nil {
+		return err
+	}
+	return deps.Template.AddFunc("FragmentEditor", deps.TemplateHelper.RenderFragmentEditor)
 }

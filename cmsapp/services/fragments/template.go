@@ -25,8 +25,8 @@ func TemplateHelperFactory(dp dependency.Provider) (in interface{}, err error) {
 	return services.FragmentTemplateHelper(helper), nil
 }
 
-// RenderFragment return a HTML content for fragment. It is uset for small block with inline editor
-func (helper *TemplateHelper) RenderFragment(key, defaultValue string) (result template.HTML) {
+// RenderFragmentEditor return a HTML content for fragment editor. It is uset for small block with inline editor
+func (helper *TemplateHelper) RenderFragmentEditor(key, defaultValue string) (result template.HTML) {
 	var row *services.Fragment
 	if row = helper.deps.FragmentStorage.Get(key); row == nil {
 		row = &services.Fragment{
@@ -43,4 +43,13 @@ func (helper *TemplateHelper) RenderFragment(key, defaultValue string) (result t
 		row.HTML,
 		`</div>`,
 	}, ""))
+}
+
+// RenderFragment return a HTML content for fragment. It is uset for small block with inline editor
+func (helper *TemplateHelper) RenderFragment(key, defaultValue string) (result template.HTML) {
+	var row *services.Fragment
+	if row = helper.deps.FragmentStorage.Get(key); row == nil {
+		return template.HTML(defaultValue)
+	}
+	return template.HTML(row.HTML)
 }

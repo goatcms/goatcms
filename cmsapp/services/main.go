@@ -138,6 +138,7 @@ type Fragment struct {
 
 type FragmentTemplateHelper interface {
 	RenderFragment(key, defaultValue string) (result template.HTML)
+	RenderFragmentEditor(key, defaultValue string) (result template.HTML)
 }
 
 type FragmentStorage interface {

@@ -27,11 +27,12 @@ export function $wrapEntity(el) {
   }
   let id = wrap.getAttribute('g-fragment-id');
   let key = wrap.getAttribute('g-fragment-key');
-  let keysplit = key.split('.', 2);
+  let lang = key.split('.', 1)[0];
+  let name = key.substr(lang.length+1);
   return {
     id: parseInt(id) || 0,
-    lang: keysplit[0],
-    name: keysplit[1]
+    lang: lang,
+    name: name
   };
 }
 

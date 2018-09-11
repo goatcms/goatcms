@@ -1,0 +1,9 @@
+{{- define "FragmentHelper" }}
+
+{{- if .Editable }}
+  {{FragmentEditor .Key (TranslateFor .Key "") }}
+{{- else }}
+  {{Fragment .Key (TranslateFor .Key "") }}
+{{- end }}
+
+{{- end }}
