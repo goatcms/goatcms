@@ -3,7 +3,9 @@ package reqerror
 import (
 	"fmt"
 	"html/template"
+	"reflect"
 
+	"github.com/goatcms/goatcms/cmsapp/cmserror"
 	"github.com/goatcms/goatcms/cmsapp/services"
 	"github.com/goatcms/goatcms/cmsapp/services/requestdep"
 	"github.com/goatcms/goatcore/app"
@@ -44,23 +46,39 @@ func (re *RequestError) Error(httpCode int, err error) {
 }
 
 // DO process a error: log the error and send a error response to client
-func (re *RequestError) DO(berr error) {
+func (re *RequestError) DO(e error) {
+	re.deps.Logger.ErrorLog("%v", e)
+	re.deps.RequestScope.Trigger(app.ErrorEvent, e)
+	switch v := e.(type) {
+	case cmserror.JSONError:
+		re.doJSON(v)
+	case error:
+		re.doTemplate(v)
+	default:
+		panic(fmt.Errorf("unknow %v error type: %v", reflect.TypeOf(e), e))
+	}
+}
+
+func (re *RequestError) doTemplate(e error) {
 	var (
-		err    error
-		errmsg string
-		view   *template.Template
+		err  error
+		view *template.Template
 	)
-	re.Error(503, berr)
 	if view, err = re.deps.Template.View(goathtml.DefaultLayout, "custom/error/main", nil); err != nil {
 		re.deps.Logger.ErrorLog("%v", err)
 		panic(err)
 	}
-	if re.deps.Logger.IsTestLVL() {
-		errmsg = berr.Error()
-	}
 	if err = re.deps.Responser.Execute(view, map[string]interface{}{
-		"Error": errmsg,
+		"Error": e.Error(),
 	}); err != nil {
+		re.deps.Logger.ErrorLog("%v", err)
+		panic(err)
+	}
+}
+
+func (re *RequestError) doJSON(e cmserror.JSONError) {
+	var err error
+	if err = re.deps.Responser.JSON(e.HTTPCode(), e.Error()); err != nil {
 		re.deps.Logger.ErrorLog("%v", err)
 		panic(err)
 	}

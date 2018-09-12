@@ -1,0 +1,85 @@
+{{- define "rest.controllers.model.getter" -}}
+{{- $ctx := . -}}
+{{- $name := (index $ctx.Data (print .From ".entity")) -}}
+{{- $entityName := (camelcaseuf $name) -}}
+{{- $typeName := (print $entityName "CreateTable") -}}
+{{- $fieldsBaseKey := (print .From ".fields.") -}}
+{{- $requiredRolesStr := (index $ctx.Data (print .From ".admin_read_roles")) -}}
+{{- $requiredRoles := (unique (split $requiredRolesStr " ")) -}}
+
+package {{lower $name}}
+
+import (
+	"strconv"
+	"net/http"
+
+	entities "{{index $ctx.Properties.Build "entities_path"}}"
+	"github.com/goatcms/goatcms/cmsapp/cmserror"
+	"github.com/goatcms/goatcms/cmsapp/services"
+	"github.com/goatcms/goatcms/cmsapp/dao"
+	"github.com/goatcms/goatcms/cmsapp/services/requestdep"
+	"github.com/goatcms/goatcore/app"
+	"github.com/goatcms/goatcore/dependency"
+)
+
+var (
+	getRequiredRoles = []string{
+		{{- range $i, $role := $requiredRoles -}}
+		{{- if ne $i 0 }}, {{ end -}}
+		"{{$role}}"
+		{{- end -}}
+	}
+)
+
+// Getter is {{lower $name}} get single entity controller
+type Getter struct {
+	deps struct {
+		Logger   services.Logger             `dependency:"LoggerService"`
+		Finder   dao.{{$entityName}}FindByID `dependency:"{{$entityName}}FindByID"`
+	}
+}
+
+// NewGetter create instance of a Getter rest controller
+func NewGetter(dp dependency.Provider) (*Getter, error) {
+	var err error
+	ctrl := &Getter{}
+	if err = dp.InjectTo(&ctrl.deps); err != nil {
+		return nil, err
+	}
+	return ctrl, nil
+}
+
+// Get is {{lower $entityName}} api endpoint for HTTP GET method
+func (c *Getter) Get(scope app.Scope) (err error) {
+	var (
+		entity *entities.{{$entityName}}
+		deps struct {
+			ACL          requestdep.ACL       `request:"ACLService"`
+			RequestError requestdep.Error     `request:"ErrorService"`
+			Responser    requestdep.Responser `request:"ResponserService"`
+			Request      *http.Request        `request:"Request"`
+			Scope        app.Scope            `request:"RequestScope"`
+			ID           string               `parameter:"id"`
+		}
+		id        int64
+		json      string
+	)
+	if err = scope.InjectTo(&deps); err != nil {
+		return cmserror.NewJSONError(err, http.StatusInternalServerError, "{\"status\":\"StatusInternalServerError\"}")
+	}
+	if !deps.ACL.HasAnyRole(getRequiredRoles) {
+		return cmserror.NewJSONError(err, http.StatusForbidden, "{\"status\":\"StatusForbidden\"}")
+	}
+	if id, err = strconv.ParseInt(deps.ID, 10, 64); err != nil {
+		return cmserror.NewJSONError(err, http.StatusInternalServerError, "{\"status\":\"StatusInternalServerError\"}")
+	}
+	if entity, err = c.deps.Finder.Find(deps.Scope, entities.{{$entityName}}MainFields, id); err != nil {
+		return cmserror.NewJSONError(err, http.StatusInternalServerError, "{\"status\":\"StatusInternalServerError\"}")
+	}
+	if json, err = entities.{{$entityName}}ToJSON(entity, entities.{{$entityName}}MainFields); err != nil {
+		return cmserror.NewJSONError(err, http.StatusInternalServerError, "{\"status\":\"StatusInternalServerError\"}")
+	}
+	return deps.Responser.JSON(200, json)
+}
+
+{{- end -}}

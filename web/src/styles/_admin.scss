@@ -1,0 +1,44 @@
+.admin-table {
+  width: 100%;
+}
+.admin-table .row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  padding: 0;
+  margin: 0;
+}
+.admin-table .row:nth-child(2n+1) {
+  background: #eee;
+}
+.admin-table .row.head {
+  background: #ccc;
+  color: #fff
+}
+.admin-table .row .col {
+  border-right: 1px solid #aaa;
+  text-align: left;
+  flex: 1 1 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 5px;
+}
+.admin-table .row .col.main {
+  width: auto;
+}
+.admin-table .row .col.main {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: auto;
+}
+.admin-table .row .col.int {
+  flex: 0 0 120px;
+}
+.admin-table .row .col.tools {
+  border: 0;
+  text-align: right;
+  flex: 0 0 132px;
+}
+.admin-table .row .col.tools>* {
+  display: inline-block;
+}

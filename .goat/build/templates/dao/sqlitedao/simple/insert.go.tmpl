@@ -25,7 +25,8 @@ import (
 // {{$typeName}} is a Data Access Object for {{lower $name}} entity
 type {{$typeName}} struct {
   deps struct{
-    DB *sql.DB `dependency:"db0.engine"`
+    DB          *sql.DB   `dependency:"db0.engine"`
+		EngineScope app.Scope `dependency:"EngineScope"`
   }
 }
 
@@ -64,6 +65,12 @@ func (dao {{$typeName}}) Insert(scope app.Scope, entity *entities.{{$entityName}
 		return -1, fmt.Errorf("%s: %s", err.Error(), sqlq)
 	}
 	entity.ID = &id
+	if err = dao.deps.EngineScope.Trigger(maindef.{{$typeName}}Event, nil); err != nil {
+		return 0, err
+	}
+	scope.On(app.AfterCommitEvent, func(interface{}) (err error) {
+		return dao.deps.EngineScope.Trigger(maindef.{{$typeName}}Event, entity)
+	})
 	return id, nil
 }
 

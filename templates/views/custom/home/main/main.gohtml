@@ -1,20 +1,21 @@
 {{define "content"}}
+  {{$ctx := .}}
   {{$prefix:=(print .Lang ".view.custom.home.main.")}}
 
   <div class="jumbotron">
     <h1>{{TranslateFor "welcome" $prefix}}</h1>
-    <p class="lead">{{TranslateFor "lead" $prefix}}</p>
+    <p class="lead">{{Fragment (print .Lang ".home_lead") (TranslateFor "lead" $prefix) }}</p>
     <p><a class="btn btn-lg btn-success" href="#" role="button">{{TranslateFor "learn_more_btn" $prefix}}</a></p>
   </div>
 
   <div class="row">
     <div class="col-md-6 col-sm-12">
       <h4>{{TranslateFor "goal1_title" $prefix}}</h4>
-      <p>{{TranslateFor "goal1_content" $prefix}}</p>
+      {{template "FragmentHelper" (dict "Key" (print $prefix "goal1_content") "Editable" $ctx.Data.Editable) }}
       <h4>{{TranslateFor "goal2_title" $prefix}}</h4>
-      <p>{{TranslateFor "goal2_content" $prefix}}</p>
+      {{template "FragmentHelper" (dict "Key" (print $prefix "goal2_content") "Editable" $ctx.Data.Editable) }}
       <h4>{{TranslateFor "goal3_title" $prefix}}</h4>
-      <p>{{TranslateFor "goal3_content" $prefix}}</p>
+      {{template "FragmentHelper" (dict "Key" (print $prefix "goal3_content") "Editable" $ctx.Data.Editable) }}
     </div>
 
     <div class="col-md-6 col-sm-12">

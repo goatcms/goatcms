@@ -12,6 +12,7 @@ package {{lower $name}}
 import (
 	"net/http"
 	"encoding/json"
+	"strconv"
 
 	entities "{{index $ctx.Properties.Build "entities_path"}}"
 	"github.com/goatcms/goatcms/cmsapp/cmserror"
@@ -87,7 +88,7 @@ func (c *Inserter) Post(scope app.Scope) (err error) {
 	if err = scope.Trigger(app.CommitEvent, nil); err != nil {
 		return cmserror.NewJSONError(err, http.StatusInternalServerError, "{\"status\":\"StatusInternalServerError\"}")
 	}
-	deps.Responser.JSON(http.StatusCreated, "{\"status\":\"success\"}")
+	deps.Responser.JSON(http.StatusCreated, "{\"status\":\"success\",\"id\":\"" + strconv.FormatInt(*entity.ID, 10) + "\"}")
 	return nil
 }
 
