@@ -10,8 +10,10 @@ package simple
 import (
 	"testing"
 	"database/sql"
+	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/app/scope"
 	helpers "{{index $ctx.Properties.Build "path"}}/sqlitedao/helpers"
+	maindef "{{index $ctx.Properties.Build "path"}}"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -30,9 +32,10 @@ func doCreateTable(t *testing.T) (bool, *sql.DB) {
 		t.Error(err)
 		return false, db
 	}
+	s := scope.NewScope("testtag")
 	createTable := {{$entityName}}CreateTable{}
 	createTable.deps.DB = db
-	s := scope.NewScope("testtag")
+	createTable.deps.EngineScope = s
 	if err := createTable.CreateTable(s); err != nil {
 		t.Error(err)
 		return false, db
@@ -46,6 +49,38 @@ func doCreateTable(t *testing.T) (bool, *sql.DB) {
 		return false, db
 	}
 	return true, db
+}
+
+func TestCreateTableEventTrigger(t *testing.T) {
+	var (
+		db        *sql.DB
+		err       error
+		isTrigged = false
+	)
+	if db, err = helpers.NewMemoryDB(); err != nil {
+		t.Error(err)
+		return
+	}
+	s := scope.NewScope("testtag")
+	s.On(maindef.{{$entityName}}CreateTableEvent, func(ientity interface{}) (err error) {
+		isTrigged = true
+		return
+	})
+	createTable := {{$entityName}}CreateTable{}
+	createTable.deps.DB = db
+	createTable.deps.EngineScope = s
+	if err := createTable.CreateTable(s); err != nil {
+		t.Error(err)
+		return
+	}
+	if err = s.Trigger(app.CommitEvent, nil); err != nil {
+		t.Error(err)
+		return
+	}
+	if isTrigged == false {
+		t.Errorf("{{$entityName}}CreateTable event must be called")
+		return
+	}
 }
 
 {{- end -}}

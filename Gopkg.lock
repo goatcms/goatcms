@@ -3,15 +3,15 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:35ac403a135b8a138870950720be1f0399e0a48387d4b5cca841b0ed8cf7a40b"
+  digest = "1:ad90cbfaeb74563adf5a06cd662036d2abcdc65984ddb2ba327f2de754c83421"
   name = "github.com/buger/jsonparser"
   packages = ["."]
   pruneopts = "UT"
-  revision = "2cac668e8456b4284edb0715e17e2af02d3ec993"
+  revision = "f4dd9f5a6b441265aefc1d44872a6f8c10f42b37"
 
 [[projects]]
   branch = "master"
-  digest = "1:2b19c8edc72d7fdf0a2dfd2d5a85de85853785da922b8d0cd3270099278b21db"
+  digest = "1:91dc57e64fba6bb56a497802087195da99c74f9d0c6e99743778985ec2b4d61d"
   name = "github.com/goatcms/goatcore"
   packages = [
     "app",
@@ -54,7 +54,7 @@
     "workers/jobsync",
   ]
   pruneopts = "UT"
-  revision = "582ef7507e0650d47f57b51569622c3f53b861d6"
+  revision = "d0900cbf1d35cf8430951292b9682dea2c6b7b9b"
 
 [[projects]]
   digest = "1:15042ad3498153684d09f393bbaec6b216c8eec6d61f63dff711de7d64ed8861"
@@ -65,12 +65,12 @@
   version = "v1.1.0"
 
 [[projects]]
-  digest = "1:51bee9f1987dcdb9f9a1b4c20745d78f6bf6f5f14ad4e64ca883eb64df4c0045"
+  digest = "1:f3fb942d9a52aff79191a8318317147ab76ca609bced931b8be9ab1825569993"
   name = "github.com/google/go-github"
   packages = ["github"]
   pruneopts = "UT"
-  revision = "e48060a28fac52d0f1cb758bc8b87c07bac4a87d"
-  version = "v15.0.0"
+  revision = "747f93dd9b489bd56f7442b3c42bfea12800a75b"
+  version = "v17.0.0"
 
 [[projects]]
   branch = "master"
@@ -98,7 +98,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:57ba20adfa43f47872d3577fb6e88dd54472ad19f79f95b1975ed87bfe028c45"
+  digest = "1:59392ed8afb901aab4287d4894df8191722e34f3957716f4350c8c133ce99046"
   name = "github.com/hpcloud/tail"
   packages = [
     ".",
@@ -119,7 +119,15 @@
   version = "v1.9.0"
 
 [[projects]]
-  digest = "1:b1fc68069736db92aefa48adf2dcb7e16d23d13425c8ae80ca600281f7d711b3"
+  digest = "1:a1f5a38c6c82d8f1e8a7b9fb9ea8b125b17188cdfb38f2cd08055ff9b51f5ec4"
+  name = "github.com/microcosm-cc/bluemonday"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "dafebb5b6ff2861a0d69af64991e10866c19be85"
+  version = "v1.0.0"
+
+[[projects]]
+  digest = "1:42e29deef12327a69123b9cb2cb45fee4af5c12c2a23c6e477338279a052703f"
   name = "github.com/onsi/ginkgo"
   packages = [
     ".",
@@ -146,7 +154,7 @@
   version = "v1.6.0"
 
 [[projects]]
-  digest = "1:c4a34ca1d26b1d08ba9199b3c187f9c0b090042b7bdb4e5bf9ad76078a3593ac"
+  digest = "1:29f294e6a3b9d30629266b2765a8c203056387941e600405b8e8871c84653042"
   name = "github.com/onsi/gomega"
   packages = [
     ".",
@@ -167,7 +175,7 @@
   version = "v1.4.1"
 
 [[projects]]
-  digest = "1:bf81d3d20d3472325773da1da25a312a25703f4d6d8211f637a2923a5b1ac354"
+  digest = "1:04424fbe9f0f1c79d15d8586985f1f82a27d483218770d2e5670ba5736ef152d"
   name = "github.com/sclevine/agouti"
   packages = [
     ".",
@@ -186,18 +194,26 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:866e7e1c540791df6b277bbfc496e27fa6c8c55e60b159c8b9787b3487af98b2"
+  digest = "1:def689e73e9252f6f7fe66834a76751a41b767e03daab299e607e7226c58a855"
+  name = "github.com/shurcooL/sanitized_anchor_name"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "86672fcb3f950f35f2e675df2240550f2a50762f"
+
+[[projects]]
+  branch = "master"
+  digest = "1:1ecf2a49df33be51e757d0033d5d51d5f784f35f68e5a38f797b2d3f03357d71"
   name = "golang.org/x/crypto"
   packages = [
     "bcrypt",
     "blowfish",
   ]
   pruneopts = "UT"
-  revision = "c126467f60eb25f8f27e5a981f32a87e3965053f"
+  revision = "de0752318171da717af4ce24d0a2e8626afaeb11"
 
 [[projects]]
   branch = "master"
-  digest = "1:f62c0714f96c4754991cece0b287374bcd7028f4329c15260a4590616b7f393c"
+  digest = "1:7c336a76add05890bd759734dd5fcd3eddedb513ee3f640fa4c416dfdffc0f90"
   name = "golang.org/x/net"
   packages = [
     "context",
@@ -207,29 +223,29 @@
     "html/charset",
   ]
   pruneopts = "UT"
-  revision = "a680a1efc54dd51c040b3b5ce4939ea3cf2ea0d1"
+  revision = "c39426892332e1bb5ec0a434a079bf82f5d30c54"
 
 [[projects]]
   branch = "master"
-  digest = "1:88f59611964f1c8800edc47686863dcef65dfec0605a1f69881c759f1d6e1a06"
+  digest = "1:af19f6e6c369bf51ef226e989034cd88a45083173c02ac4d7ab74c9a90d356b7"
   name = "golang.org/x/oauth2"
   packages = [
     ".",
     "internal",
   ]
   pruneopts = "UT"
-  revision = "ef147856a6ddbb60760db74283d2424e98c87bff"
+  revision = "3d292e4d0cdc3a0113e6d207bb137145ef1de42f"
 
 [[projects]]
   branch = "master"
-  digest = "1:d773e525476aefa22ea944a5425a9bfb99819b2e67eeb9b1966454fd57522bbf"
+  digest = "1:0316a8ad208917f1d141b077e278980fd5e4594f3a85f835dacbf24d85798252"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = "UT"
-  revision = "ac767d655b305d4e9612f5f6e33120b9176c4ad4"
+  revision = "4e1fef5609515ec7a2cee7b5de30ba6d9b438cbf"
 
 [[projects]]
-  digest = "1:00b52d21f87065cee85096f07ba40957cc53719145c224da5f5d113669868213"
+  digest = "1:aa4d6967a3237f8367b6bf91503964a77183ecf696f1273e8ad3551bb4412b5f"
   name = "golang.org/x/text"
   packages = [
     "encoding",
@@ -255,7 +271,7 @@
   version = "v0.3.0"
 
 [[projects]]
-  digest = "1:1df608126759f99976e509eef1645a75a3bb5472d2fc57cf0664444d13915a23"
+  digest = "1:328b5e4f197d928c444a51a75385f4b978915c0e75521f0ad6a3db976c97a7d3"
   name = "google.golang.org/appengine"
   packages = [
     "internal",
@@ -277,6 +293,14 @@
   pruneopts = "UT"
   revision = "c2828203cd70a50dcccfb2761f8b1f8ceef9a8e9"
   version = "v1.4.7"
+
+[[projects]]
+  digest = "1:39c2113f3a89585666e6f973650cff186b2d06deb4aa202c88addb87b0a201db"
+  name = "gopkg.in/russross/blackfriday.v2"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "cadec560ec52d93835bf2f15bd794700d3a2473b"
+  version = "v2.0.0"
 
 [[projects]]
   digest = "1:3c839a777de0e6da035c9de900b60cbec463b0a89351192c1ea083eaf9e0fce0"
@@ -311,6 +335,7 @@
     "github.com/goatcms/goatcore/dependency/provider",
     "github.com/goatcms/goatcore/filesystem",
     "github.com/goatcms/goatcore/filesystem/filespace/diskfs",
+    "github.com/goatcms/goatcore/filesystem/filespace/memfs",
     "github.com/goatcms/goatcore/filesystem/fsstandalone",
     "github.com/goatcms/goatcore/goathtml",
     "github.com/goatcms/goatcore/goathtml/ghprovider",
@@ -327,12 +352,14 @@
     "github.com/google/go-github/github",
     "github.com/gorilla/mux",
     "github.com/mattn/go-sqlite3",
+    "github.com/microcosm-cc/bluemonday",
     "github.com/onsi/ginkgo",
     "github.com/onsi/gomega",
     "github.com/sclevine/agouti",
     "github.com/sclevine/agouti/matchers",
     "golang.org/x/crypto/bcrypt",
     "golang.org/x/oauth2",
+    "gopkg.in/russross/blackfriday.v2",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1

@@ -1,4 +1,7 @@
-package cmsapp
+{{define "module.commands_go" -}}
+{{- $ctx := . -}}
+
+package {{index $ctx.Properties.Build "package"}}
 
 import (
 	"github.com/goatcms/goatcms/cmsapp/commands"
@@ -10,6 +13,7 @@ import (
 	"github.com/goatcms/goatcore/app"
 )
 
+// RegisterCommands add cmsapp commands to an application
 func RegisterCommands(a app.App) error {
 	commandScope := a.CommandScope()
 	// serve
@@ -42,3 +46,5 @@ func RegisterCommands(a app.App) error {
 	commandScope.Set("help.argument.host", commands.HostArg)
 	return nil
 }
+
+{{- end -}}

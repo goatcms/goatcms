@@ -58,7 +58,13 @@ func Commit(scope app.Scope) (isCommited bool, err error) {
 	}
 	tx := ins.(*sql.Tx)
 	scope.Set(TXKey, nil)
-	return true, tx.Commit()
+	if err = tx.Commit(); err != nil {
+		return true, err
+	}
+	if err = scope.Trigger(app.AfterCommitEvent, nil); err != nil {
+		return true, err
+	}
+	return true, nil
 }
 
 func Rollback(scope app.Scope) (isRollback bool, err error) {
@@ -70,7 +76,13 @@ func Rollback(scope app.Scope) (isRollback bool, err error) {
 	}
 	tx := ins.(*sql.Tx)
 	scope.Set(TXKey, nil)
-	return true, tx.Rollback()
+	if err = tx.Rollback(); err != nil {
+		return true, err
+	}
+	if err = scope.Trigger(app.AfterRollbackEvent, nil); err != nil {
+		return true, err
+	}
+	return true, nil
 }
 
 func Close(scope app.Scope) (isRollback bool, err error) {
@@ -82,7 +94,13 @@ func Close(scope app.Scope) (isRollback bool, err error) {
 	}
 	tx := ins.(*sql.Tx)
 	scope.Set(TXKey, nil)
-	return true, tx.Rollback()
+	if err = tx.Rollback(); err != nil {
+		return true, err
+	}
+	if err = scope.Trigger(app.AfterRollbackEvent, nil); err != nil {
+		return true, err
+	}
+	return true, nil
 }
 
 func NewMemoryDB() (db *sql.DB, err error) {
@@ -96,15 +114,20 @@ func Quote(s *string) string {
 	if s == nil {
 		return "null"
 	}
-  return strconv.Quote(*s)
+  return quote(*s)
 }
 
 func QuoteArray(s []string, sep string) string {
 	quoted := make([]string, len(s))
 	for i, value := range s {
-		quoted[i] = strconv.Quote(value)
+		quoted[i] = quote(value)
 	}
 	return strings.Join(quoted, sep)
+}
+
+func quote(s string) string {
+	s = strings.Replace(s, "'", "''", -1)
+	return "'" + s + "'"
 }
 
 func FormatInt(i *int64, base int) string {

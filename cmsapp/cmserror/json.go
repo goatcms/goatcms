@@ -23,5 +23,5 @@ func (err JSONError) Error() string {
 
 // HTTPCode return http error code
 func (err JSONError) HTTPCode() int {
-	return 403
+	return err.httpCode
 }

@@ -6,7 +6,7 @@
 {{- $fieldsBaseKey := (print .From ".fields.") -}}
 {{- $fields := (keys $ctx.Data $fieldsBaseKey) -}}
 {{- $relationsBaseKey := (print .From ".relations.") -}}
-{{- $relations := (keys $ctx.Data $fieldsBaseKey) -}}
+{{- $relations := (keys $ctx.Data $relationsBaseKey) -}}
 
 package simple
 
@@ -25,7 +25,8 @@ import (
 // {{$typeName}} is a Data Access Object for {{lower $name}} entity
 type {{$typeName}} struct {
   deps struct{
-    DB *sql.DB `dependency:"db0.engine"`
+    DB          *sql.DB   `dependency:"db0.engine"`
+		EngineScope app.Scope `dependency:"EngineScope"`
   }
 }
 
@@ -64,6 +65,12 @@ func (dao {{$typeName}}) Insert(scope app.Scope, entity *entities.{{$entityName}
 		return -1, fmt.Errorf("%s: %s", err.Error(), sqlq)
 	}
 	entity.ID = &id
+	if err = dao.deps.EngineScope.Trigger(maindef.{{$typeName}}Event, nil); err != nil {
+		return 0, err
+	}
+	scope.On(app.AfterCommitEvent, func(interface{}) (err error) {
+		return dao.deps.EngineScope.Trigger(maindef.{{$typeName}}Event, entity)
+	})
 	return id, nil
 }
 
@@ -79,7 +86,7 @@ func (dao {{$typeName}}) SQL(entity *entities.{{$entityName}}) (string, error) {
 			{{- if ne $fi 0 -}}, {{ end -}}
 			{{$fieldName}}
 		{{- end -}}
-		{{- if ne (len $fields) 0 }}, {{ end -}}
+		{{- if and (ne (len $fields) 0) (ne (len $relations) 0) }}, {{ end -}}
 		{{- range $fi, $relation := $relations -}}
 			{{- $key := (print $relationsBaseKey $relation) -}}
 			{{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
@@ -102,7 +109,7 @@ func (dao {{$typeName}}) SQL(entity *entities.{{$entityName}}) (string, error) {
 				{{- error (print "bad type" $fieldType) -}}
 			{{- end -}}
 		{{- end -}}
-		{{- if ne (len $fields) 0 }}, {{ end -}}
+		{{- if and (ne (len $fields) 0) (ne (len $relations) 0) }}, {{ end -}}
 		{{- range $fi, $relation := $relations -}}
 			{{- $key := (print $relationsBaseKey $relation) -}}
 			{{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}

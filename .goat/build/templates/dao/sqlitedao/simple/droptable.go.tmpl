@@ -19,6 +19,7 @@ import (
 type {{$typeName}} struct {
   deps struct{
     DB *sql.DB `dependency:"db0.engine"`
+		EngineScope app.Scope `dependency:"EngineScope"`
   }
 }
 
@@ -43,8 +44,13 @@ func (dao {{$typeName}}) DropTable(scope app.Scope) (err error) {
 	if tx, err = helpers.TX(scope, dao.deps.DB); err != nil {
 		return err
 	}
-	_, err = tx.Exec(dao.SQL())
-	return err
+	if _, err = tx.Exec(dao.SQL()); err != nil {
+		return err
+	}
+	scope.On(app.AfterCommitEvent, func(interface{}) (err error) {
+		return dao.deps.EngineScope.Trigger(maindef.{{$typeName}}Event, nil)
+	})
+	return nil
 }
 
 func (dao {{$typeName}}) SQL() string {

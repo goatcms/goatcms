@@ -39,13 +39,17 @@ func (db *Database) Query(scope app.Scope, query string) (rows maindef.Rows, err
 }
 
 func (db *Database) Commit(scope app.Scope) (err error) {
-	_, err = helpers.Commit(scope)
-	return err
+	if _, err = helpers.Commit(scope); err != nil {
+		return err
+	}
+	return scope.Trigger(app.AfterCommitEvent, nil)
 }
 
 func (db *Database) Rollback(scope app.Scope) (err error) {
-	_, err = helpers.Rollback(scope)
-	return err
+	if _, err = helpers.Rollback(scope); err != nil {
+		return err
+	}
+	return scope.Trigger(app.AfterRollbackEvent, nil)
 }
 
 // Factory create a new database instance

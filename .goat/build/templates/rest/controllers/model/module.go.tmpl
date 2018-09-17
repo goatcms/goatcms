@@ -30,6 +30,12 @@ func InitDependencies(a app.App) error {
 		return err
 	}
 	deps.Router.OnPost("/rest/model/{{lower $entityName}}", inserter.Post)
+	// add getter
+	getter, err := NewGetter(dp)
+	if err != nil {
+		return err
+	}
+	deps.Router.OnGet("/rest/model/{{lower $entityName}}/{id:[0-9]+}", getter.Get)
 	// add updater
 	updater, err := NewUpdater(dp)
 	if err != nil {

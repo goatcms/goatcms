@@ -34,14 +34,17 @@ func NewHome(dp dependency.Provider) (*Home, error) {
 
 // Get render Home controller
 func (c *Home) Get(requestScope app.Scope) (err error) {
-	var requestDeps struct {
+	var deps struct {
 		RequestError requestdep.Error     `request:"ErrorService"`
 		Responser    requestdep.Responser `request:"ResponserService"`
+		ACL          requestdep.ACL       `request:"ACLService"`
 	}
-	if err = requestScope.InjectTo(&requestDeps); err != nil {
+	if err = requestScope.InjectTo(&deps); err != nil {
 		return err
 	}
-	if err = requestDeps.Responser.Execute(c.view, nil); err != nil {
+	if err = deps.Responser.Execute(c.view, map[string]interface{}{
+		"Editable": deps.ACL.HasAnyRole([]string{"admin"}),
+	}); err != nil {
 		return err
 	}
 	return err

@@ -11,6 +11,14 @@
   {{- $ctx.Out.EOF -}}
 {{- end -}}
 
+{{- /* events */ -}}
+{{- $path := (print $ctx.To "/events.go") -}}
+{{- if not ($ctx.Filesystem.IsFile $path) -}}
+  {{- $ctx.Out.File $path -}}
+    {{- template "events" $ctx -}}
+  {{- $ctx.Out.EOF -}}
+{{- end -}}
+
 {{- /* interfaces */ -}}
 {{- $path := (print $ctx.To "/interfaces.go") -}}
 {{- if not ($ctx.Filesystem.IsFile $path) -}}
@@ -36,6 +44,5 @@
       {{- template "model_criteria" (ctx $ctx (print "model." $key) "") -}}
     {{- $ctx.Out.EOF -}}
   {{- end -}}
-
 
 {{- end -}}
