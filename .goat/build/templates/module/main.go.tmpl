@@ -1,0 +1,17 @@
+{{define "module.main_go" -}}
+{{- $ctx := . -}}
+
+package {{index $ctx.Properties.Build "package"}}
+
+const (
+	// TemplateFilespace is a filespace contains all project templates
+	TemplateFilespace  = "template"
+	// TemplatePath is a relative path to templates on a local disk
+	TemplatePath       = "templates"
+	// TranslateFilespace is a filespace contains all project translates / internationals
+	TranslateFilespace = "translate"
+	// TranslatePath is a relative path to translates on a local disk
+	TranslatePath      = "translates"
+)
+
+{{- end -}}

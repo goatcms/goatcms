@@ -1,8 +1,8 @@
 package router
 
 import (
-	"github.com/goatcms/goatcore/dependency"
 	"github.com/goatcms/goatcms/cmsapp/services"
+	"github.com/goatcms/goatcore/dependency"
 )
 
 // RegisterDependency is init callback to register module dependencies

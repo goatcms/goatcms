@@ -1,0 +1,52 @@
+{{define "module.module_go" -}}
+{{- $ctx := . -}}
+
+package {{index $ctx.Properties.Build "package"}}
+
+import (
+	"github.com/goatcms/goatcms/cmsapp/dao/sqlitedao"
+	"github.com/goatcms/goatcore/app"
+)
+
+type Module struct{}
+
+// NewModule create new module instance
+func NewModule() app.Module {
+	return &Module{}
+}
+
+// RegisterDependencies is init callback to register module dependencies
+func (m *Module) RegisterDependencies(a app.App) (err error) {
+	dp := a.DependencyProvider()
+	if err = RegisterFilesystems(a); err != nil {
+		return err
+	}
+	if err = RegisterCommands(a); err != nil {
+		return err
+	}
+	if err = RegisterServices(a); err != nil {
+		return err
+	}
+	if err = sqlitedao.RegisterDependencies(dp); err != nil {
+		return err
+	}
+	return nil
+}
+
+// InitDependencies is init callback to inject dependencies inside modules
+func (m *Module) InitDependencies(a app.App) (err error) {
+	if err = InitServices(a); err != nil {
+		return err
+	}
+	if err = InitControllers(a); err != nil {
+		return err
+	}
+	return nil
+}
+
+// Run is run event callback
+func (m *Module) Run() error {
+	return nil
+}
+
+{{- end -}}

@@ -1,4 +1,12 @@
 {
+  "include": {
+    "controllers.adminctrl": "y",
+    "controllers.homectrl": "y",
+    "controllers.oauthctrl": "y",
+    "controllers.userctrl": "y",
+    "controllers.ruserctrl": "y",
+    "controllers.restctrl": "y"
+  },
   "app": {
     "id": "goatcms",
     "baseURL": "http://localhost:555",

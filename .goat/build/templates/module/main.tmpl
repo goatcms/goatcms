@@ -1,0 +1,43 @@
+{{- $ctx := . -}}
+
+{{- $modulePath := (print $ctx.To "/main.go") -}}
+{{- if not ($ctx.Filesystem.IsFile $modulePath) -}}
+  {{- $ctx.Out.File $modulePath -}}
+    {{- template "module.main_go" $ctx -}}
+  {{- $ctx.Out.EOF -}}
+{{- end -}}
+
+{{- $modulePath := (print $ctx.To "/commands.go") -}}
+{{- if not ($ctx.Filesystem.IsFile $modulePath) -}}
+  {{- $ctx.Out.File $modulePath -}}
+    {{- template "module.commands_go" $ctx -}}
+  {{- $ctx.Out.EOF -}}
+{{- end -}}
+
+{{- $modulePath := (print $ctx.To "/controllers.go") -}}
+{{- if not ($ctx.Filesystem.IsFile $modulePath) -}}
+  {{- $ctx.Out.File $modulePath -}}
+    {{- template "module.controllers_go" $ctx -}}
+  {{- $ctx.Out.EOF -}}
+{{- end -}}
+
+{{- $modulePath := (print $ctx.To "/filesystems.go") -}}
+{{- if not ($ctx.Filesystem.IsFile $modulePath) -}}
+  {{- $ctx.Out.File $modulePath -}}
+    {{- template "module.filesystems_go" $ctx -}}
+  {{- $ctx.Out.EOF -}}
+{{- end -}}
+
+{{- $modulePath := (print $ctx.To "/module.go") -}}
+{{- if not ($ctx.Filesystem.IsFile $modulePath) -}}
+  {{- $ctx.Out.File $modulePath -}}
+    {{- template "module.module_go" $ctx -}}
+  {{- $ctx.Out.EOF -}}
+{{- end -}}
+
+{{- $modulePath := (print $ctx.To "/services.go") -}}
+{{- if not ($ctx.Filesystem.IsFile $modulePath) -}}
+  {{- $ctx.Out.File $modulePath -}}
+    {{- template "module.services_go" $ctx -}}
+  {{- $ctx.Out.EOF -}}
+{{- end -}}

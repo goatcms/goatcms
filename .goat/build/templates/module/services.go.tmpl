@@ -1,4 +1,8 @@
-package cmsapp
+{{define "module.services_go" -}}
+{{- $ctx := . -}}
+
+package {{index $ctx.Properties.Build "package"}}
+
 
 import (
 	"github.com/goatcms/goatcms/cmsapp/services/crypt"
@@ -22,6 +26,7 @@ import (
 	"github.com/goatcms/goatcore/app"
 )
 
+// RegisterServices add cmsapp services to an application
 func RegisterServices(a app.App) (err error) {
 	// services
 	dp := a.DependencyProvider()
@@ -64,6 +69,7 @@ func RegisterServices(a app.App) (err error) {
 	return nil
 }
 
+// InitServices initializes cmap services and their data
 func InitServices(a app.App) (err error) {
 	// services
 	if err = reqsession.InitDependencies(a); err != nil {
@@ -96,3 +102,5 @@ func InitServices(a app.App) (err error) {
 	}
 	return nil
 }
+
+{{- end -}}
