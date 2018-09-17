@@ -2,7 +2,6 @@ package cmsapp
 
 import (
 	"github.com/goatcms/goatcms/cmsapp/controllers/adminctrl"
-	"github.com/goatcms/goatcms/cmsapp/controllers/custom/homectrl"
 	"github.com/goatcms/goatcms/cmsapp/controllers/custom/oauthctrl"
 	"github.com/goatcms/goatcms/cmsapp/controllers/custom/userctrl"
 	"github.com/goatcms/goatcms/cmsapp/controllers/customrest/ruserctrl"
@@ -10,25 +9,23 @@ import (
 	"github.com/goatcms/goatcore/app"
 )
 
-func InitControllers(a app.App) error {
+// InitControllers add cmsapp controllers to an application
+func InitControllers(a app.App) (err error) {
 	// webpages
-	if err := adminctrl.InitDependencies(a); err != nil {
+	if err = adminctrl.InitDependencies(a); err != nil {
 		return err
 	}
-	if err := userctrl.InitDependencies(a); err != nil {
+	if err = userctrl.InitDependencies(a); err != nil {
 		return err
 	}
-	if err := oauthctrl.InitDependencies(a); err != nil {
-		return err
-	}
-	if err := homectrl.InitDependencies(a); err != nil {
+	if err = oauthctrl.InitDependencies(a); err != nil {
 		return err
 	}
 	// restapi
-	if err := restctrl.InitDependencies(a); err != nil {
+	if err = restctrl.InitDependencies(a); err != nil {
 		return err
 	}
-	if err := ruserctrl.InitDependencies(a); err != nil {
+	if err = ruserctrl.InitDependencies(a); err != nil {
 		return err
 	}
 	return nil

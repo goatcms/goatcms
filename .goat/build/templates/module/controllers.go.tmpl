@@ -1,0 +1,66 @@
+{{define "module.controllers_go" -}}
+{{- $ctx := . -}}
+
+package {{index $ctx.Properties.Build "package"}}
+
+import (
+	{{- if ne (index $ctx.Properties.Project "include.controllers.adminctrl") "n"}}
+	"github.com/goatcms/goatcms/cmsapp/controllers/adminctrl"
+	{{- end}}
+	{{- if ne (index $ctx.Properties.Project "include.controllers.homectrl") "n"}}
+	"github.com/goatcms/goatcms/cmsapp/controllers/custom/homectrl"
+	{{- end}}
+	{{- if ne (index $ctx.Properties.Project "include.controllers.oauthctrl") "n"}}
+	"github.com/goatcms/goatcms/cmsapp/controllers/custom/oauthctrl"
+	{{- end}}
+	{{- if ne (index $ctx.Properties.Project "include.controllers.userctrl") "n"}}
+	"github.com/goatcms/goatcms/cmsapp/controllers/custom/userctrl"
+	{{- end}}
+	{{- if ne (index $ctx.Properties.Project "include.controllers.ruserctrl") "n"}}
+	"github.com/goatcms/goatcms/cmsapp/controllers/customrest/ruserctrl"
+	{{- end}}
+	{{- if ne (index $ctx.Properties.Project "include.controllers.restctrl") "n"}}
+	"github.com/goatcms/goatcms/cmsapp/controllers/restctrl"
+	{{- end}}
+	"github.com/goatcms/goatcore/app"
+)
+
+// InitControllers add cmsapp controllers to an application
+func InitControllers(a app.App) (err error) {
+	// webpages
+	{{- if ne (index $ctx.Properties.Project "include.controllers.adminctrl") "n"}}
+	if err = adminctrl.InitDependencies(a); err != nil {
+		return err
+	}
+	{{- end}}
+	{{- if ne (index $ctx.Properties.Project "include.controllers.userctrl") "n"}}
+	if err = userctrl.InitDependencies(a); err != nil {
+		return err
+	}
+	{{- end}}
+	{{- if ne (index $ctx.Properties.Project "include.controllers.oauthctrl") "n"}}
+	if err = oauthctrl.InitDependencies(a); err != nil {
+		return err
+	}
+	{{- end}}
+	{{- if ne (index $ctx.Properties.Project "include.controllers.homectrl") "n"}}
+	if err = homectrl.InitDependencies(a); err != nil {
+		return err
+	}
+	{{- end}}
+	// restapi
+	{{- if ne (index $ctx.Properties.Project "include.controllers.restctrl") "n"}}
+	if err = restctrl.InitDependencies(a); err != nil {
+		return err
+	}
+	{{- end}}
+	{{- if ne (index $ctx.Properties.Project "include.controllers.ruserctrl") "n"}}
+	if err = ruserctrl.InitDependencies(a); err != nil {
+		return err
+	}
+	{{- end}}
+	return nil
+}
+
+
+{{- end -}}

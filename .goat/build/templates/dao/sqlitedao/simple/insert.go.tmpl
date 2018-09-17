@@ -6,7 +6,7 @@
 {{- $fieldsBaseKey := (print .From ".fields.") -}}
 {{- $fields := (keys $ctx.Data $fieldsBaseKey) -}}
 {{- $relationsBaseKey := (print .From ".relations.") -}}
-{{- $relations := (keys $ctx.Data $fieldsBaseKey) -}}
+{{- $relations := (keys $ctx.Data $relationsBaseKey) -}}
 
 package simple
 
@@ -86,7 +86,7 @@ func (dao {{$typeName}}) SQL(entity *entities.{{$entityName}}) (string, error) {
 			{{- if ne $fi 0 -}}, {{ end -}}
 			{{$fieldName}}
 		{{- end -}}
-		{{- if ne (len $fields) 0 }}, {{ end -}}
+		{{- if and (ne (len $fields) 0) (ne (len $relations) 0) }}, {{ end -}}
 		{{- range $fi, $relation := $relations -}}
 			{{- $key := (print $relationsBaseKey $relation) -}}
 			{{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
@@ -109,7 +109,7 @@ func (dao {{$typeName}}) SQL(entity *entities.{{$entityName}}) (string, error) {
 				{{- error (print "bad type" $fieldType) -}}
 			{{- end -}}
 		{{- end -}}
-		{{- if ne (len $fields) 0 }}, {{ end -}}
+		{{- if and (ne (len $fields) 0) (ne (len $relations) 0) }}, {{ end -}}
 		{{- range $fi, $relation := $relations -}}
 			{{- $key := (print $relationsBaseKey $relation) -}}
 			{{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}

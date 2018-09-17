@@ -11,6 +11,13 @@
   "to":"translates",
   "template":"translates",
 },{
+  "to":"cmsapp",
+  "template":"module",
+  "properties": {
+    "package":"cmsapp"
+  },
+  "afterBuild": "gofmt -w {{argument.cwd}}/cmsapp/",
+},{
   "to":"cmsapp/entities",
   "template":"entity",
   "properties": {

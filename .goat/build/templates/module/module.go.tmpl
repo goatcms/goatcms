@@ -1,19 +1,22 @@
-package cmsapp
+{{define "module.module_go" -}}
+{{- $ctx := . -}}
+
+package {{index $ctx.Properties.Build "package"}}
 
 import (
 	"github.com/goatcms/goatcms/cmsapp/dao/sqlitedao"
 	"github.com/goatcms/goatcore/app"
 )
 
-type CMSAppModule struct{}
+type Module struct{}
 
 // NewModule create new module instance
 func NewModule() app.Module {
-	return &CMSAppModule{}
+	return &Module{}
 }
 
 // RegisterDependencies is init callback to register module dependencies
-func (m *CMSAppModule) RegisterDependencies(a app.App) (err error) {
+func (m *Module) RegisterDependencies(a app.App) (err error) {
 	dp := a.DependencyProvider()
 	if err = RegisterFilesystems(a); err != nil {
 		return err
@@ -31,7 +34,7 @@ func (m *CMSAppModule) RegisterDependencies(a app.App) (err error) {
 }
 
 // InitDependencies is init callback to inject dependencies inside modules
-func (m *CMSAppModule) InitDependencies(a app.App) (err error) {
+func (m *Module) InitDependencies(a app.App) (err error) {
 	if err = InitServices(a); err != nil {
 		return err
 	}
@@ -42,6 +45,8 @@ func (m *CMSAppModule) InitDependencies(a app.App) (err error) {
 }
 
 // Run is run event callback
-func (m *CMSAppModule) Run() error {
+func (m *Module) Run() error {
 	return nil
 }
+
+{{- end -}}

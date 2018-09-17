@@ -1,4 +1,7 @@
-package cmsapp
+{{define "module.filesystems_go" -}}
+{{- $ctx := . -}}
+
+package {{index $ctx.Properties.Build "package"}}
 
 import "github.com/goatcms/goatcore/app"
 
@@ -19,3 +22,5 @@ func RegisterFilesystems(a app.App) error {
 	a.FilespaceScope().Set(TranslateFilespace, translateFS)
 	return nil
 }
+
+{{- end -}}
