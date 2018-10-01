@@ -21,6 +21,9 @@
 /cmsapp/module.go
 /cmsapp/services.go
 
+# data
+/data 
+
 # config
 /config/config_prod.json
 /config/config_dev.json

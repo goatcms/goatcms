@@ -3,12 +3,14 @@ package router
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/goatcms/goatcms/cmsapp/services"
 	"github.com/goatcms/goatcms/cmsapp/services/requestdep"
 	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/dependency"
 	"github.com/goatcms/goatcore/filesystem"
+	"github.com/goatcms/goatcore/filesystem/disk"
 	"github.com/gorilla/mux"
 )
 
@@ -21,6 +23,9 @@ type Router struct {
 		Host         string               `config:"?router.host"`
 		StaticPrefix string               `config:"?router.static.prefix"`
 		StaticPath   string               `config:"?router.static.path"`
+		SecurityMode string               `config:"?router.security.mode"`
+		SecurityCert string               `config:"?router.security.cert"`
+		SecurityKey  string               `config:"?router.security.key"`
 		ArgHost      string               `argument:"?host"`
 		TmpFilespace filesystem.Filespace `filespace:"tmp"`
 	}
@@ -50,6 +55,19 @@ func RouterFactory(dp dependency.Provider) (interface{}, error) {
 	}
 	if router.deps.StaticPrefix == "" {
 		router.deps.StaticPrefix = DefaultStaticPrefix
+	}
+	if router.deps.SecurityMode == "" {
+		router.deps.SecurityMode = TLSSecurityMode
+	}
+	if router.deps.SecurityCert == "" {
+		router.deps.SecurityCert = "./data/certs/fullchain.pem"
+	}
+	if router.deps.SecurityKey == "" {
+		router.deps.SecurityKey = "./data/certs/privkey.pem"
+	}
+	router.deps.SecurityMode = strings.ToUpper(router.deps.SecurityMode)
+	if router.deps.SecurityMode != TLSSecurityMode && router.deps.SecurityMode != HTTPSecurityMode {
+		router.deps.SecurityMode = TLSSecurityMode
 	}
 	fs := http.FileServer(http.Dir(router.deps.StaticPath))
 	s := http.StripPrefix(router.deps.StaticPrefix, fs)
@@ -93,8 +111,20 @@ func (router *Router) Start() (err error) {
 		Addr:    router.deps.Host,
 		Handler: router.grouter,
 	}
-	if err = srv.ListenAndServe(); err != nil {
-		return err
+	if router.deps.SecurityMode == TLSSecurityMode {
+		if !disk.IsFile(router.deps.SecurityCert) {
+			panic(fmt.Sprintf("'%v' [config: router.security.cert] certificate file is not exist.", router.deps.SecurityCert))
+		}
+		if !disk.IsFile(router.deps.SecurityKey) {
+			panic(fmt.Sprintf("'%v' [config: router.security.cert] certificate file is not exist.", router.deps.SecurityKey))
+		}
+		if err = srv.ListenAndServeTLS(router.deps.SecurityCert, router.deps.SecurityKey); err != nil {
+			return err
+		}
+	} else {
+		if err = srv.ListenAndServe(); err != nil {
+			return err
+		}
 	}
 	router.deps.AppScope.On(app.CloseEvent, func(interface{}) (err error) {
 		return srv.Shutdown(nil)
