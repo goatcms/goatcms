@@ -20,9 +20,10 @@
 /cmsapp/main.go
 /cmsapp/module.go
 /cmsapp/services.go
+/cmsapp/routing.go
 
 # data
-/data 
+/data
 
 # config
 /config/config_prod.json

@@ -16,10 +16,6 @@
   },
   "router": {
     "host": ":{{index .Properties.Project "app.port"}}",
-    "static": {
-      "path": "./web/dist/",
-      "prefix": "/static/"
-    },
     "security": {
       "mode": "TLS",
       "cert": "./data/certs/fullchain.pem",

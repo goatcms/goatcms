@@ -8,6 +8,8 @@ import (
 	"github.com/goatcms/goatcore/app"
 )
 
+// Module is cmsapp module
+// It contains all controller, services, ...
 type Module struct{}
 
 // NewModule create new module instance
@@ -39,6 +41,9 @@ func (m *Module) InitDependencies(a app.App) (err error) {
 		return err
 	}
 	if err = InitControllers(a); err != nil {
+		return err
+	}
+	if err = InitRouter(a); err != nil {
 		return err
 	}
 	return nil
