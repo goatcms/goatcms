@@ -28,9 +28,14 @@ func InitRouter(a app.App) (err error) {
 		bytes  []byte
 		deps   struct {
 			Router services.Router `dependency:"RouterService"`
+			Logger services.Logger `dependency:"LoggerService"`
 		}
 	)
+	if err = a.DependencyProvider().InjectTo(&deps); err != nil {
+		return err
+	}
 	if !fs.IsExist(RouterMappingFile) {
+		deps.Logger.DevLog("Routing loading is skipped. File %s is not exist.")
 		return nil
 	}
 	if bytes, err = fs.ReadFile(RouterMappingFile); err != nil {
@@ -40,12 +45,12 @@ func InitRouter(a app.App) (err error) {
 		return err
 	}
 	for _, row := range config.Static {
+		deps.Logger.DevLog("Static routing: %s -> %s", row.Prefix, row.Path)
 		if deps.Router.ServeStatic(row.Prefix, row.Path); err != nil {
 			return err
 		}
 	}
 	return nil
 }
-
 
 {{- end -}}

@@ -20,7 +20,7 @@
 /cmsapp/main.go
 /cmsapp/module.go
 /cmsapp/services.go
-/cmsapp/routing.go
+/cmsapp/router.go
 
 # data
 /data
