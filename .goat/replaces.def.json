@@ -1,5 +1,5 @@
 [{
 	"from":    "github.com/goatcms/goatcms",
 	"to":      "{{goatcms_package}}",
-  "pattern": ".*\.go",
+  "pattern": ".*\.go"
 }]

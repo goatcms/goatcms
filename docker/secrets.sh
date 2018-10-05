@@ -4,6 +4,7 @@ set -e
 cat > .goat/secrets.json << EndOfMessage
 {
   "database": {
+    "engine": "sqlite",
     "host": "",
     "name": "",
     "password": "",

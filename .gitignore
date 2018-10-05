@@ -30,6 +30,7 @@
 /config/config_dev.json
 /config/config_test.json
 /config/config_stage.json
+/config/routing.json
 
 # dependencies
 /vendor
