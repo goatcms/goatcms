@@ -334,6 +334,7 @@
     "github.com/goatcms/goatcore/dependency",
     "github.com/goatcms/goatcore/dependency/provider",
     "github.com/goatcms/goatcore/filesystem",
+    "github.com/goatcms/goatcore/filesystem/disk",
     "github.com/goatcms/goatcore/filesystem/filespace/diskfs",
     "github.com/goatcms/goatcore/filesystem/filespace/memfs",
     "github.com/goatcms/goatcore/filesystem/fsstandalone",
