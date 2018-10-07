@@ -9,7 +9,7 @@ fi
 
 ### Build database
 rm main.db ||:
-./goatcms dbbuild
+./goatcms db:build
 
 ### Add users
 for i in `env | grep -E "^USER_.*_USERNAME="`
