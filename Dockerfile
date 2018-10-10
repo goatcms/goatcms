@@ -8,6 +8,7 @@ COPY . .
 RUN rm -rf config/*
 RUN rm -rf data/*
 RUN rm main.db ||:
+RUN rm docker-compose.yaml ||:
 RUN chmod +x /go/src/github.com/goatcms/goatcms/docker/secrets.sh
 RUN sh ./docker/secrets.sh
 
