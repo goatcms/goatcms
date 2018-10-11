@@ -11,7 +11,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:91dc57e64fba6bb56a497802087195da99c74f9d0c6e99743778985ec2b4d61d"
+  digest = "1:d25e9240371eab574a89e26c81368e23444455671e47fbde0eb6aa1ca5c6f5f5"
   name = "github.com/goatcms/goatcore"
   packages = [
     "app",
@@ -54,7 +54,7 @@
     "workers/jobsync",
   ]
   pruneopts = "UT"
-  revision = "d0900cbf1d35cf8430951292b9682dea2c6b7b9b"
+  revision = "39b6996acf759810afa0b6139a0cdbdb2d33a310"
 
 [[projects]]
   digest = "1:15042ad3498153684d09f393bbaec6b216c8eec6d61f63dff711de7d64ed8861"

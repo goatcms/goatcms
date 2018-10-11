@@ -9,6 +9,7 @@ const (
 
 	UserUpdateRolesHelp    = "set new user roles list (--by=username/email --roles=firstrole&secondrole...)"
 	UserAddHelp            = "add new user (--userproperty=value...)"
+	UserExistsHelp         = "exit with zero code if user exists, otherwise return non-zero error (--by=username/email)"
 	UserUpdatePasswordHelp = "set new password for user (--by=username/email --password=somePassword)"
 	UserConnectAddHelp     = "add new user connection to remote service (--service=serviceName --remote=remoteID --local=username/email)"
 
