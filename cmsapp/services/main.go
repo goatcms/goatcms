@@ -62,6 +62,7 @@ type TX interface {
 }*/
 
 type Router interface {
+	ServeStatic(prefix, path string)
 	OnGet(path string, handler ScopeHandler)
 	OnPost(path string, handler ScopeHandler)
 	OnPut(path string, handler ScopeHandler)

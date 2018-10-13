@@ -1,4 +1,4 @@
-package dbloadc
+package fixturec
 
 import (
 	"fmt"

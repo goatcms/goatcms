@@ -1,6 +1,7 @@
-{{$devPath := (print .To "/config_dev.json")}}
-{{$testPath := (print .To "/config_test.json")}}
-{{$prodPath := (print .To "/config_prod.json")}}
+{{- $ctx := . -}}
+{{- $devPath := (print .To "/config_dev.json") -}}
+{{- $testPath := (print .To "/config_test.json") -}}
+{{- $prodPath := (print .To "/config_prod.json") -}}
 
 {{if not (.Filesystem.IsFile $devPath)}}
   {{.Out.File $devPath -}}
@@ -19,3 +20,10 @@
     {{template "config" .}}
   {{.Out.EOF}}
 {{end}}
+
+{{- $path := (print .To "/routing.json") -}}
+{{- if not ($ctx.Filesystem.IsFile $path) -}}
+  {{- $ctx.Out.File $path -}}
+    {{- template "routing_json" . -}}
+  {{- $ctx.Out.EOF -}}
+{{- end -}}

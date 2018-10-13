@@ -16,20 +16,24 @@
   },
   "router": {
     "host": ":{{index .Properties.Project "app.port"}}",
-    "static": {
-      "path": "./web/dist/",
-      "prefix": "/static/"
-    },
     "security": {
       "mode": "TLS",
       "cert": "./data/certs/fullchain.pem",
       "key": "./data/certs/privkey.pem"
     }
   },
+  {{- if eq (index .Properties.Secrets "database.engine") "sqlite" }}
+  "database": {
+    "engine": "sqlite3",
+    "url": "file:data/main.db"
+  },
+  {{- end }}
+  {{- if eq (index .Properties.Secrets "database.engine") "postgres" }}
   "database": {
     "engine": "postgres",
     "url": "postgres://{{index .Properties.Secrets "database.username"}}:{{index .Properties.Secrets "database.password"}}@{{index .Properties.Secrets "database.host"}}/{{index .Properties.Secrets "database.name"}}?sslmode=disable"
   },
+  {{- end }}
   "app": {
     "baseURL": "{{index .Properties.Secrets "app.baseURL"}}"
   },

@@ -41,3 +41,10 @@
     {{- template "module.services_go" $ctx -}}
   {{- $ctx.Out.EOF -}}
 {{- end -}}
+
+{{- $modulePath := (print $ctx.To "/router.go") -}}
+{{- if not ($ctx.Filesystem.IsFile $modulePath) -}}
+  {{- $ctx.Out.File $modulePath -}}
+    {{- template "module.router_go" $ctx -}}
+  {{- $ctx.Out.EOF -}}
+{{- end -}}

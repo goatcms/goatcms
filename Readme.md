@@ -21,6 +21,10 @@ Run project build:
 goatcli build
 ```
 
+## Index
+* [Intership guide - A quick start for trainees is here](docs/intership_guide.md)
+* [Configuration](docs/configuration.md)
+
 ## Internship guide
 [A quick start for trainees is here](docs/intership_guide.md)
 

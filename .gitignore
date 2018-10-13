@@ -20,15 +20,17 @@
 /cmsapp/main.go
 /cmsapp/module.go
 /cmsapp/services.go
+/cmsapp/router.go
 
 # data
-/data 
+/data
 
 # config
 /config/config_prod.json
 /config/config_dev.json
 /config/config_test.json
 /config/config_stage.json
+/config/routing.json
 
 # dependencies
 /vendor

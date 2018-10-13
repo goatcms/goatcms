@@ -21,8 +21,6 @@ type Router struct {
 		AppScope     app.Scope            `dependency:"AppScope"`
 		Logger       services.Logger      `dependency:"LoggerService"`
 		Host         string               `config:"?router.host"`
-		StaticPrefix string               `config:"?router.static.prefix"`
-		StaticPath   string               `config:"?router.static.path"`
 		SecurityMode string               `config:"?router.security.mode"`
 		SecurityCert string               `config:"?router.security.cert"`
 		SecurityKey  string               `config:"?router.security.key"`
@@ -50,12 +48,6 @@ func RouterFactory(dp dependency.Provider) (interface{}, error) {
 	if router.deps.Host == "" {
 		router.deps.Host = DefaultHost
 	}
-	if router.deps.StaticPath == "" {
-		router.deps.StaticPath = DefaultStaticPath
-	}
-	if router.deps.StaticPrefix == "" {
-		router.deps.StaticPrefix = DefaultStaticPrefix
-	}
 	if router.deps.SecurityMode == "" {
 		router.deps.SecurityMode = TLSSecurityMode
 	}
@@ -69,10 +61,14 @@ func RouterFactory(dp dependency.Provider) (interface{}, error) {
 	if router.deps.SecurityMode != TLSSecurityMode && router.deps.SecurityMode != HTTPSecurityMode {
 		router.deps.SecurityMode = TLSSecurityMode
 	}
-	fs := http.FileServer(http.Dir(router.deps.StaticPath))
-	s := http.StripPrefix(router.deps.StaticPrefix, fs)
-	router.grouter.PathPrefix(router.deps.StaticPrefix).Handler(s)
 	return services.Router(router), nil
+}
+
+// ServeStatic serve local disk directory/files statically
+func (router *Router) ServeStatic(prefix, path string) {
+	fileServer := http.FileServer(http.Dir(path))
+	stripPrefix := http.StripPrefix(prefix, fileServer)
+	router.grouter.PathPrefix(prefix).Handler(stripPrefix)
 }
 
 // OnGet append http get routing to global pool
