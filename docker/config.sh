@@ -12,7 +12,7 @@ fi
 
 ### Build database
 if [ ! -f main.db ]; then
-  ./webslots db:build
+  ./goatcms db:build
 fi
 
 ### Prepare routing files
