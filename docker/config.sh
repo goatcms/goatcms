@@ -4,7 +4,7 @@ set -e
 mkdir -p /app/config
 mkdir -p /app/data
 
-if [ $MODE = "HTTPS" ]; then
+if [[ $MODE == "HTTPS" ]]; then
   sh -x /app/docker/https-config.sh
 else
   sh -x /app/docker/http-config.sh
@@ -12,7 +12,7 @@ fi
 
 ### Build database
 if [ ! -f main.db ]; then
-  ./webslots db:build
+  ./goatcms db:build
 fi
 
 ### Prepare routing files
