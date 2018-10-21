@@ -5,11 +5,12 @@
   "scripts": {
     "build": "webpack --config webpack/webpack.config.prod.js  --colors",
     "build-dev": "webpack --config webpack/webpack.config.dev.js  --colors",
-    "dev": "webpack-dev-server --open --config webpack/webpack.config.dev.js"
+    "dev": "webpack-dev-server --open --config webpack/webpack.config.dev.js",
+    "test": "exit 0"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/wbkd/webpack-starter.git"
+    "url": "git+https://github.com/goatcms/goatcms.git"
   },
   "keywords": [
     "webpack",
