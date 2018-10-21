@@ -65,6 +65,7 @@
     "webpack-merge": "^4.1.4"
   },
   "dependencies": {
+    "@goatsystem/goatjs": "latest",
     "babel-polyfill": "^6.26.0"
   }
 }
