@@ -1,4 +1,7 @@
-{{define "config"}}
+{{- define "config" -}}
+{{- $ctx := .ctx -}}
+{{- $cached := .cached -}}
+
 {
   "mailer": {
     "smtp": {
@@ -21,6 +24,9 @@
       "cert": "./data/certs/fullchain.pem",
       "key": "./data/certs/privkey.pem"
     }
+  },
+  "template": {
+    "cached": "{{- if $cached -}}true{{- else -}}false{{- end -}}"
   },
   {{- if eq (index .Properties.Secrets "database.engine") "sqlite" }}
   "database": {

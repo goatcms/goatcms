@@ -9,7 +9,7 @@ import (
 
 // RegisterDependencies is init callback to register module dependencies
 func RegisterDependencies(dp dependency.Provider) error {
-	if err := dp.AddDefaultFactory(services.TemplateService, TemplateProviderFactory); err != nil {
+	if err := dp.AddDefaultFactory(services.TemplateService, ProviderFactory); err != nil {
 		return err
 	}
 	return nil

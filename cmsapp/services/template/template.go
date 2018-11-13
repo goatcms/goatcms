@@ -13,29 +13,34 @@ import (
 	"github.com/goatcms/goatcore/goathtml/ghprovider"
 )
 
-// TemplateProvider is global template provider
-type TemplateProvider struct {
+// Provider is global template provider
+type Provider struct {
 	deps struct {
 		Filespace filesystem.Filespace `filespace:"template"`
+		Cached    string               `config:"template.cached"`
 	}
 	providerMutex sync.Mutex
 	provider      *ghprovider.Provider
 	funcs         template.FuncMap
+	isCached      bool
 }
 
-// TemplateProviderFactory create new template provider
-func TemplateProviderFactory(dp dependency.Provider) (interface{}, error) {
-	t := &TemplateProvider{
+// ProviderFactory create new template provider
+func ProviderFactory(dp dependency.Provider) (i interface{}, err error) {
+	provider := &Provider{
 		funcs: template.FuncMap{},
 	}
-	if err := dp.InjectTo(&t.deps); err != nil {
+	if err = dp.InjectTo(&provider.deps); err != nil {
 		return nil, err
 	}
-	return services.Template(t), nil
+	if provider.deps.Cached != "false" {
+		provider.isCached = true
+	}
+	return services.Template(provider), nil
 }
 
 // Init initialize template instance
-func (t *TemplateProvider) init() {
+func (t *Provider) init() {
 	t.providerMutex.Lock()
 	defer t.providerMutex.Unlock()
 	if t.provider != nil {
@@ -44,20 +49,20 @@ func (t *TemplateProvider) init() {
 	t.provider = ghprovider.NewProvider(t.deps.Filespace, goathtml.HelpersPath, goathtml.LayoutPath, goathtml.ViewPath, goathtml.FileExtension, t.funcs)
 }
 
-// Funcs adds the elements of the argument map to the template's function map.
-func (t *TemplateProvider) AddFunc(name string, f interface{}) error {
+// AddFunc adds the elements of the argument map to the template's function map.
+func (t *Provider) AddFunc(name string, f interface{}) error {
 	if t.provider != nil {
-		return fmt.Errorf("TemplateProvider.AddFunc: Add functions to template after init template provider")
+		return fmt.Errorf("Provider.AddFunc: Add functions to template after init template provider")
 	}
 	if _, ok := t.funcs[name]; ok {
-		return fmt.Errorf("TemplateProvider.AddFunc: Can not add function for the same name %s twice", name)
+		return fmt.Errorf("Provider.AddFunc: Can not add function for the same name %s twice", name)
 	}
 	t.funcs[name] = f
 	return nil
 }
 
-// Execute execute template with given data and send result to io.Writer
-func (t *TemplateProvider) View(layoutName, viewName string, eventScope app.EventScope) (*template.Template, error) {
+// View execute template with given data and send result to io.Writer
+func (t *Provider) View(layoutName, viewName string, eventScope app.EventScope) (*template.Template, error) {
 	if t.provider == nil {
 		t.init()
 	}
