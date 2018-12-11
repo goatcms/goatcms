@@ -16,7 +16,6 @@ RUN go get -u github.com/golang/dep/cmd/dep
 RUN go get -u github.com/goatcms/goatcli
 
 RUN goatcli build
-RUN dep ensure
 RUN go build -o goatcms ./main.go
 RUN chmod +x docker/entrypoint.sh
 RUN mv /go/src/github.com/goatcms/goatcms /app

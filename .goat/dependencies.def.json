@@ -1,0 +1,82 @@
+[
+  {
+    "repo": "git+https://github.com/gorilla/mux",
+    "branch": "master",
+    "dest": "vendor/github.com/gorilla/mux"
+  },
+  {
+    "repo": "git+https://github.com/onsi/gomega",
+    "branch": "master",
+    "dest": "vendor/github.com/onsi/gomega"
+  },
+  {
+    "repo": "git+https://github.com/google/go-github",
+    "branch": "master",
+    "dest": "vendor/github.com/google/go-github"
+  },
+  {
+    "repo": "git+https://go.googlesource.com/net",
+    "branch": "master",
+    "dest": "vendor/golang.org/x/net"
+  },
+  {
+    "repo": "git+https://github.com/goatcms/goatcore",
+    "branch": "master",
+    "dest": "vendor/github.com/goatcms/goatcore"
+  },
+  {
+    "repo": "git+https://go.googlesource.com/oauth2",
+    "branch": "master",
+    "dest": "vendor/golang.org/x/oauth2"
+  },
+  {
+    "repo": "git+https://go.googlesource.com/crypto",
+    "branch": "master",
+    "dest": "vendor/golang.org/x/crypto"
+  },
+  {
+    "repo": "git+https://github.com/microcosm-cc/bluemonday",
+    "branch": "master",
+    "dest": "vendor/github.com/microcosm-cc/bluemonday"
+  },
+  {
+    "repo": "git+https://github.com/pmezard/go-difflib",
+    "branch": "master",
+    "dest": "vendor/github.com/pmezard/go-difflib"
+  },
+  {
+    "repo": "git+https://github.com/onsi/ginkgo",
+    "branch": "master",
+    "dest": "vendor/github.com/onsi/ginkgo"
+  },
+  {
+    "repo": "git+https://github.com/google/go-querystring",
+    "branch": "master",
+    "dest": "vendor/github.com/google/go-querystring"
+  },
+  {
+    "repo": "git+https://github.com/mattn/go-sqlite3",
+    "branch": "master",
+    "dest": "vendor/github.com/mattn/go-sqlite3"
+  },
+  {
+    "repo": "git+https://github.com/shurcooL/sanitized_anchor_name",
+    "branch": "master",
+    "dest": "vendor/github.com/shurcooL/sanitized_anchor_name"
+  },
+  {
+    "repo": "git+https://github.com/sclevine/agouti",
+    "branch": "master",
+    "dest": "vendor/github.com/sclevine/agouti"
+  },
+  {
+    "repo": "git+https://github.com/buger/jsonparser",
+    "branch": "master",
+    "dest": "vendor/github.com/buger/jsonparser"
+  },
+  {
+    "repo": "git+https://gopkg.in/russross/blackfriday.v2",
+    "branch": "master",
+    "dest": "vendor/gopkg.in/russross/blackfriday.v2"
+  }
+]

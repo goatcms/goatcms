@@ -31,6 +31,9 @@
 /config/config_test.json
 /config/config_stage.json
 
+# docker
+/docker-compose.yaml
+
 # dependencies
 /vendor
 
