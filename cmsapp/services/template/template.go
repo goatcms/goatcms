@@ -17,7 +17,7 @@ import (
 type Provider struct {
 	deps struct {
 		Filespace filesystem.Filespace `filespace:"template"`
-		Cached    string               `config:"template.cached"`
+		Cached    string               `config:"?template.cached"`
 	}
 	providerMutex sync.Mutex
 	provider      *ghprovider.Provider
@@ -46,7 +46,7 @@ func (t *Provider) init() {
 	if t.provider != nil {
 		return
 	}
-	t.provider = ghprovider.NewProvider(t.deps.Filespace, goathtml.HelpersPath, goathtml.LayoutPath, goathtml.ViewPath, goathtml.FileExtension, t.funcs)
+	t.provider = ghprovider.NewProvider(t.deps.Filespace, goathtml.HelpersPath, goathtml.LayoutPath, goathtml.ViewPath, goathtml.FileExtension, t.funcs, t.isCached)
 }
 
 // AddFunc adds the elements of the argument map to the template's function map.
