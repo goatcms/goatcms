@@ -14,47 +14,47 @@ import (
 
 // Logger show logger messages
 type Logger struct {
-	devLvl  bool
-	testLvl bool
-	prodLvl bool
+	devLVL  bool
+	testLVL bool
+	prodLVL bool
 	log     *log.Logger
 }
 
 // Factory create new logger instance
 func Factory(dp dependency.Provider) (interface{}, error) {
 	var deps struct {
-		Loglvl string `argument:"?loglvl"`
+		LogLVL string `argument:"?loglvl"`
 	}
 	if err := dp.InjectTo(&deps); err != nil {
 		return nil, err
 	}
 	logger := &Logger{
-		devLvl:  deps.Loglvl == "dev",
-		testLvl: deps.Loglvl == "dev" || deps.Loglvl == "test",
-		prodLvl: true,
+		devLVL:  deps.LogLVL == "dev",
+		testLVL: deps.LogLVL == "dev" || deps.LogLVL == "test",
+		prodLVL: true,
 		log:     log.New(os.Stdout, " ", log.Ltime|log.Ldate),
 	}
-	logger.TestLog("Log level: %s", deps.Loglvl)
+	logger.TestLog("Log level: %s", deps.LogLVL)
 	return services.Logger(logger), nil
 }
 
 // DevLog print dev level logs
 func (logger *Logger) DevLog(format string, data ...interface{}) {
-	if logger.devLvl {
+	if logger.devLVL {
 		logger.printf(format, data...)
 	}
 }
 
 // TestLog print test level logs
 func (logger *Logger) TestLog(format string, data ...interface{}) {
-	if logger.testLvl {
+	if logger.testLVL {
 		logger.printf(format, data...)
 	}
 }
 
 // ProdLog print prod level logs
 func (logger *Logger) ProdLog(format string, data ...interface{}) {
-	if logger.prodLvl {
+	if logger.prodLVL {
 		logger.printf(format, data...)
 	}
 }
@@ -66,17 +66,17 @@ func (logger *Logger) ErrorLog(format string, data ...interface{}) {
 
 // IsProdLVL return true if prod level messages v set
 func (logger *Logger) IsProdLVL() bool {
-	return logger.prodLvl
+	return logger.prodLVL
 }
 
 // IsDevLVL return true if dev level messages is set
 func (logger *Logger) IsDevLVL() bool {
-	return logger.devLvl
+	return logger.devLVL
 }
 
 // IsTestLVL return true if test level messages is set
 func (logger *Logger) IsTestLVL() bool {
-	return logger.devLvl
+	return logger.devLVL
 }
 
 // print value to logs
@@ -86,7 +86,7 @@ func (logger *Logger) printf(format string, data ...interface{}) {
 		jsonData []string
 	)
 	jsonData = make([]string, len(data))
-	if logger.devLvl {
+	if logger.devLVL {
 		for i, val := range data {
 			var (
 				typeName string
