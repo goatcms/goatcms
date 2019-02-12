@@ -1,12 +1,15 @@
 package logger
 
 import (
+	"fmt"
 	"log"
 	"os"
+	"reflect"
+	"strings"
 
-	"github.com/goatcms/goatcms/cmsapp/services"
 	"github.com/goatcms/goatcore/dependency"
 	"github.com/goatcms/goatcore/varutil"
+	"github.com/goatcms/webslots/modules/goatcms/cmsapp/services"
 )
 
 // Logger show logger messages
@@ -80,13 +83,26 @@ func (logger *Logger) IsTestLVL() bool {
 func (logger *Logger) printf(format string, data ...interface{}) {
 	var (
 		err      error
-		jsonData []interface{}
+		jsonData []string
 	)
-	jsonData = make([]interface{}, len(data))
-	for i, val := range data {
-		if jsonData[i], err = varutil.ObjectToJSON(val); err != nil {
-			panic(err)
+	jsonData = make([]string, len(data))
+	if logger.devLvl {
+		for i, val := range data {
+			var (
+				typeName string
+				msg      string
+				json     string
+			)
+			typeName = reflect.TypeOf(val).Name()
+			if e, ok := val.(error); ok {
+				msg = e.Error()
+			}
+			if json, err = varutil.ObjectToJSON(val); err != nil {
+				panic(err)
+			}
+			jsonData[i] = fmt.Sprintf("\n%v (%s) %s -> %s\n", i, typeName, msg, json)
 		}
+		format += strings.Join(jsonData, "")
 	}
-	logger.log.Printf(format, jsonData...)
+	logger.log.Printf(format, data...)
 }
