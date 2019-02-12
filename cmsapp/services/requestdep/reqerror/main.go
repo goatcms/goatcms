@@ -34,7 +34,7 @@ func ErrorFactory(dp dependency.Provider) (interface{}, error) {
 
 // Errorf print request errror
 func (re *RequestError) Errorf(httpCode int, msgKey string, params ...interface{}) error {
-	err := fmt.Errorf(msgKey, params)
+	err := fmt.Errorf(msgKey, params...)
 	re.Error(httpCode, err)
 	return err
 }

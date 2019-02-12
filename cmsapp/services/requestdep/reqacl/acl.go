@@ -11,24 +11,13 @@ import (
 	"github.com/goatcms/goatcore/varutil"
 )
 
-const (
-	// SuperAdminRole is super administrator role name (it take all system provilage)
-	SuperAdminRole = "superadmin"
-)
-
-var (
-	// DefaultRoles contains roles for unauthorized guests
-	DefaultRoles = []string{"anonymous"}
-	// UserAdditionalRoles contains additional roles for authorized users
-	UserAdditionalRoles = []string{"loggedin"}
-)
-
 // ACL is Access Control List object
 type ACL struct {
 	deps struct {
 		Logger         services.Logger           `dependency:"LoggerService"`
 		SessionManager requestdep.SessionManager `request:"SessionService"`
 		Scope          app.Scope                 `request:"RequestScope"`
+		DCRoles        string                    `config:"?acl.anonymous.roles"`
 	}
 	isSuperAdmin bool
 	roles        []string
@@ -46,7 +35,10 @@ func ACLFactory(dp dependency.Provider) (interface{}, error) {
 	}
 	if session, err = instance.deps.SessionManager.Get(); err != nil {
 		instance.deps.Logger.DevLog("%v", err)
-		instance.roles = DefaultRoles
+		if cache == nil {
+			cache = NewCache(instance.deps.DCRoles)
+		}
+		instance.roles = cache.AnonRoles()
 	} else {
 		if session != nil && session.User != nil && session.User.Roles != nil {
 			instance.roles = strings.Split(*session.User.Roles, " ")
@@ -54,6 +46,9 @@ func ACLFactory(dp dependency.Provider) (interface{}, error) {
 			instance.roles = []string{}
 		}
 		instance.roles = append(instance.roles, UserAdditionalRoles...)
+	}
+	if cache == nil {
+		cache = NewCache(instance.deps.DCRoles)
 	}
 	instance.isSuperAdmin = varutil.IsArrContainStr(instance.roles, SuperAdminRole)
 	instance.deps.Logger.DevLog("ACL.ACLFactory: Is superadmin %v and has %v roles", instance.isSuperAdmin, instance.roles)
