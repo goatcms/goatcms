@@ -7,9 +7,9 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/goatcms/goatcms/cmsapp/services"
 	"github.com/goatcms/goatcore/dependency"
 	"github.com/goatcms/goatcore/varutil"
-	"github.com/goatcms/webslots/modules/goatcms/cmsapp/services"
 )
 
 // Logger show logger messages
