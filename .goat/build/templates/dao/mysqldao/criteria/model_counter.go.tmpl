@@ -1,0 +1,64 @@
+{{define "mysql.criteria.model_counter_go" -}}
+{{- $ctx := . -}}
+{{- $name := (index $ctx.Data (print .From ".entity")) -}}
+{{- $entityName := (camelcaseuf $name) -}}
+{{- $fieldsBaseKey := (print .From ".fields.") -}}
+{{- $fields := (keys .Data $fieldsBaseKey) -}}
+{{- $relationsBaseKey := (print .From ".relations.") -}}
+{{- $relations := (keys .Data $relationsBaseKey) -}}
+
+package criteria
+
+import (
+	"database/sql"
+	"fmt"
+	"github.com/goatcms/goatcore/app"
+	"github.com/goatcms/goatcore/dependency"
+	maindef  "{{index $ctx.Properties.Build "path"}}"
+	helpers "{{index $ctx.Properties.Build "path"}}/mysqldao/helpers"
+)
+
+type {{$entityName}}CriteriaCounter struct {
+	deps struct {
+    DB *sql.DB `dependency:"db0.engine"`
+	}
+}
+
+func New{{$entityName}}CriteriaCounter(di dependency.Injector) (instance *{{$entityName}}CriteriaCounter, err error) {
+  instance = &{{$entityName}}CriteriaCounter{}
+  if err = di.InjectTo(&instance.deps); err != nil {
+    return nil, err
+  }
+  return instance, nil
+}
+
+func {{$entityName}}CriteriaCounterFactory(dp dependency.Provider) (interface{}, error) {
+	instance, err := New{{$entityName}}CriteriaCounter(dp)
+	if err != nil {
+		return nil, err
+	}
+	return maindef.{{$entityName}}CriteriaCounter(instance), nil
+}
+
+func (search *{{camelcaseuf $name}}CriteriaCounter) Count(scope app.Scope, criteria *maindef.{{camelcaseuf $name}}Criteria) (count int64, err error) {
+	var (
+		sqlq string
+		tx   *sql.Tx
+	)
+	query := NewQuery()
+	if err = Add{{$entityName}}CriteriaToQuery(criteria, query); err != nil {
+		return -1, err
+	}
+	if tx, err = helpers.TX(scope, search.deps.DB); err != nil {
+		return -1, err
+	}
+	if sqlq, err = query.CompileCountQuery(); err != nil {
+		return -1, err
+	}
+	if err = tx.QueryRow(sqlq).Scan(&count); err != nil {
+		return -1, fmt.Errorf("%s: %s", err.Error(), sqlq)
+	}
+	return count, nil
+}
+
+{{- end -}}

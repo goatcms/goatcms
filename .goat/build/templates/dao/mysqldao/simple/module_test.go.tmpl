@@ -1,0 +1,72 @@
+{{define "mysql.dao.module_test" -}}
+{{- $ctx := . -}}
+{{- $name := (index $ctx.Data (print .From ".entity")) -}}
+{{- $entityName := (camelcaseuf $name) -}}
+{{- $fieldsBaseKey := (print .From ".fields.") -}}
+
+package simple
+
+import (
+	"bytes"
+	"database/sql"
+	"strings"
+	"testing"
+
+	maindef "{{index $ctx.Properties.Build "path"}}"
+	database "{{index $ctx.Properties.Build "path"}}/mysqldao/database"
+	"{{index $ctx.Properties.Build "path"}}/mysqldao/helpers"
+	"github.com/goatcms/goatcore/app"
+	"github.com/goatcms/goatcore/app/gio"
+	"github.com/goatcms/goatcore/app/mockupapp"
+	"github.com/goatcms/goatcore/app/scope"
+)
+
+func TestModule(t *testing.T) {
+	var (
+		err      error
+		mapp     app.App
+		mysqlURL string
+		db       *sql.DB
+	)
+	t.Parallel()
+	// prepare mockup application
+	configScope := scope.NewScope(app.ConfigTagName)
+	if db, mysqlURL = helpers.PrepareTestDB(t, "{{$entityName}}TestModule"); db == nil {
+		return
+	}
+	db.Close()
+	configScope.Set("database.url", mysqlURL)
+	if mapp, err = mockupapp.NewApp(mockupapp.MockupOptions{
+		Input:       gio.NewInput(strings.NewReader("")),
+		Output:      gio.NewOutput(new(bytes.Buffer)),
+		ConfigScope: configScope,
+	}); err != nil {
+		t.Error(err)
+		return
+	}
+	if err = mapp.DependencyProvider().AddDefaultFactory("db0.engine", database.EngineFactory); err != nil {
+		t.Error(err)
+		return
+	}
+	if err = RegisterDependencies(mapp.DependencyProvider()); err != nil {
+		t.Error(err)
+		return
+	}
+	// test
+	var deps struct {
+		{{$entityName}}CreateTable maindef.CreateTable `dependency:"{{$entityName}}CreateTable"`
+		{{$entityName}}Delete maindef.Delete `dependency:"{{$entityName}}Delete"`
+		{{$entityName}}DropTable maindef.DropTable `dependency:"{{$entityName}}DropTable"`
+		{{$entityName}}FindAll maindef.{{$entityName}}FindAll `dependency:"{{$entityName}}FindAll"`
+		{{$entityName}}FindByID maindef.{{$entityName}}FindByID `dependency:"{{$entityName}}FindByID"`
+		{{$entityName}}Insert maindef.{{$entityName}}Insert `dependency:"{{$entityName}}Insert"`
+		{{$entityName}}Update maindef.{{$entityName}}Update `dependency:"{{$entityName}}Update"`
+		{{$entityName}}Search maindef.{{$entityName}}Search `dependency:"{{$entityName}}Search"`
+	}
+	if err = mapp.DependencyProvider().InjectTo(&deps); err != nil {
+		t.Error(err)
+		return
+	}
+}
+
+{{- end -}}

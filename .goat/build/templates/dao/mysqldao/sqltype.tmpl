@@ -1,0 +1,11 @@
+{{- define "mysql.sqltype" -}}
+
+{{- if eq (lower .) "text" "string" "email" "password" "lang" -}}
+  VARCHAR(500)
+{{- else if eq (lower .) "int" -}}
+  BIGINT
+{{- else -}}
+  {{- error (print "bad SQL type" .) -}}
+{{- end -}}
+
+{{- end -}}

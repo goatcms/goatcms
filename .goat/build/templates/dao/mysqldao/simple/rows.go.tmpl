@@ -1,0 +1,86 @@
+{{define "mysql.dao.rows" -}}
+{{- $ctx := . -}}
+{{- $name := (index $ctx.Data (print .From ".entity")) -}}
+{{- $entityName := (camelcaseuf $name) -}}
+{{- $fieldsBaseKey := (print .From ".fields.") -}}
+{{- $fields := (keys .Data $fieldsBaseKey) -}}
+{{- $relationsBaseKey := (print .From ".relations.") -}}
+{{- $relations := (keys .Data $relationsBaseKey) -}}
+
+package simple
+
+import (
+	"fmt"
+	"database/sql"
+	entities "{{index $ctx.Properties.Build "entities_path"}}"
+)
+
+// {{$entityName}}Rows is the result of a query. Its cursor starts before the first row of the result set. Use Next to advance through the rows
+type {{$entityName}}Rows struct {
+	*sql.Rows
+}
+
+func New{{$entityName}}Rows(rows *sql.Rows) *{{$entityName}}Rows {
+	return &{{$entityName}}Rows{
+		Rows: rows,
+	}
+}
+
+func (rows *{{$entityName}}Rows) InjectTo(dest *entities.{{$entityName}}) (err error) {
+	var columns []string
+	if columns, err = rows.Rows.Columns(); err != nil {
+		return err
+	}
+	values := make([]interface{}, len(columns))
+	for i, name := range columns {
+		switch(name) {
+			case "ID":
+				values[i] = &dest.ID
+			{{- range $index, $field := $fields -}}
+		    {{- $key := (print $fieldsBaseKey $field) -}}
+		    {{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
+		    {{- $fieldType := (index $ctx.Data (print $key ".type")) }}
+				case "{{$fieldName}}":
+					values[i] = &dest.{{$fieldName}}
+		  {{- end }}
+			{{- range $index, $relation := $relations -}}
+				{{- $key := (print $relationsBaseKey $relation) -}}
+				{{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) }}
+				case "{{$fieldName}}ID":
+					values[i] = &dest.{{$fieldName}}ID
+			{{- end }}
+			default:
+				return fmt.Errorf("{{$entityName}}Rows.InjectTo unknow field %v", name)
+		}
+	}
+	if err = rows.Rows.Scan(values...); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (rows *{{$entityName}}Rows) Get() (entity *entities.{{$entityName}}, err error) {
+	entity = &entities.{{$entityName}}{}
+	if err = rows.InjectTo(entity); err != nil {
+		return nil, err
+	}
+	return entity, nil
+}
+
+func (rows *{{$entityName}}Rows) GetValues() (values []interface{}, err error) {
+	var columns []string
+	if columns, err = rows.Columns(); err != nil {
+		return nil, err
+	}
+	values = make([]interface{}, len(columns))
+	for i, _ := range values {
+		var reference interface{}
+		values[i] = &reference
+	}
+	if err = rows.Rows.Scan(values...); err != nil {
+		return nil, err
+	}
+	return values, nil
+}
+
+{{- end -}}

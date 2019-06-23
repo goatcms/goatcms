@@ -1,0 +1,71 @@
+{{- define "mysql.database" -}}
+{{- $ctx := . -}}
+
+package database
+
+import (
+	"github.com/goatcms/goatcore/app"
+	"github.com/goatcms/goatcore/dependency"
+	"database/sql"
+	maindef "{{index $ctx.Properties.Build "path"}}"
+	"{{index $ctx.Properties.Build "path"}}/mysqldao/helpers"
+)
+
+type Database struct {
+	*sql.DB
+}
+
+func (db *Database) Exec(scope app.Scope, query string) (err error) {
+	var tx *sql.Tx
+	if tx, err = helpers.TX(scope, db.DB); err != nil {
+		return err
+	}
+	_, err = tx.Exec(query)
+	return err
+}
+
+func (db *Database) Query(scope app.Scope, query string) (rows maindef.Rows, err error) {
+	var (
+		tx      *sql.Tx
+		sqlRows *sql.Rows
+	)
+	if tx, err = helpers.TX(scope, db.DB); err != nil {
+		return nil, err
+	}
+	if sqlRows, err = tx.Query(query); err != nil {
+		return nil, err
+	}
+	return helpers.NewRows(sqlRows), nil
+}
+
+func (db *Database) Commit(scope app.Scope) (err error) {
+	if _, err = helpers.Commit(scope); err != nil {
+		return err
+	}
+	return scope.Trigger(app.AfterCommitEvent, nil)
+}
+
+func (db *Database) Rollback(scope app.Scope) (err error) {
+	if _, err = helpers.Rollback(scope); err != nil {
+		return err
+	}
+	return scope.Trigger(app.AfterRollbackEvent, nil)
+}
+
+// Factory create a new database instance
+func Factory(dp dependency.Provider) (interface{}, error) {
+	var (
+		deps struct {
+			DB *sql.DB `dependency:"db0.engine"`
+		}
+		err error
+	)
+	if err = dp.InjectTo(&deps); err != nil {
+		return nil, err
+	}
+	return maindef.Database(&Database{
+		DB: deps.DB,
+	}), nil
+}
+
+{{- end -}}

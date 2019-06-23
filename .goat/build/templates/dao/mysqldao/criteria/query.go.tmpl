@@ -1,0 +1,210 @@
+{{define "mysql.criteria.query_go" -}}
+{{- $ctx := . -}}
+
+package criteria
+
+import (
+	"fmt"
+	"strconv"
+	"strings"
+	"sort"
+	helpers "{{index $ctx.Properties.Build "path"}}/mysqldao/helpers"
+	maindef "{{index $ctx.Properties.Build "path"}}"
+)
+
+type Query struct {
+	From   			 []string
+	Where  		   []string
+	Fields       []string
+	Order        []helpers.SQLOrderRow
+	aliasCounter int
+}
+
+func NewQuery() *Query {
+	return &Query{}
+}
+
+func (q *Query) CompileSelectQuery(pager *maindef.Pager) (sql string, err error) {
+	sql = "SELECT " + strings.Join(q.Fields, ",") +
+		" FROM " + strings.Join(q.From, ",");
+	if len(q.Where) != 0 {
+		sql += " WHERE " + strings.Join(q.Where, " AND ")
+	}
+	if len(q.Order) != 0 {
+		sqlOrder := helpers.SQLOrder(q.Order)
+		sort.Sort(sqlOrder)
+		sql += " ORDER BY " + sqlOrder.String()
+	}
+	if pager != nil {
+		if pager.Limit == 0 {
+			return "", fmt.Errorf("Query.CompileSelectQuery: pager.Limit must be greter then 1")
+		}
+		sql += " LIMIT " + strconv.FormatInt(pager.Limit, 10) + " OFFSET " + strconv.FormatInt(pager.Offset, 10)
+	}
+	return sql, nil
+}
+
+func (q *Query) CompileDeleteQuery() (sql string, err error) {
+	fieldsBackup := q.Fields
+	q.Fields = []string{"t1.ID"}
+	if sql, err = q.CompileSelectQuery(nil); err != nil {
+		q.Fields = fieldsBackup
+		return "", err
+	}
+	q.Fields = fieldsBackup
+	tablename := q.From[0]
+	tablename = tablename[:strings.Index(tablename, " ")]
+	sql = "DELETE FROM " + tablename + " WHERE ID IN(" + sql +")"
+	return sql, nil
+}
+
+func (q *Query) CompileCountQuery() (sql string, err error) {
+	fieldsBackup := q.Fields
+	q.Fields = []string{"COUNT(*)"}
+	if sql, err = q.CompileSelectQuery(nil); err != nil {
+		q.Fields = fieldsBackup
+		return "", err
+	}
+	q.Fields = fieldsBackup
+	return sql, nil
+}
+
+func (q *Query) AddRelation(entityAlias, entityField, relatedAlias string) (err error) {
+	q.Where = append(q.Where, entityAlias + "." + entityField + "=" + relatedAlias + ".ID")
+	return nil
+}
+
+func (q *Query) AddEntity(entityName string, fields []string) (alias string, err error) {
+	q.aliasCounter++
+	// add to from
+	alias = "t" + strconv.Itoa(q.aliasCounter)
+	q.From = append(q.From, entityName + " AS " + alias)
+	// add to select fields
+	if fields != nil {
+		for _, field := range fields {
+			q.Fields = append(q.Fields, alias + "." + field)
+		}
+	}
+	return alias, nil
+}
+
+func (q *Query) AddStringCriteria(entityAlias, field string, c *maindef.StringFieldCriteria) (err error) {
+	if len(c.Value) == 0 {
+		return fmt.Errorf("Criteria for %v (of %v) require parameter", field, entityAlias)
+	}
+	switch(c.Type) {
+		case maindef.EQ:
+			if len(c.Value) == 1 {
+				q.Where = append(q.Where, entityAlias + "." + field + "=" + strconv.Quote(c.Value[0]))
+			} else {
+				q.Where = append(q.Where, entityAlias + "." + field + " IN (" + helpers.QuoteArray(c.Value, ",") + ")")
+			}
+		case maindef.NE:
+			if len(c.Value) == 1 {
+				q.Where = append(q.Where, entityAlias + "." + field + "!=" + strconv.Quote(c.Value[0]))
+			} else {
+				q.Where = append(q.Where, entityAlias + "." + field + " NOT IN (" + helpers.QuoteArray(c.Value, ",") + ")")
+			}
+		case maindef.LT:
+			if len(c.Value) == 1 {
+				q.Where = append(q.Where, entityAlias + "." + field + "{{noescape "<"}}" + c.Value[0])
+			} else {
+				return fmt.Errorf("Criteria for %v (of %v) require only one parameter", field, entityAlias)
+			}
+		case maindef.LE:
+			if len(c.Value) == 1 {
+				q.Where = append(q.Where, entityAlias + "." + field + "{{noescape "<"}}=" + c.Value[0])
+			} else {
+				return fmt.Errorf("Criteria for %v (of %v) require only one parameter", field, entityAlias)
+			}
+		case maindef.GT:
+			if len(c.Value) == 1 {
+				q.Where = append(q.Where, entityAlias + "." + field + ">" + c.Value[0])
+			} else {
+				return fmt.Errorf("Criteria for %v (of %v) require only one parameter", field, entityAlias)
+			}
+		case maindef.GE:
+			if len(c.Value) == 1 {
+				q.Where = append(q.Where, entityAlias + "." + field + ">=" + c.Value[0])
+			} else {
+				return fmt.Errorf("Criteria for %v (of %v) require only one parameter", field, entityAlias)
+			}
+		case maindef.LIKE:
+			if len(c.Value) == 1 {
+				q.Where = append(q.Where, entityAlias + "." + field + " LIKE " + c.Value[0])
+			} else {
+				var ors []string
+				for _, value := range c.Value {
+					ors = append(ors, entityAlias + "." + field + " LIKE " + strconv.Quote(value))
+				}
+				q.Where = append(q.Where, "(" + strings.Join(ors, " OR ") + ")")
+			}
+		default:
+			return fmt.Errorf("Criteria %v for %v (of %v) is invalid", c.Type, field, entityAlias)
+	}
+	return nil
+}
+
+func (q *Query) AddInt64Criteria(entityAlias, field string, c *maindef.Int64FieldCriteria) (err error) {
+	if len(c.Value) == 0 {
+		return fmt.Errorf("Criteria for %v (of %v) require parameter", field, entityAlias)
+	}
+	switch(c.Type) {
+		case maindef.EQ:
+			if len(c.Value) == 1 {
+				q.Where = append(q.Where, entityAlias + "." + field + "=" + strconv.FormatInt(c.Value[0], 10))
+			} else {
+				q.Where = append(q.Where, entityAlias + "." + field + " IN (" + helpers.FormatIntArray(c.Value, 10, ",") + ")")
+			}
+		case maindef.NE:
+			if len(c.Value) == 1 {
+				q.Where = append(q.Where, entityAlias + "." + field + "!=" + strconv.FormatInt(c.Value[0], 10))
+			} else {
+				q.Where = append(q.Where, entityAlias + "." + field + " NOT IN (" + helpers.FormatIntArray(c.Value, 10, ",") + ")")
+			}
+		case maindef.LT:
+			if len(c.Value) == 1 {
+				q.Where = append(q.Where, entityAlias + "." + field + "{{noescape "<"}}" + strconv.FormatInt(c.Value[0], 10))
+			} else {
+				return fmt.Errorf("Criteria for %v (of %v) require only one parameter", field, entityAlias)
+			}
+		case maindef.LE:
+			if len(c.Value) == 1 {
+				q.Where = append(q.Where, entityAlias + "." + field + "{{noescape "<"}}=" + strconv.FormatInt(c.Value[0], 10))
+			} else {
+				return fmt.Errorf("Criteria for %v (of %v) require only one parameter", field, entityAlias)
+			}
+		case maindef.GT:
+			if len(c.Value) == 1 {
+				q.Where = append(q.Where, entityAlias + "." + field + ">" + strconv.FormatInt(c.Value[0], 10))
+			} else {
+				return fmt.Errorf("Criteria for %v (of %v) require only one parameter", field, entityAlias)
+			}
+		case maindef.GE:
+			if len(c.Value) == 1 {
+				q.Where = append(q.Where, entityAlias + "." + field + ">=" + strconv.FormatInt(c.Value[0], 10))
+			} else {
+				return fmt.Errorf("Criteria for %v (of %v) require only one parameter", field, entityAlias)
+			}
+		default:
+			return fmt.Errorf("Criteria %v for %v (of %v) is invalid", c.Type, field, entityAlias)
+	}
+	return nil
+}
+
+func (q *Query) AddOrder(entityAlias, field string, o *maindef.FieldOrder) (err error) {
+	if o.Type == maindef.ASC {
+		q.Order = append(q.Order, helpers.SQLOrderRow{
+			SQL:  entityAlias + "." + field + " ASC",
+			Base: o,
+		})
+	} else {
+		q.Order = append(q.Order, helpers.SQLOrderRow{
+			SQL:  entityAlias + "." + field + " DESC",
+			Base: o,
+		})
+	}
+	return nil
+}
+
+{{- end -}}

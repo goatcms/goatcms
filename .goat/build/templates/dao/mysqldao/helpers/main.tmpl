@@ -1,0 +1,37 @@
+{{- define "mysql.helpers.main" -}}
+{{- $ctx := . -}}
+
+{{- /* Main */ -}}
+{{- $path := (print $ctx.To "/mysqldao/helpers/main.go") -}}
+{{- if not ($ctx.Filesystem.IsFile $path) -}}
+  {{- $ctx.Out.File $path -}}
+    {{- template "mysql.helpers.main_go" $ctx -}}
+  {{- $ctx.Out.EOF -}}
+{{- end -}}
+
+{{- /*  Rows */ -}}
+{{- $path := (print $ctx.To "/mysqldao/helpers/rows.go") -}}
+{{- if not ($ctx.Filesystem.IsFile $path) -}}
+  {{- $ctx.Out.File $path -}}
+    {{- template "mysql.helpers.rows_go" $ctx -}}
+  {{- $ctx.Out.EOF -}}
+{{- end -}}
+
+{{- /* fields */ -}}
+{{- $path := (print $ctx.To "/mysqldao/helpers/fields.go") -}}
+{{- if not ($ctx.Filesystem.IsFile $path) -}}
+  {{- $ctx.Out.File $path -}}
+    {{- template "mysql.helpers.fields_go" $ctx -}}
+  {{- $ctx.Out.EOF -}}
+{{- end -}}
+
+
+{{- /* order */ -}}
+{{- $path := (print $ctx.To "/mysqldao/helpers/order.go") -}}
+{{- if not ($ctx.Filesystem.IsFile $path) -}}
+  {{- $ctx.Out.File $path -}}
+    {{- template "mysql.helpers.order_go" $ctx -}}
+  {{- $ctx.Out.EOF -}}
+{{- end -}}
+
+{{- end -}}

@@ -1,0 +1,72 @@
+{{define "mysql.dao.delete_story_test" -}}
+{{- $ctx := . -}}
+{{- $name := (index $ctx.Data (print .From ".entity")) -}}
+{{- $entityName := (camelcaseuf $name) -}}
+{{- $typeName := (print $entityName "CreateTable") -}}
+{{- $fieldsBaseKey := (print .From ".fields.") -}}
+
+package simple
+
+import (
+	"testing"
+	"database/sql"
+	"github.com/goatcms/goatcore/app"
+	"github.com/goatcms/goatcore/app/scope"
+	maindef "{{index $ctx.Properties.Build "path"}}"
+	_ "github.com/go-sql-driver/mysql"
+)
+
+
+func TestDeleteEntityStory(t *testing.T) {
+	t.Parallel()
+	doDeleteEntityStory(t, "{{$entityName}}TestDeleteEntityStory")
+}
+
+func doDeleteEntityStory(t *testing.T, dbname string) (bool, *sql.DB) {
+	ok, db, entity := doInsertWithoutIDStory(t, dbname)
+	if !ok {
+		return false, db
+	}
+	s := scope.NewScope("testtag")
+	deleteService := {{$entityName}}Delete{}
+	deleteService.deps.DB = db
+	deleteService.deps.EngineScope = s
+	if err := deleteService.Delete(s, *entity.ID); err != nil {
+		t.Error(err)
+		return false, db
+	}
+	return true, db
+}
+
+func TestDeleteEntityEventTrigger(t *testing.T) {
+	var (
+		err       error
+		isTrigged = false
+	)
+	ok, db, entity := doInsertWithoutIDStory(t, "{{$entityName}}TestDeleteEntityEventTrigger")
+	if !ok {
+		return
+	}
+	s := scope.NewScope("testtag")
+	s.On(maindef.{{$entityName}}DeleteEvent, func(ientity interface{}) (err error) {
+		isTrigged = true
+		return
+	})
+	deleteService := {{$entityName}}Delete{}
+	deleteService.deps.DB = db
+	deleteService.deps.EngineScope = s
+	if err = deleteService.Delete(s, *entity.ID); err != nil {
+		t.Error(err)
+		return
+	}
+	if err = s.Trigger(app.CommitEvent, nil); err != nil {
+		t.Error(err)
+		return
+	}
+	if isTrigged == false {
+		t.Errorf("{{$entityName}}DeleteEvent event must be called")
+		return
+	}
+}
+
+{{- end -}}

@@ -1,0 +1,60 @@
+{{define "mysql.dao.droptable" -}}
+{{- $ctx := . -}}
+{{- $name := (index $ctx.Data (print .From ".entity")) -}}
+{{- $entityName := (camelcaseuf $name) -}}
+{{- $typeName := (print $entityName "DropTable") -}}
+{{- $fieldsBaseKey := (print .From ".fields.") -}}
+
+package simple
+
+import (
+	"github.com/goatcms/goatcore/app"
+	"database/sql"
+	"github.com/goatcms/goatcore/dependency"
+	helpers "{{index $ctx.Properties.Build "path"}}/mysqldao/helpers"
+	maindef "{{index $ctx.Properties.Build "path"}}"
+)
+
+// {{$typeName}} is a Data Access Object for {{lower $name}} entity
+type {{$typeName}} struct {
+  deps struct{
+    DB *sql.DB `dependency:"db0.engine"`
+		EngineScope app.Scope `dependency:"EngineScope"`
+  }
+}
+
+func New{{$typeName}}(di dependency.Injector) (*{{$typeName}}, error) {
+  instance := &{{$typeName}}{}
+  if err := di.InjectTo(&instance.deps); err != nil {
+    return nil, err
+  }
+  return instance, nil
+}
+
+func {{$typeName}}Factory(dp dependency.Provider) (interface{}, error) {
+	instance, err := New{{$typeName}}(dp)
+	if err != nil {
+		return nil, err
+	}
+	return maindef.DropTable(instance), nil
+}
+
+func (dao {{$typeName}}) DropTable(scope app.Scope) (err error) {
+	var tx *sql.Tx
+	if tx, err = helpers.TX(scope, dao.deps.DB); err != nil {
+		return err
+	}
+	if _, err = tx.Exec(dao.SQL()); err != nil {
+		return err
+	}
+	scope.On(app.AfterCommitEvent, func(interface{}) (err error) {
+		return dao.deps.EngineScope.Trigger(maindef.{{$typeName}}Event, nil)
+	})
+	return nil
+}
+
+func (dao {{$typeName}}) SQL() string {
+  return `DROP TABLE IF EXISTS {{camelcaseuf $name}} `
+}
+
+{{- end -}}

@@ -1,0 +1,86 @@
+{{define "mysql.dao.row" -}}
+{{- $ctx := . -}}
+{{- $name := (index $ctx.Data (print .From ".entity")) -}}
+{{- $entityName := (camelcaseuf $name) -}}
+{{- $fieldsBaseKey := (print .From ".fields.") -}}
+{{- $fields := (keys .Data $fieldsBaseKey) -}}
+{{- $relationsBaseKey := (print .From ".relations.") -}}
+{{- $relations := (keys .Data $relationsBaseKey) -}}
+
+package simple
+
+import (
+	"database/sql"
+	entities "{{index $ctx.Properties.Build "entities_path"}}"
+	helpers "{{index $ctx.Properties.Build "path"}}/mysqldao/helpers"
+)
+
+// {{$entityName}}Row is the result of a query. Its cursor starts before the first row of the result set. Use Next to advance through the row
+type {{$entityName}}Row struct {
+	*sql.Row
+	fields *entities.{{$entityName}}Fields
+}
+
+func New{{$entityName}}Row(row *sql.Row, fields *entities.{{$entityName}}Fields) *{{$entityName}}Row {
+	return &{{$entityName}}Row{
+		Row: row,
+		fields: fields,
+	}
+}
+
+func (row *{{$entityName}}Row) Columns() (values []string, err error) {
+	return helpers.{{$entityName}}ToArray(row.fields), nil
+}
+
+func (row *{{$entityName}}Row) InjectTo(dest *entities.{{$entityName}}) (err error) {
+	values := make([]interface{}, {{sum (len $fields) (len $relations) 1}})
+	i := 0
+	if row.fields.ID {
+		values[i] = &dest.ID
+		i++
+	}
+{{- range $index, $field := $fields -}}
+{{- $key := (print $fieldsBaseKey $field) -}}
+{{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
+{{- $fieldType := (index $ctx.Data (print $key ".type")) }}
+	if row.fields.{{$fieldName}} {
+		values[i] = &dest.{{$fieldName}}
+		i++
+	}
+{{- end }}
+{{- range $index, $relation := $relations -}}
+{{- $key := (print $relationsBaseKey $relation) -}}
+{{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) }}
+	if row.fields.{{$fieldName}}ID {
+		values[i] = &dest.{{$fieldName}}ID
+		i++
+	}
+{{- end }}
+	return row.Row.Scan(values[0:i]...)
+}
+
+func (row *{{$entityName}}Row) Get() (entity *entities.{{$entityName}}, err error) {
+	entity = &entities.{{$entityName}}{}
+	if err = row.InjectTo(entity); err != nil {
+		return nil, err
+	}
+	return entity, nil
+}
+
+func (row *{{$entityName}}Row) GetValues() (values []interface{}, err error) {
+	var columns []string
+	if columns, err = row.Columns(); err != nil {
+		return nil, err
+	}
+	values = make([]interface{}, len(columns))
+	for i, _ := range values {
+		var reference interface{}
+		values[i] = &reference
+	}
+	if err = row.Row.Scan(values...); err != nil {
+		return nil, err
+	}
+	return values, nil
+}
+
+{{- end -}}

@@ -31,6 +31,12 @@ goatcli build
 ## TODO
 Create documentation
 
+## Environment varibale
+
+ - GOATCMS_TEST_MYSQL_USERNAME - is mysql database username
+ - GOATCMS_TEST_MYSQL_PASSWORD - is mysql database password
+ - GOATCMS_TEST_MYSQL_HOST - is mysql hostname (or ip)
+
 ## Authors
 * Sebastian Pozoga <sebastian@pozoga.eu> - Founder
 * s3c0nDD (https://github.com/s3c0nDD) - Internship

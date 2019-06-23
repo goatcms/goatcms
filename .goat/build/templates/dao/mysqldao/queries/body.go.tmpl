@@ -1,0 +1,136 @@
+{{define "mysql.queries.body" -}}
+{{- $ctx := . -}}
+{{- $queryNameUF := (camelcaseuf (index $ctx.Data (print .From ".name"))) -}}
+{{- $modelName   := (index $ctx.Data (print .From ".model")) -}}
+{{- $modelNameUF := (camelcaseuf $modelName) -}}
+{{- $typeName    := (print $modelNameUF $queryNameUF "Query") -}}
+{{- $isSingleResult := (index $ctx.Data (print .From ".isSingleResult")) -}}
+{{- $modelKey := (print "model." (findRow "model." "^[A-Za-z0-9]+$" ".entity" $modelName $ctx.Data)) -}}
+
+
+package queries
+
+import (
+	"strconv"
+	"fmt"
+	"strings"
+	"github.com/goatcms/goatcore/app"
+	"database/sql"
+	"github.com/goatcms/goatcore/dependency"
+	helpers "{{index $ctx.Properties.Build "path"}}/mysqldao/helpers"
+	simple "{{index $ctx.Properties.Build "path"}}/mysqldao/simple/{{lower $modelName}}"
+	maindef "{{index $ctx.Properties.Build "path"}}"
+	entities "{{index $ctx.Properties.Build "entities_path"}}"
+)
+
+// {{$typeName}} is a query object for
+type {{$typeName}} struct {
+  deps struct{
+    DB *sql.DB `dependency:"db0.engine"`
+  }
+}
+
+func New{{$typeName}}(di dependency.Injector) (*{{$typeName}}, error) {
+  instance := &{{$typeName}}{}
+  if err := di.InjectTo(&instance.deps); err != nil {
+    return nil, err
+  }
+  return instance, nil
+}
+
+func {{$typeName}}Factory(dp dependency.Provider) (interface{}, error) {
+	instance, err := New{{$typeName}}(dp)
+	if err != nil {
+		return nil, err
+	}
+	return maindef.{{$typeName}}(instance), nil
+}
+
+func (query {{$typeName}}) {{$queryNameUF}}(scope app.Scope, fields *entities.{{$modelNameUF}}Fields, params *maindef.{{$typeName}}Params) (
+	{{- if eq $isSingleResult "y" -}}
+		*entities.{{$modelNameUF}}
+	{{- else -}}
+		maindef.{{$modelNameUF}}Rows
+	{{- end -}}
+, error) {
+	var (
+		err  error
+		sqlq string
+		tx   *sql.Tx
+		{{ if eq $isSingleResult "y" -}}
+			row    maindef.{{$modelNameUF}}Row
+			entity *entities.{{$modelNameUF}}
+		{{- else -}}
+			rows  *sql.Rows
+		{{- end }}
+	)
+	if tx, err = helpers.TX(scope, query.deps.DB); err != nil {
+		return nil, err
+	}
+	sqlq = query.SQL(fields, params)
+	{{ if eq $isSingleResult "y" -}}
+		row = simple.New{{$modelNameUF}}Row(tx.QueryRow(sqlq), fields)
+		if entity, err = row.Get(); err != nil {
+			return nil, fmt.Errorf("%v: %v", err, sqlq)
+		}
+		return entity, nil
+	{{- else -}}
+		if rows, err = tx.Query(sqlq); err != nil {
+			return nil, fmt.Errorf("%s: %s", err.Error(), sql)
+		}
+		return simple.{{$modelNameUF}}Rows(rows), nil
+	{{- end }}
+}
+
+func (query {{$typeName}}) SQL(fields *entities.{{$modelNameUF}}Fields, params *maindef.{{$typeName}}Params) string {
+	sqlq := "SELECT " + strings.Join(helpers.{{$modelNameUF}}ToArray(fields), ",") + " FROM {{$modelNameUF}} WHERE ";
+	{{- $fieldsets := (valuesFor (print "^" .From  ".fit.[A-Za-z0-9]+.fields$") $ctx.Data) -}}
+	{{- $fields := (unique (split (join $fieldsets " ") " ")) -}}
+
+	{{- range $fis, $fieldstr := $fieldsets -}}
+		{{- $fields := (unique (split $fieldstr " ")) }}
+		if {{range $fi, $field := $fields -}}
+			{{- $modelFieldKey := (print $modelKey ".fields." (findRow (print $modelKey ".fields.") "^[A-Za-z0-9]+$" ".name" $field $ctx.Data)) -}}
+			{{- $fieldType := (index $ctx.Data (print $modelFieldKey ".type")) }}
+			{{- if eq (lower $fieldType) "text" "string" "email" "password" "lang" -}}
+				{{- if ne $fi 0 }} || {{ end -}}
+				params.{{camelcaseuf $field}} != ""
+			{{- else if (lower $fieldType) "int" -}}
+				{{- if ne $fi 0 }} || {{ end -}}
+				params.{{camelcaseuf $field}} != 0
+			{{- else -}}
+			  {{- error (print "bad type" $fieldType) -}}
+			{{- end -}}
+		{{- end }} {
+			sqlq += {{range $fi, $field := $fields -}}
+				{{- $modelFieldKey := (print $modelKey ".fields." (findRow (print $modelKey ".fields.") "^[A-Za-z0-9]+$" ".name" $field $ctx.Data)) -}}
+				{{- $fieldType := (index $ctx.Data (print $modelFieldKey ".type")) }}
+
+				{{- if eq (lower $fieldType) "text" "string" "email" "password" "lang" -}}
+					{{- if eq $fi 0 -}}
+						"{{- if eq $fis 0 -}} ( {{- else -}} ) OR ( {{- end -}}  {{camelcaseuf $field}}="
+					{{- else -}}
+						+ " AND {{camelcaseuf $field}}="
+					{{- end }} + strconv.Quote(params.{{camelcaseuf $field}})
+				{{- else if (lower $fieldType) "int" -}}
+					{{- if eq $fi 0 -}}
+						"{{- if eq $fis 0 -}} ( {{- else -}} ) OR ( {{- end -}} {{camelcaseuf $field}}="
+					{{- else -}}
+						+ " AND {{camelcaseuf $field}}="
+					{{- end }} + strconv.FormatInt(params.{{camelcaseuf $field}}, 10)
+				{{- else -}}
+					{{- error (print "bad type" $fieldType) -}}
+				{{- end -}}
+			{{- end }}
+		}
+	{{- end -}}
+
+	{{- if eq $isSingleResult "y" }}
+		sqlq += ") LIMIT 1"
+	{{- else }}
+		sqlq += ")"
+	{{- end }}
+	return sqlq
+}
+
+{{- end -}}

@@ -1,0 +1,191 @@
+{{define "mysql.helpers.main_go" -}}
+{{- $ctx := . -}}
+
+package helpers
+
+import (
+	"database/sql"
+	"fmt"
+	"os"
+	"strconv"
+	"strings"
+	"testing"
+
+	"github.com/goatcms/goatcore/app"
+)
+
+const (
+	TXKey        = "_dbtx"
+	CommitInited = "_dbtx_commit_inited"
+)
+
+func TX(scope app.Scope, db *sql.DB) (tx *sql.Tx, err error) {
+	var ins interface{}
+	ins, err = scope.Get(TXKey)
+	if err != nil || ins == nil {
+		if tx, err = db.Begin(); err != nil {
+      return nil, err
+    }
+		scope.Set(TXKey, tx)
+		// add commit event callback
+		ins, err = scope.Get(CommitInited)
+		if err != nil || ins == nil {
+			scope.On(app.CommitEvent, func(interface{}) error {
+				_, err := Commit(scope)
+				return err
+			})
+			scope.On(app.RollbackEvent, func(interface{}) error {
+				_, err := Rollback(scope)
+				return err
+			})
+			scope.On(app.CloseEvent, func(interface{}) error {
+				_, err := Rollback(scope)
+				return err
+			})
+		}
+	} else {
+		tx = ins.(*sql.Tx)
+	}
+	return tx, nil
+}
+
+func Commit(scope app.Scope) (isCommited bool, err error) {
+	var ins interface{}
+	ins, err = scope.Get(TXKey)
+	if err != nil || ins == nil {
+		// nothing to commit
+		return false, nil
+	}
+	tx := ins.(*sql.Tx)
+	scope.Set(TXKey, nil)
+	if err = tx.Commit(); err != nil {
+		return true, err
+	}
+	if err = scope.Trigger(app.AfterCommitEvent, nil); err != nil {
+		return true, err
+	}
+	return true, nil
+}
+
+func Rollback(scope app.Scope) (isRollback bool, err error) {
+	var ins interface{}
+	ins, err = scope.Get(TXKey)
+	if err != nil || ins == nil {
+		// nothing to commit
+		return false, nil
+	}
+	tx := ins.(*sql.Tx)
+	scope.Set(TXKey, nil)
+	if err = tx.Rollback(); err != nil {
+		return true, err
+	}
+	if err = scope.Trigger(app.AfterRollbackEvent, nil); err != nil {
+		return true, err
+	}
+	return true, nil
+}
+
+func Close(scope app.Scope) (isRollback bool, err error) {
+	var ins interface{}
+	ins, err = scope.Get(TXKey)
+	if err != nil || ins == nil {
+		// nothing to close
+		return false, nil
+	}
+	tx := ins.(*sql.Tx)
+	scope.Set(TXKey, nil)
+	if err = tx.Rollback(); err != nil {
+		return true, err
+	}
+	if err = scope.Trigger(app.AfterRollbackEvent, nil); err != nil {
+		return true, err
+	}
+	return true, nil
+}
+
+func PrepareTestDB(t *testing.T, dbname string) (db *sql.DB, mysqlURL string) {
+	var err error
+	if !IsDefinedTestDB() {
+		t.Skip("GOATCMS_TEST_MYSQL_HOST os env is required")
+		return nil, ""
+	}
+	if db, mysqlURL, err = NewTestDB(dbname); err != nil {
+		t.Error(err)
+		return nil, ""
+	}
+  return db, mysqlURL
+}
+
+func IsDefinedTestDB() bool {
+	return os.Getenv("GOATCMS_TEST_MYSQL_HOST") != ""
+}
+
+func NewTestDB(dbname string) (db *sql.DB, mysqlFullURL string, err error) {
+	var (
+		mysqlUsername string
+		mysqlPasswrod string
+		mysqlHost     string
+		mysqlURL      string
+
+	)
+	if mysqlUsername = os.Getenv("GOATCMS_TEST_MYSQL_USERNAME"); mysqlUsername == "" {
+		mysqlUsername = "root"
+	}
+	mysqlPasswrod = os.Getenv("GOATCMS_TEST_MYSQL_PASSWORD")
+	if mysqlHost = os.Getenv("GOATCMS_TEST_MYSQL_HOST"); mysqlHost == "" {
+		return nil, "", fmt.Errorf("GOATCMS_TEST_MYSQL_HOST os env is required")
+	}
+	mysqlURL = mysqlUsername + ":" + mysqlPasswrod + "@(" + mysqlHost + ")/"
+	mysqlFullURL = mysqlURL + dbname
+	if db, err = sql.Open("mysql", mysqlURL); err != nil {
+		return nil, "", err
+	}
+	if _, err = db.Exec("DROP DATABASE IF EXISTS " + dbname); err != nil {
+		return nil, "", err
+	}
+	if _, err = db.Exec("CREATE DATABASE " + dbname); err != nil {
+		return nil, "", err
+	}
+	if _, err = db.Exec("USE " + dbname); err != nil {
+		return nil, "", err
+	}
+  return db, mysqlFullURL, nil
+}
+
+func Quote(s *string) string {
+	if s == nil {
+		return "null"
+	}
+  return quote(*s)
+}
+
+func QuoteArray(s []string, sep string) string {
+	quoted := make([]string, len(s))
+	for i, value := range s {
+		quoted[i] = quote(value)
+	}
+	return strings.Join(quoted, sep)
+}
+
+func quote(s string) string {
+	s = strings.Replace(s, "'", "''", -1)
+	return "'" + s + "'"
+}
+
+func FormatInt(i *int64, base int) string {
+	if i == nil {
+		return "null"
+	}
+	return strconv.FormatInt(*i, base)
+}
+
+func FormatIntArray(arr []int64, base int, sep string) string {
+	quoted := make([]string, len(arr))
+	for i, value := range arr {
+		quoted[i] = strconv.FormatInt(value, base)
+	}
+	return strings.Join(quoted, sep)
+}
+
+
+{{- end -}}

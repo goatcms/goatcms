@@ -1,0 +1,54 @@
+{{define "mysql.helpers.fields_go" -}}
+{{- $ctx := . -}}
+
+package helpers
+
+import (
+	entities "{{index $ctx.Properties.Build "entities_path"}}"
+)
+
+
+
+{{- range $mi, $modelID := (keys $ctx.Data "model.") -}}
+	{{- $name := (index $ctx.Data (print "model." $modelID ".entity")) -}}
+	{{- $entityName := (camelcaseuf $name) -}}
+	{{- $fieldsBaseKey := (print "model." $modelID ".fields.") -}}
+	{{- $fields := (keys $ctx.Data $fieldsBaseKey) -}}
+	{{- $relationsBaseKey := (print "model." $modelID ".relations.") -}}
+	{{- $relations := (keys $ctx.Data $relationsBaseKey) }}
+
+func {{camelcaseuf $entityName}}ToArray(fields *entities.{{camelcaseuf $entityName}}Fields) (array []string) {
+	if fields == nil {
+		return nil
+	}
+	array = make([]string, {{sum (len $fields) (len $relations) 1}})
+	i := 0
+	if fields.ID {
+		array[i] = "ID"
+		i++
+	}
+{{- range $index, $field := $fields -}}
+ {{- $key := (print $fieldsBaseKey $field) -}}
+ {{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
+ {{- $fieldType := (lower (index $ctx.Data (print $key ".type"))) }}
+	 if fields.{{camelcaseuf $fieldName}} {
+		 array[i] = "{{camelcaseuf $fieldName}}"
+		 i++
+	 }
+{{- end }}
+{{- range $i, $relation := $relations -}}
+  {{- $key := (print $relationsBaseKey $relation) -}}
+	{{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
+	{{- $relatedModel := (camelcaseuf (index $ctx.Data (print $key ".model"))) }}
+ 	 if fields.{{camelcaseuf $fieldName}}ID {
+ 		 array[i] = "{{camelcaseuf $fieldName}}ID"
+ 		 i++
+ 	 }
+{{- end }}
+	return array[0:i]
+}
+
+{{- end -}}
+
+
+{{- end -}}

@@ -1,0 +1,99 @@
+{{define "mysql.criteria.model_main_go" -}}
+{{- $ctx := . -}}
+{{- $name := (index $ctx.Data (print .From ".entity")) -}}
+{{- $entityName := (camelcaseuf $name) -}}
+{{- $typeName := (print $entityName "CreateTable") -}}
+{{- $fieldsBaseKey := (print .From ".fields.") -}}
+{{- $fields := (keys .Data $fieldsBaseKey) -}}
+{{- $relationsBaseKey := (print .From ".relations.") -}}
+{{- $relations := (keys .Data $relationsBaseKey) -}}
+
+package criteria
+
+import (
+	"fmt"
+	helpers "{{index $ctx.Properties.Build "path"}}/mysqldao/helpers"
+	maindef "{{index $ctx.Properties.Build "path"}}"
+)
+
+func Add{{$entityName}}CriteriaToQuery(criteria *maindef.{{$entityName}}Criteria, q *Query) (err error) {
+	var (
+		alias string
+	)
+	if criteria == nil {
+		return fmt.Errorf("Add{{$entityName}}CriteriaToQuery: Criteria is required")
+	}
+	fieldsArr := helpers.{{camelcaseuf $entityName}}ToArray(criteria.Fields)
+	if alias, err = q.AddEntity("{{$entityName}}", fieldsArr); err != nil {
+		return err
+	}
+	return add{{$entityName}}CriteriaToQuery(alias, criteria, q)
+}
+
+func add{{$entityName}}CriteriaToQuery(alias string, criteria *maindef.{{$entityName}}Criteria, q *Query) (err error) {
+	{{- if ne (len $relations) 0 }}
+	var relatedAlias string
+	{{- end }}
+	if criteria.Order.ID != nil {
+		if err = q.AddOrder(alias, "ID", criteria.Order.ID); err != nil {
+			return err
+		}
+	}
+	{{- range $index, $field := $fields -}}
+    {{- $key := (print $fieldsBaseKey $field) -}}
+    {{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
+    {{- $fieldType := (lower (index $ctx.Data (print $key ".type"))) -}}
+
+		{{- if eq $fieldType "text" "string" "email" "password" "lang" }}
+			if criteria.Where.{{$fieldName}} != nil {
+				if err = q.AddStringCriteria(alias, "{{$fieldName}}", criteria.Where.{{$fieldName}}); err != nil {
+					return err
+				}
+			}
+			if criteria.Order.{{$fieldName}} != nil {
+				if err = q.AddOrder(alias, "{{$fieldName}}", criteria.Order.{{$fieldName}}); err != nil {
+					return err
+				}
+			}
+		{{- else if eq $fieldType "int" }}
+			if criteria.Where.{{$fieldName}} != nil {
+				if err = q.AddInt64Criteria(alias, "{{$fieldName}}", criteria.Where.{{$fieldName}}); err != nil {
+					return err
+				}
+			}
+			if criteria.Order.{{$fieldName}} != nil {
+				if err = q.AddOrder(alias, "{{$fieldName}}", criteria.Order.{{$fieldName}}); err != nil {
+					return err
+				}
+			}
+		{{- else -}}
+		  {{- error (print "bad type" $fieldType) -}}
+		{{- end -}}
+
+  {{- end -}}
+	{{- range $i, $relation := $relations -}}
+    {{- $key := (print $relationsBaseKey $relation) -}}
+    {{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
+    {{- $relatedModel := (camelcaseuf (index $ctx.Data (print $key ".model"))) }}
+			if criteria.Related.{{$fieldName}} != nil {
+				fieldsArr := helpers.{{camelcaseuf $relatedModel}}ToArray(criteria.Related.{{$fieldName}}.Fields)
+				if relatedAlias, err = q.AddEntity("{{$relatedModel}}", fieldsArr); err != nil {
+					return err
+				}
+				if err = q.AddRelation(alias, "{{$fieldName}}ID", relatedAlias); err != nil {
+					return err
+				}
+				if err = add{{$relatedModel}}CriteriaToQuery(relatedAlias, criteria.Related.{{$fieldName}}, q); err != nil {
+					return err
+				}
+			}
+			if criteria.Order.{{$fieldName}}ID != nil {
+				if err = q.AddOrder(alias, "{{$fieldName}}ID", criteria.Order.{{$fieldName}}ID); err != nil {
+					return err
+				}
+			}
+  {{- end }}
+	return nil
+}
+
+{{- end -}}

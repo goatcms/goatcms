@@ -4,6 +4,10 @@
 package {{index $ctx.Properties.Build "package"}}
 
 import (
+	"fmt"
+	"strings"
+
+	"github.com/goatcms/goatcms/cmsapp/dao/mysqldao"
 	"github.com/goatcms/goatcms/cmsapp/dao/sqlitedao"
 	"github.com/goatcms/goatcore/app"
 )
@@ -19,7 +23,6 @@ func NewModule() app.Module {
 
 // RegisterDependencies is init callback to register module dependencies
 func (m *Module) RegisterDependencies(a app.App) (err error) {
-	dp := a.DependencyProvider()
 	if err = RegisterFilesystems(a); err != nil {
 		return err
 	}
@@ -29,10 +32,29 @@ func (m *Module) RegisterDependencies(a app.App) (err error) {
 	if err = RegisterServices(a); err != nil {
 		return err
 	}
-	if err = sqlitedao.RegisterDependencies(dp); err != nil {
+	return m.RegisterDAO(a)
+}
+
+// RegisterDAO is init callback to register module DAO (Data Access Object) dependencies
+func (m *Module) RegisterDAO(a app.App) (err error) {
+	var (
+		deps struct {
+			DatabaseType string `dependency:"?database.type"`
+		}
+	)
+	dp := a.DependencyProvider()
+	if err = dp.InjectTo(&deps); err != nil {
 		return err
 	}
-	return nil
+	switch strings.ToLower(deps.DatabaseType) {
+	case "":
+		return sqlitedao.RegisterDependencies(dp)
+	case "sqlite":
+		return sqlitedao.RegisterDependencies(dp)
+	case "mysql":
+		return mysqldao.RegisterDependencies(dp)
+	}
+	return fmt.Errorf("Unknown database type %v", deps.DatabaseType)
 }
 
 // InitDependencies is init callback to inject dependencies inside modules

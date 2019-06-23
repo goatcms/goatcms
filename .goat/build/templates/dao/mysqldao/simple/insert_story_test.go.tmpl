@@ -1,0 +1,150 @@
+{{define "mysql.dao.insert_story_test" -}}
+{{- $ctx := . -}}
+{{- $name := (index $ctx.Data (print .From ".entity")) -}}
+{{- $entityName := (camelcaseuf $name) -}}
+{{- $fieldsBaseKey := (print .From ".fields.") -}}
+
+package simple
+
+import (
+	"testing"
+	"database/sql"
+	"github.com/goatcms/goatcore/app"
+	"github.com/goatcms/goatcore/app/scope"
+	entities "{{index $ctx.Properties.Build "entities_path"}}"
+	helpers "{{index $ctx.Properties.Build "path"}}/mysqldao/helpers"
+	maindef "{{index $ctx.Properties.Build "path"}}"
+	_ "github.com/go-sql-driver/mysql"
+)
+
+func TestInsertWithoutIDStory(t *testing.T) {
+	t.Parallel()
+	doInsertWithoutIDStory(t, "{{$entityName}}TestInsertWithoutIDStory")
+}
+
+func doInsertWithoutIDStory(t *testing.T, dbname string) (bool, *sql.DB, *entities.{{$entityName}}) {
+	var (
+		resultID int64
+		ok       bool
+		db       *sql.DB
+		err      error
+		entity   *entities.{{$entityName}}
+	)
+	if ok, db = doCreateTable(t, dbname); !ok {
+		return false, nil, nil
+	}
+	entity = NewMockEntity1()
+	s := scope.NewScope("tag")
+	persister := {{$entityName}}Insert{}
+	persister.deps.DB = db
+	persister.deps.EngineScope = s
+	if resultID, err = persister.Insert(s, entity); err != nil {
+		t.Error(err)
+		return false, db, entity
+	}
+	// expected set a new entity id
+	if *entity.ID == 0 {
+		t.Errorf("the entity id should contains database ID and it is %v", entity.ID)
+		return false, db, entity
+	}
+	if resultID == 0 {
+		t.Errorf("id returned by fuction should contains database id and it is %v", resultID)
+		return false, db, entity
+	}
+	if resultID != *entity.ID {
+		t.Errorf("id returned by fuction should and entity.ID are the same database id and must be equals. They are (%v != %v)", resultID, entity.ID)
+		return false, db, entity
+	}
+	if _, err = helpers.Commit(s); err != nil {
+		t.Error(err)
+		return false, db, entity
+	}
+	return true, db, entity
+}
+
+
+func TestInsertWithIDStory(t *testing.T) {
+	t.Parallel()
+	doInsertWithIDStory(t, "{{$entityName}}TestInsertWithIDStory")
+}
+
+func doInsertWithIDStory(t *testing.T, dbname string) (bool, *sql.DB, *entities.{{$entityName}}) {
+	var (
+		resultID int64
+		ok       bool
+		db       *sql.DB
+		err      error
+		entity   *entities.{{$entityName}}
+		expectedID int64 = 666
+	)
+	if ok, db = doCreateTable(t, dbname); !ok {
+		return false, nil, nil
+	}
+	entity = NewMockEntity1()
+	entity.ID = &expectedID
+	s := scope.NewScope("tag")
+	persister := {{$entityName}}Insert{}
+	persister.deps.DB = db
+	persister.deps.EngineScope = s
+	if resultID, err = persister.Insert(s, entity); err != nil {
+		t.Error(err)
+		return false, db, entity
+	}
+	// expected set a new entity id
+	if *entity.ID == 0 {
+		t.Errorf("the entity id should contains database ID and it is %v", entity.ID)
+		return false, db, entity
+	}
+	if resultID != expectedID {
+		t.Errorf("id returned by fuction should contains database id and it is %v", resultID)
+		return false, db, entity
+	}
+	if resultID != *entity.ID {
+		t.Errorf("id returned by fuction should and entity.ID are the same database id and must be equals. They are (%v != %v)", resultID, entity.ID)
+		return false, db, entity
+	}
+	if _, err = helpers.Commit(s); err != nil {
+		t.Error(err)
+		return false, db, entity
+	}
+	return true, db, entity
+}
+
+func TestInsertEvent(t *testing.T) {
+	var (
+		ok         bool
+		db         *sql.DB
+		err        error
+		entity     *entities.{{$entityName}}
+		expectedID int64 = 666
+		isTrigged   = false
+	)
+	if ok, db = doCreateTable(t, "{{$entityName}}TestInsertEvent"); !ok {
+		return
+	}
+	entity = NewMockEntity1()
+	entity.ID = &expectedID
+	s := scope.NewScope("tag")
+	s.On(maindef.{{$entityName}}InsertEvent, func(ientity interface{}) (err error) {
+		isTrigged = true
+		return
+	})
+	persister := {{$entityName}}Insert{}
+	persister.deps.DB = db
+	persister.deps.EngineScope = s
+	if _, err = persister.Insert(s, entity); err != nil {
+		t.Error(err)
+		return
+	}
+	if err = s.Trigger(app.CommitEvent, nil); err != nil {
+		t.Error(err)
+		return
+	}
+	if isTrigged == false {
+		t.Errorf("{{$entityName}}InseEvent event must be called")
+		return
+	}
+}
+
+
+{{- end -}}

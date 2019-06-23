@@ -1,0 +1,68 @@
+{{define "mysql.criteria.model_deleter_go" -}}
+{{- $ctx := . -}}
+{{- $name := (index $ctx.Data (print .From ".entity")) -}}
+{{- $entityName := (camelcaseuf $name) -}}
+{{- $fieldsBaseKey := (print .From ".fields.") -}}
+{{- $fields := (keys .Data $fieldsBaseKey) -}}
+{{- $relationsBaseKey := (print .From ".relations.") -}}
+{{- $relations := (keys .Data $relationsBaseKey) -}}
+
+package criteria
+
+import (
+	"database/sql"
+	"fmt"
+	"github.com/goatcms/goatcore/app"
+	"github.com/goatcms/goatcore/dependency"
+	maindef  "{{index $ctx.Properties.Build "path"}}"
+	helpers "{{index $ctx.Properties.Build "path"}}/mysqldao/helpers"
+)
+
+type {{$entityName}}CriteriaDeleter struct {
+	deps struct {
+    DB          *sql.DB `dependency:"db0.engine"`
+		EngineScope app.Scope `dependency:"EngineScope"`
+	}
+}
+
+func New{{$entityName}}CriteriaDeleter(di dependency.Injector) (instance *{{$entityName}}CriteriaDeleter, err error) {
+  instance = &{{$entityName}}CriteriaDeleter{}
+  if err = di.InjectTo(&instance.deps); err != nil {
+    return nil, err
+  }
+  return instance, nil
+}
+
+func {{$entityName}}CriteriaDeleterFactory(dp dependency.Provider) (interface{}, error) {
+	instance, err := New{{$entityName}}CriteriaDeleter(dp)
+	if err != nil {
+		return nil, err
+	}
+	return maindef.{{$entityName}}CriteriaDeleter(instance), nil
+}
+
+func (deleter *{{camelcaseuf $name}}CriteriaDeleter) Delete(scope app.Scope, criteria *maindef.{{camelcaseuf $name}}Criteria) (err error) {
+	var (
+		sqlq string
+		tx   *sql.Tx
+	)
+	query := NewQuery()
+	if err = Add{{$entityName}}CriteriaToQuery(criteria, query); err != nil {
+		return err
+	}
+	if tx, err = helpers.TX(scope, deleter.deps.DB); err != nil {
+		return err
+	}
+	if sqlq, err = query.CompileDeleteQuery(); err != nil {
+		return err
+	}
+	if _, err = tx.Exec(sqlq); err != nil {
+		return fmt.Errorf("%s: %s", err.Error(), sqlq)
+	}
+	scope.On(app.AfterCommitEvent, func(interface{}) (err error) {
+		return deleter.deps.EngineScope.Trigger(maindef.{{$entityName}}DeleteEvent, nil)
+	})
+	return nil
+}
+
+{{- end -}}

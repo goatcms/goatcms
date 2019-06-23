@@ -1,0 +1,110 @@
+{{define "mysql.dao.update_story_test" -}}
+{{- $ctx := . -}}
+{{- $name := (index $ctx.Data (print .From ".entity")) -}}
+{{- $entityName := (camelcaseuf $name) -}}
+{{- $fieldsBaseKey := (print .From ".fields.") -}}
+
+package simple
+
+import (
+	"testing"
+	"database/sql"
+	"github.com/goatcms/goatcore/app"
+	"github.com/goatcms/goatcore/app/scope"
+	entities "{{index $ctx.Properties.Build "entities_path"}}"
+	maindef "{{index $ctx.Properties.Build "path"}}"
+	_ "github.com/go-sql-driver/mysql"
+)
+
+
+func TestUpdateStory(t *testing.T) {
+	t.Parallel()
+	doUpdateStory(t, "{{$entityName}}TestUpdateStory")
+}
+
+func doUpdateStory(t *testing.T, dbname string) (bool, *sql.DB) {
+	var (
+		ok             bool
+		db             *sql.DB
+		err            error
+		expectedEntity *entities.{{$entityName}}
+		entity         *entities.{{$entityName}}
+	)
+	expectedEntity = NewMockEntity2()
+	if ok, db, entity = doInsertWithoutIDStory(t, dbname); !ok {
+		return false, nil
+	}
+	{{- range $index, $field := (keys .Data $fieldsBaseKey) -}}
+	  {{- $key := (print $fieldsBaseKey $field) -}}
+	  {{- $fieldName := (index $ctx.Data (print $key ".name")) -}}
+		{{- print "\n" -}}
+		entity.{{camelcaseuf $fieldName}} = expectedEntity.{{camelcaseuf $fieldName}}
+	{{- end }}
+	s := scope.NewScope("tag")
+	updater := {{$entityName}}Update{}
+	updater.deps.DB = db
+	updater.deps.EngineScope = s
+	if err = updater.Update(s, entity, entities.{{$entityName}}AllFields); err != nil {
+		t.Error(err)
+		return false, db
+	}
+	finder := {{$entityName}}FindByID{}
+	finder.deps.DB = db
+	if entity, err = finder.Find(s, entities.{{$entityName}}AllFields, *entity.ID); err != nil {
+		t.Error(err)
+		return false, db
+	}
+	{{- range $index, $field := (keys .Data $fieldsBaseKey) -}}
+	  {{- $key := (print $fieldsBaseKey $field) -}}
+	  {{- $fieldName := (index $ctx.Data (print $key ".name")) -}}
+		{{- print "\n" -}}
+		if *expectedEntity.{{camelcaseuf $fieldName}} != *entity.{{camelcaseuf $fieldName}} {
+			t.Errorf("Returned field should contains inserted entity value for {{camelcaseuf $fieldName}} field and it is %v (expeted %v)", entity.{{camelcaseuf $fieldName}}, expectedEntity.{{camelcaseuf $fieldName}})
+			return false, db
+		}
+	{{- end }}
+	return true, db
+}
+
+func TestUpdateEventTrigger(t *testing.T) {
+	var (
+		ok             bool
+		db             *sql.DB
+		err            error
+		expectedEntity *entities.{{$entityName}}
+		entity         *entities.{{$entityName}}
+		isTrigged      = false
+	)
+	expectedEntity = NewMockEntity2()
+	if ok, db, entity = doInsertWithoutIDStory(t, "{{$entityName}}TestUpdateEventTrigger"); !ok {
+		return
+	}
+	{{- range $index, $field := (keys .Data $fieldsBaseKey) -}}
+	  {{- $key := (print $fieldsBaseKey $field) -}}
+	  {{- $fieldName := (index $ctx.Data (print $key ".name")) -}}
+		{{- print "\n" -}}
+		entity.{{camelcaseuf $fieldName}} = expectedEntity.{{camelcaseuf $fieldName}}
+	{{- end }}
+	s := scope.NewScope("tag")
+	s.On(maindef.{{$entityName}}UpdateEvent, func(ientity interface{}) (err error) {
+		isTrigged = true
+		return
+	})
+	updater := {{$entityName}}Update{}
+	updater.deps.DB = db
+	updater.deps.EngineScope = s
+	if err = updater.Update(s, entity, entities.{{$entityName}}AllFields); err != nil {
+		t.Error(err)
+		return
+	}
+	if err = s.Trigger(app.CommitEvent, nil); err != nil {
+		t.Error(err)
+		return
+	}
+	if isTrigged == false {
+		t.Errorf("{{$entityName}}UpdateEvent event must be called")
+		return
+	}
+}
+
+{{- end -}}

@@ -1,0 +1,12 @@
+{{- define "mysql.daotest.main" -}}
+{{- $ctx := . -}}
+
+{{- /* Main */ -}}
+{{- $path := (print $ctx.To "/mysqldao/helpers/main.go") -}}
+{{- if not ($ctx.Filesystem.IsFile $path) -}}
+  {{- $ctx.Out.File $path -}}
+    {{- template "mysql.helpers.main_go" $ctx -}}
+  {{- $ctx.Out.EOF -}}
+{{- end -}}
+
+{{- end -}}

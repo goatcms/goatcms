@@ -1,0 +1,46 @@
+{{- define "mysql.queries.main" -}}
+{{- $ctx := . -}}
+
+{{- range $mi, $modelkey := (keys $ctx.Data "model.") -}}
+  {{- $modelName := (index $ctx.Data (print "model." $modelkey ".entity")) -}}
+  {{- $modelPathName := (underscore $modelName) -}}
+
+  {{/* Main test */}}
+  {{- $mainTestPath := (print $ctx.To "/mysqldao/queries/" $modelPathName "/main_test.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $mainTestPath) -}}
+    {{- $ctx.Out.File $mainTestPath -}}
+      {{- template "mysql.queries.main_test" (ctx $ctx (print "model." $modelkey) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{/* Module */}}
+  {{- $modulePath := (print $ctx.To "/mysqldao/queries/" $modelPathName "/module.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $modulePath) -}}
+    {{- $ctx.Out.File $modulePath -}}
+      {{- template "mysql.queries.module" (ctx $ctx (print "model." $modelkey) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{- range $qi, $querykey := (keys $ctx.Data "query.") -}}
+    {{- $queryModel := (index $ctx.Data (print "query." $querykey ".model")) -}}
+
+    {{- if eq $modelName $queryModel -}}
+      {{- $path := (print $ctx.To "/mysqldao/queries/" $modelPathName "/" $querykey ".go") -}}
+      {{- if not ($ctx.Filesystem.IsFile $path) -}}
+        {{- $ctx.Out.File $path -}}
+          {{- template "mysql.queries.body" (ctx $ctx (print "query." $querykey) "") -}}
+        {{- $ctx.Out.EOF -}}
+      {{- end -}}
+
+      {{- $testPath := (print $ctx.To "/mysqldao/queries/" $modelPathName "/" $querykey "_story_test.go") -}}
+      {{- if not ($ctx.Filesystem.IsFile $testPath) -}}
+        {{- $ctx.Out.File $testPath -}}
+          {{- template "mysql.queries.body_test" (ctx $ctx (print "query." $querykey) "") -}}
+        {{- $ctx.Out.EOF -}}
+      {{- end -}}
+    {{- end -}}
+
+  {{- end -}}
+{{- end -}}
+
+{{- end -}}

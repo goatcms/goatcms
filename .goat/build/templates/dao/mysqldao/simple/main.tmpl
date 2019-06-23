@@ -1,0 +1,175 @@
+{{- define "mysql.simple.main" -}}
+{{- $ctx := . -}}
+
+{{- range $index, $key := (keys .Data "model.") -}}
+
+  {{- /* rows */ -}}
+  {{- $rowsPath := (print $ctx.To "/mysqldao/simple/" $key "/rows.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $rowsPath) -}}
+    {{- $ctx.Out.File $rowsPath -}}
+      {{- template "mysql.dao.rows" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{- /* row */ -}}
+  {{- $rowPath := (print $ctx.To "/mysqldao/simple/" $key "/row.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $rowPath) -}}
+    {{- $ctx.Out.File $rowPath -}}
+      {{- template "mysql.dao.row" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{- /* Search */ -}}
+  {{- $searchPath := (print $ctx.To "/mysqldao/simple/" $key "/search.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $searchPath) -}}
+    {{- $ctx.Out.File $searchPath -}}
+      {{- template "mysql.dao.search" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{- /* Search story test */ -}}
+  {{- $testSearchPath := (print $ctx.To "/mysqldao/simple/" $key "/search_story_test.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $testSearchPath) -}}
+    {{- $ctx.Out.File $testSearchPath -}}
+      {{- template "mysql.dao.search_story_test" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{- /* CreateTable */ -}}
+  {{- $createtablePath := (print $ctx.To "/mysqldao/simple/" $key "/createtable.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $createtablePath) -}}
+    {{- $ctx.Out.File $createtablePath -}}
+      {{- template "mysql.dao.createtable" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{/* CreateTable story test */}}
+  {{- $testCreateTablePath := (print $ctx.To "/mysqldao/simple/" $key "/createtable_story_test.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $testCreateTablePath) -}}
+    {{- $ctx.Out.File $testCreateTablePath -}}
+      {{- template "mysql.dao.createtable_story_test" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{/* Delete */}}
+  {{- $deletePath := (print $ctx.To "/mysqldao/simple/" $key "/delete.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $deletePath) -}}
+    {{- $ctx.Out.File $deletePath -}}
+      {{- template "mysql.dao.delete" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{/* Delete story test */}}
+  {{- $testCreateTablePath := (print $ctx.To "/mysqldao/simple/" $key "/delete_story_test.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $testCreateTablePath) -}}
+    {{- $ctx.Out.File $testCreateTablePath -}}
+      {{- template "mysql.dao.delete_story_test" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{- /* Drop table */ -}}
+  {{- $dropTablePath := (print $ctx.To "/mysqldao/simple/" $key "/droptable.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $dropTablePath) -}}
+    {{- $ctx.Out.File $dropTablePath -}}
+      {{- template "mysql.dao.droptable" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{/* DropTable story test */}}
+  {{- $testDropTablePath := (print $ctx.To "/mysqldao/simple/" $key "/droptable_story_test.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $testDropTablePath) -}}
+    {{- $ctx.Out.File $testDropTablePath -}}
+      {{- template "mysql.dao.droptable_story_test" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{- /* Find all */ -}}
+  {{- $findAllPath := (print $ctx.To "/mysqldao/simple/" $key "/findall.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $findAllPath) -}}
+    {{- $ctx.Out.File $findAllPath -}}
+      {{- template "mysql.dao.findall" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{/* find all story test */}}
+  {{- $testFindAllPath := (print $ctx.To "/mysqldao/simple/" $key "/findall_story_test.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $testFindAllPath) -}}
+    {{- $ctx.Out.File $testFindAllPath -}}
+      {{- template "mysql.dao.findall_story_test" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{- /* Find by id */ -}}
+  {{- $findByIdPath := (print $ctx.To "/mysqldao/simple/" $key "/findbyid.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $findByIdPath) -}}
+    {{- $ctx.Out.File $findByIdPath -}}
+      {{- template "mysql.dao.findbyid" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{/* find by id story test */}}
+  {{- $testFindByIDPath := (print $ctx.To "/mysqldao/simple/" $key "/findbyid_story_test.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $testFindByIDPath) -}}
+    {{- $ctx.Out.File $testFindByIDPath -}}
+      {{- template "mysql.dao.findbyid_story_test" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{- /* Insert */ -}}
+  {{- $insertPath := (print $ctx.To "/mysqldao/simple/" $key "/insert.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $insertPath) -}}
+    {{- $ctx.Out.File $insertPath -}}
+      {{- template "mysql.dao.insert" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{/* insert story test */}}
+  {{- $testInsertPath := (print $ctx.To "/mysqldao/simple/" $key "/insert_story_test.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $testInsertPath) -}}
+    {{- $ctx.Out.File $testInsertPath -}}
+      {{- template "mysql.dao.insert_story_test" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{- /* Update */ -}}
+  {{- $updatePath := (print $ctx.To "/mysqldao/simple/" $key "/update.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $updatePath) -}}
+    {{- $ctx.Out.File $updatePath -}}
+      {{- template "mysql.dao.update" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{/* update story test */}}
+  {{- $testUpdatePath := (print $ctx.To "/mysqldao/simple/" $key "/update_story_test.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $testUpdatePath) -}}
+    {{- $ctx.Out.File $testUpdatePath -}}
+      {{- template "mysql.dao.update_story_test" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{- /* Module */ -}}
+  {{- $modulePath := (print $ctx.To "/mysqldao/simple/" $key "/module.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $modulePath) -}}
+    {{- $ctx.Out.File $modulePath -}}
+      {{- template "mysql.dao.module" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{- /* Module test */ -}}
+  {{- $testModulePath := (print $ctx.To "/mysqldao/simple/" $key "/module_test.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $testModulePath) -}}
+    {{- $ctx.Out.File $testModulePath -}}
+      {{- template "mysql.dao.module_test" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{/* Main test */}}
+  {{- $mainTestPath := (print $ctx.To "/mysqldao/simple/" $key "/main_test.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $mainTestPath) -}}
+    {{- $ctx.Out.File $mainTestPath -}}
+      {{- template "mysql.dao.main_test" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+{{- end -}}
+{{- end -}}

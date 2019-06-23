@@ -1,0 +1,80 @@
+{{define "mysql.criteria.model_search_order_test_go" -}}
+{{- $ctx := . -}}
+{{- $name := (index $ctx.Data (print .From ".entity")) -}}
+{{- $entityName := (camelcaseuf $name) -}}
+{{- $typeName := (print $entityName "CreateTable") -}}
+{{- $fieldsBaseKey := (print .From ".fields.") -}}
+{{- $fields := (keys .Data $fieldsBaseKey) -}}
+{{- $relationsBaseKey := (print .From ".relations.") -}}
+{{- $relations := (keys .Data $relationsBaseKey) -}}
+
+package criteria
+
+import (
+	"testing"
+
+	"github.com/goatcms/goatcore/app"
+	helpers "{{index $ctx.Properties.Build "path"}}/mysqldao/helpers"
+	entities "{{index $ctx.Properties.Build "entities_path"}}"
+	maindef  "{{index $ctx.Properties.Build "path"}}"
+)
+
+func Test{{$entityName}}OrderCriteria(t *testing.T) {
+	var (
+		err error
+		mapp app.App
+		deps struct {
+			CriteriaSearch maindef.{{$entityName}}CriteriaSearch `dependency:"{{$entityName}}CriteriaSearch"`
+		}
+		rows           maindef.{{$entityName}}Rows
+		criteria       *maindef.{{$entityName}}Criteria
+		entity         *entities.{{$entityName}}
+		lastEntity     *entities.{{$entityName}}
+	)
+	t.Parallel()
+	if !helpers.IsDefinedTestDB() {
+		t.Skip("GOATCMS_TEST_MYSQL_HOST os env is required")
+		return
+	}
+	if mapp, err = NewMockApp("Test{{$entityName}}OrderCriteria"); err != nil {
+		t.Error(err)
+		return
+	}
+	if err = mapp.DependencyProvider().InjectTo(&deps); err != nil {
+		t.Error(err)
+		return
+	}
+	criteria = &maindef.{{$entityName}}Criteria{
+		Fields: &entities.{{$entityName}}Fields {
+			ID: true,
+		},
+		Order: maindef.{{$entityName}}CriteriaOrder {
+			ID: &maindef.FieldOrder {
+				Type:     maindef.ASC,
+			},
+		},
+	}
+	if rows, err = deps.CriteriaSearch.Find(mapp.AppScope(), criteria, &maindef.Pager{
+		Offset: 0,
+		Limit:  100,
+	}); err != nil {
+		t.Error(err)
+		return
+	}
+	// iterate over each row
+	count := 0
+	for rows.Next() {
+		count++
+		if entity, err = rows.Get(); err != nil {
+			t.Error(err)
+			return
+		}
+		if lastEntity != nil && *lastEntity.ID > *entity.ID {
+			t.Errorf("entities should be ASC sorteded by ID. Each next id should be greater then previous ID.")
+		}
+		lastEntity = entity
+	}
+}
+
+
+{{- end -}}

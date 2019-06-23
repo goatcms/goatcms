@@ -1,0 +1,68 @@
+{{- define "mysql.module_test" -}}
+{{- $ctx := . -}}
+
+package mysqldao
+
+import (
+	"bytes"
+	"strings"
+	"testing"
+	"database/sql"
+
+	helpers "{{index $ctx.Properties.Build "path"}}/mysqldao/helpers"
+	maindef "{{index $ctx.Properties.Build "path"}}"
+	"github.com/goatcms/goatcore/app"
+	"github.com/goatcms/goatcore/app/gio"
+	"github.com/goatcms/goatcore/app/mockupapp"
+	"github.com/goatcms/goatcore/app/scope"
+)
+
+func TestModule(t *testing.T) {
+	var (
+		db       *sql.DB
+		mysqlURL string
+		err      error
+		mapp     app.App
+	)
+	t.Parallel()
+	// prepare mockup application
+	if db, mysqlURL = helpers.PrepareTestDB(t, "TestCriteriaModule"); db == nil {
+		return
+	}
+	db.Close()
+	configScope := scope.NewScope(app.ConfigTagName)
+	configScope.Set("database.url", mysqlURL)
+	if mapp, err = mockupapp.NewApp(mockupapp.MockupOptions{
+		Input:       gio.NewInput(strings.NewReader("")),
+		Output:      gio.NewOutput(new(bytes.Buffer)),
+		ConfigScope: configScope,
+	}); err != nil {
+		t.Error(err)
+		return
+	}
+	if err = RegisterDependencies(mapp.DependencyProvider()); err != nil {
+		t.Error(err)
+		return
+	}
+	// test
+	var deps struct {
+		DB *sql.DB `dependency:"db0.engine"`
+		{{- range $index, $key := (keys .Data "model.") }}
+		{{- $entityName := (camelcaseuf (index $ctx.Data (print "model." $key ".entity"))) }}
+		{{$entityName}}CreateTable maindef.CreateTable `dependency:"{{$entityName}}CreateTable"`
+		{{$entityName}}Delete maindef.Delete `dependency:"{{$entityName}}Delete"`
+		{{$entityName}}DropTable maindef.DropTable `dependency:"{{$entityName}}DropTable"`
+		{{$entityName}}FindAll maindef.{{$entityName}}FindAll `dependency:"{{$entityName}}FindAll"`
+		{{$entityName}}FindByID maindef.{{$entityName}}FindByID `dependency:"{{$entityName}}FindByID"`
+		{{$entityName}}Insert maindef.{{$entityName}}Insert `dependency:"{{$entityName}}Insert"`
+		{{$entityName}}Update maindef.{{$entityName}}Update `dependency:"{{$entityName}}Update"`
+		{{$entityName}}CriteriaSearch maindef.{{$entityName}}CriteriaSearch `dependency:"{{$entityName}}CriteriaSearch"`
+		{{- end -}}
+	}
+	if err = mapp.DependencyProvider().InjectTo(&deps); err != nil {
+		t.Error(err)
+		return
+	}
+}
+
+{{- end -}}

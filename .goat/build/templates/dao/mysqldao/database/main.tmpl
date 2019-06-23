@@ -1,0 +1,36 @@
+{{- define "mysql.database.main" -}}
+{{- $ctx := . -}}
+
+{{- /* Database */ -}}
+{{- $databasePath := (print $ctx.To "/mysqldao/database/database.go") -}}
+{{- if not ($ctx.Filesystem.IsFile $databasePath) -}}
+  {{- $ctx.Out.File $databasePath -}}
+    {{- template "mysql.database" $ctx -}}
+  {{- $ctx.Out.EOF -}}
+{{- end -}}
+
+{{- /* Database tests */ -}}
+{{- $testDatabasePath := (print $ctx.To "/mysqldao/database/database_test.go") -}}
+{{- if not ($ctx.Filesystem.IsFile $testDatabasePath) -}}
+  {{- $ctx.Out.File $testDatabasePath -}}
+    {{- template "mysql.database_test" $ctx -}}
+  {{- $ctx.Out.EOF -}}
+{{- end -}}
+
+{{- /* Database engine */ -}}
+{{- $databaseEnginePath := (print $ctx.To "/mysqldao/database/engine.go") -}}
+{{- if not ($ctx.Filesystem.IsFile $databaseEnginePath) -}}
+  {{- $ctx.Out.File $databaseEnginePath -}}
+    {{- template "mysql.engine" $ctx -}}
+  {{- $ctx.Out.EOF -}}
+{{- end -}}
+
+{{- /* Database engine - test */ -}}
+{{- $testDatabaseEnginePath := (print $ctx.To "/mysqldao/database/engine_test.go") -}}
+{{- if not ($ctx.Filesystem.IsFile $testDatabaseEnginePath) -}}
+  {{- $ctx.Out.File $testDatabaseEnginePath -}}
+    {{- template "mysql.engine_test" $ctx -}}
+  {{- $ctx.Out.EOF -}}
+{{- end -}}
+
+{{- end -}}

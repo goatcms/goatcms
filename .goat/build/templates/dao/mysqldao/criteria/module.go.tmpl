@@ -1,0 +1,31 @@
+{{define "mysql.criteria.module_go" -}}
+{{- $ctx := . -}}
+{{- $name := (index $ctx.Data (print .From ".entity")) -}}
+{{- $entityName := (camelcaseuf $name) -}}
+{{- $fieldsBaseKey := (print .From ".fields.") -}}
+{{- $fields := (keys .Data $fieldsBaseKey) -}}
+
+package criteria
+
+import (
+	"github.com/goatcms/goatcore/dependency"
+)
+
+func RegisterDependencies(dp dependency.Provider) error {
+	{{- range $mi, $modelID := (keys $ctx.Data "model.") -}}
+	  {{- $modelName := (camelcaseuf (index $ctx.Data (print "model." $modelID ".entity"))) }}
+		if err := dp.AddDefaultFactory("{{$modelName}}CriteriaSearch", {{$modelName}}CriteriaSearchFactory); err != nil {
+			return err
+		}
+		if err := dp.AddDefaultFactory("{{$modelName}}CriteriaCounter", {{$modelName}}CriteriaCounterFactory); err != nil {
+			return err
+		}
+		if err := dp.AddDefaultFactory("{{$modelName}}CriteriaDeleter", {{$modelName}}CriteriaDeleterFactory); err != nil {
+			return err
+		}
+	{{- end }}
+	return nil
+}
+
+
+{{- end -}}

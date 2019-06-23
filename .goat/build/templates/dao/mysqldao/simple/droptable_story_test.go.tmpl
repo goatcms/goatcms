@@ -1,0 +1,86 @@
+{{define "mysql.dao.droptable_story_test" -}}
+{{- $ctx := . -}}
+{{- $name := (index $ctx.Data (print .From ".entity")) -}}
+{{- $entityName := (camelcaseuf $name) -}}
+{{- $typeName := (print $entityName "CreateTable") -}}
+{{- $fieldsBaseKey := (print .From ".fields.") -}}
+
+package simple
+
+import (
+	"testing"
+	"database/sql"
+	"github.com/goatcms/goatcore/app"
+	"github.com/goatcms/goatcore/app/scope"
+	helpers "{{index $ctx.Properties.Build "path"}}/mysqldao/helpers"
+	maindef "{{index $ctx.Properties.Build "path"}}"
+	_ "github.com/go-sql-driver/mysql"
+)
+
+
+func TestDropTable(t *testing.T) {
+	t.Parallel()
+	doDropTable(t, "{{$entityName}}TestDropTable")
+}
+
+func doDropTable(t *testing.T, dbname string) (bool, *sql.DB) {
+	var (
+		db  *sql.DB
+		err error
+		ok  bool
+	)
+	if ok, db = doCreateTable(t, dbname); !ok {
+		return false, nil
+	}
+	s := scope.NewScope("testtag")
+	dropTable := {{$entityName}}DropTable{}
+	dropTable.deps.DB = db
+	dropTable.deps.EngineScope = s
+	if err := dropTable.DropTable(s); err != nil {
+		t.Error(err)
+		return false, db
+	}
+	if _, err = helpers.Commit(s); err != nil {
+		t.Error(err)
+		return false, db
+	}
+	return true, db
+}
+
+func TestDropTableEvent(t *testing.T)  {
+	var (
+		db        *sql.DB
+		err       error
+		ok        bool
+		isTrigged = false
+	)
+	if ok, db = doCreateTable(t, "{{$entityName}}TestDropTableEvent"); !ok {
+		return
+	}
+	s := scope.NewScope("testtag")
+	s.On(maindef.{{$entityName}}DropTableEvent, func(ientity interface{}) (err error) {
+		isTrigged = true
+		return
+	})
+	dropTable := {{$entityName}}DropTable{}
+	dropTable.deps.DB = db
+	dropTable.deps.EngineScope = s
+	if err := dropTable.DropTable(s); err != nil {
+		t.Error(err)
+		return
+	}
+	if _, err = helpers.Commit(s); err != nil {
+		t.Error(err)
+		return
+	}
+	if err = s.Trigger(app.CommitEvent, nil); err != nil {
+		t.Error(err)
+		return
+	}
+	if isTrigged == false {
+		t.Errorf("{{$entityName}}DropTableEvent event must be called")
+		return
+	}
+}
+
+{{- end -}}

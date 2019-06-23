@@ -2,6 +2,7 @@
 
 {{- /* sqlite */ -}}
 {{- template "sqlite.main" $ctx -}}
+{{- template "mysql.main" $ctx -}}
 
 {{- /* queries */ -}}
 {{- $path := (print $ctx.To "/queries.go") -}}

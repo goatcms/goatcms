@@ -1,0 +1,38 @@
+{{define "mysql.helpers.order_go" -}}
+{{- $ctx := . -}}
+
+package helpers
+
+import (
+	"strings"
+	maindef  "{{index $ctx.Properties.Build "path"}}"
+)
+
+type SQLOrderRow struct{
+	SQL  	string
+	Base  *maindef.FieldOrder
+}
+
+type SQLOrder []SQLOrderRow
+
+func (a SQLOrder) Len() int {
+	return len(a)
+}
+
+func (a SQLOrder) Swap(i, j int) {
+	a[i], a[j] = a[j], a[i]
+}
+
+func (a SQLOrder) Less(i, j int) bool {
+    return a[i].Base.Priority {{noescape "<"}} a[j].Base.Priority
+}
+
+func (a SQLOrder) String() string {
+	arr := make([]string, len(a))
+	for i, row := range a {
+		arr[i] = row.SQL
+	}
+  return strings.Join(arr, ", ")
+}
+
+{{- end -}}

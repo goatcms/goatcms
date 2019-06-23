@@ -1,0 +1,27 @@
+{{- define "mysql.main" -}}
+{{- $ctx := . -}}
+
+{{- template "mysql.database.main" $ctx -}}
+{{- template "mysql.helpers.main" $ctx -}}
+{{- template "mysql.queries.main" $ctx -}}
+{{- template "mysql.simple.main" $ctx -}}
+{{- template "mysql.criteria.main" $ctx -}}
+
+{{- /* Module */ -}}
+{{- $modulePath := (print $ctx.To "/mysqldao/module.go") -}}
+{{- if not ($ctx.Filesystem.IsFile $modulePath) -}}
+  {{- $ctx.Out.File $modulePath -}}
+    {{- template "mysql.module" $ctx -}}
+  {{- $ctx.Out.EOF -}}
+{{- end -}}
+
+{{- /* Module test */ -}}
+{{- $testModulePath := (print $ctx.To "/mysqldao/module_test.go") -}}
+{{- if not ($ctx.Filesystem.IsFile $testModulePath) -}}
+  {{- $ctx.Out.File $testModulePath -}}
+    {{- template "mysql.module_test" $ctx -}}
+  {{- $ctx.Out.EOF -}}
+{{- end -}}
+
+
+{{- end -}}

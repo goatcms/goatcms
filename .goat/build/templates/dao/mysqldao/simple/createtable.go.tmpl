@@ -1,0 +1,91 @@
+{{define "mysql.dao.createtable" -}}
+{{- $ctx := . -}}
+{{- $name := (index $ctx.Data (print .From ".entity")) -}}
+{{- $entityName := (camelcaseuf $name) -}}
+{{- $typeName := (print $entityName "CreateTable") -}}
+{{- $fieldsBaseKey := (print .From ".fields.") -}}
+{{- $fields := (keys .Data $fieldsBaseKey) -}}
+{{- $relationsBaseKey := (print .From ".relations.") -}}
+{{- $relations := (keys .Data $relationsBaseKey) -}}
+
+package simple
+
+import (
+	"github.com/goatcms/goatcore/app"
+	"database/sql"
+	"github.com/goatcms/goatcore/dependency"
+	helpers "{{index $ctx.Properties.Build "path"}}/mysqldao/helpers"
+	maindef "{{index $ctx.Properties.Build "path"}}"
+)
+
+// {{$typeName}} is a Data Access Object for {{lower $name}} entity
+type {{$typeName}} struct {
+  deps struct{
+    DB *sql.DB            `dependency:"db0.engine"`
+		EngineScope app.Scope `dependency:"EngineScope"`
+  }
+}
+
+func New{{$typeName}}(di dependency.Injector) (*{{$typeName}}, error) {
+  instance := &{{$typeName}}{}
+  if err := di.InjectTo(&instance.deps); err != nil {
+    return nil, err
+  }
+  return instance, nil
+}
+
+func {{$typeName}}Factory(dp dependency.Provider) (interface{}, error) {
+	instance, err := New{{$typeName}}(dp)
+	if err != nil {
+		return nil, err
+	}
+	return maindef.CreateTable(instance), nil
+}
+
+func (dao {{$typeName}}) CreateTable(scope app.Scope) (err error) {
+	var tx *sql.Tx
+	if tx, err = helpers.TX(scope, dao.deps.DB); err != nil {
+		return err
+	}
+	if _, err = tx.Exec(dao.SQL()); err != nil {
+		return err
+	}
+	scope.On(app.AfterCommitEvent, func(interface{}) (err error) {
+		return dao.deps.EngineScope.Trigger(maindef.{{$typeName}}Event, nil)
+	})
+	return nil
+}
+
+func (dao {{$typeName}}) AlterTable(scope app.Scope) (err error) {
+	return nil
+}
+
+func (dao {{$typeName}}) SQL() string {
+  return `CREATE TABLE IF NOT EXISTS {{camelcaseuf $name}} ({{"\n"}}ID INTEGER PRIMARY KEY AUTO_INCREMENT
+	{{- range $index, $field := $fields -}}
+    {{- $key := (print $fieldsBaseKey $field) -}}
+    {{- $fieldName := (index $ctx.Data (print $key ".name")) -}}
+    {{- $fieldType := (index $ctx.Data (print $key ".type")) -}}
+    {{- $unique := (lower (index $ctx.Data (print $key ".unique"))) -}}
+    {{- $required := (lower (index $ctx.Data (print $key ".required"))) -}}
+    ,{{"\n"}} {{camelcaseuf $fieldName}} {{template "mysql.sqltype" $fieldType}}
+		{{- if eq $unique "y" }} UNIQUE {{- end -}}
+		{{- if eq $required "y" }} NOT NULL {{- end -}}
+  {{- end -}}
+	{{- range $i, $relation := $relations -}}
+    {{- $key := (print $relationsBaseKey $relation) -}}
+    {{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
+    {{- $unique := (lower (index $ctx.Data (print $key ".unique"))) -}}
+    {{- $required := (lower (index $ctx.Data (print $key ".required"))) -}}
+    , {{"\n"}} {{$fieldName}}ID {{template "mysql.sqltype" "int"}}
+		{{- if eq $unique "y" }} UNIQUE {{- end -}}
+		{{- if eq $required "y" }} NOT NULL {{- end -}}
+  {{- end -}}
+	);`
+}
+
+func (dao {{$typeName}}) AlterSQL() string {
+  return ``
+}
+
+{{- end -}}

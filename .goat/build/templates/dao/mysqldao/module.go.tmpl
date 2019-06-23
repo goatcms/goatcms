@@ -1,0 +1,38 @@
+{{define "mysql.module" -}}
+{{- $ctx := . -}}
+
+package mysqldao
+
+import (
+	"github.com/goatcms/goatcore/dependency"
+	database "{{index $ctx.Properties.Build "path"}}/mysqldao/database"
+	criteria "{{index $ctx.Properties.Build "path"}}/mysqldao/criteria"
+	{{- range $index, $key := (keys .Data "model.") }}
+	{{$key}} "{{index $ctx.Properties.Build "path"}}/mysqldao/simple/{{$key}}"
+	{{$key}}q "{{index $ctx.Properties.Build "path"}}/mysqldao/queries/{{$key}}"
+	{{- end -}}
+)
+
+func RegisterDependencies(dp dependency.Provider) error {
+	if err := dp.AddDefaultFactory("db0.engine", database.EngineFactory); err != nil {
+		return err
+	}
+	if err := dp.AddDefaultFactory("db0", database.Factory); err != nil {
+		return err
+	}
+	{{- range $index, $key := (keys .Data "model.") }}
+	if err := {{$key}}.RegisterDependencies(dp); err != nil {
+		return err
+	}
+	if err := {{$key}}q.RegisterDependencies(dp); err != nil {
+		return err
+	}
+	{{- end }}
+	if err := criteria.RegisterDependencies(dp); err != nil {
+		return err
+	}
+	return nil
+}
+
+
+{{- end -}}
