@@ -41,7 +41,7 @@ func (m *Module) RegisterDAO(a app.App) (err error) {
 		databaseTypeI interface{}
 	)
 	dp := a.DependencyProvider()
-	if databaseTypeI, err = a.ConfigScope().Get("database.type"); err != nil {
+	if databaseTypeI, err = a.ConfigScope().Get("database.engine"); err != nil {
 		return sqlitedao.RegisterDependencies(dp)
 	}
 	switch strings.ToLower(databaseTypeI.(string)) {
