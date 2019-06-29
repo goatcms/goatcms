@@ -38,15 +38,13 @@ func (m *Module) RegisterDependencies(a app.App) (err error) {
 // RegisterDAO is init callback to register module DAO (Data Access Object) dependencies
 func (m *Module) RegisterDAO(a app.App) (err error) {
 	var (
-		deps struct {
-			DatabaseType string `dependency:"?database.type"`
-		}
+		databaseTypeI interface{}
 	)
 	dp := a.DependencyProvider()
-	if err = dp.InjectTo(&deps); err != nil {
-		return err
+	if databaseTypeI, err = a.ConfigScope().Get("database.type"); err != nil {
+		return sqlitedao.RegisterDependencies(dp)
 	}
-	switch strings.ToLower(deps.DatabaseType) {
+	switch strings.ToLower(databaseTypeI.(string)) {
 	case "":
 		return sqlitedao.RegisterDependencies(dp)
 	case "sqlite":
@@ -54,7 +52,7 @@ func (m *Module) RegisterDAO(a app.App) (err error) {
 	case "mysql":
 		return mysqldao.RegisterDependencies(dp)
 	}
-	return fmt.Errorf("Unknown database type %v", deps.DatabaseType)
+	return fmt.Errorf("Unknown database type %v", databaseTypeI)
 }
 
 // InitDependencies is init callback to inject dependencies inside modules
