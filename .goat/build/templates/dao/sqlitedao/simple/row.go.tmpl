@@ -44,7 +44,11 @@ func (row *{{$entityName}}Row) InjectTo(dest *entities.{{$entityName}}) (err err
 {{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
 {{- $fieldType := (index $ctx.Data (print $key ".type")) }}
 	if row.fields.{{$fieldName}} {
+		{{- if eq $fieldType "datetime"}}
+		values[i] = helpers.NewTimeConverter(&dest.{{$fieldName}})
+		{{- else}}
 		values[i] = &dest.{{$fieldName}}
+		{{- end}}
 		i++
 	}
 {{- end }}

@@ -4,10 +4,14 @@
 {{- $entityName := (camelcaseuf $name) -}}
 {{- $typeName := (print $entityName "Delete") -}}
 {{- $fieldsBaseKey := (print .From ".fields.") -}}
+{{- $firstDatetimeField := (findRow $fieldsBaseKey "^[A-Za-z0-9]+$" ".type" "datetime" $ctx.Data) -}}
 
 package queries
 
 import (
+	{{- if ne $firstDatetimeField ""}}
+	"time"
+	{{- end }}
 	entities "{{index $ctx.Properties.Build "entities_path"}}"
 )
 
@@ -18,7 +22,11 @@ func NewMockEntity1() *entities.{{$entityName}} {
     {{- $key := (print $fieldsBaseKey $field) -}}
 	  {{- $fieldName := (index $ctx.Data (print $key ".name")) -}}
     {{- $fieldType := (index $ctx.Data (print $key ".type")) }}
+		{{- if eq $fieldType "datetime" }}
+		{{lower $fieldName}}, _ = time.Parse(time.RFC3339, {{template "mockvalue" $fieldType}})
+		{{- else }}
 		{{lower $fieldName}} {{template "gotype" $fieldType}} = {{template "mockvalue" $fieldType}}
+		{{- end }}
 	{{- end }}
 	)
 	return &entities.{{$entityName}} {
@@ -38,7 +46,11 @@ func NewMockEntity2() *entities.{{$entityName}} {
     {{- $key := (print $fieldsBaseKey $field) -}}
 	  {{- $fieldName := (index $ctx.Data (print $key ".name")) -}}
     {{- $fieldType := (index $ctx.Data (print $key ".type")) }}
+		{{- if eq $fieldType "datetime" }}
+		{{lower $fieldName}}, _ = time.Parse(time.RFC3339, {{template "mockvalue" $fieldType}})
+		{{- else }}
 		{{lower $fieldName}} {{template "gotype" $fieldType}} = {{template "mockvalue" $fieldType}}
+		{{- end }}
 	{{- end }}
 	)
 	return &entities.{{$entityName}} {

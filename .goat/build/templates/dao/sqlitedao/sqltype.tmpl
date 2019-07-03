@@ -2,6 +2,8 @@
 
 {{- if eq (lower .) "text" "string" "email" "password" "lang" -}}
   TEXT
+{{- else if eq (lower .) "datetime" -}}
+  TEXT
 {{- else if eq (lower .) "int" -}}
   BIGINT
 {{- else -}}

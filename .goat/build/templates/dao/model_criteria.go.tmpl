@@ -22,6 +22,8 @@ type {{camelcaseuf $name}}CriteriaWhere struct {
 			{{camelcaseuf $fieldName}} *StringFieldCriteria
 		{{- else if eq $fieldType "int" }}
 			{{camelcaseuf $fieldName}} *Int64FieldCriteria
+		{{- else if eq $fieldType "datetime" }}
+			{{camelcaseuf $fieldName}} *DatetimeFieldCriteria
 		{{- else -}}
 			{{- error (print "bad type" .) -}}
 		{{- end -}}
@@ -38,6 +40,8 @@ type {{camelcaseuf $name}}CriteriaOrder struct {
 {{- if eq  $fieldType "text" "string" "email" "password" "lang" }}
 	{{camelcaseuf $fieldName}} *FieldOrder
 {{- else if eq $fieldType "int" }}
+	{{camelcaseuf $fieldName}} *FieldOrder
+{{- else if eq $fieldType "datetime" }}
 	{{camelcaseuf $fieldName}} *FieldOrder
 {{- else -}}
 	{{- error (print "bad type" .) -}}

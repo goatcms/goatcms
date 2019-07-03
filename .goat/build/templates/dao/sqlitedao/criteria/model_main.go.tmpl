@@ -55,6 +55,17 @@ func add{{$entityName}}CriteriaToQuery(alias string, criteria *maindef.{{$entity
 					return err
 				}
 			}
+		{{- else if eq $fieldType "datetime" }}
+			if criteria.Where.{{$fieldName}} != nil {
+				if err = q.AddDatetimeCriteria(alias, "{{$fieldName}}", criteria.Where.{{$fieldName}}); err != nil {
+					return err
+				}
+			}
+			if criteria.Order.{{$fieldName}} != nil {
+				if err = q.AddOrder(alias, "{{$fieldName}}", criteria.Order.{{$fieldName}}); err != nil {
+					return err
+				}
+			}
 		{{- else if eq $fieldType "int" }}
 			if criteria.Where.{{$fieldName}} != nil {
 				if err = q.AddInt64Criteria(alias, "{{$fieldName}}", criteria.Where.{{$fieldName}}); err != nil {

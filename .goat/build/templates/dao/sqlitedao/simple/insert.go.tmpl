@@ -103,7 +103,9 @@ func (dao {{$typeName}}) SQL(entity *entities.{{$entityName}}) (string, error) {
 			{{- if ne $fi 0 -}}, {{ end -}}
 			{{- if eq (lower $fieldType) "text" "string" "email" "password" "lang" -}}
 				" + helpers.Quote(entity.{{$fieldName}}) + "
-			{{- else if (lower $fieldType) "int" -}}
+			{{- else if eq (lower $fieldType) "datetime" -}}
+				" + helpers.FormatDatetime(entity.{{$fieldName}}) + "
+			{{- else if eq (lower $fieldType) "int" -}}
 				" + helpers.FormatInt(entity.{{$fieldName}}, 10) + "
 			{{- else -}}
 				{{- error (print "bad type" $fieldType) -}}

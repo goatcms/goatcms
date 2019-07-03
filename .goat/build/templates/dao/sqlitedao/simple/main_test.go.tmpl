@@ -6,10 +6,14 @@
 {{- $fields := (keys $ctx.Data $fieldsBaseKey) -}}
 {{- $relationsBaseKey := (print .From ".relations.") -}}
 {{- $relations := (keys $ctx.Data $relationsBaseKey) -}}
+{{- $firstDatetimeField := (findRow $fieldsBaseKey "^[A-Za-z0-9]+$" ".type" "datetime" $ctx.Data) -}}
 
 package simple
 
 import (
+	{{- if ne $firstDatetimeField ""}}
+	"time"
+	{{- end }}
 	entities "{{index $ctx.Properties.Build "entities_path"}}"
 )
 
@@ -19,7 +23,11 @@ func NewMockEntity1() *entities.{{$entityName}} {
     {{- $key := (print $fieldsBaseKey $field) -}}
 	  {{- $fieldName := (index $ctx.Data (print $key ".name")) -}}
     {{- $fieldType := (index $ctx.Data (print $key ".type")) }}
+		{{- if eq $fieldType "datetime" }}
+		{{lower $fieldName}}, _ = time.Parse(time.RFC3339, {{template "mockvalue" $fieldType}})
+		{{- else }}
 		{{lower $fieldName}} {{template "gotype" $fieldType}} = {{template "mockvalue" $fieldType}}
+		{{- end }}
 	{{- end }}
 	{{- range $index, $relation := $relations -}}
 		{{- $key := (print $relationsBaseKey $relation) -}}
@@ -48,7 +56,11 @@ func NewMockEntity2() *entities.{{$entityName}} {
     {{- $key := (print $fieldsBaseKey $field) -}}
 	  {{- $fieldName := (index $ctx.Data (print $key ".name")) -}}
     {{- $fieldType := (index $ctx.Data (print $key ".type")) }}
+		{{- if eq $fieldType "datetime" }}
+		{{lower $fieldName}}, _ = time.Parse(time.RFC3339, {{template "mockvalue" $fieldType}})
+		{{- else }}
 		{{lower $fieldName}} {{template "gotype" $fieldType}} = {{template "mockvalue" $fieldType}}
+		{{- end }}
 	{{- end }}
 	{{- range $index, $relation := $relations -}}
 		{{- $key := (print $relationsBaseKey $relation) -}}

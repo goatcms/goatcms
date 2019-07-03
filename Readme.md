@@ -32,10 +32,23 @@ goatcli build
 Create documentation
 
 ## Environment varibale
-
  - GOATCMS_TEST_MYSQL_USERNAME - is mysql database username
  - GOATCMS_TEST_MYSQL_PASSWORD - is mysql database password
  - GOATCMS_TEST_MYSQL_HOST - is mysql hostname (or ip)
+
+## Run tests
+1) Create MySQL / MariaDB database and set system environments variable
+```
+docker run --name test-mariadb  -p 3306:3306 -e MYSQL_ROOT_PASSWORD=pass123 -d mariadb
+export GOATCMS_TEST_MYSQL_USERNAME=root
+export GOATCMS_TEST_MYSQL_PASSWORD=pass123
+export GOATCMS_TEST_MYSQL_HOST=localhost
+```
+2) Run tests
+```
+cd YOUR_PROJECT_DIRECTORY
+go test ./...
+```
 
 ## Authors
 * Sebastian Pozoga <sebastian@pozoga.eu> - Founder

@@ -7,6 +7,7 @@ import (
 	"database/sql"
 	"strconv"
 	"strings"
+	"time"
 	"github.com/goatcms/goatcore/app"
 )
 
@@ -114,18 +115,18 @@ func Quote(s *string) string {
 	if s == nil {
 		return "null"
 	}
-  return quote(*s)
+  return SimpleQuote(*s)
 }
 
 func QuoteArray(s []string, sep string) string {
 	quoted := make([]string, len(s))
 	for i, value := range s {
-		quoted[i] = quote(value)
+		quoted[i] = SimpleQuote(value)
 	}
 	return strings.Join(quoted, sep)
 }
 
-func quote(s string) string {
+func SimpleQuote(s string) string {
 	s = strings.Replace(s, "'", "''", -1)
 	return "'" + s + "'"
 }
@@ -137,10 +138,25 @@ func FormatInt(i *int64, base int) string {
 	return strconv.FormatInt(*i, base)
 }
 
+func FormatDatetime(value *time.Time) string {
+	if value == nil {
+		return "null"
+	}
+	return SimpleQuote(value.Format(time.RFC3339))
+}
+
 func FormatIntArray(arr []int64, base int, sep string) string {
 	quoted := make([]string, len(arr))
 	for i, value := range arr {
 		quoted[i] = strconv.FormatInt(value, base)
+	}
+	return strings.Join(quoted, sep)
+}
+
+func FormatDatetimeArray(arr []time.Time, sep string) string {
+	quoted := make([]string, len(arr))
+	for i, value := range arr {
+		quoted[i] = SimpleQuote(value.Format(time.RFC3339))
 	}
 	return strings.Join(quoted, sep)
 }

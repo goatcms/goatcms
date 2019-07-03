@@ -4,6 +4,7 @@
 {{- $fieldsBaseKey := (print .From ".fields.") -}}
 {{- $fields := (keys .Data $fieldsBaseKey) -}}
 {{- $firstIntValue := (findRow (print .From ".fields.") "^[A-Za-z0-9]+$" ".type" "int" $ctx.Data) -}}
+{{- $firstDatetimeValue := (findRow (print .From ".fields.") "^[A-Za-z0-9]+$" ".type" "datetime" $ctx.Data) -}}
 {{- $firstRepasswordValue := (findRow (print .From ".fields.") "^[A-Za-z0-9]+$" ".type" "repassword" $ctx.Data) -}}
 
 package {{index $ctx.Properties.Build "package"}}
@@ -13,6 +14,9 @@ import (
 	"strings"
 	{{- if or (ne $firstIntValue "") (ne $firstRepasswordValue "") }}
 	"strconv"
+	{{- end }}
+	{{- if ne $firstDatetimeValue "" }}
+	"time"
 	{{- end }}
 	"github.com/goatcms/goatcore/varutil"
 	"github.com/buger/jsonparser"
@@ -54,6 +58,16 @@ func {{$name}}FromJSON(e *{{$name}}, json []byte, fields *{{camelcaseuf $name}}F
 						First:  str,
 						Second: str,
 					}
+{{- else if eq $fieldType "datetime" }}
+				case "{{lower $fieldName}}":
+					var timeValue time.Time
+					if !fields.{{$fieldName}} {
+						return fmt.Errorf("{{$name}}.DecodeJSON haven't got {{$fieldName}} permissions")
+					}
+					if timeValue, err = time.Parse(time.RFC3339, string(value)); err != nil {
+						return err
+					}
+					e.{{$fieldName}} = &timeValue
 {{- else if eq $fieldType "int" }}
 				case "{{lower $fieldName}}":
 					var number int64
@@ -130,6 +144,15 @@ func {{$name}}ToJSON(e *{{$name}}, fields *{{camelcaseuf $name}}Fields) (json st
 					} else {
 						rows[i] = "\"{{lower $fieldName}}\":" + strconv.Quote(e.{{$fieldName}}.First)
 					}
+					i++
+				}
+{{- else if eq $fieldType "datetime" }}
+				if fields.{{camelcaseuf $fieldName}} {
+					var timeValue string
+					if timeValue, err = time.Parse(time.RFC3339, string(value)); err != nil {
+						return err
+					}
+					rows[i] = "\"{{lower $fieldName}}\":" + varutil.Quote(timeValue)
 					i++
 				}
 {{- else if eq $fieldType "int" }}

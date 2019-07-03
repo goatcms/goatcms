@@ -4,10 +4,14 @@
 {{- $entityName := (camelcaseuf $name) -}}
 {{- $fieldsBaseKey := (print .From ".fields.") -}}
 {{- $fields := (sort (keys $ctx.Data $fieldsBaseKey)) -}}
+{{- $firstDatetimeField := (findRow $fieldsBaseKey "^[A-Za-z0-9]+$" ".type" "datetime" $ctx.Data) -}}
 
 package {{index $ctx.Properties.Build "package"}}
 
 import (
+	{{- if ne $firstDatetimeField ""}}
+	"time"
+	{{- end }}
 	"github.com/goatcms/goatcore/app"
 	entities "{{index $ctx.Properties.Build "entities_path"}}"
 )

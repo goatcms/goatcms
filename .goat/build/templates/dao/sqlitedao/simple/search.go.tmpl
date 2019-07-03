@@ -70,6 +70,8 @@ func (query {{$typeName}}) SQL(fields *entities.{{camelcaseuf $name}}Fields, par
 	if params.{{camelcaseuf $fieldName}} != nil {
 		criterias = append(criterias, "{{camelcaseuf $fieldName}}=" + {{ if eq $fieldType "text" "string" "email" "password" "lang" -}}
 			strconv.Quote(*params.{{camelcaseuf $fieldName}})
+		{{- else if eq $fieldType "datetime" -}}
+			helpers.FormatDatetime(params.{{camelcaseuf $fieldName}})
 		{{- else if eq $fieldType "int" -}}
 			strconv.FormatInt(*params.{{camelcaseuf $fieldName}}, 10)
 		{{- else -}}

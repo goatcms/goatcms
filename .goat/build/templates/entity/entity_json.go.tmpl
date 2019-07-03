@@ -6,6 +6,7 @@
 {{- $relationsBaseKey := (print .From ".relations.") -}}
 {{- $relations := (keys .Data $relationsBaseKey) -}}
 {{- $firstIntValue := (findRow (print .From ".fields.") "^[A-Za-z0-9]+$" ".type" "int" $ctx.Data) -}}
+{{- $firstDatetimeValue := (findRow (print .From ".fields.") "^[A-Za-z0-9]+$" ".type" "datetime" $ctx.Data) -}}
 
 package {{index $ctx.Properties.Build "package"}}
 
@@ -15,6 +16,9 @@ import (
 	"fmt"
 	{{- if ne $firstIntValue ""}}
 	"strconv"
+	{{- end }}
+	{{- if ne $firstDatetimeValue ""}}
+	"time"
 	{{- end }}
 	"github.com/goatcms/goatcore/varutil"
 	"github.com/buger/jsonparser"
@@ -50,7 +54,16 @@ func {{$entityName}}FromJSON(e *{{$entityName}}, json []byte, fields *{{camelcas
 					}
 					str = string(value)
 					e.{{$fieldName}} = &str
-
+{{- else if eq $fieldType "datetime" }}
+				case "{{lower $fieldName}}":
+					var timeValue time.Time
+					if !fields.{{$fieldName}} {
+						return fmt.Errorf("{{$entityName}}.DecodeJSON haven't got {{$fieldName}} permissions")
+					}
+					if timeValue, err = time.Parse(time.RFC3339, string(value)); err != nil {
+						return err
+					}
+					e.{{$fieldName}} = &timeValue
 {{- else if eq $fieldType "int" }}
 				case "{{lower $fieldName}}":
 					var number int64
@@ -136,6 +149,11 @@ func {{$entityName}}ToJSON(e *{{$entityName}}, fields *{{camelcaseuf $entityName
 {{- if eq $fieldType "text" "string" "email" "password" "lang" "repassword" }}
 				if fields.{{camelcaseuf $fieldName}} {
 					rows[i] = "\"{{lower $fieldName}}\":" + varutil.Quote(e.{{$fieldName}})
+					i++
+				}
+{{- else if eq $fieldType "datetime" }}
+				if fields.{{camelcaseuf $fieldName}} {
+					rows[i] = "\"{{lower $fieldName}}\":" + e.{{$fieldName}}.Format(time.RFC3339)
 					i++
 				}
 {{- else if eq $fieldType "int" }}

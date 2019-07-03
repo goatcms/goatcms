@@ -4,6 +4,8 @@
 
 {{- if eq $lvalue "text" "string" "email" "lang" -}}
   text
+{{- else if eq $lvalue "datetime" -}}
+  date
 {{- else if eq $lvalue "int" -}}
   number
 {{- else if eq $lvalue "repassword" "password" -}}

@@ -3,6 +3,7 @@
 {{- $userID := (findRow "model." "^[A-Za-z0-9]+$" ".entity" "user" $ctx.Data) -}}
 {{- $fieldsBaseKey := (print "model." $userID ".fields.") -}}
 {{- $firstIntField := (findRow $fieldsBaseKey "^[A-Za-z0-9]+$" ".type" "int" $ctx.Data) -}}
+{{- $firstDatetimeField := (findRow $fieldsBaseKey "^[A-Za-z0-9]+$" ".type" "datetime" $ctx.Data) -}}
 {{- $fields := (keys $ctx.Data $fieldsBaseKey) -}}
 
 package userc
@@ -10,6 +11,9 @@ package userc
 import (
 {{- if ne $firstIntField ""}}
   "strconv"
+{{- end }}
+{{- if ne $firstDatetimeField ""}}
+  "time"
 {{- end }}
 	"github.com/goatcms/goatcms/cmsapp/dao"
 	entities "{{index $ctx.Properties.Build "entities_path"}}"
@@ -37,6 +41,9 @@ func RunAdd(a app.App) (err error) {
 {{- if ne $firstIntField ""}}
   	number     int64
 {{- end }}
+{{- if ne $firstDatetimeField ""}}
+    timeValue time.Time
+{{- end }}
 	)
 	if err = a.DependencyProvider().InjectTo(&deps); err != nil {
 		return err
@@ -56,6 +63,16 @@ func RunAdd(a app.App) (err error) {
 		}
 	}
   user.{{camelcaseuf $fieldName}} = &deps.User{{camelcaseuf $fieldName}}
+{{- else if eq $fieldType "datetime" }}
+	if InteractiveMode && deps.User{{camelcaseuf $fieldName}} == "" {
+		if deps.User{{camelcaseuf $fieldName}}, err = deps.Input.ReadLine(); err != nil {
+			return err
+		}
+	}
+  if timeValue, err = time.Parse(time.RFC3339, deps.User{{camelcaseuf $fieldName}}); err != nil {
+    return err
+  }
+  user.{{camelcaseuf $fieldName}} = &timeValue
 {{- else if eq $fieldType "int" }}
 	if InteractiveMode && deps.User{{camelcaseuf $fieldName}} == "" {
 		if deps.User{{camelcaseuf $fieldName}}, err = deps.Input.ReadLine(); err != nil {

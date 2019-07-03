@@ -2,6 +2,22 @@
 
 {{- if eq . "email" -}}
   {{- template "randomvalue" "firstname" -}}.{{- template "randomvalue" "lastname" -}}@{{random 3 "abcdefghijklmnopqrstuvwxyz"}}.{{- template "randomvalue" "lang" -}}
+{{- else if eq . "datetime" -}}
+  {{- template "randomvalue" "date"}} {{template "randomvalue" "time" -}}
+{{- else if eq . "date" -}}
+  {{/* rfc3339 */}}
+  {{- randomValue "197" "198" "199" "200" "201" "202" "203" "204" -}}
+  {{- random 1 "1234567890" -}}
+  -
+  {{- randomValue "01" "02" "03" "04" "05" "06" "07" "08" "09" "10" "11" "12" -}}
+  -
+  {{- random 1 "012" -}}{{- random 1 "12345678" -}}
+{{- else if eq . "time" -}}
+  {{- template "randomvalue" "hour" -}}:{{- template "randomvalue" "minute" -}}:{{- template "randomvalue" "second" -}}
+{{- else if eq . "hour" -}}
+  {{- random 2 "1234567890" -}}
+{{- else if eq . "minute" "second" -}}
+  {{- random 1 "123450" -}}{{- random 1 "1234567890" -}}
 {{- else if eq . "lang" -}}
   {{- randomValue "pl" "en" "fi" "fr" "us" "cn" -}}
 {{- else if eq . "firstname" -}}

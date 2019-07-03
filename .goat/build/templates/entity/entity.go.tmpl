@@ -9,8 +9,15 @@
 {{- $relations := (keys .Data $relationsBaseKey) -}}
 {{- $systemRelations := (findRows $relationsBaseKey "^[A-Za-z0-9]+$" ".system" "y" $ctx.Data) -}}
 {{- $mainRelations := (except $relations $systemRelations) -}}
+{{- $firstDatetimeValue := (findRow (print .From ".fields.") "^[A-Za-z0-9]+$" ".type" "datetime" $ctx.Data) -}}
 
 package {{index $ctx.Properties.Build "package"}}
+
+{{- if ne $firstDatetimeValue ""}}
+import (
+  "time"
+)
+{{- end }}
 
 // {{camelcaseuf $name}}AllFields is a array contains list of all {{camelcaseuf $name}} fields (except ID)
 var {{camelcaseuf $name}}AllFields = {{template "fields_array_helper" (dict "WithID" false "EntityName" $name "AllFields" $fields "AllRelations" $relations "Fields" $fields "Relations" $relations "Context" $ctx)}}

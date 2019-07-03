@@ -3,7 +3,11 @@
 
 package {{index $ctx.Properties.Build "package"}}
 
-import "github.com/goatcms/goatcore/app"
+import (
+	"time"
+
+	"github.com/goatcms/goatcore/app"
+)
 
 const (
 	// order DESC (descending)
@@ -39,6 +43,12 @@ type StringFieldCriteria struct {
 // Int64FieldCriteria represent criteria for single int64 field
 type Int64FieldCriteria struct {
 	Value []int64
+	Type  int
+}
+
+// DatetimeFieldCriteria represent criteria for single datetime field
+type DatetimeFieldCriteria struct {
+	Value []time.Time
 	Type  int
 }
 

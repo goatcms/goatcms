@@ -73,7 +73,11 @@ func get{{$entityName}}Mapping(criteria *maindef.{{$entityName}}Criteria, entity
 {{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
 {{- $fieldType := (lower (index $ctx.Data (print $key ".type"))) }}
 	if criteria.Fields.{{$fieldName}} {
+		{{- if eq $fieldType "datetime"}}
+		mapping[i] = helpers.NewTimeConverter(&entity.{{$fieldName}})
+		{{- else}}
 		mapping[i] = &entity.{{$fieldName}}
+		{{- end}}
 		i++
 	}
 {{- end }}

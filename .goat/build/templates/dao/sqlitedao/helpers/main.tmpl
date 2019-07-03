@@ -9,6 +9,14 @@
   {{- $ctx.Out.EOF -}}
 {{- end -}}
 
+{{- /* Converters */ -}}
+{{- $path := (print $ctx.To "/sqlitedao/helpers/converters.go") -}}
+{{- if not ($ctx.Filesystem.IsFile $path) -}}
+  {{- $ctx.Out.File $path -}}
+    {{- template "sqlite.helpers.converters_go" $ctx -}}
+  {{- $ctx.Out.EOF -}}
+{{- end -}}
+
 {{- /*  Rows */ -}}
 {{- $path := (print $ctx.To "/sqlitedao/helpers/rows.go") -}}
 {{- if not ($ctx.Filesystem.IsFile $path) -}}

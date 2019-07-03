@@ -107,13 +107,13 @@ func (q *Query) AddStringCriteria(entityAlias, field string, c *maindef.StringFi
 			}
 		case maindef.LT:
 			if len(c.Value) == 1 {
-				q.Where = append(q.Where, entityAlias + "." + field + "{{noescape "<"}}" + c.Value[0])
+				q.Where = append(q.Where, entityAlias + "." + field + "{{"<"}}" + c.Value[0])
 			} else {
 				return fmt.Errorf("Criteria for %v (of %v) require only one parameter", field, entityAlias)
 			}
 		case maindef.LE:
 			if len(c.Value) == 1 {
-				q.Where = append(q.Where, entityAlias + "." + field + "{{noescape "<"}}=" + c.Value[0])
+				q.Where = append(q.Where, entityAlias + "." + field + "{{"<"}}=" + c.Value[0])
 			} else {
 				return fmt.Errorf("Criteria for %v (of %v) require only one parameter", field, entityAlias)
 			}
@@ -164,13 +164,13 @@ func (q *Query) AddInt64Criteria(entityAlias, field string, c *maindef.Int64Fiel
 			}
 		case maindef.LT:
 			if len(c.Value) == 1 {
-				q.Where = append(q.Where, entityAlias + "." + field + "{{noescape "<"}}" + strconv.FormatInt(c.Value[0], 10))
+				q.Where = append(q.Where, entityAlias + "." + field + "{{"<"}}" + strconv.FormatInt(c.Value[0], 10))
 			} else {
 				return fmt.Errorf("Criteria for %v (of %v) require only one parameter", field, entityAlias)
 			}
 		case maindef.LE:
 			if len(c.Value) == 1 {
-				q.Where = append(q.Where, entityAlias + "." + field + "{{noescape "<"}}=" + strconv.FormatInt(c.Value[0], 10))
+				q.Where = append(q.Where, entityAlias + "." + field + "{{"<"}}=" + strconv.FormatInt(c.Value[0], 10))
 			} else {
 				return fmt.Errorf("Criteria for %v (of %v) require only one parameter", field, entityAlias)
 			}
@@ -183,6 +183,53 @@ func (q *Query) AddInt64Criteria(entityAlias, field string, c *maindef.Int64Fiel
 		case maindef.GE:
 			if len(c.Value) == 1 {
 				q.Where = append(q.Where, entityAlias + "." + field + ">=" + strconv.FormatInt(c.Value[0], 10))
+			} else {
+				return fmt.Errorf("Criteria for %v (of %v) require only one parameter", field, entityAlias)
+			}
+		default:
+			return fmt.Errorf("Criteria %v for %v (of %v) is invalid", c.Type, field, entityAlias)
+	}
+	return nil
+}
+
+func (q *Query) AddDatetimeCriteria(entityAlias, field string, c *maindef.DatetimeFieldCriteria) (err error) {
+	if len(c.Value) == 0 {
+		return fmt.Errorf("Criteria for %v (of %v) require parameter", field, entityAlias)
+	}
+	switch(c.Type) {
+		case maindef.EQ:
+			if len(c.Value) == 1 {
+				q.Where = append(q.Where, entityAlias + "." + field + "=" + helpers.SimpleQuote(c.Value[0].Format(helpers.TimeFormat)))
+			} else {
+				q.Where = append(q.Where, entityAlias + "." + field + " IN (" + helpers.FormatDatetimeArray(c.Value, ",") + ")")
+			}
+		case maindef.NE:
+			if len(c.Value) == 1 {
+				q.Where = append(q.Where, entityAlias + "." + field + "!=" + helpers.SimpleQuote(c.Value[0].Format(helpers.TimeFormat)))
+			} else {
+				q.Where = append(q.Where, entityAlias + "." + field + " NOT IN (" + helpers.FormatDatetimeArray(c.Value, ",") + ")")
+			}
+		case maindef.LT:
+			if len(c.Value) == 1 {
+				q.Where = append(q.Where, entityAlias + "." + field + "{{"<"}}" + helpers.SimpleQuote(c.Value[0].Format(helpers.TimeFormat)))
+			} else {
+				return fmt.Errorf("Criteria for %v (of %v) require only one parameter", field, entityAlias)
+			}
+		case maindef.LE:
+			if len(c.Value) == 1 {
+				q.Where = append(q.Where, entityAlias + "." + field + "{{"<"}}=" + helpers.SimpleQuote(c.Value[0].Format(helpers.TimeFormat)))
+			} else {
+				return fmt.Errorf("Criteria for %v (of %v) require only one parameter", field, entityAlias)
+			}
+		case maindef.GT:
+			if len(c.Value) == 1 {
+				q.Where = append(q.Where, entityAlias + "." + field + ">" + helpers.SimpleQuote(c.Value[0].Format(helpers.TimeFormat)))
+			} else {
+				return fmt.Errorf("Criteria for %v (of %v) require only one parameter", field, entityAlias)
+			}
+		case maindef.GE:
+			if len(c.Value) == 1 {
+				q.Where = append(q.Where, entityAlias + "." + field + ">=" + helpers.SimpleQuote(c.Value[0].Format(helpers.TimeFormat)))
 			} else {
 				return fmt.Errorf("Criteria for %v (of %v) require only one parameter", field, entityAlias)
 			}

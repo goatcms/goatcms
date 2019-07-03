@@ -42,8 +42,8 @@ func Add{{$name}}Valid(basekey string, mm messages.MessageMap, e *{{$name}}) err
       {{- end -}}
     {{- end -}}
 
-    {{- if eq $fieldType "text" "string" "password" -}}
-      {{- /* NO VALID INT TYPE*/ -}}
+    {{- if eq $fieldType "text" "string" "password" "datetime" -}}
+      {{- /* NO VALID TYPE*/ -}}
     {{- else if eq $fieldType "email" }}
       if e.{{$fieldName}} != nil {
         if err := validator.EmailValid(*e.{{$fieldName}}, messageKey, mm); err != nil {

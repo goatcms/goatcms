@@ -62,7 +62,7 @@ func Add{{$name}}Valid(basekey string, mm messages.MessageMap, e *{{$name}}, fie
 						return err
 					}
 				}
-			{{- else if eq $fieldType "int" -}}
+			{{- else if eq $fieldType "int" "datetime" -}}
 				{{- /* NO VALID INT TYPE*/ -}}
 			{{- else -}}
 				{{- error (print "bad type" $fieldType) -}}

@@ -89,7 +89,9 @@ func (dao {{$typeName}}) SQL(fields *entities.{{camelcaseuf $name}}Fields, entit
 	if fields.{{$fieldName}} {
 {{- if eq (lower $fieldType) "text" "string" "email" "password" "lang" }}
 	  array[i] = "{{$fieldName}}=" + helpers.Quote(entity.{{$fieldName}})
-{{- else if (lower $fieldType) "int" }}
+{{- else if eq (lower $fieldType) "datetime" }}
+		array[i] = "{{$fieldName}}=" + helpers.FormatDatetime(entity.{{$fieldName}})
+{{- else if eq (lower $fieldType) "int" }}
 		array[i] = "{{$fieldName}}=" + helpers.FormatInt(entity.{{$fieldName}}, 10)
 {{- else -}}
 		{{- error (print "bad type" $fieldType) -}}

@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"time"
 	"strings"
 	"testing"
 
@@ -17,6 +18,7 @@ import (
 const (
 	TXKey        = "_dbtx"
 	CommitInited = "_dbtx_commit_inited"
+	TimeFormat   = "2006-01-02 15:04:05"
 )
 
 func TX(scope app.Scope, db *sql.DB) (tx *sql.Tx, err error) {
@@ -156,18 +158,18 @@ func Quote(s *string) string {
 	if s == nil {
 		return "null"
 	}
-  return quote(*s)
+  return SimpleQuote(*s)
 }
 
 func QuoteArray(s []string, sep string) string {
 	quoted := make([]string, len(s))
 	for i, value := range s {
-		quoted[i] = quote(value)
+		quoted[i] = SimpleQuote(value)
 	}
 	return strings.Join(quoted, sep)
 }
 
-func quote(s string) string {
+func SimpleQuote(s string) string {
 	s = strings.Replace(s, "'", "''", -1)
 	return "'" + s + "'"
 }
@@ -179,10 +181,25 @@ func FormatInt(i *int64, base int) string {
 	return strconv.FormatInt(*i, base)
 }
 
+func FormatDatetime(value *time.Time) string {
+	if value == nil {
+		return "null"
+	}
+	return SimpleQuote(value.Format(TimeFormat))
+}
+
 func FormatIntArray(arr []int64, base int, sep string) string {
 	quoted := make([]string, len(arr))
 	for i, value := range arr {
 		quoted[i] = strconv.FormatInt(value, base)
+	}
+	return strings.Join(quoted, sep)
+}
+
+func FormatDatetimeArray(arr []time.Time, sep string) string {
+	quoted := make([]string, len(arr))
+	for i, value := range arr {
+		quoted[i] = SimpleQuote(value.Format(TimeFormat))
 	}
 	return strings.Join(quoted, sep)
 }

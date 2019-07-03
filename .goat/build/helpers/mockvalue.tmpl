@@ -10,6 +10,8 @@
     First:  "{{$value}}",
     Second: "{{$value}}",
   }
+{{- else if eq . "datetime" -}}
+  "{{- template "randomvalue" "datetime" -}}"
 {{- else if eq . "int" -}}
   {{random 1 "123456789"}}{{random 4 "1234567890"}}
 {{- else if eq . "email" -}}

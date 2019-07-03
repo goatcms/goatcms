@@ -6,6 +6,7 @@
 {{- $fieldsBaseKey := (print .From ".fields.") -}}
 {{- $fields := (keys .Data $fieldsBaseKey) -}}
 {{- $firstIntValue := (findRow (print .From ".fields.") "^[A-Za-z0-9]+$" ".type" "int" $ctx.Data) -}}
+{{- $firstDatetimeValue := (findRow (print .From ".fields.") "^[A-Za-z0-9]+$" ".type" "datetime" $ctx.Data) -}}
 
 package {{lower $name}}
 
@@ -15,6 +16,9 @@ import (
 	"io/ioutil"
 	{{- if ne $firstIntValue ""}}
 	"strconv"
+	{{- end }}
+	{{- if ne $firstDatetimeValue ""}}
+	"time"
 	{{- end }}
 
 	entities "{{index $ctx.Properties.Build "entities_path"}}"
@@ -66,6 +70,17 @@ func DecodeForm(prefix string, e *entities.{{$entityName}}, req *http.Request, f
 			plain{{$fieldName}}, ok := req.Form[prefix + "{{$fieldName}}"]
 			if ok {
 				e.{{$fieldName}} = &plain{{$fieldName}}[0]
+			}
+		}
+		{{- else if eq $fieldType "datetime" }}
+		if fields.{{$fieldName}} {
+			var datetime time.Time
+			plain{{$fieldName}}, ok := req.Form[prefix + "{{$fieldName}}"]
+			if ok {
+				if datetime, err = time.Parse(time.RFC3339, plain{{$fieldName}}[0]); err != nil {
+					return err
+				}
+				e.{{$fieldName}} = &datetime
 			}
 		}
 		{{- else if eq $fieldType "int" }}
