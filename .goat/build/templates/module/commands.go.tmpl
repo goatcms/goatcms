@@ -12,46 +12,27 @@ import (
 	"github.com/goatcms/goatcms/cmsapp/commands/servec"
 	"github.com/goatcms/goatcms/cmsapp/commands/userc"
 	"github.com/goatcms/goatcore/app"
+	"github.com/goatcms/goatcore/varutil/goaterr"
 )
 
 // RegisterCommands add cmsapp commands to an application
 func RegisterCommands(a app.App) error {
-	commandScope := a.CommandScope()
-	// run
-	commandScope.Set("help.command.run", commands.RunHelp)
-	commandScope.Set("command.run", servec.Run)
-	// db:build
-	commandScope.Set("help.command.db:build", commands.DBBuildHelp)
-	commandScope.Set("command.db:build", dbbuildc.Run)
-	// db:export
-	commandScope.Set("help.command.db:export", commands.DBExportHelp)
-	commandScope.Set("command.db:export", dbexportc.Run)
-	// db:load
-	commandScope.Set("help.command.db:load", commands.DBLoadHelp)
-	commandScope.Set("command.db:load", dbloadc.Run)
-	// db:fixtures:load
-	commandScope.Set("help.command.db:fixtures:load", commands.DBFixturesHelp)
-	commandScope.Set("command.db:fixtures:load", fixturec.Run)
-	// user:roles:update
-	commandScope.Set("help.command.user:roles:update", commands.UserUpdateRolesHelp)
-	commandScope.Set("command.user:roles:update", userc.RunUpdateRoles)
-	// user:password:update
-	commandScope.Set("help.command.user:password:update", commands.UserUpdatePasswordHelp)
-	commandScope.Set("command.user:password:update", userc.RunUpdatePassword)
-	// user:connected:add
-	commandScope.Set("help.command.user:connected:add", commands.UserConnectAddHelp)
-	commandScope.Set("command.user:connected:add", userc.RunConnectAdd)
-	// user:roles:update
-	commandScope.Set("help.command.user:add", commands.UserAddHelp)
-	commandScope.Set("command.user:add", userc.RunAdd)
-	// user:has
-	commandScope.Set("help.command.user:exists", commands.UserExistsHelp)
-	commandScope.Set("command.user:exists", userc.RunUserExists)
-	// arguments
-	commandScope.Set("help.argument.env", commands.EnvArg)
-	commandScope.Set("help.argument.loglvl", commands.LoglvlArg)
-	commandScope.Set("help.argument.host", commands.HostArg)
-	return nil
+	return goaterr.ToErrors(goaterr.AppendError(nil,
+		app.RegisterComand(a, "run", servec.Run, commands.RunHelp),
+		app.RegisterComand(a, "db:build", dbbuildc.Run, commands.DBBuildHelp),
+		app.RegisterComand(a, "db:export", dbexportc.Run, commands.DBExportHelp),
+		app.RegisterComand(a, "db:load", dbloadc.Run, commands.DBLoadHelp),
+		app.RegisterComand(a, "db:fixtures:load", fixturec.Run, commands.DBFixturesHelp),
+		app.RegisterComand(a, "user:roles:update", userc.RunUpdateRoles, commands.UserUpdateRolesHelp),
+		app.RegisterComand(a, "user:password:update", userc.RunUpdatePassword, commands.UserUpdatePasswordHelp),
+		app.RegisterComand(a, "user:connected:add", userc.RunConnectAdd, commands.UserConnectAddHelp),
+		app.RegisterComand(a, "user:add", userc.RunAdd, commands.UserAddHelp),
+		app.RegisterComand(a, "user:exists", userc.RunUserExists, commands.UserExistsHelp),
+		app.RegisterComand(a, "user:exists", userc.RunUserExists, commands.UserExistsHelp),
+		app.RegisterArgument(a, "env", commands.EnvArg),
+		app.RegisterArgument(a, "loglvl", commands.LoglvlArg),
+		app.RegisterArgument(a, "host", commands.HostArg),
+	))
 }
 
 {{- end -}}

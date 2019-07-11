@@ -7,7 +7,7 @@ import (
 )
 
 // RunUserExists exit with zero code if user exist, otherwise exit with non zero code
-func RunUserExists(a app.App) (err error) {
+func RunUserExists(a app.App, ctxScope app.Scope) (err error) {
 	var (
 		deps struct {
 			Input  app.Input  `dependency:"InputService"`

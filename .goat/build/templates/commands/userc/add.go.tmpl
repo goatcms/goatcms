@@ -21,18 +21,18 @@ import (
 )
 
 // RunAdd execute user:add command to a new user
-func RunAdd(a app.App) (err error) {
+func RunAdd(a app.App, ctxScope app.Scope) (err error) {
 	var (
 		deps struct {
 			Input  app.Input  `dependency:"InputService"`
 			Output app.Output `dependency:"OutputService"`
 
 			Inserter      dao.UserInsert `dependency:"UserInsert"`
-			InteractiveMode    string         `argument:"?interactive"`
+			InteractiveMode    string         `argument:"?interactive", command:"?interactive"`
 {{- range $index, $field := $fields -}}
 {{- $key := (print $fieldsBaseKey $field) -}}
 {{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) }}
-      User{{camelcaseuf $fieldName}} string         `argument:"?{{camelcaself $fieldName}}"`
+      User{{camelcaseuf $fieldName}} string         `command:"?{{camelcaself $fieldName}}"`
 {{- end }}
 		}
 		user       *entities.User
@@ -46,6 +46,9 @@ func RunAdd(a app.App) (err error) {
 {{- end }}
 	)
 	if err = a.DependencyProvider().InjectTo(&deps); err != nil {
+		return err
+	}
+	if err = ctxScope.InjectTo(&deps); err != nil {
 		return err
 	}
 	InteractiveMode = deps.InteractiveMode != "false"

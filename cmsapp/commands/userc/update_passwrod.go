@@ -10,7 +10,7 @@ import (
 )
 
 // RunUpdatePassword execute user:password:update command
-func RunUpdatePassword(a app.App) (err error) {
+func RunUpdatePassword(a app.App, ctxScope app.Scope) (err error) {
 	var (
 		deps struct {
 			Router     services.Router              `dependency:"RouterService"`

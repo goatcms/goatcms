@@ -10,7 +10,7 @@ import (
 )
 
 // RunConnectAdd execute user:connected:add command
-func RunConnectAdd(a app.App) (err error) {
+func RunConnectAdd(a app.App, ctxScope app.Scope) (err error) {
 	var (
 		deps struct {
 			Query             dao.UserSigninQuery   `dependency:"UserSigninQuery"`

@@ -6,7 +6,7 @@ import (
 )
 
 // Run run command
-func Run(app app.App) error {
+func Run(app app.App, ctxScope app.Scope) error {
 	var deps struct {
 		Router services.Router `dependency:"RouterService"`
 	}

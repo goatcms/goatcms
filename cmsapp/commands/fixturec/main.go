@@ -10,15 +10,17 @@ import (
 	"github.com/goatcms/goatcore/filesystem"
 )
 
+// Deps contains db:fixtures:load comamnd context dependencies
 type Deps struct {
-	Path           string               `argument:"?path"`
+	Path           string               `command:"?path"`
 	Filespace      filesystem.Filespace `filespace:"root"`
 	AppScope       app.Scope            `dependency:"AppScope"`
 	Database       dao.Database         `dependency:"db0"`
 	FixtureService services.Fixture     `dependency:"FixtureService"`
 }
 
-func Run(a app.App) (err error) {
+//Run execute db:fixtures:load command
+func Run(a app.App, ctxScope app.Scope) (err error) {
 	deps := &Deps{
 		Path: commands.DefaultFixtureDir,
 	}

@@ -8,7 +8,8 @@ import (
 	"github.com/goatcms/goatcore/app"
 )
 
-func Run(a app.App) error {
+// Run execute db:export command
+func Run(a app.App, ctxScope app.Scope) error {
 	var deps struct {
 		DependencyScope app.Scope `dependency:"DependencyScope"`
 	}

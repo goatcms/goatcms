@@ -10,14 +10,16 @@ import (
 	"github.com/goatcms/goatcore/filesystem"
 )
 
+// Deps contains db:load command dependencies
 type Deps struct {
-	Path      string               `argument:"?path"`
+	Path      string               `command:"?path"`
 	Filespace filesystem.Filespace `filespace:"root"`
 	AppScope  app.Scope            `dependency:"AppScope"`
 	Database  dao.Database         `dependency:"db0"`
 }
 
-func Run(a app.App) error {
+// Run execute db:load
+func Run(a app.App, ctxScope app.Scope) error {
 	deps := &Deps{
 		Path: commands.DefaultFixtureDir,
 	}

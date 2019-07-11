@@ -8,7 +8,7 @@ import (
 )
 
 // Run execute create schema command
-func Run(a app.App) (err error) {
+func Run(a app.App, ctxScope app.Scope) (err error) {
 	var deps struct {
 		SchemaCreator services.SchemaCreator `dependency:"SchemaCreator"`
 	}

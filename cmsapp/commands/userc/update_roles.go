@@ -11,7 +11,7 @@ import (
 )
 
 // RunUpdateRoles execute user:roles:update command
-func RunUpdateRoles(a app.App) (err error) {
+func RunUpdateRoles(a app.App, ctxScope app.Scope) (err error) {
 	var (
 		deps struct {
 			Router     services.Router     `dependency:"RouterService"`
