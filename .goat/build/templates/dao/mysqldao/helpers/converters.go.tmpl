@@ -1,29 +1,39 @@
 {{define "mysql.helpers.converters_go" -}}
 {{- $ctx := . -}}
-
 package helpers
 
 import (
+	"fmt"
 	"time"
 )
 
+// TimeConverter is helper to convert mysql datatime format
 type TimeConverter struct {
 	dest **time.Time
 }
 
+// NewTimeConverter create new TimeConverter for dest field
 func NewTimeConverter(dest **time.Time) *TimeConverter {
-	return &TimeConverter {
+	return &TimeConverter{
 		dest: dest,
 	}
 }
 
-func (converter *TimeConverter) Scan(v interface{}) (err error) {
+// Scan convert value and set to dest field
+func (converter *TimeConverter) Scan(i interface{}) (err error) {
 	var value time.Time
-	if value, err = time.Parse(TimeFormat, string(v.([]byte))); err != nil {
+	switch v := i.(type) {
+	case []byte:
+		if value, err = time.Parse(TimeFormat, string(v)); err != nil {
+			*converter.dest = nil
+			return err
+		}
+		*converter.dest = &value
+	case nil:
 		*converter.dest = nil
-		return err
+	default:
+		panic(fmt.Errorf("mysqldao.helpers.TimeConverter: Incorect type %T", v))
 	}
-	*converter.dest = &value
 	return nil
 }
 
