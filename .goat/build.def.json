@@ -30,7 +30,8 @@
   "properties": {
     "package":"commands",
     "path":"github.com/goatcms/goatcms/cmsapp/commands",
-    "entities_path":"github.com/goatcms/goatcms/cmsapp/entities"
+    "entities_path":"github.com/goatcms/goatcms/cmsapp/entities",
+    "dao_path":"github.com/goatcms/goatcms/cmsapp/dao"
   },
   "afterBuild": "gofmt -w {{argument.cwd}}/cmsapp/commands/",
 },{

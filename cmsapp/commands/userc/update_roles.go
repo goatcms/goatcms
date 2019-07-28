@@ -6,7 +6,6 @@ import (
 
 	"github.com/goatcms/goatcms/cmsapp/dao"
 	"github.com/goatcms/goatcms/cmsapp/entities"
-	"github.com/goatcms/goatcms/cmsapp/services"
 	"github.com/goatcms/goatcore/app"
 )
 
@@ -14,19 +13,28 @@ import (
 func RunUpdateRoles(a app.App, ctxScope app.Scope) (err error) {
 	var (
 		deps struct {
-			Router     services.Router     `dependency:"RouterService"`
+			Input      app.Input           `dependency:"InputService"`
+			Output     app.Output          `dependency:"OutputService"`
 			Search     dao.UserSigninQuery `dependency:"UserSigninQuery"`
 			Updater    dao.UserUpdate      `dependency:"UserUpdate"`
-			Identyfier string              `argument:"by"`
-			Roles      string              `argument:"roles"`
+			Identyfier string              `command:"?by"`
+			Roles      string              `command:"?roles"`
 		}
-		user  *entities.User
-		scope = a.AppScope()
+		user *entities.User
 	)
 	if err = a.DependencyProvider().InjectTo(&deps); err != nil {
 		return err
 	}
-	if user, err = deps.Search.Signin(scope, &entities.UserFields{
+	if err = ctxScope.InjectTo(&deps); err != nil {
+		return err
+	}
+	if deps.Identyfier == "" {
+		return fmt.Errorf("User identyfier (email/username) is required")
+	}
+	if deps.Roles == "" {
+		return fmt.Errorf("User roles are required")
+	}
+	if user, err = deps.Search.Signin(ctxScope, &entities.UserFields{
 		ID: true,
 	}, &dao.UserSigninQueryParams{
 		Username: deps.Identyfier,
@@ -36,14 +44,14 @@ func RunUpdateRoles(a app.App, ctxScope app.Scope) (err error) {
 	}
 	deps.Roles = strings.Replace(deps.Roles, "&", " ", -1)
 	user.Roles = &deps.Roles
-	if err = deps.Updater.Update(scope, user, &entities.UserFields{
+	if err = deps.Updater.Update(ctxScope, user, &entities.UserFields{
 		Roles: true,
 	}); err != nil {
 		return err
 	}
-	if err = scope.Trigger(app.CommitEvent, nil); err != nil {
+	if err = ctxScope.Trigger(app.CommitEvent, nil); err != nil {
 		return err
 	}
-	fmt.Printf("Role updated... success\n")
+	deps.Output.Printf("Role updated... success\n")
 	return nil
 }

@@ -28,7 +28,7 @@ func RunAdd(a app.App, ctxScope app.Scope) (err error) {
 			Output app.Output `dependency:"OutputService"`
 
 			Inserter      dao.UserInsert `dependency:"UserInsert"`
-			InteractiveMode    string         `argument:"?interactive", command:"?interactive"`
+			InteractiveMode    string         `argument:"?interactive",command:"?interactive"`
 {{- range $index, $field := $fields -}}
 {{- $key := (print $fieldsBaseKey $field) -}}
 {{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) }}
@@ -36,7 +36,6 @@ func RunAdd(a app.App, ctxScope app.Scope) (err error) {
 {{- end }}
 		}
 		user       *entities.User
-		scope      = a.AppScope()
 		InteractiveMode bool
 {{- if ne $firstIntField ""}}
   	number     int64
@@ -91,10 +90,10 @@ func RunAdd(a app.App, ctxScope app.Scope) (err error) {
 {{- end -}}
 
 {{- end }}
-	if _, err = deps.Inserter.Insert(scope, user); err != nil {
+	if _, err = deps.Inserter.Insert(ctxScope, user); err != nil {
 		return err
 	}
-	if err = scope.Trigger(app.CommitEvent, nil); err != nil {
+	if err = ctxScope.Trigger(app.CommitEvent, nil); err != nil {
 		return err
 	}
 	deps.Output.Printf("Add user... success\n")

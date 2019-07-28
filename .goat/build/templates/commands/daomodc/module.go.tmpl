@@ -1,0 +1,36 @@
+{{define "daomodc.module.go" -}}
+{{- $ctx := . -}}
+{{- $entityName := (camelcaseuf (index $ctx.Data (print .From ".entity"))) -}}
+{{- $fieldsBaseKey := (print .From ".fields.") -}}
+{{- $fields := (keys .Data $fieldsBaseKey) -}}
+{{- $relationsBaseKey := (print .From ".relations.") -}}
+{{- $relations := (keys .Data $relationsBaseKey) -}}
+{{- $firstIntValue := (findRow (print .From ".fields.") "^[A-Za-z0-9]+$" ".type" "int" $ctx.Data) -}}
+{{- $firstDatetimeValue := (findRow (print .From ".fields.") "^[A-Za-z0-9]+$" ".type" "datetime" $ctx.Data) -}}
+
+
+package daomodc
+
+import (
+	"github.com/goatcms/goatcore/app"
+	"github.com/goatcms/goatcore/varutil/goaterr"
+  {{- range $index, $key := (keys .Data "model.") -}}
+    {{- $entityName := (camelcaseuf (index $ctx.Data (print "model." $key ".entity"))) }}
+		"{{index $ctx.Properties.Build "path"}}/daomodc/model/{{underscore $entityName}}c"
+  {{- end -}}
+)
+
+// RegisterCommands init all dependency modules
+func RegisterCommands(a app.App) error {
+  return goaterr.ToErrors(goaterr.AppendError(nil,
+    {{- range $index, $key := (keys .Data "model.") -}}
+      {{- $entityName := (camelcaseuf (index $ctx.Data (print "model." $key ".entity"))) }}
+      app.RegisterComand(a, "dao:{{underscore $entityName}}:insert", {{lower $entityName}}c.RunInsert, {{$entityName}}InsertHelp),
+      app.RegisterComand(a, "dao:{{underscore $entityName}}:list", {{lower $entityName}}c.RunList, {{$entityName}}ListHelp),
+    {{- end -}}
+  ))
+}
+
+
+
+{{- end -}}

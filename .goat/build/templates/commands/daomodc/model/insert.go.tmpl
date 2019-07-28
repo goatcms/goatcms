@@ -1,0 +1,108 @@
+{{define "daomodec.model.insert.go" -}}
+{{- $ctx := . -}}
+{{- $entityName := (camelcaseuf (index $ctx.Data (print .From ".entity"))) -}}
+{{- $fieldsBaseKey := (print .From ".fields.") -}}
+{{- $fields := (keys .Data $fieldsBaseKey) -}}
+{{- $relationsBaseKey := (print .From ".relations.") -}}
+{{- $relations := (keys .Data $relationsBaseKey) -}}
+{{- $firstIntValue := (findRow (print .From ".fields.") "^[A-Za-z0-9]+$" ".type" "int" $ctx.Data) -}}
+{{- $firstDatetimeValue := (findRow (print .From ".fields.") "^[A-Za-z0-9]+$" ".type" "datetime" $ctx.Data) -}}
+
+package {{lower $entityName}}c
+
+import (
+{{- if ne $firstIntValue ""}}
+  "strconv"
+{{- end }}
+{{- if ne $firstDatetimeValue ""}}
+  "time"
+{{- end }}
+  dao "{{index $ctx.Properties.Build "dao_path"}}"
+	entities "{{index $ctx.Properties.Build "entities_path"}}"
+	"github.com/goatcms/goatcore/app"
+)
+
+// RunInsert execute db:{{lower $entityName}}:add command
+func RunInsert(a app.App, ctxScope app.Scope) (err error) {
+	var (
+		deps struct {
+			Input  app.Input  `dependency:"InputService"`
+			Output app.Output `dependency:"OutputService"`
+
+			Inserter      dao.{{camelcaseuf $entityName}}Insert `dependency:"{{camelcaseuf $entityName}}Insert"`
+			InteractiveMode    string         `argument:"?interactive",command:"?interactive"`
+
+			// entity values
+{{- range $index, $field := $fields -}}
+{{- $key := (print $fieldsBaseKey $field) -}}
+{{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) }}
+      Value{{camelcaseuf $fieldName}} string         `command:"?{{camelcaself $fieldName}}"`
+{{- end }}
+		}
+		entity       *entities.{{camelcaseuf $entityName}}
+		interactiveMode bool
+{{- if ne $firstIntValue ""}}
+  	number     int64
+{{- end }}
+{{- if ne $firstDatetimeValue ""}}
+    timeValue time.Time
+{{- end }}
+	)
+	if err = a.DependencyProvider().InjectTo(&deps); err != nil {
+		return err
+	}
+	if err = ctxScope.InjectTo(&deps); err != nil {
+		return err
+	}
+	interactiveMode = deps.InteractiveMode != "false"
+	entity = &entities.{{camelcaseuf $entityName}}{}
+{{- range $index, $field := $fields -}}
+{{- $key := (print $fieldsBaseKey $field) -}}
+{{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
+{{- $fieldType := (lower (index $ctx.Data (print $key ".type"))) }}
+  // {{camelcaseuf $fieldName}}
+{{- if eq $fieldType "text" "string" "email" "password" "lang" }}
+	if interactiveMode && deps.Value{{camelcaseuf $fieldName}} == "" {
+    deps.Output.Printf("{{camelcaseuf $fieldName}}: ")
+		if deps.Value{{camelcaseuf $fieldName}}, err = deps.Input.ReadLine(); err != nil {
+			return err
+		}
+	}
+  entity.{{camelcaseuf $fieldName}} = &deps.Value{{camelcaseuf $fieldName}}
+{{- else if eq $fieldType "datetime" }}
+	if interactiveMode && deps.Value{{camelcaseuf $fieldName}} == "" {
+		if deps.Value{{camelcaseuf $fieldName}}, err = deps.Input.ReadLine(); err != nil {
+			return err
+		}
+	}
+  if timeValue, err = time.Parse(time.RFC3339, deps.Value{{camelcaseuf $fieldName}}); err != nil {
+    return err
+  }
+  entity.{{camelcaseuf $fieldName}} = &timeValue
+{{- else if eq $fieldType "int" }}
+	if interactiveMode && deps.Value{{camelcaseuf $fieldName}} == "" {
+		if deps.Value{{camelcaseuf $fieldName}}, err = deps.Input.ReadLine(); err != nil {
+			return err
+		}
+	}
+  if number, err = strconv.ParseInt(deps.Value{{camelcaseuf $fieldName}}, 10, 64); err != nil {
+    return err
+  }
+  entity.{{camelcaseuf $fieldName}} = &number
+{{- else -}}
+	{{- error (print "bad type" .) -}}
+{{- end -}}
+
+{{- end }}
+	if _, err = deps.Inserter.Insert(ctxScope, entity); err != nil {
+		return err
+	}
+	if err = ctxScope.Trigger(app.CommitEvent, nil); err != nil {
+		return err
+	}
+	deps.Output.Printf("Add entity... success\n")
+	return nil
+}
+
+
+{{- end -}}

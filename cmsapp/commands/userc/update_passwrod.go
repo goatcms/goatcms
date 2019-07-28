@@ -13,16 +13,19 @@ import (
 func RunUpdatePassword(a app.App, ctxScope app.Scope) (err error) {
 	var (
 		deps struct {
-			Router     services.Router              `dependency:"RouterService"`
+			Input      app.Input                    `dependency:"InputService"`
+			Output     app.Output                   `dependency:"OutputService"`
 			Action     services.ResetPasswordAction `dependency:"ResetPasswordAction"`
 			Query      dao.UserSigninQuery          `dependency:"UserSigninQuery"`
-			Identyfier string                       `argument:"by"`
-			Password   string                       `argument:"password"`
+			Identyfier string                       `command:"?by"`
+			Password   string                       `command:"?password"`
 		}
-		user  *entities.User
-		scope = a.AppScope()
+		user *entities.User
 	)
 	if err = a.DependencyProvider().InjectTo(&deps); err != nil {
+		return err
+	}
+	if err = ctxScope.InjectTo(&deps); err != nil {
 		return err
 	}
 	if deps.Password == "" {
@@ -31,7 +34,7 @@ func RunUpdatePassword(a app.App, ctxScope app.Scope) (err error) {
 	if deps.Identyfier == "" {
 		return fmt.Errorf("User identyfier (email/username) is required")
 	}
-	if user, err = deps.Query.Signin(scope, &entities.UserFields{
+	if user, err = deps.Query.Signin(ctxScope, &entities.UserFields{
 		ID: true,
 	}, &dao.UserSigninQueryParams{
 		Username: deps.Identyfier,
@@ -39,12 +42,12 @@ func RunUpdatePassword(a app.App, ctxScope app.Scope) (err error) {
 	}); err != nil {
 		return err
 	}
-	if err = deps.Action.SimpleReset(scope, user, deps.Password); err != nil {
+	if err = deps.Action.SimpleReset(ctxScope, user, deps.Password); err != nil {
 		return err
 	}
-	if err = scope.Trigger(app.CommitEvent, nil); err != nil {
+	if err = ctxScope.Trigger(app.CommitEvent, nil); err != nil {
 		return err
 	}
-	fmt.Printf("Password updated... success\n")
+	deps.Output.Printf("Password updated... success\n")
 	return nil
 }

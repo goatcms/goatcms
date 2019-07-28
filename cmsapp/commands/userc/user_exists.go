@@ -1,6 +1,8 @@
 package userc
 
 import (
+	"fmt"
+
 	"github.com/goatcms/goatcms/cmsapp/dao"
 	entities "github.com/goatcms/goatcms/cmsapp/entities"
 	"github.com/goatcms/goatcore/app"
@@ -10,19 +12,23 @@ import (
 func RunUserExists(a app.App, ctxScope app.Scope) (err error) {
 	var (
 		deps struct {
-			Input  app.Input  `dependency:"InputService"`
-			Output app.Output `dependency:"OutputService"`
-
+			Input      app.Input           `dependency:"InputService"`
+			Output     app.Output          `dependency:"OutputService"`
 			Search     dao.UserSigninQuery `dependency:"UserSigninQuery"`
-			Identyfier string              `argument:"by"`
+			Identyfier string              `command:"by"`
 		}
-		user  *entities.User
-		scope = a.AppScope()
+		user *entities.User
 	)
 	if err = a.DependencyProvider().InjectTo(&deps); err != nil {
 		return err
 	}
-	if user, err = deps.Search.Signin(scope, &entities.UserFields{
+	if err = ctxScope.InjectTo(&deps); err != nil {
+		return err
+	}
+	if deps.Identyfier == "" {
+		return fmt.Errorf("User identyfier (email/username) is required")
+	}
+	if user, err = deps.Search.Signin(ctxScope, &entities.UserFields{
 		ID: true,
 	}, &dao.UserSigninQueryParams{
 		Username: deps.Identyfier,

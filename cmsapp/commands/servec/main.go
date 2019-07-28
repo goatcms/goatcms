@@ -6,11 +6,11 @@ import (
 )
 
 // Run run command
-func Run(app app.App, ctxScope app.Scope) error {
+func Run(app app.App, ctxScope app.Scope) (err error) {
 	var deps struct {
 		Router services.Router `dependency:"RouterService"`
 	}
-	if err := app.DependencyProvider().InjectTo(&deps); err != nil {
+	if err = app.DependencyProvider().InjectTo(&deps); err != nil {
 		return err
 	}
 	return deps.Router.Start()

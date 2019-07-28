@@ -1,0 +1,18 @@
+{{define "daomodc.main.go" -}}
+{{- $ctx := . -}}
+
+package daomodc
+
+const (
+{{- range $index, $key := (keys .Data "model.") -}}
+{{- $entityName := (camelcaseuf (index $ctx.Data (print "model." $key ".entity"))) }}
+	// {{$entityName}}InsertHelp is help to describe how dao:{{underscore $entityName}}:insert command works
+	{{$entityName}}InsertHelp = "insert new {{$entityName}} entity to database"
+	// {{$entityName}}ListHelp is help to describe how dao:{{underscore $entityName}}:list command works
+	{{$entityName}}ListHelp = "list {{$entityName}} by criteria"
+{{- end }}
+)
+
+
+
+{{- end -}}

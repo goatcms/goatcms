@@ -13,6 +13,7 @@
 /translates
 /cmsapp/services/genservices
 /cmsapp/commands/userc/add.go
+/cmsapp/commands/daomodc
 
 /cmsapp/commands.go
 /cmsapp/controllers.go

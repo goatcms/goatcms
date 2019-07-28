@@ -11,6 +11,7 @@ import (
 	"github.com/goatcms/goatcms/cmsapp/commands/fixturec"
 	"github.com/goatcms/goatcms/cmsapp/commands/servec"
 	"github.com/goatcms/goatcms/cmsapp/commands/userc"
+	"github.com/goatcms/goatcms/cmsapp/commands/daomodc"
 	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/varutil/goaterr"
 )
@@ -32,6 +33,7 @@ func RegisterCommands(a app.App) error {
 		app.RegisterArgument(a, "env", commands.EnvArg),
 		app.RegisterArgument(a, "loglvl", commands.LoglvlArg),
 		app.RegisterArgument(a, "host", commands.HostArg),
+		daomodc.RegisterCommands(a),
 	))
 }
 

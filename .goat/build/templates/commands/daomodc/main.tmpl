@@ -1,0 +1,44 @@
+{{define "daomodc.main" -}}
+{{- $ctx := . -}}
+
+{{- $path := (print $ctx.To "/daomodc/main.go") -}}
+{{- if not ($ctx.Filesystem.IsFile $path) -}}
+  {{- $ctx.Out.File $path -}}
+    {{- template "daomodc.main.go" $ctx -}}
+  {{- $ctx.Out.EOF -}}
+{{- end -}}
+
+{{- $path := (print $ctx.To "/daomodc/module.go") -}}
+{{- if not ($ctx.Filesystem.IsFile $path) -}}
+  {{- $ctx.Out.File $path -}}
+    {{- template "daomodc.module.go" $ctx -}}
+  {{- $ctx.Out.EOF -}}
+{{- end -}}
+
+{{- $path := (print $ctx.To "/daomodc/internal/internal.go") -}}
+{{- if not ($ctx.Filesystem.IsFile $path) -}}
+  {{- $ctx.Out.File $path -}}
+    {{- template "daomodc.internal.internal.go" $ctx -}}
+  {{- $ctx.Out.EOF -}}
+{{- end -}}
+
+{{- range $index, $key := (keys .Data "model.") -}}
+  {{- $entityName := (camelcaseuf (index $ctx.Data (print "model." $key ".entity"))) -}}
+
+  {{- $path := (print $ctx.To "/daomodc/model/" (underscore $entityName) "c/insert.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $path) -}}
+    {{- $ctx.Out.File $path -}}
+      {{- template "daomodec.model.insert.go" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
+  {{- $path := (print $ctx.To "/daomodc/model/"  (underscore $entityName) "c/list.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $path) -}}
+    {{- $ctx.Out.File $path -}}
+      {{- template "daomodec.model.list.go" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+{{- end -}}
+
+
+{{- end -}}

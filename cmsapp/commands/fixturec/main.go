@@ -1,8 +1,6 @@
 package fixturec
 
 import (
-	"fmt"
-
 	"github.com/goatcms/goatcms/cmsapp/commands"
 	"github.com/goatcms/goatcms/cmsapp/dao"
 	"github.com/goatcms/goatcms/cmsapp/services"
@@ -12,27 +10,31 @@ import (
 
 // Deps contains db:fixtures:load comamnd context dependencies
 type Deps struct {
-	Path           string               `command:"?path"`
-	Filespace      filesystem.Filespace `filespace:"root"`
-	AppScope       app.Scope            `dependency:"AppScope"`
+	Input          app.Input            `dependency:"InputService"`
+	Output         app.Output           `dependency:"OutputService"`
 	Database       dao.Database         `dependency:"db0"`
 	FixtureService services.Fixture     `dependency:"FixtureService"`
+	Filespace      filesystem.Filespace `filespace:"root"`
+	Path           string               `command:"?path"`
 }
 
 //Run execute db:fixtures:load command
 func Run(a app.App, ctxScope app.Scope) (err error) {
-	deps := &Deps{
+	deps := Deps{
 		Path: commands.DefaultFixtureDir,
 	}
-	if err = a.DependencyProvider().InjectTo(deps); err != nil {
+	if err = a.DependencyProvider().InjectTo(&deps); err != nil {
 		return err
 	}
-	if err = deps.FixtureService.Load(a.DependencyProvider(), deps.AppScope, deps.Filespace, deps.Path); err != nil {
+	if err = ctxScope.InjectTo(&deps); err != nil {
 		return err
 	}
-	if err = deps.Database.Commit(deps.AppScope); err != nil {
+	if err = deps.FixtureService.Load(a.DependencyProvider(), ctxScope, deps.Filespace, deps.Path); err != nil {
 		return err
 	}
-	fmt.Printf("ok\n")
+	if err = deps.Database.Commit(ctxScope); err != nil {
+		return err
+	}
+	deps.Output.Printf("ok\n")
 	return nil
 }

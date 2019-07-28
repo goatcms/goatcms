@@ -1,5 +1,7 @@
 {{- $ctx := . -}}
 
+{{- template "daomodc.main" $ctx -}}
+
 {{- /* user:add */ -}}
 {{- $path := (print $ctx.To "/userc/add.go") -}}
 {{- if not ($ctx.Filesystem.IsFile $path) -}}

@@ -1,0 +1,121 @@
+{{define "daomodec.model.list.go" -}}
+{{- $ctx := . -}}
+{{- $entityName := (camelcaseuf (index $ctx.Data (print .From ".entity"))) -}}
+{{- $fieldsBaseKey := (print .From ".fields.") -}}
+{{- $fields := (keys .Data $fieldsBaseKey) -}}
+{{- $relationsBaseKey := (print .From ".relations.") -}}
+{{- $relations := (keys .Data $relationsBaseKey) -}}
+{{- $firstIntValue := (findRow (print .From ".fields.") "^[A-Za-z0-9]+$" ".type" "int" $ctx.Data) -}}
+{{- $firstDatetimeValue := (findRow (print .From ".fields.") "^[A-Za-z0-9]+$" ".type" "datetime" $ctx.Data) -}}
+
+package {{lower $entityName}}c
+
+import (
+	"strings"
+
+	"{{index $ctx.Properties.Build "path"}}/daomodc/internal"
+	dao "{{index $ctx.Properties.Build "dao_path"}}"
+	entities "{{index $ctx.Properties.Build "entities_path"}}"
+	"github.com/goatcms/goatcore/app"
+	"github.com/goatcms/goatcore/varutil"
+	"github.com/goatcms/goatcore/varutil/goaterr"
+)
+
+// RunList execute db:{{lower $entityName}}:list command
+func RunList(a app.App, ctxScope app.Scope) (err error) {
+	var (
+		deps struct {
+			Input    app.Input                  `dependency:"InputService"`
+			Output   app.Output                 `dependency:"OutputService"`
+			Searcher dao.{{camelcaseuf $entityName}}CriteriaSearch `dependency:"{{camelcaseuf $entityName}}CriteriaSearch"`
+		}
+		command struct {
+			Fields     string `command:"?fields"`
+			PageNumber string `command:"?page.number"`
+			PageSize   string `command:"?page.size"`
+		}
+		where struct {
+{{- range $index, $field := $fields -}}
+{{- $key := (print $fieldsBaseKey $field) -}}
+{{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
+{{- $fieldType := (lower (index $ctx.Data (print $key ".type"))) }}
+			{{camelcaseuf $fieldName}} string `command:"?where.{{lower $fieldName}}"`
+{{- end -}}
+		}
+		errs         []error
+		selectFields []string
+		criteria     dao.{{camelcaseuf $entityName}}Criteria
+		pager        *dao.Pager
+		rows         dao.{{camelcaseuf $entityName}}Rows
+		entity       entities.{{camelcaseuf $entityName}}
+		json         string
+		count        int
+	)
+	if errs = goaterr.AppendError(nil,
+		a.DependencyProvider().InjectTo(&deps),
+		ctxScope.InjectTo(&command),
+		ctxScope.InjectTo(&where)); errs != nil {
+		return goaterr.ToErrors(errs)
+	}
+	// select fields
+	if command.Fields != "*" && command.Fields != "" {
+		criteria.Fields = &entities.{{camelcaseuf $entityName}}Fields{}
+		selectFields = strings.Split(strings.ToLower(command.Fields), ",")
+{{- range $index, $field := $fields -}}
+{{- $key := (print $fieldsBaseKey $field) -}}
+{{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
+{{- $fieldType := (lower (index $ctx.Data (print $key ".type"))) }}
+    if varutil.IsArrContainStr(selectFields, "{{lower $fieldName}}") {
+      criteria.Fields.{{camelcaseuf $fieldName}} = true
+    }
+{{- end -}}
+	} else {
+		criteria.Fields = entities.{{camelcaseuf $entityName}}AllFieldsAndID
+	}
+	// where criteria
+{{- range $index, $field := $fields -}}
+{{- $key := (print $fieldsBaseKey $field) -}}
+{{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
+{{- $fieldType := (lower (index $ctx.Data (print $key ".type"))) }}
+{{- if eq $fieldType "text" "string" "email" "password" "lang" }}
+    criteria.Where.{{camelcaseuf $fieldName}} = internal.ToStringFieldCriteria(where.{{camelcaseuf $fieldName}})
+{{- else if eq $fieldType "datetime" }}
+    if criteria.Where.{{camelcaseuf $fieldName}}, err = internal.ToDatetimeFieldCriteria(where.{{camelcaseuf $fieldName}}); err != nil {
+			return err
+		}
+{{- else if eq $fieldType "int" }}
+    if criteria.Where.{{camelcaseuf $fieldName}}, err = internal.ToInt64FieldCriteria(where.{{camelcaseuf $fieldName}}); err != nil {
+			return err
+		}
+{{- else -}}
+{{- error (print "bad type" .) -}}
+{{- end -}}
+{{- end }}
+	// find
+	if pager, err = internal.ToPager(command.PageSize, command.PageNumber); err != nil {
+		return err
+	}
+	if rows, err = deps.Searcher.Find(ctxScope, &criteria, pager); err != nil {
+		return err
+	}
+	defer rows.Close()
+	deps.Output.Printf("[")
+	for rows.Next() {
+		if err = rows.InjectTo(&entity); err != nil {
+			return err
+		}
+		if json, err = varutil.ObjectToJSON(entity); err != nil {
+			return err
+		}
+		if count > 0 {
+			deps.Output.Printf(", %s", json)
+		} else {
+			deps.Output.Printf("%s", json)
+		}
+		count++
+	}
+	deps.Output.Printf("]")
+	return ctxScope.Trigger(app.RollbackEvent, nil)
+}
+
+{{- end -}}
