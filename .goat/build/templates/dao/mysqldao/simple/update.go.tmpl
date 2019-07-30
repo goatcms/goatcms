@@ -50,7 +50,6 @@ func {{$typeName}}Factory(dp dependency.Provider) (interface{}, error) {
 func (dao {{$typeName}}) Update(scope app.Scope, entity *entities.{{$entityName}}, fields *entities.{{camelcaseuf $name}}Fields) (err error) {
 	var (
 		res   sql.Result
-		count int64
 		query string
 		tx  *sql.Tx
 	)
@@ -63,11 +62,8 @@ func (dao {{$typeName}}) Update(scope app.Scope, entity *entities.{{$entityName}
 	if res, err = tx.Exec(query); err != nil {
 		return fmt.Errorf("%s: %s", err.Error(), query)
 	}
-	if count, err = res.RowsAffected(); err != nil {
+	if _, err = res.RowsAffected(); err != nil {
 		return fmt.Errorf("%s: %s", err.Error(), query)
-	}
-	if count != 1 {
-		return fmt.Errorf("Update modified more then one record (%v records modyfieds): %s", count, query)
 	}
 	if err = dao.deps.EngineScope.Trigger(maindef.{{$entityName}}UpdateEvent, entity); err != nil {
 		return err
