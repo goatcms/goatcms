@@ -170,8 +170,11 @@ func QuoteArray(s []string, sep string) string {
 }
 
 func SimpleQuote(s string) string {
-	s = strings.Replace(s, "'", "''", -1)
-	return "'" + s + "'"
+	s = strings.Replace(s, `\`, `\\`, -1)
+	s = strings.Replace(s, `"`, `\"`, -1)
+	s = strings.Replace(s, `'`, `\'`, -1)
+	s = strings.Replace(s, "\t", `\t`, -1)
+	return `"` + s + `"`
 }
 
 func FormatInt(i *int64, base int) string {

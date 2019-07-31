@@ -123,6 +123,14 @@
     {{- $ctx.Out.EOF -}}
   {{- end -}}
 
+  {{- /* Unsafe entity */ -}}
+  {{- $path := (print $ctx.To "/mysqldao/simple/" $key "/unsafe_insert_story_test.go") -}}
+  {{- if not ($ctx.Filesystem.IsFile $path) -}}
+    {{- $ctx.Out.File $path -}}
+      {{- template "mysql.dao.unsafe_insert_story_test" (ctx $ctx (print "model." $key) "") -}}
+    {{- $ctx.Out.EOF -}}
+  {{- end -}}
+
   {{/* insert story test */}}
   {{- $testInsertPath := (print $ctx.To "/mysqldao/simple/" $key "/insert_story_test.go") -}}
   {{- if not ($ctx.Filesystem.IsFile $testInsertPath) -}}
