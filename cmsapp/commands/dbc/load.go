@@ -1,4 +1,4 @@
-package dbloadc
+package dbc
 
 import (
 	"os"
@@ -10,24 +10,20 @@ import (
 	"github.com/goatcms/goatcore/filesystem"
 )
 
-// Deps contains db:load command dependencies
-type Deps struct {
-	Input     app.Input            `dependency:"InputService"`
-	Output    app.Output           `dependency:"OutputService"`
-	Database  dao.Database         `dependency:"db0"`
-	Filespace filesystem.Filespace `filespace:"root"`
-	Path      string               `command:"?path"`
-}
-
-// Run execute db:load
-func Run(a app.App, ctxScope app.Scope) (err error) {
+// RunLoad execute db:load command
+func RunLoad(a app.App, ctxScope app.Scope) (err error) {
 	var (
 		files []os.FileInfo
 		data  []byte
-		deps  = Deps{
-			Path: commands.DefaultFixtureDir,
+		deps  struct {
+			Input     app.Input            `dependency:"InputService"`
+			Output    app.Output           `dependency:"OutputService"`
+			Database  dao.Database         `dependency:"db0"`
+			Filespace filesystem.Filespace `filespace:"root"`
+			Path      string               `command:"?path"`
 		}
 	)
+	deps.Path = commands.DefaultFixtureDir
 	if err = a.DependencyProvider().InjectTo(&deps); err != nil {
 		return err
 	}

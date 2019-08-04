@@ -1,12 +1,12 @@
-package dbbuildc
+package dbc
 
 import (
 	"github.com/goatcms/goatcms/cmsapp/services"
 	"github.com/goatcms/goatcore/app"
 )
 
-// Run execute create schema command
-func Run(a app.App, ctxScope app.Scope) (err error) {
+// RunBuild execute db:build (create schema) command
+func RunBuild(a app.App, ctxScope app.Scope) (err error) {
 	var deps struct {
 		Input         app.Input              `dependency:"InputService"`
 		Output        app.Output             `dependency:"OutputService"`

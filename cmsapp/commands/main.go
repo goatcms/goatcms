@@ -6,6 +6,8 @@ const (
 	DBExportHelp   = "print all create table sql queries"
 	DBLoadHelp     = "load all sql file from path (--path=database/fixtures)"
 	DBFixturesHelp = "load all fixtures from directory (--path=relative_path_to_fixtures)"
+	DBExecHelp     = "run SQL exec(--sqc=INSERT...)"
+	DBQueryHelp    = "run SQL query (--sqc=SELECT...)"
 
 	UserUpdateRolesHelp    = "set new user roles list (--by=username/email --roles=firstrole&secondrole...)"
 	UserAddHelp            = "add new user (--userproperty=value...)"

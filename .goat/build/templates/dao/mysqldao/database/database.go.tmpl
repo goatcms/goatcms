@@ -17,6 +17,10 @@ type Database struct {
 
 func (db *Database) Exec(scope app.Scope, query string) (err error) {
 	var tx *sql.Tx
+	if scope == nil {
+		_, err = db.DB.Exec(query)
+		return err
+	}
 	if tx, err = helpers.TX(scope, db.DB); err != nil {
 		return err
 	}
@@ -29,6 +33,10 @@ func (db *Database) Query(scope app.Scope, query string) (rows maindef.Rows, err
 		tx      *sql.Tx
 		sqlRows *sql.Rows
 	)
+	if scope == nil {
+		sqlRows, err = db.DB.Query(query)
+		return helpers.NewRows(sqlRows), nil
+	}
 	if tx, err = helpers.TX(scope, db.DB); err != nil {
 		return nil, err
 	}

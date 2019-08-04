@@ -1,4 +1,4 @@
-package fixturec
+package dbc
 
 import (
 	"github.com/goatcms/goatcms/cmsapp/commands"
@@ -8,21 +8,19 @@ import (
 	"github.com/goatcms/goatcore/filesystem"
 )
 
-// Deps contains db:fixtures:load comamnd context dependencies
-type Deps struct {
-	Input          app.Input            `dependency:"InputService"`
-	Output         app.Output           `dependency:"OutputService"`
-	Database       dao.Database         `dependency:"db0"`
-	FixtureService services.Fixture     `dependency:"FixtureService"`
-	Filespace      filesystem.Filespace `filespace:"root"`
-	Path           string               `command:"?path"`
-}
-
 //Run execute db:fixtures:load command
-func Run(a app.App, ctxScope app.Scope) (err error) {
-	deps := Deps{
-		Path: commands.DefaultFixtureDir,
-	}
+func RunFixturesLoad(a app.App, ctxScope app.Scope) (err error) {
+	var (
+		deps struct {
+			Input          app.Input            `dependency:"InputService"`
+			Output         app.Output           `dependency:"OutputService"`
+			Database       dao.Database         `dependency:"db0"`
+			FixtureService services.Fixture     `dependency:"FixtureService"`
+			Filespace      filesystem.Filespace `filespace:"root"`
+			Path           string               `command:"?path"`
+		}
+	)
+	deps.Path = commands.DefaultFixtureDir
 	if err = a.DependencyProvider().InjectTo(&deps); err != nil {
 		return err
 	}

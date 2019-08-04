@@ -1,4 +1,4 @@
-package dbexportc
+package dbc
 
 import (
 	"fmt"
@@ -8,8 +8,8 @@ import (
 	"github.com/goatcms/goatcore/app"
 )
 
-// Run execute db:export command
-func Run(a app.App, ctxScope app.Scope) (err error) {
+// RunExport execute db:export command
+func RunExport(a app.App, ctxScope app.Scope) (err error) {
 	var (
 		deps struct {
 			Input           app.Input  `dependency:"InputService"`
