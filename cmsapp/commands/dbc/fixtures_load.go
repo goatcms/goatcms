@@ -8,7 +8,7 @@ import (
 	"github.com/goatcms/goatcore/filesystem"
 )
 
-//Run execute db:fixtures:load command
+//RunFixturesLoad execute db:fixtures:load command
 func RunFixturesLoad(a app.App, ctxScope app.Scope) (err error) {
 	var (
 		deps struct {
