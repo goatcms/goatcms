@@ -49,7 +49,6 @@ func RunQuery(a app.App, ctxScope app.Scope) (err error) {
 			key := response.Model[i]
 			value := values[i]
 			if vptr, ok := value.(*interface{}); ok {
-				fmt.Printf("map: %v %v\n", value, *vptr)
 				value = *vptr
 			}
 			switch v := value.(type) {
@@ -58,15 +57,23 @@ func RunQuery(a app.App, ctxScope app.Scope) (err error) {
 				row[key] = fmt.Sprintf("%s", v)
 			case *string:
 			case *[]byte:
-				row[key] = fmt.Sprintf("%s", *v)
+				if v == nil {
+					row[key] = nil
+				} else {
+					row[key] = fmt.Sprintf("%s", *v)
+				}
 			case int64:
 			case int32:
 			case int:
-				row[key] = fmt.Sprintf("%d", v)
+				row[key] = v
 			case *int64:
 			case *int32:
 			case *int:
-				row[key] = fmt.Sprintf("%d", *v)
+				if v == nil {
+					row[key] = nil
+				} else {
+					row[key] = *v
+				}
 			default:
 				row[key] = fmt.Sprintf("%v", v)
 			}

@@ -34,7 +34,9 @@ func (db *Database) Query(scope app.Scope, query string) (rows maindef.Rows, err
 		sqlRows *sql.Rows
 	)
 	if scope == nil {
-		sqlRows, err = db.DB.Query(query)
+		if sqlRows, err = db.DB.Query(query); err != nil {
+			return nil, err
+		}
 		return helpers.NewRows(sqlRows), nil
 	}
 	if tx, err = helpers.TX(scope, db.DB); err != nil {
