@@ -3,9 +3,9 @@ package dbc
 import (
 	"fmt"
 
-	"github.com/goatcms/goatcms/cmsapp/dao"
 	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/varutil"
+	"github.com/sebastianpozoga/alleitic.pozoga.eu/modules/goatcms/cmsapp/dao"
 )
 
 // RunQuery execute db:query command
@@ -20,12 +20,12 @@ func RunQuery(a app.App, ctxScope app.Scope) (err error) {
 			SQL string `command:"sql"`
 		}
 		response struct {
-			Model  []string
-			Values []map[string]interface{}
+			Model []string
 		}
 		rows   dao.Rows
 		values []interface{}
 		json   string
+		in     int
 	)
 	if err = a.DependencyProvider().InjectTo(&deps); err != nil {
 		return err
@@ -33,14 +33,18 @@ func RunQuery(a app.App, ctxScope app.Scope) (err error) {
 	if err = ctxScope.InjectTo(&command); err != nil {
 		return err
 	}
-	response.Values = make([]map[string]interface{}, 0)
 	if rows, err = deps.Database.Query(nil, command.SQL); err != nil {
 		return err
 	}
 	if response.Model, err = rows.Columns(); err != nil {
 		return err
 	}
+	deps.Output.Printf("[")
+	in = 0
 	for rows.Next() {
+		if in != 0 {
+			deps.Output.Printf(", ")
+		}
 		row := map[string]interface{}{}
 		if values, err = rows.GetValues(); err != nil {
 			return err
@@ -49,40 +53,26 @@ func RunQuery(a app.App, ctxScope app.Scope) (err error) {
 			key := response.Model[i]
 			value := values[i]
 			if vptr, ok := value.(*interface{}); ok {
-				value = *vptr
+				if *vptr != nil {
+					value = *vptr
+				} else {
+					row[key] = nil
+					continue
+				}
 			}
 			switch v := value.(type) {
-			case string:
 			case []byte:
 				row[key] = fmt.Sprintf("%s", v)
-			case *string:
-			case *[]byte:
-				if v == nil {
-					row[key] = nil
-				} else {
-					row[key] = fmt.Sprintf("%s", *v)
-				}
-			case int64:
-			case int32:
-			case int:
-				row[key] = v
-			case *int64:
-			case *int32:
-			case *int:
-				if v == nil {
-					row[key] = nil
-				} else {
-					row[key] = *v
-				}
 			default:
 				row[key] = fmt.Sprintf("%v", v)
 			}
 		}
-		response.Values = append(response.Values, row)
+		if json, err = varutil.ObjectToJSON(row); err != nil {
+			return err
+		}
+		deps.Output.Printf("%s", json)
+		in++
 	}
-	if json, err = varutil.ObjectToJSON(response.Values); err != nil {
-		return err
-	}
-	deps.Output.Printf("%s", json)
+	deps.Output.Printf("]")
 	return nil
 }
