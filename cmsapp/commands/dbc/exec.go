@@ -12,16 +12,18 @@ func RunExec(a app.App, ctxScope app.Scope) (err error) {
 			Input    app.Input    `dependency:"InputService"`
 			Output   app.Output   `dependency:"OutputService"`
 			Database dao.Database `dependency:"db0"`
-			SQL      string       `command:"sql"`
+		}
+		command struct {
+			SQL string `command:"sql"`
 		}
 	)
 	if err = a.DependencyProvider().InjectTo(&deps); err != nil {
 		return err
 	}
-	if err = ctxScope.InjectTo(&deps); err != nil {
+	if err = ctxScope.InjectTo(&command); err != nil {
 		return err
 	}
-	if err = deps.Database.Exec(nil, deps.SQL); err != nil {
+	if err = deps.Database.Exec(nil, command.SQL); err != nil {
 		return err
 	}
 	deps.Output.Printf("OK")
