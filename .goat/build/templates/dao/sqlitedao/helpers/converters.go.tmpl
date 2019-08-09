@@ -19,7 +19,7 @@ func NewTimeConverter(dest **time.Time) *TimeConverter {
 
 func (converter *TimeConverter) Scan(v interface{}) (err error) {
 	var value time.Time
-	if value, err = time.Parse(time.RFC3339, string(v.([]byte))); err != nil {
+	if value, err = time.Parse(time.RFC3339, string(v.(string))); err != nil {
 		*converter.dest = nil
 		return err
 	}
