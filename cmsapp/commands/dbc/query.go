@@ -3,9 +3,9 @@ package dbc
 import (
 	"fmt"
 
+	"github.com/goatcms/goatcms/cmsapp/dao"
 	"github.com/goatcms/goatcore/app"
 	"github.com/goatcms/goatcore/varutil"
-	"github.com/sebastianpozoga/alleitic.pozoga.eu/modules/goatcms/cmsapp/dao"
 )
 
 // RunQuery execute db:query command
