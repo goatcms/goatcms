@@ -2,7 +2,10 @@
 set -e
 
 mkdir -p /app/config
-mkdir -p /app/data
+
+if [ ! -e "/app/data" ]; then
+    mkdir -p /app/data
+fi
 
 if [[ $MODE == "HTTPS" ]]; then
   sh -x /app/docker/https-config.sh
