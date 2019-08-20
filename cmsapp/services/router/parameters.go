@@ -17,7 +17,12 @@ type Parameters struct {
 
 // NewParametersFromRequest create new Parameters instance from request URL data
 func NewParametersFromRequest(req *http.Request) *Parameters {
-	return NewParameters(mux.Vars(req))
+	var data map[string]string
+	data = mux.Vars(req)
+	for key, values := range req.URL.Query() {
+		data[key] = values[0]
+	}
+	return NewParameters(data)
 }
 
 // NewParameters create new Parameters instance
