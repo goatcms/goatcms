@@ -47,7 +47,7 @@ func (m *Module) RegisterDAO(a app.App) (err error) {
 	switch strings.ToLower(databaseTypeI.(string)) {
 	case "":
 		return sqlitedao.RegisterDependencies(dp)
-	case "sqlite":
+	case "sqlite", "sqlite3":
 		return sqlitedao.RegisterDependencies(dp)
 	case "mysql":
 		return mysqldao.RegisterDependencies(dp)
