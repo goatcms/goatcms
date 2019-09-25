@@ -1,0 +1,84 @@
+{{define "dao/sqlitedao/simple/{{entity}}/createtable_story_test.go" -}}
+{{- $ctx := . -}}
+{{- $entity := $ctx.DotData -}}
+{{- $typeName := print $entity.Name.CamelCaseUF "CreateTable" -}}
+
+package simple
+
+import (
+	"testing"
+	"database/sql"
+	"github.com/goatcms/goatcore/app"
+	"github.com/goatcms/goatcore/app/scope"
+	"github.com/goatcms/goatcms/cmsapp/dao/sqlitedao/helpers"
+	"github.com/goatcms/goatcms/cmsapp/dao"
+	_ "github.com/mattn/go-sqlite3"
+)
+
+
+func TestCreateTable(t *testing.T) {
+	t.Parallel()
+	doCreateTable(t)
+}
+
+func doCreateTable(t *testing.T) (bool, *sql.DB) {
+	var (
+		db  *sql.DB
+		err error
+	)
+	if db, err = helpers.NewMemoryDB(); err != nil {
+		t.Error(err)
+		return false, db
+	}
+	s := scope.NewScope("testtag")
+	createTable := {{$entity.Name.CamelCaseUF}}CreateTable{}
+	createTable.deps.DB = db
+	createTable.deps.EngineScope = s
+	if err = createTable.CreateTable(s); err != nil {
+		t.Error(err)
+		return false, db
+	}
+	if err = createTable.AlterTable(s); err != nil {
+		t.Error(err)
+		return false, db
+	}
+	if _, err = helpers.Commit(s); err != nil {
+		t.Error(err)
+		return false, db
+	}
+	return true, db
+}
+
+func TestCreateTableEventTrigger(t *testing.T) {
+	var (
+		db        *sql.DB
+		err       error
+		isTrigged = false
+	)
+	if db, err = helpers.NewMemoryDB(); err != nil {
+		t.Error(err)
+		return
+	}
+	s := scope.NewScope("testtag")
+	s.On(dao.{{$entity.Name.CamelCaseUF}}CreateTableEvent, func(ientity interface{}) (err error) {
+		isTrigged = true
+		return
+	})
+	createTable := {{$entity.Name.CamelCaseUF}}CreateTable{}
+	createTable.deps.DB = db
+	createTable.deps.EngineScope = s
+	if err := createTable.CreateTable(s); err != nil {
+		t.Error(err)
+		return
+	}
+	if err = s.Trigger(app.CommitEvent, nil); err != nil {
+		t.Error(err)
+		return
+	}
+	if isTrigged == false {
+		t.Errorf("{{$entity.Name.CamelCaseUF}}CreateTable event must be called")
+		return
+	}
+}
+
+{{- end -}}

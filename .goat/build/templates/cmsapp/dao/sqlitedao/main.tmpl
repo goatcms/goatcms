@@ -1,0 +1,23 @@
+{{- define "dao/sqlitedao" -}}
+{{- $ctx := . -}}
+
+{{- template "dao/sqlitedao/database" $ctx -}}
+{{- template "dao/sqlitedao/helpers" $ctx -}}
+{{- template "dao/sqlitedao/simple" $ctx -}}
+{{- template "dao/sqlitedao/criteria" $ctx -}}
+
+{{- $ctx.RenderOnce "dao/sqlitedao/module.go" "" "" "dao/sqlitedao/module.go" $ctx.DotData -}}
+{{- $ctx.RenderOnce "dao/sqlitedao/module_test.go" "" "" "dao/sqlitedao/module_test.go" $ctx.DotData -}}
+
+{{/* Valid structure */}}
+{{- range $index, $entity := $ctx.AM.Entities }}
+  {{- if index $entity.AllFields.ByFullName "ID" -}}
+    {{- if ne $entity.AllFields.ByFullName.ID.Type "id" -}}
+      {{- error (print $entity.Name.CamelCaseUF ": ID field must be id type" ) -}}
+    {{- end -}}
+  {{- else -}}
+    {{- error (print $entity.Name.CamelCaseUF " should contains ID field" ) -}}
+  {{- end -}}
+{{- end -}}
+
+{{- end -}}

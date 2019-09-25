@@ -1,0 +1,16 @@
+{{define "cmsapp/commands/daomodc/main.go" -}}
+{{- $ctx := . -}}
+{{- $entities := $ctx.AM.Entities -}}
+
+package daomodc
+
+const (
+{{- range $index, $entity := $entities -}}
+	// {{$entity.Name.CamelCaseUF}}InsertHelp is help to describe how dao:{{$entity.Name.CamelCaseUF}}:insert command works
+	{{$entity.Name.CamelCaseUF}}InsertHelp = "insert new {{$entity.Name.CamelCaseUF}} entity to database"
+	// {{$entity.Name.CamelCaseUF}}ListHelp is help to describe how dao:{{$entity.Name.Underscore}}:list command works
+	{{$entity.Name.CamelCaseUF}}ListHelp = "list {{$entity.Name.CamelCaseUF}} by criteria"
+{{- end }}
+)
+
+{{- end -}}

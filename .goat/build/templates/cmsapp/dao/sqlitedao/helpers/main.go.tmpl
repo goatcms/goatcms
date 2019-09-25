@@ -1,0 +1,165 @@
+{{define "sqlite.helpers.main_go" -}}
+{{- $ctx := . -}}
+
+package helpers
+
+import (
+	"database/sql"
+	"strconv"
+	"strings"
+	"time"
+	"github.com/goatcms/goatcore/app"
+)
+
+const (
+	TXKey        = "_dbtx"
+	CommitInited = "_dbtx_commit_inited"
+)
+
+func TX(scope app.Scope, db *sql.DB) (tx *sql.Tx, err error) {
+	var ins interface{}
+	ins, err = scope.Get(TXKey)
+	if err != nil || ins == nil {
+		tx, err = db.Begin()
+    if err != nil {
+      return nil, err
+    }
+    if _, err = tx.Exec("PRAGMA foreign_keys = ON", nil); err != nil {
+        return nil, err
+    }
+		scope.Set(TXKey, tx)
+		// add commit event callback
+		ins, err = scope.Get(CommitInited)
+		if err != nil || ins == nil {
+			scope.On(app.CommitEvent, func(interface{}) error {
+				_, err := Commit(scope)
+				return err
+			})
+			scope.On(app.RollbackEvent, func(interface{}) error {
+				_, err := Rollback(scope)
+				return err
+			})
+			scope.On(app.CloseEvent, func(interface{}) error {
+				_, err := Rollback(scope)
+				return err
+			})
+		}
+	} else {
+		tx = ins.(*sql.Tx)
+	}
+	return tx, nil
+}
+
+func Commit(scope app.Scope) (isCommited bool, err error) {
+	var ins interface{}
+	ins, err = scope.Get(TXKey)
+	if err != nil || ins == nil {
+		// nothing to commit
+		return false, nil
+	}
+	tx := ins.(*sql.Tx)
+	scope.Set(TXKey, nil)
+	if err = tx.Commit(); err != nil {
+		return true, err
+	}
+	if err = scope.Trigger(app.AfterCommitEvent, nil); err != nil {
+		return true, err
+	}
+	return true, nil
+}
+
+func Rollback(scope app.Scope) (isRollback bool, err error) {
+	var ins interface{}
+	ins, err = scope.Get(TXKey)
+	if err != nil || ins == nil {
+		// nothing to commit
+		return false, nil
+	}
+	tx := ins.(*sql.Tx)
+	scope.Set(TXKey, nil)
+	if err = tx.Rollback(); err != nil {
+		return true, err
+	}
+	if err = scope.Trigger(app.AfterRollbackEvent, nil); err != nil {
+		return true, err
+	}
+	return true, nil
+}
+
+func Close(scope app.Scope) (isRollback bool, err error) {
+	var ins interface{}
+	ins, err = scope.Get(TXKey)
+	if err != nil || ins == nil {
+		// nothing to close
+		return false, nil
+	}
+	tx := ins.(*sql.Tx)
+	scope.Set(TXKey, nil)
+	if err = tx.Rollback(); err != nil {
+		return true, err
+	}
+	if err = scope.Trigger(app.AfterRollbackEvent, nil); err != nil {
+		return true, err
+	}
+	return true, nil
+}
+
+func NewMemoryDB() (db *sql.DB, err error) {
+	if db, err = sql.Open("sqlite3", ":memory:"); err != nil {
+		return nil, err
+	}
+  return db, nil
+}
+
+func Quote(s *string) string {
+	if s == nil {
+		return "null"
+	}
+  return SimpleQuote(*s)
+}
+
+func QuoteArray(s []string, sep string) string {
+	quoted := make([]string, len(s))
+	for i, value := range s {
+		quoted[i] = SimpleQuote(value)
+	}
+	return strings.Join(quoted, sep)
+}
+
+func SimpleQuote(s string) string {
+	s = strings.Replace(s, "'", "''", -1)
+	return "'" + s + "'"
+}
+
+func FormatInt(i *int64, base int) string {
+	if i == nil {
+		return "null"
+	}
+	return strconv.FormatInt(*i, base)
+}
+
+func FormatDatetime(value *time.Time) string {
+	if value == nil {
+		return "null"
+	}
+	return SimpleQuote(value.Format(time.RFC3339))
+}
+
+func FormatIntArray(arr []int64, base int, sep string) string {
+	quoted := make([]string, len(arr))
+	for i, value := range arr {
+		quoted[i] = strconv.FormatInt(value, base)
+	}
+	return strings.Join(quoted, sep)
+}
+
+func FormatDatetimeArray(arr []time.Time, sep string) string {
+	quoted := make([]string, len(arr))
+	for i, value := range arr {
+		quoted[i] = SimpleQuote(value.Format(time.RFC3339))
+	}
+	return strings.Join(quoted, sep)
+}
+
+
+{{- end -}}

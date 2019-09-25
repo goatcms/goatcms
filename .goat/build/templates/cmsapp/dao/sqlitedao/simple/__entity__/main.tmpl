@@ -1,0 +1,22 @@
+{{- define "dao/sqlitedao/simple/{{entity}}" -}}
+{{- $ctx := .ctx -}}
+{{- $entity := $entity -}}
+{{- $path := print "dao/sqlitedao/simple/" $entity.Name.Underscore -}}
+
+{{ range $i, $index := $entity.Indexes.Ordered }}
+{{- $params := (dict "entity" $entity "index" $index) -}}
+{{- $ctx.RenderOnce (print $path "/findby" $index.Name.CamelCaseUF ".go") "" "" "dao/sqlitedao/simple/{{entity}}/findby{{index}}.go" $params -}}
+{{- $ctx.RenderOnce (print $path "/findby" $index.Name.CamelCaseUF "_story_test.go") "" "" "dao/sqlitedao/simple/{{entity}}/findby{{index}}_story_test.go" $params -}}
+{{- end }}
+
+{{- $ctx.RenderOnce ($path "/createtable_story_test.go") "" "" "dao/sqlitedao/simple/{{entity}}/createtable_story_test.go" $entity -}}
+{{- $ctx.RenderOnce ($path "/createtable.go") "" "" "dao/sqlitedao/simple/{{entity}}/createtable.go" $entity -}}
+{{- $ctx.RenderOnce ($path "/deleter_story_test.go") "" "" "dao/sqlitedao/simple/{{entity}}/deleter_story_test.go" $entity -}}
+{{- $ctx.RenderOnce ($path "/deleter.go") "" "" "dao/sqlitedao/simple/{{entity}}/deleter.go" $entity -}}
+{{- $ctx.RenderOnce ($path "/droptable_story_test.go") "" "" "dao/sqlitedao/simple/{{entity}}/droptable_story_test.go" $entity -}}
+{{- $ctx.RenderOnce ($path "/droptable.go") "" "" "dao/sqlitedao/simple/{{entity}}/droptable.go" $entity -}}
+{{- $ctx.RenderOnce ($path "/inserter_story_test.go") "" "" "dao/sqlitedao/simple/{{entity}}/inserter_story_test.go" $entity -}}
+{{- $ctx.RenderOnce ($path "/inserter.go") "" "" "dao/sqlitedao/simple/{{entity}}/inserter.go" $entity -}}
+
+
+{{- end -}}

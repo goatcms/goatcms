@@ -1,0 +1,54 @@
+{{define "entities/{{entity}}.go" -}}
+{{- $ctx := . -}}
+{{- $entity := $ctx.DotData -}}
+{{- $hasIntField := (gt (len (index $entity.AllFields.ByType "int")) 0) -}}
+{{- $hasDatetimeField := (gt (len (index $entity.AllFields.ByType "datetime")) 0) -}}
+
+package entities
+
+{{- if $hasDatetimeField}}
+import (
+  "time"
+)
+{{- end }}
+
+{{- range $name, $childStruct := $entity.RootStructure.Structures.Ordered }}
+  {{ template "entities/{{entity}}.go$structs_def" (dict "Struct" $childStruct) -}}
+{{- end }}
+
+// {{$entity.Name.CamelCaseUF}} is an entity structure
+type {{$entity.Name.CamelCaseUF}} struct {
+  {{- template "entities/{{entity}}.go$struct_fields" (dict "Struct" $entity.RootStructure) }}
+}
+{{- end -}}
+
+
+{{- define "entities/{{entity}}.go$structs_def" -}}
+{{- $ctx := . -}}
+{{- $struct := $ctx.Struct -}}
+{{- $structureClassName := amStructClassName $struct }}
+
+// {{$structureClassName}} is a part of {{$struct.Entity.Name.CamelCaseUF}} entity
+type {{$structureClassName}} struct {
+  {{- template "entities/{{entity}}.go$struct_fields" (dict "Struct" $struct) -}}
+}
+{{- range $name, $childStruct := $struct.Structures.Ordered -}}
+{{- template "entities/{{entity}}.go$structs_def" (dict "Struct" $childStruct) -}}
+{{- end -}}
+{{- end -}}
+
+
+{{- define "entities/{{entity}}.go$struct_fields" -}}
+{{- $ctx := . -}}
+{{- $struct := $ctx.Struct -}}
+  {{- range $name, $field := $struct.Fields.Ordered }}
+    {{$field.Name.CamelCaseUF}} *{{template "gotype" $field.Type}} `json:"{{if eq $field.Name.CamelCaseUF "ID"}}id{{else}}{{$field.Name.CamelCaseLF}}{{end}}"`
+  {{- end -}}
+  {{- range $name, $relation := $struct.Relations.Ordered }}
+    {{$relation.Name.CamelCaseUF}}ID *{{template "gotype" "int"}}  `json:"{{$relation.Name.CamelCaseLF}}ID"`
+    {{$relation.Name.CamelCaseUF}}   *{{camelcaseuf $relation.To}} `json:"{{$relation.Name.CamelCaseLF}}"`
+  {{- end -}}
+  {{- range $name, $childStruct := $struct.Structures.Ordered }}
+    {{$childStruct.Name.CamelCaseUF}} {{amStructClassName $childStruct}} `json:"{{$childStruct.Name.CamelCaseLF}}"`
+  {{- end -}}
+{{- end -}}

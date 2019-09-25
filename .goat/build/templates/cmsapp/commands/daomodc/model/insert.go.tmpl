@@ -1,0 +1,75 @@
+{{define "cmsapp/commands/daomodc/model/insert.go" -}}
+{{- $ctx := . -}}
+{{- $entity := $ctx.DotData -}}
+{{- $fields := $entity.AllFields.ByName -}}
+{{- $hasIntField := (gt (len (index $entity.AllFields.ByType "int")) 0) -}}
+{{- $hasDatetimeField := (gt (len (index $entity.AllFields.ByType "datetime")) 0) -}}
+
+package {{$entity.Name.Underscore}}c
+
+import (
+{{- if $hasIntField}}
+  "strconv"
+{{- end }}
+{{- if $hasDatetimeField}}
+  "time"
+{{- end }}
+  "github.com/goatcms/goatcms/cmsapp/dao"
+	"github.com/goatcms/goatcms/cmsapp/entities"
+	"github.com/goatcms/goatcore/app"
+	"github.com/goatcms/goatcore/varutil/goaterr"
+)
+
+// RunInsert execute db:{{$entity.Name.Underscore}}:add command
+func RunInsert(a app.App, ctxScope app.Scope) (err error) {
+	var (
+		deps struct {
+			Input  app.Input  `dependency:"InputService"`
+			Output app.Output `dependency:"OutputService"`
+
+			Inserter           dao.{{$entity.Name.CamelCaseUF}}Insert `dependency:"{{$entity.Name.CamelCaseUF}}Insert"`
+			InteractiveMode    string         `argument:"?interactive",command:"?interactive"`
+
+			// entity values
+{{- range $index, $field := $fields -}}
+      Value{{$field.Name.CamelCaseUF}} string         `command:"?{{$field.Name.CamelCaseUF}}"`
+{{- end }}
+		}
+		entity       *entities.{{$entity.Name.CamelCaseUF}}
+		interactiveMode bool
+{{- if $hasIntField}}
+  	number     int64
+{{- end }}
+{{- if $hasDatetimeField}}
+    timeValue time.Time
+{{- end }}
+	)
+  if errs = goaterr.AppendError(nil,
+    a.DependencyProvider().InjectTo(&deps),
+    ctxScope.InjectTo(&deps)); errs != nil {
+    return goaterr.ToErrors(errs)
+  }
+	interactiveMode = deps.InteractiveMode != "false"
+	entity = &entities.{{$entity.Name.CamelCaseUF}}{}
+{{- range $index, $field := $fields -}}
+  // {{$field.FullName.CamelCaseUF}}
+	if interactiveMode && deps.Value{{$field.FullName.CamelCaseUF}} == "" {
+    deps.Output.Printf("{{template "FieldPath" $field}}: ")
+		if deps.Value{{$field.FullName.CamelCaseUF}}, err = deps.Input.ReadLine(); err != nil {
+			return err
+		}
+	}
+  {{template "SetEntityFieldFromStringVar" (dict "EntityVar" "entity" "Field" $field "Var" (print "deps.Value" $field.FullName.CamelCaseUF) )}}
+{{- end }}
+	if _, err = deps.Inserter.Insert(ctxScope, entity); err != nil {
+		return err
+	}
+	if err = ctxScope.Trigger(app.CommitEvent, nil); err != nil {
+		return err
+	}
+	deps.Output.Printf("Add entity... success\n")
+	return nil
+}
+
+
+{{- end -}}

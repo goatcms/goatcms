@@ -1,0 +1,39 @@
+{{define "module.commands_go" -}}
+{{- $ctx := . -}}
+
+package {{index $ctx.Properties.Build "package"}}
+
+import (
+	"github.com/goatcms/goatcms/cmsapp/commands"
+	"github.com/goatcms/goatcms/cmsapp/commands/daomodc"
+	"github.com/goatcms/goatcms/cmsapp/commands/dbc"
+	"github.com/goatcms/goatcms/cmsapp/commands/servec"
+	"github.com/goatcms/goatcms/cmsapp/commands/userc"
+	"github.com/goatcms/goatcore/app"
+	"github.com/goatcms/goatcore/varutil/goaterr"
+)
+
+// RegisterCommands add cmsapp commands to an application
+func RegisterCommands(a app.App) error {
+	return goaterr.ToErrors(goaterr.AppendError(nil,
+		app.RegisterCommand(a, "run", servec.Run, commands.RunHelp),
+		app.RegisterCommand(a, "db:build", dbc.RunBuild, commands.DBBuildHelp),
+		app.RegisterCommand(a, "db:export", dbc.RunExport, commands.DBExportHelp),
+		app.RegisterCommand(a, "db:load", dbc.RunLoad, commands.DBLoadHelp),
+		app.RegisterCommand(a, "db:exec", dbc.RunExec, commands.DBExecHelp),
+		app.RegisterCommand(a, "db:query", dbc.RunQuery, commands.DBQueryHelp),
+		app.RegisterCommand(a, "db:fixtures:load", dbc.RunFixturesLoad, commands.DBFixturesHelp),
+		app.RegisterCommand(a, "user:roles:update", userc.RunUpdateRoles, commands.UserUpdateRolesHelp),
+		app.RegisterCommand(a, "user:password:update", userc.RunUpdatePassword, commands.UserUpdatePasswordHelp),
+		app.RegisterCommand(a, "user:connected:add", userc.RunConnectAdd, commands.UserConnectAddHelp),
+		app.RegisterCommand(a, "user:add", userc.RunAdd, commands.UserAddHelp),
+		app.RegisterCommand(a, "user:exists", userc.RunUserExists, commands.UserExistsHelp),
+		app.RegisterCommand(a, "user:exists", userc.RunUserExists, commands.UserExistsHelp),
+		app.RegisterArgument(a, "env", commands.EnvArg),
+		app.RegisterArgument(a, "loglvl", commands.LoglvlArg),
+		app.RegisterArgument(a, "host", commands.HostArg),
+		daomodc.RegisterCommands(a),
+	))
+}
+
+{{- end -}}

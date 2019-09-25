@@ -25,8 +25,8 @@ func RegisterCommands(a app.App) error {
   return goaterr.ToErrors(goaterr.AppendError(nil,
     {{- range $index, $key := (keys .Data "model.") -}}
       {{- $entityName := (camelcaseuf (index $ctx.Data (print "model." $key ".entity"))) }}
-      app.RegisterComand(a, "dao:{{underscore $entityName}}:insert", {{lower $entityName}}c.RunInsert, {{$entityName}}InsertHelp),
-      app.RegisterComand(a, "dao:{{underscore $entityName}}:list", {{lower $entityName}}c.RunList, {{$entityName}}ListHelp),
+      app.RegisterCommand(a, "dao:{{underscore $entityName}}:insert", {{lower $entityName}}c.RunInsert, {{$entityName}}InsertHelp),
+      app.RegisterCommand(a, "dao:{{underscore $entityName}}:list", {{lower $entityName}}c.RunList, {{$entityName}}ListHelp),
     {{- end -}}
   ))
 }

@@ -1,0 +1,14 @@
+{{define "cmsapp/commands/daomodc" -}}
+{{- $ctx := . -}}
+
+{{- $ctx.RenderOnce "cmsapp/commands/daomodc/main.go" "" "" "cmsapp/commands/daomodc/main.go" $ctx.DotData -}}
+{{- $ctx.RenderOnce "cmsapp/commands/daomodc/module.go" "" "" "cmsapp/commands/daomodc/module.go" $ctx.DotData -}}
+{{- $ctx.RenderOnce "cmsapp/commands/daomodc/internal/helpers.go" "" "" "cmsapp/commands/daomodc/internal/helpers.go" $ctx.DotData -}}
+
+{{- range $index, $entity := $ctx.AM.Entities }}
+  {{- $path := (print "cmsapp/commands/daomodc/model/" $entity.Name.Underscore "c") -}}
+  {{- $ctx.RenderOnce (print $path "/insert.go") "" "" "cmsapp/commands/daomodc/model/insert.go" $entity -}}
+  {{- $ctx.RenderOnce (print $path "/list.go") "" "" "cmsapp/commands/daomodc/model/list.go" $entity -}}
+{{- end -}}
+
+{{- end -}}

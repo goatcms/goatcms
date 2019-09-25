@@ -1,0 +1,24 @@
+{{define "cmsapp/commands/daomodc/module.go" -}}
+{{- $ctx := . -}}
+
+package daomodc
+
+import (
+	"github.com/goatcms/goatcore/app"
+	"github.com/goatcms/goatcore/varutil/goaterr"
+{{- range $index, $entity := $ctx.AM.Entities }}
+	"github.com/goatcms/goatcms/cmsapp/cmsapp/commands/daomodc/model/{{$entity.Name.Underscore}}c"
+{{- end }}
+)
+
+// RegisterCommands init all dependency modules
+func RegisterCommands(a app.App) error {
+  return goaterr.ToErrors(goaterr.AppendError(nil,
+{{- range $index, $entity := $ctx.AM.Entities }}
+    app.RegisterCommand(a, "dao:{{$entity.Name.Underscore}}:insert", {{$entity.Name.Underscore}}c.RunInsert, {{$entity.Name.CamelCaseUF}}InsertHelp),
+    app.RegisterCommand(a, "dao:{{$entity.Name.Underscore}}:list", {{$entity.Name.Underscore}}c.RunList, {{$entity.Name.CamelCaseUF}}ListHelp),
+{{- end }}
+  ))
+}
+
+{{- end -}}

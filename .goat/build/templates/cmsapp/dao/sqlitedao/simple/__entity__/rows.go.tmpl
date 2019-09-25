@@ -1,0 +1,86 @@
+{{define "dao/sqlitedao/simple/{{entity}}/rows.go" -}}
+{{- $ctx := . -}}
+{{- $entity := $ctx.DotData -}}
+{{- $typeName := print $entity.Name.CamelCaseUF "Rows" -}}
+{{- $hasDatetimeField := ne (len $entity.AllFields.ByType.datetime) 0 -}}
+
+
+package simple
+
+import (
+	"fmt"
+	"database/sql"
+	entities "{{index $ctx.Properties.Build "entities_path"}}"
+	{{- if $hasDatetimeField }}
+	helpers "{{index $ctx.Properties.Build "path"}}/sqlitedao/helpers"
+	{{- end}}
+)
+
+// {{$typeName}} is the result of a query. Its cursor starts before the first row of the result set. Use Next to advance through the rows
+type {{$typeName}} struct {
+	*sql.Rows
+}
+
+func New{{$typeName}}(rows *sql.Rows) *{{$typeName}} {
+	return &{{$typeName}}{
+		Rows: rows,
+	}
+}
+
+func (rows *{{$typeName}}) InjectTo(dest *entities.{{$entity.Name.CamelCaseUF}}) (err error) {
+	var columns []string
+	if columns, err = rows.Rows.Columns(); err != nil {
+		return err
+	}
+	values := make([]interface{}, len(columns))
+	for i, name := range columns {
+		switch(name) {
+			case "ID":
+				values[i] = &dest.ID
+			{{- range $index, $field := $entity.AllFields.Ordered -}}
+				case "{{$field.Name.Underscore}}":
+					{{- if eq $field.Type "datetime"}}
+					values[i] = helpers.NewTimeConverter(&{{amLinkFieldUF "dest" $field}})
+					{{- else }}
+					values[i] = &{{amLinkFieldUF "dest" $field}}
+					{{- end }}
+		  {{- end }}
+			{{- range $index, $relation := $relations -}}
+				case "{{$relation.Name.Underscore}}_id":
+					values[i] = &{{amLinkRelationUF "dest" $relation}}ID
+			{{- end }}
+			default:
+				return fmt.Errorf("{{$typeName}}.InjectTo unknow field %v", name)
+		}
+	}
+	if err = rows.Rows.Scan(values...); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (rows *{{$typeName}}) Get() (entity *entities.{{$entity.Name.CamelCaseUF}}, err error) {
+	entity = &entities.{{$entity.Name.CamelCaseUF}}{}
+	if err = rows.InjectTo(entity); err != nil {
+		return nil, err
+	}
+	return entity, nil
+}
+
+func (rows *{{$typeName}}) GetValues() (values []interface{}, err error) {
+	var columns []string
+	if columns, err = rows.Columns(); err != nil {
+		return nil, err
+	}
+	values = make([]interface{}, len(columns))
+	for i, _ := range values {
+		var reference interface{}
+		values[i] = &reference
+	}
+	if err = rows.Rows.Scan(values...); err != nil {
+		return nil, err
+	}
+	return values, nil
+}
+
+{{- end -}}

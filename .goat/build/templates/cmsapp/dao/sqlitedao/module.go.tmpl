@@ -1,0 +1,27 @@
+{{define "dao/sqlitedao/module.go" -}}
+{{- $ctx := . -}}
+
+package sqlitedao
+
+import (
+	"github.com/goatcms/goatcore/dependency"
+	"github.com/goatcms/varutil/goaterr"
+	"github.com/goatcms/goatcms/cmsapp/dao/sqlitedao/database"
+	"github.com/goatcms/goatcms/cmsapp/dao/sqlitedao/criteria"
+{{- range $index, $key := (keys .Data "model.") }}
+	{{$entity.Name.Underscore}} "github.com/goatcms/goatcms/cmsapp/dao/sqlitedao/simple/{{$entity.Name.Underscore}}"
+{{- end -}}
+)
+
+func RegisterDependencies(dp dependency.Provider) (err error) {
+	return goaterr.ToErrors(goaterr.AppendError(nil,
+		dp.AddDefaultFactory("db0.engine", database.EngineFactory),
+		dp.AddDefaultFactory("db0", database.Factory),
+		criteria.RegisterDependencies(dp),
+{{- range $index, $entity := $ctx.AM.Entities }}
+		{{$entity.Name.Underscore}}.RegisterDependencies(dp),
+{{- end -}}
+	))
+}
+
+{{- end -}}

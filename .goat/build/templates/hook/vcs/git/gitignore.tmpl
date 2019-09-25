@@ -1,0 +1,59 @@
+{{- define ".gitignore" -}}
+{{- $ctx := . -}}
+{{- $vcsData := $ctx.DotData -}}
+{{- $generated := $vcsData.VCSGeneratedFiles -}}
+{{- $ignored := $vcsData.VCSIgnoredFiles -}}
+
+# .goat - perivate data
+/.goat/secrets.json
+/.goat/vcs/generated
+
+# web
+/web/.DS_STORE
+/web/node_modules
+/web/dist
+/web/coverage
+/assets/images
+npm-debug.log
+
+# system
+*.test
+*~
+*.exe
+*.log
+
+# build
+./main
+
+# debug
+debug
+
+# data
+/data
+
+# IDEs
+.idea/
+/configuration.json
+
+# dependencies
+/vendor
+
+# logs files
+*.log
+
+# database
+*.db
+*.db-journal
+
+# docker
+/docker-compose.yaml
+
+# genereted files
+{{- range $index, $row := $generated.All }}
+{{- if and (not ($ignored.ContainsPath $row.Path)) (ne $row.Path ".gitignore") (ne $row.Path "") }}
+{{$row.Path}}
+{{- end }}
+{{- end }}
+
+
+{{- end -}}

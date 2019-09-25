@@ -1,0 +1,29 @@
+{{- define "StringFromVar" -}}
+{{- $fromVar := .FromVar }}
+{{- $fromType := .FromType }}
+{{- if eq $fromType "text" "string" "email" "password" "lang" "repassword" -}}
+  {{$fromVar}}
+{{- else if eq $fromType "datetime" -}}
+  {{$fromVar}}.Format(time.RFC3339)
+{{- else if eq $fromType "int" "id" }}
+  varutil.FormatInt({{$fromVar}}, 10)
+{{- else -}}
+	{{- error (print "bad type" .) -}}
+{{- end -}}
+{{- end -}}
+
+
+
+{{- define "QuotedStringFromVar" -}}
+{{- $fromVar := .FromVar }}
+{{- $fromType := .FromType }}
+{{- if eq $fromType "text" "string" "email" "password" "lang" "repassword" -}}
+  varutil.Quote({{$fromVar}})
+{{- else if eq $fromType "datetime" -}}
+  varutil.Quote({{$fromVar}}.Format(time.RFC3339))
+{{- else if eq $fromType "int" "id" }}
+  varutil.FormatInt({{$fromVar}}, 10)
+{{- else -}}
+	{{- error (print "bad type" .) -}}
+{{- end -}}
+{{- end -}}

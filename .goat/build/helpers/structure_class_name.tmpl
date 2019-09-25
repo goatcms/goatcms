@@ -1,0 +1,9 @@
+{{- define "StructureClassName" -}}
+{{- $structure := . }}
+
+{{- $structure.Entity.Name.CamelCaseUF -}}
+{{- range $index, $row := $structure.Path -}}
+{{- camelcaseuf $row -}}
+{{- end -}}
+
+{{- end -}}

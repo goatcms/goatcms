@@ -1,0 +1,55 @@
+{{define "dao/sqlitedao/simple/{{entity}}/main_test.go" -}}
+{{- $ctx := . -}}
+{{- $entity := $ctx.DotData -}}
+{{- $hasDatetimeField := ne (len $entity.AllFields.ByType.datetime) 0 -}}
+
+package simple
+
+import (
+	{{- if $hasDatetimeField }}
+	"time"
+	{{- end }}
+	"github.com/goatcms/goatcms/cmsapp/entities"
+)
+
+func NewMockEntity1() *entities.{{$entityName}} {
+	var entity = &entities.{{$entity.Name.CamelCaseUF}}{}
+{{- range $index, $field := $entity.AllFields.Ordered }}
+	{{template "SetMockValueToVar" (dict "ToVar" (amLinkFieldUF "entity" $field) "ToType" $field.Type)}}
+{{- end }}
+{{- range $index, $relation := $entity.AllRelations.Ordered }}
+	{{amLinkFieldUF "entity" $field}} = 1
+{{- end }}
+	)
+	return entity
+}
+
+func NewMockEntity2() *entities.{{$entityName}} {
+	var entity = &entities.{{$entity.Name.CamelCaseUF}}{}
+{{- range $index, $field := $entity.AllFields.Ordered }}
+	{{template "SetMockValueToVar" (dict "ToVar" (amLinkFieldUF "entity" $field) "ToType" $field.Type)}}
+{{- end }}
+{{- range $index, $relation := $entity.AllRelations.Ordered }}
+	{{amLinkFieldUF "entity" $field}} = 1
+{{- end }}
+	)
+	return entity
+}
+
+func NewUnsafeEntity() *entities.{{$entityName}} {
+	var entity = &entities.{{$entity.Name.CamelCaseUF}}{}
+{{- range $index, $field := $entity.AllFields.Ordered }}
+{{- if eq $field.Type "text" "string" "email" "password" "lang" }}
+	{{amLinkFieldUF "entity" $field}} = "\\\"'`%\t\n~"
+{{- else }}
+	{{template "SetMockValueToVar" (dict "ToVar" (amLinkFieldUF "entity" $field) "ToType" $field.Type)}}
+{{- end }}
+{{- end }}
+{{- range $index, $relation := $entity.AllRelations.Ordered }}
+	{{amLinkFieldUF "entity" $field}} = 1
+{{- end }}
+	)
+	return entity
+}
+
+{{- end -}}

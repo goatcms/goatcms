@@ -1,0 +1,102 @@
+{{define "entities/{{entity}}_valid.go" -}}
+{{- $ctx := . -}}
+{{- $entity := $ctx.DotData -}}
+
+package entities
+
+import (
+	"github.com/goatcms/goatcore/messages"
+	"github.com/goatcms/goatcore/messages/msgcollection"
+	"github.com/goatcms/goatcore/varutil/validator"
+)
+
+{{template "entities/{{entity}}_valid.go$valid_func" $entity.RootStructure}}
+
+// Valid{{$entity.Singular.CamelCaseUF}} valid entity and returen MessageMap contains valid error messages
+func Valid{{$entity.Singular.CamelCaseUF}}(e {{$entity.Singular.CamelCaseUF}}, fields {{$entity.Singular.CamelCaseUF}}Fields) (mm messages.MessageMap, err error) {
+	mm = msgcollection.NewMessageMap()
+	if err = Add{{$entity.Singular.CamelCaseUF}}Valid("", mm, e, fields); err != nil {
+		return nil, err
+	}
+	return mm, nil
+}
+
+{{- end -}}
+
+
+
+{{- define "entities/{{entity}}_valid.go$valid_func" -}}
+{{- $struct := . -}}
+{{- $fields := $struct.Fields.Ordered -}}
+{{- $relations := $struct.Relations.Ordered -}}
+{{- $structs := $struct.Structures.Ordered -}}
+{{- $structureClassName := amStructClassName $struct }}
+
+{{- range $key, $childStruct := $structs}}
+{{- template "entities/{{entity}}_valid.go$valid_func" $childStruct -}}
+{{- end }}
+
+// Add{{$structureClassName}}Valid valid {{$struct.Entity.Name.CamelCaseUF}} entity structure and add valid messages to MessageMap object
+func Add{{$structureClassName}}Valid(basekey string, mm messages.MessageMap, e {{$structureClassName}}, fields {{$structureClassName}}Fields) (err error) {
+	var messageKey string
+{{- range $index, $field := $fields }}
+
+{{- if ne $field.Type "id" }}
+	if fields.{{$field.Name.CamelCaseUF}} {
+		messageKey = basekey+"{{$field.Name.CamelCaseUF}}"
+{{- if $field.Flags.Required }}
+		if e.{{$field.Name.CamelCaseUF}} == nil {
+			mm.Add(messageKey, validator.FieldIsRequired)
+		}
+{{- if eq $field.Type "text" "string" "email" "password" "lang" -}}
+		else if len(*e.{{$field.Name.CamelCaseUF}}) == 0 {
+			mm.Add(messageKey, validator.FieldIsRequired)
+		}
+{{- end -}}
+{{- end -}}
+
+{{- if eq $field.Type "text" "string" "password" "int" "id" "datetime" -}}
+{{- /* NO VALID TYPE*/ -}}
+{{- else if eq $field.Type "email" }}
+		if e.{{$field.Name.CamelCaseUF}} != nil {
+			if err = validator.EmailValid(*e.{{$field.Name.CamelCaseUF}}, messageKey, mm); err != nil {
+				return err
+			}
+		}
+{{- else if eq $field.Type "lang" }}
+		if e.{{$field.Name.CamelCaseUF}} != nil {
+			if err = validator.MinStringValid(*e.{{$field.Name.CamelCaseUF}}, messageKey, mm, 2); err != nil {
+				return err
+			}
+			if err = validator.MaxStringValid(*e.{{$field.Name.CamelCaseUF}}, messageKey, mm, 3); err != nil {
+				return err
+			}
+		}
+{{- else -}}
+{{- error (print "bad type" $field.Type) -}}
+{{- end }}
+	}
+{{- end }}
+{{- end -}}
+
+{{- range $index, $relation := $relations }}
+{{- if $relation.Flags.Required }}
+	if fields.{{$relation.Name.CamelCaseUF}}ID {
+		messageKey = basekey+"{{$relation.Name.CamelCaseUF}}"
+		if e.{{$relation.Name.CamelCaseUF}}ID == nil {
+			mm.Add(messageKey, validator.FieldIsRequired)
+		}
+	}
+{{- end -}}
+{{- end }}
+
+{{- range $index, $childStruct := $structs }}
+	messageKey = basekey+"{{$childStruct.Name.CamelCaseUF}}"
+	if err = Add{{amStructClassName $childStruct}}Valid(messageKey+".", mm, e.{{$childStruct.Name.CamelCaseUF}}, fields.{{$childStruct.Name.CamelCaseUF}}); err != nil {
+		return err
+	}
+{{- end }}
+	return nil
+}
+
+{{- end -}}

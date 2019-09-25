@@ -1,0 +1,66 @@
+{{- define "sqlite.criteria.module_test_go" -}}
+{{- $ctx := . -}}
+
+package criteria
+
+import (
+	"bytes"
+	"strings"
+	"testing"
+	"database/sql"
+
+	database "{{index $ctx.Properties.Build "path"}}/sqlitedao/database"
+	maindef "{{index $ctx.Properties.Build "path"}}"
+	"github.com/goatcms/goatcore/app"
+	"github.com/goatcms/goatcore/app/gio"
+	"github.com/goatcms/goatcore/app/mockupapp"
+	"github.com/goatcms/goatcore/app/scope"
+)
+
+func TestModule(t *testing.T) {
+	var (
+		err  error
+		mapp app.App
+	)
+	t.Parallel()
+	// prepare mockup application
+	configScope := scope.NewScope(app.ConfigTagName)
+	configScope.Set("database.url", ":memory:")
+	if mapp, err = mockupapp.NewApp(mockupapp.MockupOptions{
+		Input:       gio.NewInput(strings.NewReader("")),
+		Output:      gio.NewOutput(new(bytes.Buffer)),
+		ConfigScope: configScope,
+	}); err != nil {
+		t.Error(err)
+		return
+	}
+	dp := mapp.DependencyProvider()
+	if err := dp.AddDefaultFactory("db0.engine", database.EngineFactory); err != nil {
+		t.Error(err)
+		return
+	}
+	if err := dp.AddDefaultFactory("db0", database.Factory); err != nil {
+		t.Error(err)
+		return
+	}
+	if err = RegisterDependencies(dp); err != nil {
+		t.Error(err)
+		return
+	}
+	// test
+	var deps struct {
+		DB *sql.DB `dependency:"db0.engine"`
+		{{- range $index, $key := (keys .Data "model.") }}
+		{{- $entityName := (camelcaseuf (index $ctx.Data (print "model." $key ".entity"))) }}
+		{{$entityName}}CriteriaSearch maindef.{{$entityName}}CriteriaSearch `dependency:"{{$entityName}}CriteriaSearch"`
+		{{$entityName}}CriteriaDeleter maindef.{{$entityName}}CriteriaDeleter `dependency:"{{$entityName}}CriteriaDeleter"`
+		{{$entityName}}CriteriaCounter maindef.{{$entityName}}CriteriaCounter `dependency:"{{$entityName}}CriteriaCounter"`
+		{{- end -}}
+	}
+	if err = mapp.DependencyProvider().InjectTo(&deps); err != nil {
+		t.Error(err)
+		return
+	}
+}
+
+{{- end -}}

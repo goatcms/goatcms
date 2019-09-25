@@ -1,0 +1,113 @@
+{{define "sqlite.criteria.model_rows_go" -}}
+{{- $ctx := . -}}
+{{- $name := (index $ctx.Data (print .From ".entity")) -}}
+{{- $entityName := (camelcaseuf $name) -}}
+{{- $typeName := (print $entityName "CreateTable") -}}
+{{- $fieldsBaseKey := (print .From ".fields.") -}}
+{{- $fields := (keys .Data $fieldsBaseKey) -}}
+{{- $relationsBaseKey := (print .From ".relations.") -}}
+{{- $relations := (keys .Data $relationsBaseKey) -}}
+
+package criteria
+
+import (
+	"fmt"
+	"database/sql"
+	entities "{{index $ctx.Properties.Build "entities_path"}}"
+	maindef  "{{index $ctx.Properties.Build "path"}}"
+	helpers "{{index $ctx.Properties.Build "path"}}/sqlitedao/helpers"
+)
+
+type {{$entityName}}Rows struct {
+	*helpers.Rows
+	criteria      *maindef.{{$entityName}}Criteria
+	cachedMapping []interface{}
+	cachedEntity  *entities.{{$entityName}}
+}
+
+func New{{$entityName}}Rows(rows *sql.Rows, criteria *maindef.{{$entityName}}Criteria) (maindef.{{$entityName}}Rows) {
+	return &{{$entityName}}Rows{
+		Rows: helpers.NewRows(rows),
+		criteria: criteria,
+	}
+}
+
+func (rows *{{$entityName}}Rows) InjectTo(entity *entities.{{$entityName}}) (err error) {
+	if entity == nil {
+		return fmt.Errorf("{{$entityName}}Rows.InjectTo entity is required")
+	}
+	if entity == rows.cachedEntity {
+		if err = rows.Scan(rows.cachedMapping...); err != nil {
+			return err
+		}
+		return nil
+	}
+	rows.cachedEntity = entity
+	if rows.cachedMapping, err = get{{$entityName}}Mapping(rows.criteria, entity); err != nil {
+		return err
+	}
+	if err = rows.Scan(rows.cachedMapping...); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (rows *{{$entityName}}Rows) Get() (entity *entities.{{$entityName}}, err error) {
+	entity = &entities.{{$entityName}}{}
+	if err = rows.InjectTo(entity); err != nil {
+		return nil, err
+	}
+	return entity, nil
+}
+
+
+func get{{$entityName}}Mapping(criteria *maindef.{{$entityName}}Criteria, entity *entities.{{$entityName}}) (mapping []interface{}, err error) {
+	mapping = make([]interface{}, {{sum (len $fields) (len $relations) 1}})
+	i := 0
+	if criteria.Fields.ID {
+		mapping[i] = &entity.ID
+		i++
+	}
+{{- range $index, $field := $fields -}}
+{{- $key := (print $fieldsBaseKey $field) -}}
+{{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
+{{- $fieldType := (lower (index $ctx.Data (print $key ".type"))) }}
+	if criteria.Fields.{{$fieldName}} {
+		{{- if eq $fieldType "datetime"}}
+		mapping[i] = helpers.NewTimeConverter(&entity.{{$fieldName}})
+		{{- else}}
+		mapping[i] = &entity.{{$fieldName}}
+		{{- end}}
+		i++
+	}
+{{- end }}
+{{- range $i, $relation := $relations -}}
+{{- $key := (print $relationsBaseKey $relation) -}}
+{{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
+{{- $relatedModel := (camelcaseuf (index $ctx.Data (print $key ".model"))) }}
+	if criteria.Fields.{{$fieldName}}ID {
+		mapping[i] = &entity.{{$fieldName}}ID
+		i++
+	}
+{{- end }}
+	mapping = mapping[:i]
+{{- range $i, $relation := $relations -}}
+{{- $key := (print $relationsBaseKey $relation) -}}
+{{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
+{{- $relatedModel := (camelcaseuf (index $ctx.Data (print $key ".model"))) }}
+	if criteria.Related.{{$fieldName}} != nil {
+		var recurMapping []interface{}
+		if entity.{{$fieldName}} == nil {
+			entity.{{$fieldName}} = &entities.{{$relatedModel}}{}
+		}
+		if recurMapping, err = get{{$relatedModel}}Mapping(criteria.Related.{{$fieldName}}, entity.{{$fieldName}}); err != nil {
+			return nil, err
+		}
+		mapping = append(mapping, recurMapping...)
+	}
+{{- end }}
+	return mapping, nil
+}
+
+
+{{- end -}}

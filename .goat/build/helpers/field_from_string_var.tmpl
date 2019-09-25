@@ -1,0 +1,49 @@
+{{- define "SetEntityFieldFromStringVar" -}}
+{{- $entityVar := .EntityVar }}
+{{- $field := .Field }}
+{{- $var := .Var }}
+
+{{- if eq $field.Type "text" "string" "email" "password" "lang" }}
+  {{$entityVar}}.{{template "FieldPath" $field}} = &{{$var}}
+{{- else if eq $field.Type "datetime" }}
+  if timeValue, err := time.Parse(time.RFC3339, {{$var}}); err != nil {
+    return err
+  } else {
+    {{$entityVar}}.{{template "FieldPath" $field}} = &timeValue
+  }
+{{- else if eq $field.Type "int" "id" }}
+  if number, err := strconv.ParseInt({{$var}}, 10, 64); err != nil {
+    return err
+  } else {
+    {{$entityVar}}.{{template "FieldPath" $field}} = &number
+  }
+{{- else -}}
+	{{- error (print "bad entity type " $field.Type) -}}
+{{- end -}}
+{{- end -}}
+
+
+
+{{- define "SetPointerVarFromStringVar" -}}
+{{- $toVar := .ToVar }}
+{{- $toType := .ToType }}
+{{- $fromVar := .FromVar }}
+
+{{- if eq $toType "text" "string" "email" "password" "lang" }}
+  {{$toVar}} = &{{$fromVar}}
+{{- else if eq $toType "datetime" }}
+  if timeValue, err := time.Parse(time.RFC3339, {{$fromVar}}); err != nil {
+    return err
+  } else {
+    {{$toVar}} = &timeValue
+  }
+{{- else if eq $toType "int" "id" }}
+  if number, err := strconv.ParseInt({{$fromVar}}, 10, 64); err != nil {
+    return err
+  } else {
+    {{$toVar}} = &number
+  }
+{{- else -}}
+	{{- error (print "bad entity type " $toType) -}}
+{{- end -}}
+{{- end -}}

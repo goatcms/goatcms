@@ -1,12 +1,8 @@
 {
   "model": {
     "user_connect": {
-      "entity": "userConnect",
-      "admin_read_roles":   "admin",
-      "admin_insert_roles": "admin",
-      "admin_edit_roles":   "admin",
-      "admin_delete_roles": "admin",
-      "label":"userConnect",
+      "name": "userConnect",
+      "label":"service",
       "fields": {
         "0": {
           "name": "service",
@@ -25,8 +21,8 @@
       },
       "relations": {
         "0": {
-          "model": "user",
           "name": "user",
+          "to": "user",
           "required": "y",
           "system": "y",
           "unique": "n"

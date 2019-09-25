@@ -1,0 +1,87 @@
+{{- define "dao/{{entity}}_criteria.go" -}}
+{{- $ctx := . -}}
+{{- $entity := $ctx.DotData -}}
+{{- $fields := $entity.AllFields.Ordered -}}
+
+package dao
+
+import (
+	"github.com/goatcms/goatcore/app"
+	"github.com/goatcms/goatcms/cmsapp/entities"
+)
+
+{{template "dao/{{entity}}_criteria.go$criteria_where_def" $entity.RootStructure }}
+{{template "dao/{{entity}}_criteria.go$criteria_order_def" $entity.RootStructure }}
+
+type {{$entity.Name.CamelCaseUF}}AndOR struct {
+  Where *{{$entity.Name.CamelCaseUF}}CriteriaWhere `json:"where"`
+	AndOR *{{$entity.Name.CamelCaseUF}}AndOR         `json:"andOR"`
+}
+
+type {{$entity.Name.CamelCaseUF}}Criteria struct {
+  Fields  *entities.{{$entity.Name.CamelCaseUF}}Fields `json:"fields"`
+	Order   {{$entity.Name.CamelCaseUF}}CriteriaOrder    `json:"order"`
+  AndOR   {{$entity.Name.CamelCaseUF}}AndOR            `json:"andOR"`
+}
+
+type {{$entity.Name.CamelCaseUF}}CriteriaSearch interface {
+  Find(scope app.Scope, criteria *{{$entity.Name.CamelCaseUF}}Criteria, pager *Pager) (rows {{$entity.Name.CamelCaseUF}}Rows, err error)
+}
+
+type {{$entity.Name.CamelCaseUF}}CriteriaDeleter interface {
+  Delete(scope app.Scope, criteria *{{$entity.Name.CamelCaseUF}}Criteria) (err error)
+}
+
+type {{$entity.Name.CamelCaseUF}}CriteriaCounter interface {
+  Count(scope app.Scope, criteria *{{$entity.Name.CamelCaseUF}}Criteria) (count int64, err error)
+}
+{{- end -}}
+
+
+
+
+{{- define "dao/{{entity}}_criteria.go$criteria_where_def" -}}
+{{- $struct := . -}}
+{{- $structureClassName := amStructClassName $struct -}}
+
+{{- range $name, $childStruct := $struct.Structures.Ordered -}}
+{{- template "dao/{{entity}}_criteria.go$criteria_where_def" $childStruct -}}
+{{- end }}
+
+// {{$structureClassName}}CriteriaWhere define SQL/NoSQL "Where" criteria for {{$structureClassName}} structure
+type {{$structureClassName}}CriteriaWhere struct {
+{{- range $index, $field := $struct.Fields.Ordered }}
+	{{$field.Name.CamelCaseUF}} *{{template "dao$criteria_type" $field.Type}} `json:"{{if eq $field.Name.CamelCaseUF "ID"}}id{{else}}{{$field.Name.CamelCaseLF}}{{end}}"`
+{{- end -}}
+{{- range $index, $relation := $struct.Relations.Ordered }}
+	{{$relation.Name.CamelCaseUF}} *{{camelcaseuf $relation.To}}CriteriaWhere `json:"{{$relation.Name.CamelCaseLF}}"`
+{{- end -}}
+{{- range $name, $childStruct := $struct.Structures.Ordered }}
+	{{$childStruct.Name.CamelCaseUF}} {{amStructClassName $childStruct}}CriteriaWhere `json:"{{$childStruct.Name.CamelCaseLF}}"`
+{{- end }}
+}
+{{- end -}}
+
+
+
+{{- define "dao/{{entity}}_criteria.go$criteria_order_def" -}}
+{{- $struct := . -}}
+{{- $structureClassName := amStructClassName $struct -}}
+
+{{- range $name, $childStruct := $struct.Structures.Ordered -}}
+{{- template "dao/{{entity}}_criteria.go$criteria_order_def" $childStruct -}}
+{{- end }}
+
+// {{$structureClassName}}CriteriaOrder define order criteria for {{$structureClassName}} structure
+type {{$structureClassName}}CriteriaOrder struct {
+{{- range $index, $field := $struct.Fields.Ordered }}
+	{{$field.Name.CamelCaseUF}} *FieldOrder `json:"{{if eq $field.Name.CamelCaseUF "ID"}}id{{else}}{{$field.Name.CamelCaseLF}}{{end}}"`
+{{- end -}}
+{{- range $index, $relation := $struct.Relations.Ordered }}
+	{{$relation.Name.CamelCaseUF}}ID *FieldOrder `json:"{{$relation.Name.CamelCaseLF}}"`
+{{- end -}}
+{{- range $name, $childStruct := $struct.Structures.Ordered }}
+	{{$childStruct.Name.CamelCaseUF}} {{amStructClassName $childStruct}}CriteriaOrder `json:"{{$childStruct.Name.CamelCaseLF}}"`
+{{- end }}
+}
+{{- end -}}

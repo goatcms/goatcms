@@ -1,0 +1,64 @@
+{{- define "dao/sqlitedao/module_test.go" -}}
+{{- $ctx := . -}}
+
+package sqlitedao
+
+import (
+	"bytes"
+	"strings"
+	"testing"
+	"database/sql"
+
+	"github.com/goatcms/goatcms/cmsapp/dao"
+	"github.com/goatcms/goatcore/app"
+	"github.com/goatcms/goatcore/app/gio"
+	"github.com/goatcms/goatcore/app/mockupapp"
+	"github.com/goatcms/goatcore/app/scope"
+)
+
+func TestModule(t *testing.T) {
+	var (
+		err  error
+		mapp app.App
+	)
+	t.Parallel()
+	// prepare mockup application
+	configScope := scope.NewScope(app.ConfigTagName)
+	configScope.Set("database.url", ":memory:")
+	if mapp, err = mockupapp.NewApp(mockupapp.MockupOptions{
+		Input:       gio.NewInput(strings.NewReader("")),
+		Output:      gio.NewOutput(new(bytes.Buffer)),
+		ConfigScope: configScope,
+	}); err != nil {
+		t.Error(err)
+		return
+	}
+	if err = RegisterDependencies(mapp.DependencyProvider()); err != nil {
+		t.Error(err)
+		return
+	}
+	// test
+	var deps struct {
+		DB *sql.DB `dependency:"db0.engine"`
+{{- range $i, $entity := $ctx.AM.Entities }}
+		{{- entityName : = $entity.Name.CamelCaseUF }}
+		{{$entityName}}CreateTable dao.CreateTable `dependency:"{{$entityName}}CreateTable"`
+		{{$entityName}}Delete dao.Delete `dependency:"{{$entityName}}Delete"`
+		{{$entityName}}DropTable dao.DropTable `dependency:"{{$entityName}}DropTable"`
+		{{$entityName}}FindAll dao.{{$entityName}}FindAll `dependency:"{{$entityName}}FindAll"`
+		{{$entityName}}Insert dao.{{$entityName}}Insert `dependency:"{{$entityName}}Insert"`
+		{{$entityName}}Update dao.{{$entityName}}Update `dependency:"{{$entityName}}Update"`
+		{{$entityName}}CriteriaSearch dao.{{$entityName}}CriteriaSearch `dependency:"{{$entityName}}CriteriaSearch"`
+{{- range $ii, $index := $entity.Indexes.Ordered }}
+{{- $indexName := {{$index.Name.CamelCaseUF }}
+		{{$entityName}}FindBy{{$indexName}} dao.{{$entityName}}FindBy{{$indexName}} `dependency:"{{$entityName}}FindByFindBy{{$indexName}}"`
+{{- end }}
+{{- end }}
+	}
+	if err = mapp.DependencyProvider().InjectTo(&deps); err != nil {
+		t.Error(err)
+		return
+	}
+}
+
+{{- end -}}

@@ -1,0 +1,23 @@
+{{define "dao/events.go" -}}
+{{- $ctx := . -}}
+
+package dao
+
+const (
+	BaseEvent = 4000 + iota
+{{- range $index, $entity := $ctx.AM.Entities  }}
+
+	// {{$entity.Name.CamelCaseUF}}CreateTableEvent is event triggered after create {{$entity.Name.CamelCaseUF}} database table
+  {{$entity.Name.CamelCaseUF}}CreateTableEvent
+	// {{$entity.Name.CamelCaseUF}}DropTableEvent is event triggered after drop {{$entity.Name.CamelCaseUF}} database table
+  {{$entity.Name.CamelCaseUF}}DropTableEvent
+	// {{$entity.Name.CamelCaseUF}}InsertEvent is event triggered after insert {{$entity.Name.CamelCaseUF}} entity
+	{{$entity.Name.CamelCaseUF}}InsertEvent
+	// {{$entity.Name.CamelCaseUF}}UpdateEvent is event triggered after update {{$entity.Name.CamelCaseUF}} entity
+	{{$entity.Name.CamelCaseUF}}UpdateEvent
+	// {{$entity.Name.CamelCaseUF}}DeleteEvent is event triggered after delete {{$entity.Name.CamelCaseUF}} entity
+	{{$entity.Name.CamelCaseUF}}DeleteEvent
+{{- end }}
+)
+
+{{- end -}}

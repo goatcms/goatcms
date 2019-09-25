@@ -1,0 +1,7 @@
+{{- define "config" -}}
+{{- $ctx := . -}}
+
+{{$ctx.RenderOnce "config/config_dev.json" "" "" "config/config_{{env}}.json" (dict "Cached" false)}}
+{{$ctx.RenderOnce "config/config_test.json" "" "" "config/config_{{env}}.json" (dict "Cached" true)}}
+{{$ctx.RenderOnce "config/config_prod.json" "" "" "config/config_{{env}}.json" (dict "Cached" true)}}
+{{$ctx.RenderOnce "config/routing.json" "" "" "config/routing.json" $ctx.DotData}}

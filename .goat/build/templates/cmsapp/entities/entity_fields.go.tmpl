@@ -1,0 +1,135 @@
+{{define "entities/{{entity}}_fields.go" -}}
+{{- $ctx := . -}}
+{{- $entity := $ctx.DotData -}}
+{{- $fields := $entity.AllFields.Ordered -}}
+{{- $hasIntField := (gt (len (index $entity.AllFields.ByType "int")) 0) -}}
+{{- $hasDatetimeField := (gt (len (index $entity.AllFields.ByType "datetime")) 0) -}}
+
+package entities
+
+{{- if $hasDatetimeField}}
+import (
+  "time"
+)
+{{- end }}
+
+// {{$entity.Name.CamelCaseUF}}AllFields is a array contains list of all {{$entity.Name.CamelCaseUF}} fields (except ID)
+var {{$entity.Name.CamelCaseUF}}AllFields = {{template "entities/{{entity}}_fields.go$fields_values" (dict "WithID" false "Entity" $entity "System" "")}}
+
+// {{$entity.Name.CamelCaseUF}}AllFieldsAndID is a array contains list of all {{$entity.Name.CamelCaseUF}} fields (with ID)
+var {{$entity.Name.CamelCaseUF}}AllFieldsAndID = {{template "entities/{{entity}}_fields.go$fields_values" (dict "WithID" true "Entity" $entity "System" "")}}
+
+// {{$entity.Name.CamelCaseUF}}MainFields is a array contains list of main {{$entity.Name.CamelCaseUF}} fields (except ID)
+var {{$entity.Name.CamelCaseUF}}MainFields = {{template "entities/{{entity}}_fields.go$fields_values" (dict "WithID" false "Entity" $entity "System" "n")}}
+
+// {{$entity.Name.CamelCaseUF}}MainFieldsAndID is a array contains list of main {{$entity.Name.CamelCaseUF}} fields (with ID)
+var {{$entity.Name.CamelCaseUF}}MainFieldsAndID = {{template "entities/{{entity}}_fields.go$fields_values" (dict "WithID" true "Entity" $entity "System" "n")}}
+
+// {{$entity.Name.CamelCaseUF}}SystemFields is a array contains list of system {{$entity.Name.CamelCaseUF}} fields (except ID)
+var {{$entity.Name.CamelCaseUF}}SystemFields = {{template "entities/{{entity}}_fields.go$fields_values" (dict "WithID" false "Entity" $entity "System" "y")}}
+
+// {{$entity.Name.CamelCaseUF}}SystemFieldsAndID is a array contains list of system {{$entity.Name.CamelCaseUF}} fields (with ID)
+var {{$entity.Name.CamelCaseUF}}SystemFieldsAndID = {{template "entities/{{entity}}_fields.go$fields_values" (dict "WithID" true "Entity" $entity "System" "y")}}
+
+{{- range $name, $childStruct := $entity.RootStructure.Structures.Ordered }}
+  {{ template "entities/{{entity}}_fields.go$structs_def" (dict "Struct" $childStruct) -}}
+{{- end }}
+
+// {{$entity.Name.CamelCaseUF}}Fields select an entity fields
+type {{$entity.Name.CamelCaseUF}}Fields struct {
+  {{- template "entities/{{entity}}_fields.go$struct_fields" (dict "Struct" $entity.RootStructure) }}
+}
+
+// Or return new object after "OR" logical comparison
+func (fields {{$entity.Name.CamelCaseUF}}Fields) Or(all ...{{$entity.Name.CamelCaseUF}}Fields)  {{$entity.Name.CamelCaseUF}}Fields {
+  for _, v := range all {
+{{- range $name, $field := $entity.AllFields.Ordered }}
+    fields.{{template "FieldPath" $field}} = fields.{{template "FieldPath" $field}} || v.{{template "FieldPath" $field}}
+{{- end -}}
+  }
+  return fields
+}
+
+// And return new object after "AND" logical comparison
+func (fields {{$entity.Name.CamelCaseUF}}Fields) And(all ...{{$entity.Name.CamelCaseUF}}Fields) {{$entity.Name.CamelCaseUF}}Fields {
+  for _, v := range all {
+{{- range $name, $field := $entity.AllFields.Ordered }}
+    fields.{{template "FieldPath" $field}} = fields.{{template "FieldPath" $field}} && v.{{template "FieldPath" $field}}
+{{- end -}}
+  }
+  return fields
+}
+
+// Not return negated object
+func (fields {{$entity.Name.CamelCaseUF}}Fields) Not() {{$entity.Name.CamelCaseUF}}Fields {
+{{- range $name, $field := $entity.AllFields.Ordered }}
+  fields.{{template "FieldPath" $field}} = !fields.{{template "FieldPath" $field}}
+{{- end }}
+  return fields
+}
+
+{{- end -}}
+
+{{- define "entities/{{entity}}_fields.go$structs_def" -}}
+{{- $ctx := . -}}
+{{- $struct := $ctx.Struct }}
+{{- $structureClassName := amStructClassName $struct }}
+
+// {{$structureClassName}}Fields is sub structure of $struct.Entity.Name.CamelCaseUF
+type {{$structureClassName}}Fields struct {
+  {{- template "entities/{{entity}}_fields.go$struct_fields" (dict "Struct" $struct) -}}
+}
+{{- range $name, $childStruct := $struct.Structures.Ordered -}}
+{{- template "entities/{{entity}}_fields.go$structs_def" (dict "Struct" $childStruct) -}}
+{{- end -}}
+{{- end -}}
+
+
+{{- define "entities/{{entity}}_fields.go$struct_fields" -}}
+{{- $ctx := . -}}
+{{- $struct := $ctx.Struct -}}
+  {{- range $name, $field := $struct.Fields.Ordered }}
+    {{$field.Name.CamelCaseUF}} bool `json:"{{if eq $field.FullName.CamelCaseUF "ID"}}id{{else}}{{$field.Name.CamelCaseLF}}{{end}}"`
+  {{- end -}}
+  {{- range $name, $relation := $struct.Relations.Ordered }}
+    {{$relation.Name.CamelCaseUF}}ID bool `json:"{{$relation.Name.CamelCaseLF}}"`
+  {{- end -}}
+  {{- range $name, $childStruct := $struct.Structures.Ordered }}
+    {{$childStruct.Name.CamelCaseUF}} {{amStructClassName $childStruct}}Fields `json:"{{camelcaself (index $childStruct.Path (sub (len $childStruct.Path) 1))}}"`
+  {{- end -}}
+{{- end -}}
+
+
+{{- define "entities/{{entity}}_fields.go$fields_values" -}}
+{{- $ctx := . -}}
+{{- $entity := $ctx.Entity -}}
+{{- $withID := $ctx.WithID -}}
+{{- $system := $ctx.System -}}
+&{{$entity.Name.CamelCaseUF}}Fields {
+  {{- template "entities/{{entity}}_fields.go$fields_values_fields" (dict "Entity" $entity "System" $system "Struct" $entity.RootStructure "WithID" $withID) }}
+}
+{{- end -}}
+
+
+{{- define "entities/{{entity}}_fields.go$fields_values_fields" -}}
+{{- $ctx := . -}}
+{{- $entity := $ctx.Entity -}}
+{{- $system := $ctx.System -}}
+{{- $struct := $ctx.Struct -}}
+{{- $withID := $ctx.WithID -}}
+  {{- range $name, $field := $struct.Fields.Ordered }}
+    {{- if eq $field.FullName.CamelCaseUF "ID" }}
+    {{$field.Name.CamelCaseUF}}: {{if $withID}}true{{- else -}}false{{- end -}},
+    {{- else }}
+    {{$field.Name.CamelCaseUF}}: {{if or (eq $system "") (eq $field.Flags.System (eq $system "y"))}}true{{- else -}}false{{- end -}},
+    {{- end }}
+  {{- end -}}
+  {{- range $name, $relation := $struct.Relations.Ordered }}
+    {{$relation.Name.CamelCaseUF}}ID: {{if or (eq $system "") (eq $relation.Flags.System (eq $system "y"))}}true{{- else -}}false{{- end -}},
+  {{- end -}}
+  {{- range $name, $childStruct := $struct.Structures.Ordered }}
+    {{$childStruct.Name.CamelCaseUF}}: {{amStructClassName $childStruct}}Fields {
+      {{- template "entities/{{entity}}_fields.go$fields_values_fields" (dict "Entity" $entity "System" $system "Struct" $childStruct) }}
+    },
+  {{- end -}}
+{{- end -}}

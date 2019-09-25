@@ -1,0 +1,99 @@
+{{- define "cmsapp/commands/daomodc/internal/helpers.go" -}}
+
+package internal
+
+import (
+	"strconv"
+	"strings"
+	"time"
+
+	"github.com/goatcms/goatcms/cmsapp/dao"
+)
+
+// ToStringFieldCriteria convert string to dao.StringFieldCriteria object
+func ToStringFieldCriteria(s string) (criteria *dao.StringFieldCriteria) {
+	if s == "" {
+		return nil
+	}
+	criteria = &dao.StringFieldCriteria{}
+	s, criteria.Type = decodeCriteriaType(s)
+	criteria.Value = strings.Split(s, ",")
+	return criteria
+}
+
+// ToInt64FieldCriteria convert string to dao.Int64FieldCriteria object
+func ToInt64FieldCriteria(s string) (criteria *dao.Int64FieldCriteria, err error) {
+	var number int64
+	if s == "" {
+		return nil, nil
+	}
+	criteria = &dao.Int64FieldCriteria{}
+	s, criteria.Type = decodeCriteriaType(s)
+	for _, row := range strings.Split(s, ",") {
+		if number, err = strconv.ParseInt(row, 10, 64); err != nil {
+			return nil, err
+		}
+		criteria.Value = append(criteria.Value, number)
+	}
+	return criteria, nil
+}
+
+// ToDatetimeFieldCriteria convert string to dao.DatetimeFieldCriteria object
+func ToDatetimeFieldCriteria(s string) (criteria *dao.DatetimeFieldCriteria, err error) {
+	var datetime time.Time
+	if s == "" {
+		return nil, nil
+	}
+	criteria = &dao.DatetimeFieldCriteria{}
+	s, criteria.Type = decodeCriteriaType(s)
+	for _, row := range strings.Split(s, ",") {
+		if datetime, err = time.Parse(time.RFC3339, row); err != nil {
+			return nil, err
+		}
+		criteria.Value = append(criteria.Value, datetime)
+	}
+	return criteria, nil
+}
+
+// ToPager convert strings to dao.Pager
+func ToPager(size, number string) (pager *dao.Pager, err error) {
+	var numberInt int64
+	pager = &dao.Pager{}
+	if size == "" {
+		pager.Limit = 100
+	} else {
+		if pager.Limit, err = strconv.ParseInt(size, 10, 64); err != nil {
+			return nil, err
+		}
+	}
+	if number == "" {
+		pager.Offset = 0
+	} else {
+		if numberInt, err = strconv.ParseInt(size, 10, 64); err != nil {
+			return nil, err
+		}
+		pager.Offset = (numberInt - 1) * pager.Offset
+	}
+	return pager, nil
+}
+
+func decodeCriteriaType(s string) (string, int) {
+	if strings.HasPrefix(s, "=") {
+		return s[1:], dao.EQ
+	} else if strings.HasPrefix(s, "!=") {
+		return s[2:], dao.NE
+	} else if strings.HasPrefix(s, "<") {
+		return s[1:], dao.LT
+	} else if strings.HasPrefix(s, "<=") {
+		return s[2:], dao.LE
+	} else if strings.HasPrefix(s, ">") {
+		return s[1:], dao.GT
+	} else if strings.HasPrefix(s, ">=") {
+		return s[2:], dao.GE
+	} else if strings.HasPrefix(s, "~") {
+		return s[1:], dao.LIKE
+	}
+	return s, dao.EQ
+}
+
+{{- end -}}

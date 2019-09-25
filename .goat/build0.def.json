@@ -1,0 +1,93 @@
+[{
+  "to":"config",
+  "template":"config",
+},{
+  "to":"templates/views/admin",
+  "template":"admin/views",
+},{
+  "to":"templates/helpers/forms",
+  "template":"form/view",
+},{
+  "to":"translates",
+  "template":"translates",
+},{
+  "to":"cmsapp",
+  "template":"module",
+  "properties": {
+    "package":"cmsapp"
+  },
+  "afterBuild": "gofmt -w {{argument.cwd}}/cmsapp/",
+},{
+  "to":"cmsapp/entities",
+  "template":"entity",
+  "properties": {
+    "package":"entities"
+  },
+  "afterBuild": "gofmt -w {{argument.cwd}}/cmsapp/entities/",
+},{
+  "to":"cmsapp/commands",
+  "template":"commands",
+  "properties": {
+    "package":"commands",
+    "path":"github.com/goatcms/goatcms/cmsapp/commands",
+    "entities_path":"github.com/goatcms/goatcms/cmsapp/entities",
+    "dao_path":"github.com/goatcms/goatcms/cmsapp/dao"
+  },
+  "afterBuild": "gofmt -w {{argument.cwd}}/cmsapp/commands/",
+},{
+  "to":"cmsapp/controllers/adminctrl",
+  "template":"admin/controllers",
+  "properties": {
+    "package":"adminctrl",
+    "path":"github.com/goatcms/goatcms/cmsapp/controllers/adminctrl",
+    "entities_path":"github.com/goatcms/goatcms/cmsapp/entities"
+  },
+  "afterBuild": "gofmt -w {{argument.cwd}}/cmsapp/controllers/adminctrl/",
+},{
+  "to":"cmsapp/services/genservices",
+  "template":"services/gocode",
+  "properties": {
+    "package":"genservices",
+    "path":"github.com/goatcms/goatcms/cmsapp/services/genservices",
+    "entities_path":"github.com/goatcms/goatcms/cmsapp/entities"
+  },
+  "afterBuild": "gofmt -w {{argument.cwd}}/cmsapp/services/genservices/",
+},{
+  "to":"cmsapp/controllers/restctrl",
+  "template":"rest/controllers",
+  "properties": {
+    "package":"restctrl",
+    "path":"github.com/goatcms/goatcms/cmsapp/controllers/restctrl",
+    "entities_path":"github.com/goatcms/goatcms/cmsapp/entities"
+  },
+  "afterBuild": "gofmt -w {{argument.cwd}}/cmsapp/controllers/restctrl/",
+},{
+  "to":"cmsapp/forms",
+  "template":"form/gocode",
+  "properties": {
+    "package":"forms"
+  },
+  "afterBuild": "gofmt -w {{argument.cwd}}/cmsapp/forms/",
+},{
+  "to":"cmsapp/http",
+  "template":"http",
+  "properties": {
+    "package":"http",
+    "path":"github.com/goatcms/goatcms/cmsapp/http",
+    "entities_path":"github.com/goatcms/goatcms/cmsapp/entities",
+    "forms_path":"github.com/goatcms/goatcms/cmsapp/forms"
+  },
+  "afterBuild": "gofmt -w {{argument.cwd}}/cmsapp/http/",
+},{
+  "to":"cmsapp/dao",
+  "template":"dao",
+  "properties": {
+    "package":"dao",
+    "path":"github.com/goatcms/goatcms/cmsapp/dao",
+    "entities_path":"github.com/goatcms/goatcms/cmsapp/entities"
+  },
+  "afterBuild": "gofmt -w {{argument.cwd}}/cmsapp/dao/",
+},{
+  "to":"database/fixtures/tests/random",
+  "template":"fixtures"
+}]

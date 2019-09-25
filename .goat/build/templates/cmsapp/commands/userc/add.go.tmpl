@@ -1,0 +1,78 @@
+{{define "cmsapp/commands/userc/add.go" -}}
+{{- $ctx := . -}}
+{{- $userEntity := $ctx.AM.Entities.User -}}
+{{- $userFields := $userEntity.AllFields.Ordered -}}
+{{- $hasIntField := (gt (len (index $userEntity.AllFields.ByType "int")) 0) -}}
+{{- $hasDatetimeField := (gt (len (index $userEntity.AllFields.ByType "datetime")) 0) -}}
+
+package userc
+
+import (
+{{- if $hasIntField}}
+  "strconv"
+{{- end }}
+{{- if $hasDatetimeField}}
+  "time"
+{{- end }}
+	"{{index $ctx.Properties.Project "goatcms_package"}}/cmsapp/dao"
+	"{{index $ctx.Properties.Project "goatcms_package"}}/cmsapp/entities"
+	"github.com/goatcms/goatcore/app"
+	"github.com/goatcms/goatcore/varutil/goaterr"
+)
+
+// RunAdd execute user:add command to create new user
+func RunAdd(a app.App, ctxScope app.Scope) (err error) {
+	var (
+		deps struct {
+			Input  app.Input  `dependency:"InputService"`
+			Output app.Output `dependency:"OutputService"`
+
+			Inserter           dao.UserInsert     `dependency:"UserInsert"`
+			InteractiveMode    string             `argument:"?interactive",command:"?interactive"`
+{{- range $index, $field := $userFields }}
+      User{{camelcaseuf $field.Name.CamelCaseUF}} string `command:"?{{$field.FullName.CamelCaseLF}}"`
+{{- end }}
+		}
+		command struct {
+{{- range $index, $field := $userFields }}
+      {{camelcaseuf $field.FullName.CamelCaseUF}} string `command:"?{{$field.FullName.CamelCaseLF}}"`
+{{- end }}
+		}
+		user       *entities.User
+		InteractiveMode bool
+{{- if $hasIntField }}
+  	number     int64
+{{- end }}
+{{- if $hasDatetimeField }}
+    timeValue time.Time
+{{- end }}
+	)
+	if err = goaterr.ToErrors(goaterr.AppendError(nil,
+    a.DependencyProvider().InjectTo(&deps),
+    ctxScope.InjectTo(&deps))); err != nil {
+		return err
+	}
+	InteractiveMode = deps.InteractiveMode != "false"
+	user = &entities.User{}
+{{- range $index, $field := $userFields }}
+  // {{$field.FullName.CamelCaseUF}}
+	if InteractiveMode && command.{{$field.FullName.CamelCaseUF}} == "" {
+		if command.{{$field.FullName.CamelCaseUF}}, err = deps.Input.ReadLine(); err != nil {
+			return err
+		}
+	}
+  {{template "SetEntityFieldFromStringVar" (dict "EntityVar" "user" "Field" $field "Var" (print "command." $field.FullName.CamelCaseUF) )}}
+{{- end }}
+  // Persist
+	if _, err = deps.Inserter.Insert(ctxScope, user); err != nil {
+		return err
+	}
+	if err = ctxScope.Trigger(app.CommitEvent, nil); err != nil {
+		return err
+	}
+	deps.Output.Printf("Add user... success\n")
+	return nil
+}
+
+
+{{- end -}}

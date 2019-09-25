@@ -1,0 +1,94 @@
+{{define "dao/sqlitedao/simple/{{entity}}/inserter.go" -}}
+{{- $ctx := . -}}
+{{- $entity := $ctx.DotData -}}
+{{- $typeName := print $entity.Name.CamelCaseUF "Inserter" -}}
+
+package simple
+
+import (
+	"database/sql"
+	"fmt"
+	"strconv"
+
+	"github.com/goatcms/goatcore/app"
+	"github.com/goatcms/goatcore/dependency"
+	"github.com/goatcms/goatcms/cmsapp/dao"
+	"github.com/goatcms/goatcms/cmsapp/dao/sqlitedao/helpers"
+	"github.com/goatcms/goatcms/cmsapp/entities"
+)
+
+// {{$typeName}} is inserter for {{$entity.Name.CamelCaseUF}} entity
+type {{$typeName}} struct {
+  deps struct{
+    DB          *sql.DB   `dependency:"db0.engine"`
+		EngineScope app.Scope `dependency:"EngineScope"`
+  }
+}
+
+func New{{$typeName}}(db *sql.DB, engineScope app.Scope) (instance *{{$typeName}}, err error) {
+  instance = &{{$typeName}}{}
+	instance.deps.DB = db
+	instance.deps.EngineScope = engineScope
+  return instance, nil
+}
+
+func {{$typeName}}Factory(dp dependency.Provider) (ins interface{}, err error) {
+	instance := {{$typeName}}{}
+  if err = di.InjectTo(&instance.deps); err != nil {
+    return nil, err
+  }
+	return dao.{{$entityName}}Inserter(instance), nil
+}
+
+func (inserter {{$typeName}}) Insert(scope app.Scope, entity *entities.{{$entityName}}) (id int64, err error) {
+	var (
+		sqlq   string
+		tx     *sql.Tx
+		result sql.Result
+	)
+	if tx, err = helpers.TX(scope, inserter.deps.DB); err != nil {
+		return -1, err
+	}
+	if sqlq, err = inserter.SQL(entity); err != nil {
+		return -1, err
+	}
+	if result, err = tx.Exec(sqlq); err != nil {
+		return -1, fmt.Errorf("%s: %s", err.Error(), sqlq)
+	}
+	if id, err = result.LastInsertId(); err != nil {
+		return -1, fmt.Errorf("%s: %s", err.Error(), sqlq)
+	}
+	entity.ID = &id
+	/*if err = inserter.deps.EngineScope.Trigger(dao.{{$typeName}}Event, nil); err != nil {
+		return 0, err
+	}*/
+	scope.On(app.AfterCommitEvent, func(interface{}) (err error) {
+		return inserter.deps.EngineScope.Trigger(dao.{{$typeName}}Event, entity)
+	})
+	return id, nil
+}
+
+func (inserter {{$typeName}}) SQL(entity *entities.{{$entityName}}) (string, error) {
+	{{- commaSequencer := sequencer "" ", " }}
+	sql := "INSERT INTO {{$entity.Name.Underscore}} ("
+	sql += "{{- range $fi, $field := $entity.Fields.Ordered -}}
+			{{- commaSequencer.Next() -}}
+			{{$field.FullName.Underscore}}
+		{{- end -}}
+		{{- range $ri, $relation := $entity.Relations.Ordered -}}
+			{{- commaSequencer.Next() -}}
+			{{$relation.FullName.Underscore}}_id
+		{{- end -}}) VALUES ("
+	{{- commaSequencer := sequencer "" " + \", \" + " }}
+	sql += {{- range $fi, $field := $entity.AllFields.Ordered -}}
+			{{- commaSequencer.Next() -}}
+			{{template "sqliteHelperPointerVarToQuotedString" (dict "FromVar" (amLinkFieldUF "entity" $field) "FromType" $field.Type) }}
+		{{- end -}}
+		{{- range $fi, $relation := $entity.AllRelations.Ordered -}}
+			{{- commaSequencer.Next() -}}
+			{{template "sqliteHelperPointerVarToQuotedString" (dict "FromVar" (print (amLinkFieldUF "entity" $field) "ID") "FromType" $relation.Type) }}
+		{{- end }} + ")"
+		return sql, nil
+}
+
+{{- end -}}

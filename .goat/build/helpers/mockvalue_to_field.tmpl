@@ -1,0 +1,16 @@
+{{- define "SetMockValueToVar" -}}
+{{- $toVar := .ToVar }}
+{{- $toType := .Totype }}
+
+{{- if eq $toType "text" "string" "email" "password" "lang" }}
+  {{$toVar}} = {{template "mockvalue" $toType}}
+{{- else if eq $toType "datetime" }}
+  if {{$toVar}}, err = time.Parse(time.RFC3339, {{template "mockvalue" $toType}}); err != nil {
+    return err
+  }
+{{- else if eq $toType "int" "id" }}
+  {{$toVar}} = {{template "mockvalue" $toType}}
+{{- else -}}
+	{{- error (print "bad entity type " $toType) -}}
+{{- end -}}
+{{- end -}}

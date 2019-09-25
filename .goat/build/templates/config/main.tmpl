@@ -1,29 +1,6 @@
 {{- $ctx := . -}}
 
-{{- $devPath := (print .To "/config_dev.json") -}}
-{{if not (.Filesystem.IsFile $devPath)}}
-  {{.Out.File $devPath -}}
-    {{template "config" (dict "ctx" $ctx "cached" false)}}
-  {{.Out.EOF}}
-{{end}}
-
-{{- $testPath := (print .To "/config_test.json") -}}
-{{if not (.Filesystem.IsFile $testPath)}}
-  {{.Out.File $testPath -}}
-    {{template "config" (dict "ctx" $ctx "cached" true)}}
-  {{.Out.EOF}}
-{{end}}
-
-{{- $prodPath := (print .To "/config_prod.json") -}}
-{{if not (.Filesystem.IsFile $prodPath)}}
-  {{.Out.File $prodPath -}}
-    {{template "config" (dict "ctx" $ctx "cached" true)}}
-  {{.Out.EOF}}
-{{end}}
-
-{{- $path := (print .To "/routing.json") -}}
-{{- if not ($ctx.Filesystem.IsFile $path) -}}
-  {{- $ctx.Out.File $path -}}
-    {{- template "routing_json" $ctx -}}
-  {{- $ctx.Out.EOF -}}
-{{- end -}}
+{{- $ctx.RenderOnce "config/config_dev.json" "" "" "config/config_{{env}}.json" (dict "Cached" false) -}}
+{{- $ctx.RenderOnce "config/config_test.json" "" "" "config/config_{{env}}.json" (dict "Cached" true) -}}
+{{- $ctx.RenderOnce "config/config_prod.json" "" "" "config/config_{{env}}.json" (dict "Cached" true) -}}
+{{- $ctx.RenderOnce "config/routing.json" "" "" "config/routing.json" $ctx.DotData -}}

@@ -1,0 +1,27 @@
+{{define "dao/sqlitedao/simplemodule" -}}
+{{- $ctx := . -}}
+{{- $entity := $ctx.DotData -}}
+
+package simple
+
+import (
+	"github.com/goatcms/goatcore/dependency"
+	"github.com/goatcms/goatcore/varutil/goaterr"
+)
+
+func RegisterDependencies(dp dependency.Provider) error {
+	return goaterr.ToErrors(goaterr.AppendError(nil,
+		dp.AddDefaultFactory("{{$entity.Name.CamelCaseUF}}CreateTable", {{$entity.Name.CamelCaseUF}}CreateTableFactory),
+		dp.AddDefaultFactory("{{$entity.Name.CamelCaseUF}}Deleter", {{$entity.Name.CamelCaseUF}}DeleterFactory),
+		dp.AddDefaultFactory("{{$entity.Name.CamelCaseUF}}DropTable", {{$entity.Name.CamelCaseUF}}DropTableFactory),
+		dp.AddDefaultFactory("{{$entity.Name.CamelCaseUF}}Inserter", {{$entity.Name.CamelCaseUF}}InserterFactory),
+		dp.AddDefaultFactory("{{$entity.Name.CamelCaseUF}}Updater", {{$entity.Name.CamelCaseUF}}UpdaterFactory),
+		dp.AddDefaultFactory("{{$entity.Name.CamelCaseUF}}Inserter", {{$entity.Name.CamelCaseUF}}InserterFactory),
+{{- range $i, $index := $entity.Indexes.Ordered }}
+		dp.AddDefaultFactory("{{$entity.Name.CamelCaseUF}}FindBy{{$index.Name.CamelCaseUF}}", {{$entity.Name.CamelCaseUF}}InserterFactory),
+{{- end }}
+	))
+}
+
+
+{{- end -}}

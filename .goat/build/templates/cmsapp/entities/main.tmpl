@@ -1,0 +1,13 @@
+{{define "entities" -}}
+{{- $ctx := . -}}
+
+{{- range $index, $entity := $ctx.AM.Entities }}
+  {{- $path := (print "cmsapp/entities/" $entity.Name.Underscore ) -}}
+  {{- $ctx.RenderOnce (print $path  ".go") "" "" "entities/{{entity}}.go" $entity -}}
+  {{- $ctx.RenderOnce (print $path  "_fields.go") "" "" "entities/{{entity}}_fields.go" $entity -}}
+  {{- $ctx.RenderOnce (print $path  "_from_json.go") "" "" "entities/{{entity}}_from_json.go" $entity -}}
+  {{- $ctx.RenderOnce (print $path  "_to_json.go") "" "" "entities/{{entity}}_to_json.go" $entity -}}
+  {{- $ctx.RenderOnce (print $path  "_valid.go") "" "" "entities/{{entity}}_valid.go" $entity -}}
+{{- end -}}
+
+{{- end -}}

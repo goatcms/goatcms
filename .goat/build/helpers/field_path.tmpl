@@ -1,0 +1,15 @@
+{{- define "FieldPath" -}}
+{{- $field := . }}
+{{- $Structure := $field.Structure }}
+
+{{- if ne (len $Structure.Path) 0 }}
+{{- range $index, $row := $Structure.Path -}}
+{{- if ne $index 0 }}.{{end}}
+{{- camelcaseuf $row -}}
+{{- end -}}
+.
+{{- end -}}
+{{- $field.Name.CamelCaseUF -}}
+
+
+{{- end -}}

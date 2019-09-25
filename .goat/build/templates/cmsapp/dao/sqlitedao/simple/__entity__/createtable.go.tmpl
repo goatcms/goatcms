@@ -1,0 +1,92 @@
+{{define "dao/sqlitedao/simple/{{entity}}/createtable.go" -}}
+{{- $ctx := . -}}
+{{- $entity := $ctx.DotData -}}
+{{- $typeName := print $entity.Name.CamelCaseUF "CreateTable" -}}
+
+package simple
+
+import (
+	"github.com/goatcms/goatcore/app"
+	"database/sql"
+	"github.com/goatcms/goatcore/dependency"
+	"github.com/goatcms/goatcms/cmsapp/dao"
+	"github.com/goatcms/goatcms/cmsapp/dao/sqlitedao/helpers"
+)
+
+// {{$typeName}} entity table
+type {{$typeName}} struct {
+  deps struct{
+    DB *sql.DB            `dependency:"db0.engine"`
+		EngineScope app.Scope `dependency:"EngineScope"`
+  }
+}
+
+func New{{$typeName}}(di dependency.Injector) (instance *{{$typeName}}, err error) {
+  instance = &{{$typeName}}{}
+  if err = di.InjectTo(&instance.deps); err != nil {
+    return nil, err
+  }
+  return instance, nil
+}
+
+func {{$typeName}}Factory(dp dependency.Provider) (instance interface{}, err error) {
+	if instance, err = New{{$typeName}}(dp); err != nil {
+		return nil, err
+	}
+	return dao.CreateTable(instance), nil
+}
+
+func (creator {{$typeName}}) CreateTable(scope app.Scope) (err error) {
+	var tx *sql.Tx
+	if tx, err = helpers.TX(scope, creator.deps.DB); err != nil {
+		return err
+	}
+	if _, err = tx.Exec(creator.SQL()); err != nil {
+		return err
+	}
+	scope.On(app.AfterCommitEvent, func(interface{}) (err error) {
+		return creator.deps.EngineScope.Trigger(dao.{{$typeName}}Event, nil)
+	})
+	return nil
+}
+
+func (creator {{$typeName}}) AlterTable(scope app.Scope) (err error) {
+	var tx *sql.Tx
+	if tx, err = helpers.TX(scope, creator.deps.DB); err != nil {
+		return err
+	}
+	_, err = tx.Exec(creator.AlterSQL())
+	return err
+}
+
+func (creator {{$typeName}}) SQL() string {
+  return `CREATE TABLE IF NOT EXISTS {{$entity.Plural.Underscore}} (
+	{{- range $i, $field := $entity.AllFields.Ordered -}}
+		{{- if ne $i 0}},{{ end }}
+    {{$field.FullName.Underscore}} {{template "sqlite.sqltype" $field.Type}}
+		{{- if $field.Flags.Unique }} UNIQUE {{- end -}}
+		{{- if $field.Flags.Required }} NOT NULL {{- end -}}
+  {{- end -}}
+	{{- range $i, $relation := $entity.AllRelations.Ordered -}}
+		{{- if or (ne $i 0) (ne (len $entity.AllFields.Ordered) 0)}},{{ end }}
+    {{$relation.FullName.Underscore}}_id {{template "sqlite.sqltype" $relation.ToEntity.AllFields.ByFullName.ID.Type}}
+		{{- if $relation.Flags.Unique }} UNIQUE {{- end -}}
+		{{- if $relation.Flags.Required }} NOT NULL {{- end -}}
+  {{- end -}});`
+}
+
+func (creator {{$typeName}}) AlterSQL() string {
+  return `
+	{{- range $i, $relation := $entity.AllRelations.Ordered -}},
+    constraint fk_{{$relation.FullName.Underscore}} FOREIGN KEY ({{$relation.FullName.Underscore}}_id) REFERENCES {{$relation.ToEntity.FullName.Underscore}}(ID);
+  {{- end -}}
+	{{- range $i, $index := $entity.Indexed.Ordered }}
+		CREATE UNIQUE INDEX IF NOT EXISTS index_{{$index.Name.Underscore}} ON {{$entity.Plural.Underscore}} ({{- range $ii, $field := $index.Fields }}
+			{{- if ne $ii 0}}, {{ end }}
+			{{- $field.FullName.Underscore }}
+	  {{- end }});
+  {{- end -}}
+	`
+}
+
+{{- end -}}

@@ -1,0 +1,81 @@
+{{define "dao/sqlitedao/simple/{{entity}}/row.go" -}}
+{{- $ctx := . -}}
+{{- $entity := $ctx.DotData -}}
+{{- $typeName := print $entity.Name.CamelCaseUF "Row" -}}
+
+package simple
+
+import (
+	"database/sql"
+	"github.com/goatcms/goatcms/cmsapp/dao/sqlitedao/helpers"
+	"github.com/goatcms/goatcms/cmsapp/entities"
+)
+
+// {{$typeName}} is the result of a query. Its cursor starts before the first row of the result set. Use Next to advance through the row
+type {{$typeName}} struct {
+	*sql.Row
+	fields *entities.{{$entity.Name.CamelCaseUF}}Fields
+}
+
+func New{{$typeName}}(row *sql.Row, fields *entities.{{$entity.Name.CamelCaseUF}}Fields) *{{$typeName}} {
+	return &{{$typeName}}{
+		Row: row,
+		fields: fields,
+	}
+}
+
+func (row *{{$typeName}}) Columns() (values []string, err error) {
+	return helpers.{{$entity.Name.CamelCaseUF}}ToArray(row.fields), nil
+}
+
+func (row *{{$typeName}}) InjectTo(dest *entities.{{$entity.Name.CamelCaseUF}}) (err error) {
+	values := make([]interface{}, {{sum (len $fields) (len $relations) 1}})
+	i := 0
+	if row.fields.ID {
+		values[i] = &dest.ID
+		i++
+	}
+{{- range $index, $field := $entity.AllFields.Ordered -}}
+	if {{amLinkFieldUF "row.fields" $field}} {
+		{{- if eq $fieldType "datetime" }}
+		values[i] = helpers.NewTimeConverter(&dest.{{$fieldName}})
+		{{- else }}
+		values[i] = &{{amLinkFieldUF "dest" $field}}
+		{{- end }}
+		i++
+	}
+{{- end }}
+{{- range $index, $relation := $entity.AllRelations.Ordered -}}
+	if {{amLinkRelationUF "row.fields" $field}}ID {
+		values[i] = &{{amLinkRelationUF "row.fields" $relation}}ID
+		i++
+	}
+{{- end }}
+	return row.Row.Scan(values[0:i]...)
+}
+
+func (row *{{$typeName}}) Get() (entity *entities.{{$entity.Name.CamelCaseUF}}, err error) {
+	entity = &entities.{{$entity.Name.CamelCaseUF}}{}
+	if err = row.InjectTo(entity); err != nil {
+		return nil, err
+	}
+	return entity, nil
+}
+
+func (row *{{$typeName}}) GetValues() (values []interface{}, err error) {
+	var columns []string
+	if columns, err = row.Columns(); err != nil {
+		return nil, err
+	}
+	values = make([]interface{}, len(columns))
+	for i, _ := range values {
+		var reference interface{}
+		values[i] = &reference
+	}
+	if err = row.Row.Scan(values...); err != nil {
+		return nil, err
+	}
+	return values, nil
+}
+
+{{- end -}}

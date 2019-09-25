@@ -1,0 +1,95 @@
+{{define "dao/sqlitedao/simple/{{entity}}/update.go" -}}
+{{- $ctx := . -}}
+{{- $entity := $ctx.DotData -}}
+{{- $typeName := print $entity.Name.CamelCaseUF "Updateer" -}}
+
+package simple
+
+import (
+	"fmt"
+	"strconv"
+	"strings"
+	"database/sql"
+	"github.com/goatcms/goatcore/app"
+	"github.com/goatcms/goatcore/dependency"
+	"github.com/goatcms/goatcms/cmsapp/dao"
+	"github.com/goatcms/goatcms/cmsapp/dao/sqlitedao/helpers"
+	"github.com/goatcms/goatcms/cmsapp/entities"
+)
+
+
+// {{$typeName}} is a Data Access Object for {{lower $name}} entity
+type {{$typeName}} struct {
+  deps struct{
+    DB *sql.DB            `dependency:"db0.engine"`
+	  EngineScope app.Scope `dependency:"EngineScope"`
+  }
+}
+
+func New{{$typeName}}(db *sql.DB, engineScope app.Scope) (instance *{{$typeName}}, err error) {
+  instance = &{{$typeName}}{}
+	instance.deps.DB = db
+	instance.deps.EngineScope = engineScope
+  return instance, nil
+}
+
+func {{$typeName}}Factory(dp dependency.Provider) (ins interface{}, err error) {
+	instance := New{{$typeName}}{}
+  if err = dp.InjectTo(&instance.deps); err != nil {
+    return nil, err
+  }
+	return dao.{{$typeName}}(instance), nil
+}
+
+func (updater {{$typeName}}) Update(scope app.Scope, entity *entities.{{$entityName}}, fields *entities.{{camelcaseuf $name}}Fields) (err error) {
+	var (
+		res   sql.Result
+		count int64
+		query string
+		tx  *sql.Tx
+	)
+	if tx, err = helpers.TX(scope, updater.deps.DB); err != nil {
+		return err
+	}
+	if query, err = updater.SQL(fields, entity); err != nil {
+		return fmt.Errorf("%s: %s", err.Error(), query)
+	}
+	if res, err = tx.Exec(query); err != nil {
+		return fmt.Errorf("%s: %s", err.Error(), query)
+	}
+	if count, err = res.RowsAffected(); err != nil {
+		return fmt.Errorf("%s: %s", err.Error(), query)
+	}
+	if count != 1 {
+		return fmt.Errorf("Update modified more then one record (%v records modyfieds): %s", count, query)
+	}
+	if err = updater.deps.EngineScope.Trigger(dao.{{$entityName}}UpdateEvent, entity); err != nil {
+		return err
+	}
+	scope.On(app.AfterCommitEvent, func(interface{}) (err error) {
+		return updater.deps.EngineScope.Trigger(dao.{{$entityName}}UpdateEvent, entity)
+	})
+	return nil
+}
+
+func (updater {{$typeName}}) SQL(fields *entities.{{camelcaseuf $name}}Fields, entity *entities.{{$entityName}}) (string, error) {
+	array := make([]string, {{sum (len $fields) (len $relations)}})
+	sql := "UPDATE {{camelcaseuf $name}} SET "
+	i := 0
+{{- range $fi, $field := $entity.AllFields.Ordered -}}
+	if fields.{{$fieldName}} {
+		array[i] = "{{$fieldName}}=" + {{template "sqliteHelperPointerVarToQuotedString" (dict "FromVar" (amLinkFieldUF "entity" $field) "FromType" $field.Type) }}
+		i++
+	}
+{{- end -}}
+{{- range $fi, $relation := $entity.AllFields.Ordered -}}
+	if fields.{{$fieldName}}ID {
+		array[i] = "{{$fieldName}}ID=" + {{template "sqliteHelperPointerVarToQuotedString" (dict "FromVar" (print (amLinkFieldUF "entity" $field) "ID") "FromType" $relation.Type) }}
+		i++
+	}
+{{- end }}
+	sql += strings.Join(array[0:i], ", ") + " WHERE ID=" + strconv.FormatInt(*entity.ID, 10)
+	return sql, nil
+}
+
+{{- end -}}

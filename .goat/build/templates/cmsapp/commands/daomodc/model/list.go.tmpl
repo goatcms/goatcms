@@ -1,0 +1,108 @@
+{{define "cmsapp/commands/daomodc/model/list.go" -}}
+{{- $ctx := . -}}
+{{- $entity := $ctx.DotData -}}
+{{- $fields := $entity.AllFields.ByName -}}
+
+package {{$entity.Name.Underscore}}c
+
+import (
+	"strings"
+
+	"github.com/goatcms/goatcms/cmsapp/daomodc/internal"
+	"github.com/goatcms/goatcms/cmsapp/dao"
+	"github.com/goatcms/goatcms/cmsapp/entities"
+	"github.com/goatcms/goatcore/app"
+	"github.com/goatcms/goatcore/varutil"
+	"github.com/goatcms/goatcore/varutil/goaterr"
+)
+
+// RunList execute db:{{$entity.Name.Underscore}}:list command
+func RunList(a app.App, ctxScope app.Scope) (err error) {
+	var (
+		deps struct {
+			Input    app.Input                  `dependency:"InputService"`
+			Output   app.Output                 `dependency:"OutputService"`
+			Searcher dao.{{$entity.Name.CamelCaseUF}}CriteriaSearch `dependency:"{{$entity.Name.CamelCaseUF}}CriteriaSearch"`
+		}
+		command struct {
+			Fields     string `command:"?fields"`
+			PageNumber string `command:"?page.number"`
+			PageSize   string `command:"?page.size"`
+		}
+		where struct {
+{{- range $index, $field := $fields }}
+			{{lower $field.FullName.Underscore}} string `command:"?where.{{lower $field.FullName.Underscore}}"`
+{{- end }}
+		}
+		errs         []error
+		selectFields []string
+		criteria     dao.{{$entity.Name.CamelCaseUF}}Criteria
+		pager        *dao.Pager
+		rows         dao.{{$entity.Name.CamelCaseUF}}Rows
+		entity       entities.{{$entity.Name.CamelCaseUF}}
+		json         string
+		count        int
+	)
+	if errs = goaterr.AppendError(nil,
+		a.DependencyProvider().InjectTo(&deps),
+		ctxScope.InjectTo(&command),
+		ctxScope.InjectTo(&where)); errs != nil {
+		return goaterr.ToErrors(errs)
+	}
+	// select fields
+	if command.Fields != "*" && command.Fields != "" {
+		criteria.Fields = &entities.{{$entity.Name.CamelCaseUF}}Fields{}
+		selectFields = strings.Split(strings.ToLower(command.Fields), ",")
+{{- range $index, $field := $fields -}}
+    if varutil.IsArrContainStr(selectFields, "{{$field.Name.Underscore}}") {
+      criteria.Fields.{{$field.FullName.CamelCaseUF}} = true
+    }
+{{- end -}}
+	} else {
+		criteria.Fields = entities.{{$entity.Name.CamelCaseUF}}AllFieldsAndID
+	}
+	// where criteria
+{{- range $index, $field := $fields -}}
+{{- if eq $field.Type "text" "string" "email" "password" "lang" }}
+    criteria.Where.{{$field.Name.CamelCaseUF}} = internal.ToStringFieldCriteria(where.{{$field.Name.CamelCaseUF}})
+{{- else if eq $field.Type "datetime" }}
+    if criteria.Where.{{$field.Name.CamelCaseUF}}, err = internal.ToDatetimeFieldCriteria(where.{{$field.Name.CamelCaseUF}}); err != nil {
+			return err
+		}
+{{- else if eq $field.Type "int" }}
+    if criteria.Where.{{$field.Name.CamelCaseUF}}, err = internal.ToInt64FieldCriteria(where.{{$field.Name.CamelCaseUF}}); err != nil {
+			return err
+		}
+{{- else -}}
+{{- error (print "bad type" .) -}}
+{{- end -}}
+
+{{- end }}
+	// find
+	if pager, err = internal.ToPager(command.PageSize, command.PageNumber); err != nil {
+		return err
+	}
+	if rows, err = deps.Searcher.Find(ctxScope, &criteria, pager); err != nil {
+		return err
+	}
+	defer rows.Close()
+	deps.Output.Printf("[")
+	for rows.Next() {
+		if err = rows.InjectTo(&entity); err != nil {
+			return err
+		}
+		if json, err = varutil.ObjectToJSON(entity); err != nil {
+			return err
+		}
+		if count > 0 {
+			deps.Output.Printf(", %s", json)
+		} else {
+			deps.Output.Printf("%s", json)
+		}
+		count++
+	}
+	deps.Output.Printf("]")
+	return ctxScope.Trigger(app.RollbackEvent, nil)
+}
+
+{{- end -}}

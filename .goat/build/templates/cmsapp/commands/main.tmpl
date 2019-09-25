@@ -1,0 +1,7 @@
+{{- define "commands" -}}
+{{- $ctx := . -}}
+
+{{- $ctx.RenderOnce "cmsapp/commands/userc/add.go" "" "" "cmsapp/commands/userc/add.go" $ctx -}}
+
+{{- template "cmsapp/commands/daomodc" $ctx -}}
+{{- end -}}

@@ -1,0 +1,9 @@
+{{- define "entities" -}}
+{{- $ctx := . -}}
+{{- $entities := $ctx.AM.Entities -}}
+
+{{- if not $entities.User }}
+{{- error "User entity is required" -}}
+{{- end -}}
+
+{{- end -}}

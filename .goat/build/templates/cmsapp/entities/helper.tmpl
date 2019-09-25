@@ -1,0 +1,13 @@
+{{- define "dao$criteria_type" -}}
+{{- $lvalue := (lower .) -}}
+{{- if eq $lvalue "text" "string" "email" "password" "lang" -}}
+  StringFieldCriteria
+{{- else if eq $lvalue "datetime" -}}
+  DatetimeFieldCriteria
+{{- else if eq $lvalue "int" "id" -}}
+  Int64FieldCriteria
+{{- else -}}
+  {{- error (print "bad type " .) -}}
+{{- end -}}
+
+{{- end -}}

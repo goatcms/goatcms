@@ -1,0 +1,62 @@
+{{define "dao/sqlitedao/simple/{{entity}}/module_test.go" -}}
+{{- $ctx := . -}}
+{{- $entity := $ctx.DotData -}}
+
+package simple
+
+import (
+	"bytes"
+	"strings"
+	"testing"
+
+	"github.com/goatcms/goatcms/cmsapp/dao"
+	"github.com/goatcms/goatcms/cmsapp/dao/sqlitedao/database"
+	"github.com/goatcms/goatcore/app"
+	"github.com/goatcms/goatcore/app/gio"
+	"github.com/goatcms/goatcore/app/mockupapp"
+	"github.com/goatcms/goatcore/app/scope"
+)
+
+func TestModule(t *testing.T) {
+	var (
+		err  error
+		mapp app.App
+	)
+	t.Parallel()
+	// prepare mockup application
+	configScope := scope.NewScope(app.ConfigTagName)
+	configScope.Set("database.url", ":memory:")
+	if mapp, err = mockupapp.NewApp(mockupapp.MockupOptions{
+		Input:       gio.NewInput(strings.NewReader("")),
+		Output:      gio.NewOutput(new(bytes.Buffer)),
+		ConfigScope: configScope,
+	}); err != nil {
+		t.Error(err)
+		return
+	}
+	if err = mapp.DependencyProvider().AddDefaultFactory("db0.engine", database.EngineFactory); err != nil {
+		t.Error(err)
+		return
+	}
+	if err = RegisterDependencies(mapp.DependencyProvider()); err != nil {
+		t.Error(err)
+		return
+	}
+	// test
+	var deps struct {
+		{{$entity.Name.CamelCaseUF}}CreateTable dao.CreateTable `dependency:"{{$entity.Name.CamelCaseUF}}CreateTable"`
+		{{$entity.Name.CamelCaseUF}}Deleter dao.Delete `dependency:"{{$entity.Name.CamelCaseUF}}Delete"`
+		{{$entity.Name.CamelCaseUF}}DropTable dao.DropTable `dependency:"{{$entity.Name.CamelCaseUF}}DropTable"`
+		{{$entity.Name.CamelCaseUF}}Inserter dao.{{$entity.Name.CamelCaseUF}}Insert `dependency:"{{$entity.Name.CamelCaseUF}}Insert"`
+		{{$entity.Name.CamelCaseUF}}Updater dao.{{$entity.Name.CamelCaseUF}}Update `dependency:"{{$entity.Name.CamelCaseUF}}Update"`
+{{ range $i, $index := $entity.Indexes.Ordered }}
+		{{$entity.Name.CamelCaseUF}}FindBy{{$index.Name.CamelCaseUF}} dao.{{$entity.Name.CamelCaseUF}}FindBy{{$index.Name.CamelCaseUF}} `dependency:"{{$entity.Name.CamelCaseUF}}FindBy{{$index.Name.CamelCaseUF}}"`
+{{- end }}
+	}
+	if err = mapp.DependencyProvider().InjectTo(&deps); err != nil {
+		t.Error(err)
+		return
+	}
+}
+
+{{- end -}}

@@ -1,0 +1,66 @@
+{{define "dao/sqlitedao/simple/{{entity}}/unsafe_insert_story_test.go" -}}
+{{- $ctx := . -}}
+{{- $entity := $ctx.DotData -}}
+{{- $typeName := print $entity.Name.CamelCaseUF "Inserter" -}}
+
+package simple
+
+import (
+	"database/sql"
+	"testing"
+
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/goatcms/goatcms/cmsapp/dao/sqlitedao/helpers"
+	"github.com/goatcms/goatcms/cmsapp/entities"
+	"github.com/goatcms/goatcore/app"
+	"github.com/goatcms/goatcore/app/scope"
+)
+
+
+func TestUnsafeEntityStory(t *testing.T) {
+	t.Parallel()
+	doUnsafeEntityStory(t, "{{$entityName}}TestUnsafeEntityStory")
+}
+
+func doUnsafeEntityStory(t *testing.T, dbname string) (bool, *sql.DB) {
+	var (
+		ok             bool
+		db             *sql.DB
+		err            error
+		expectedEntity *entities.{{$entityName}}
+		entity         *entities.{{$entityName}}
+		resultID       int64
+		s              app.Scope
+	)
+	if ok, db = doCreateTable(t); !ok {
+		return false, nil
+	}
+	expectedEntity = NewUnsafeEntity()
+	s = scope.NewScope("tag")
+	persister := {{$typeName}}{}
+	persister.deps.DB = db
+	persister.deps.EngineScope = s
+	if resultID, err = persister.Insert(s, expectedEntity); err != nil {
+		t.Error(err)
+		return false, db
+	}
+	if _, err = helpers.Commit(s); err != nil {
+		t.Error(err)
+		return false, db
+	}
+	s = scope.NewScope("tag2")
+	finder := {{$entityName}}FindByID{}
+	finder.deps.DB = db
+	if entity, err = finder.Find(s, entities.{{$entityName}}AllFields, resultID); err != nil {
+		t.Error(err)
+		return false, db
+	}
+	{{- range $i, $field := $entity.AllFields.Ordered }}
+		if *{{amLinkFieldUF "expectedEntity" $field}} != *{{amLinkFieldUF "entity" $field}} {
+			t.Errorf("Returned field should contains inserted entity value for {{amLinkFieldUF "entity" $field}} field and it is %v (expeted %v)", {{amLinkFieldUF "entity" $field}}, {{amLinkFieldUF "expectedEntity" $field}})
+			return false, db
+		}
+	{{- end }}
+	return true, db
+}
+{{- end -}}

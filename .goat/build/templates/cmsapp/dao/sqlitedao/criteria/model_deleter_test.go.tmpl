@@ -1,0 +1,137 @@
+{{define "sqlite.criteria.model_deleter_test_go" -}}
+{{- $ctx := . -}}
+{{- $name := (index $ctx.Data (print .From ".entity")) -}}
+{{- $entityName := (camelcaseuf $name) -}}
+{{- $typeName := (print $entityName "CreateTable") -}}
+{{- $fieldsBaseKey := (print .From ".fields.") -}}
+{{- $fields := (keys .Data $fieldsBaseKey) -}}
+{{- $relationsBaseKey := (print .From ".relations.") -}}
+{{- $relations := (keys .Data $relationsBaseKey) -}}
+
+package criteria
+
+import (
+	"testing"
+
+	"github.com/goatcms/goatcore/app"
+	entities "{{index $ctx.Properties.Build "entities_path"}}"
+	maindef  "{{index $ctx.Properties.Build "path"}}"
+)
+
+func Test{{$entityName}}CriteriaDeleterForOneResult(t *testing.T) {
+	var (
+		err error
+		mapp app.App
+		deps struct {
+			CriteriaDeleter maindef.{{$entityName}}CriteriaDeleter `dependency:"{{$entityName}}CriteriaDeleter"`
+			CriteriaCounter maindef.{{$entityName}}CriteriaCounter `dependency:"{{$entityName}}CriteriaCounter"`
+		}
+		criteria       *maindef.{{$entityName}}Criteria
+		expectedEntity *entities.{{$entityName}}
+		count          int64
+	)
+	t.Parallel()
+	if mapp, err = NewMockApp(); err != nil {
+		t.Error(err)
+		return
+	}
+	if err = mapp.DependencyProvider().InjectTo(&deps); err != nil {
+		t.Error(err)
+		return
+	}
+	expectedEntity = Mock{{$entityName}}Entity1()
+	criteria = Mock{{$entityName}}Criteria(expectedEntity)
+	if err = deps.CriteriaDeleter.Delete(mapp.AppScope(), criteria); err != nil {
+		t.Error(err)
+		return
+	}
+	if count, err = deps.CriteriaCounter.Count(mapp.AppScope(), &maindef.{{$entityName}}Criteria{}); err != nil {
+		t.Error(err)
+		return
+	}
+	if count != 1 {
+		t.Errorf("{{$entityName}}CriteriaDeleter should remove only one record (expected 1 records and take %v records)", count)
+		return
+	}
+}
+
+
+func Test{{$entityName}}CriteriaDeleterForAll(t *testing.T) {
+	var (
+		err error
+		mapp app.App
+		deps struct {
+			CriteriaDeleter maindef.{{$entityName}}CriteriaDeleter `dependency:"{{$entityName}}CriteriaDeleter"`
+			CriteriaCounter maindef.{{$entityName}}CriteriaCounter `dependency:"{{$entityName}}CriteriaCounter"`
+		}
+		criteria       *maindef.{{$entityName}}Criteria
+		count          int64
+	)
+	t.Parallel()
+	if mapp, err = NewMockApp(); err != nil {
+		t.Error(err)
+		return
+	}
+	if err = mapp.DependencyProvider().InjectTo(&deps); err != nil {
+		t.Error(err)
+		return
+	}
+	criteria = &maindef.{{$entityName}}Criteria{}
+	if err = deps.CriteriaDeleter.Delete(mapp.AppScope(), criteria); err != nil {
+		t.Error(err)
+		return
+	}
+	if count, err = deps.CriteriaCounter.Count(mapp.AppScope(), criteria); err != nil {
+		t.Error(err)
+		return
+	}
+	if count != 0 {
+		t.Errorf("{{$entityName}}CriteriaDeleter should remove all records (expected 0 records and take %v records)", count)
+		return
+	}
+}
+
+
+func Test{{$entityName}}CriteriaDeleteEvent(t *testing.T) {
+	var (
+		err error
+		mapp app.App
+		deps struct {
+			CriteriaDeleter maindef.{{$entityName}}CriteriaDeleter `dependency:"{{$entityName}}CriteriaDeleter"`
+			CriteriaCounter maindef.{{$entityName}}CriteriaCounter `dependency:"{{$entityName}}CriteriaCounter"`
+		}
+		criteria       *maindef.{{$entityName}}Criteria
+		expectedEntity *entities.{{$entityName}}
+		isTrigged      = false
+	)
+	t.Parallel()
+	if mapp, err = NewMockApp(); err != nil {
+		t.Error(err)
+		return
+	}
+	if err = mapp.DependencyProvider().InjectTo(&deps); err != nil {
+		t.Error(err)
+		return
+	}
+	mapp.EngineScope().On(maindef.{{$entityName}}DeleteEvent, func(ientity interface{}) (err error) {
+		isTrigged = true
+		return nil
+	})
+	expectedEntity = Mock{{$entityName}}Entity1()
+	criteria = Mock{{$entityName}}Criteria(expectedEntity)
+	if err = deps.CriteriaDeleter.Delete(mapp.AppScope(), criteria); err != nil {
+		t.Error(err)
+		return
+	}
+	if err = mapp.AppScope().Trigger(app.CommitEvent, nil); err != nil {
+		t.Error(err)
+		return
+	}
+	if isTrigged == false {
+		t.Errorf("{{$entityName}}DeleteEvent event must be called")
+		return
+	}
+}
+
+
+{{- end -}}

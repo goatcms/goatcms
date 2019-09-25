@@ -1,22 +1,18 @@
 {
   "model": {
     "user": {
-      "entity": "user",
-      "admin_read_roles":   "admin",
-      "admin_insert_roles": "admin",
-      "admin_edit_roles":   "admin",
-      "admin_delete_roles": "admin",
-      "label":"user",
+      "name": "user",
+      "label":"email",
       "fields": {
         "0": {
-          "name": "firstname",
+          "name": "person.firstname",
           "system": "n",
           "type": "string",
           "unique": "n",
           "required": "y"
         },
         "1": {
-          "name": "lastname",
+          "name": "person.lastname",
           "system": "n",
           "type": "string",
           "unique": "n",
@@ -50,6 +46,10 @@
           "unique": "y",
           "required": "y"
         }
+      },
+      "indexes": {
+        "username": "Username",
+        "auth": "Username, Password"
       }
     }
   }

@@ -1,11 +1,7 @@
 {
   "model": {
     "fragment": {
-      "entity": "fragment",
-      "admin_read_roles":   "admin",
-      "admin_insert_roles": "admin",
-      "admin_edit_roles":   "admin",
-      "admin_delete_roles": "admin",
+      "name": "fragment",
       "label":"name",
       "fields": {
         "0": {

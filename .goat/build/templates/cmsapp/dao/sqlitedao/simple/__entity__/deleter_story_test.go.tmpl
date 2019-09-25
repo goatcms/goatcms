@@ -1,0 +1,81 @@
+{{define "dao/sqlitedao/simple/{{entity}}/delete_story_test.go" -}}
+{{- $ctx := . -}}
+{{- $entity := $ctx.DotData -}}
+{{- $typeName := print $entity.Name.CamelCaseUF "Delete" -}}
+
+package simple
+
+import (
+	"testing"
+	"database/sql"
+	"github.com/goatcms/goatcore/app"
+	"github.com/goatcms/goatcore/app/scope"
+	"github.com/goatcms/goatcms/cmsapp/dao"
+	"github.com/goatcms/goatcms/cmsapp/entities"
+	_ "github.com/mattn/go-sqlite3"
+)
+
+
+func TestDeleteEntityStory(t *testing.T) {
+	t.Parallel()
+	doDeleteEntityStory(t)
+}
+
+func doDeleteEntityStory(t *testing.T) (bool, *sql.DB) {
+	var (
+		db       *sql.DB
+		entity   *entities.{{$entity.Name.CamelCaseUF}}
+		ctxScope app.Scope
+		err      error
+		ok       bool
+	)
+	if ok, db, entity := doInsertWithoutIDStory(t); !ok {
+		return false, db
+	}
+	ctxScope = scope.NewScope("testtag")
+	deleteService := {{$entity.Name.CamelCaseUF}}Delete{}
+	deleteService.deps.DB = db
+	deleteService.deps.EngineScope = ctxScope
+	if err = deleteService.Delete(s, *entity.ID); err != nil {
+		t.Error(err)
+		return false, db
+	}
+	return true, db
+}
+
+func TestDeleteEntityEventTrigger(t *testing.T) {
+	var (
+		db       *sql.DB
+		entity   *entities.{{$entity.Name.CamelCaseUF}}
+		ctxScope app.Scope
+		err      error
+		ok       bool
+
+		isTrigged = false
+	)
+	if ok, db, entity := doInsertWithoutIDStory(t); !ok {
+		return false, db
+	}
+	ctxScope = scope.NewScope("testtag")
+	ctxScope.On(maindef.{{$entity.Name.CamelCaseUF}}DeleteEvent, func(ientity interface{}) (err error) {
+		isTrigged = true
+		return
+	})
+	deleteService := {{$entity.Name.CamelCaseUF}}Delete{}
+	deleteService.deps.DB = db
+	deleteService.deps.EngineScope = ctxScope
+	if err = deleteService.Delete(s, *entity.ID); err != nil {
+		t.Error(err)
+		return false, db
+	}
+	if err = ctxScope.Trigger(app.CommitEvent, nil); err != nil {
+		t.Error(err)
+		return
+	}
+	if isTrigged == false {
+		t.Errorf("{{$entity.Name.CamelCaseUF}}DeleteEvent event must be called")
+		return
+	}
+}
+
+{{- end -}}

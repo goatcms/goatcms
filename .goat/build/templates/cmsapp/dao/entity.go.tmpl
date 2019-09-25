@@ -1,0 +1,102 @@
+{{- define "dao/{{entity}}.go" -}}
+{{- $ctx := . -}}
+{{- $entity := $ctx.DotData -}}
+{{- $fields := $entity.AllFields -}}
+{{- $hasDatetimeField := (gt (len (index $entity.AllFields.ByType "datetime")) 0) -}}
+
+package dao
+
+import (
+	{{- if $hasDatetimeField}}
+	"time"
+	{{- end }}
+	"github.com/goatcms/goatcore/app"
+	"github.com/goatcms/goatcms/cmsapp/entities"
+)
+
+// {{$entity.Name.CamelCaseUF}}Rows is the result of a query. Its cursor starts before the first row of the result set. Use Next to advance through the rows
+type {{$entity.Name.CamelCaseUF}}Rows interface {
+	Rows
+	InjectTo(*entities.{{$entity.Name.CamelCaseUF}}) error
+	Get() (*entities.{{$entity.Name.CamelCaseUF}}, error)
+}
+
+// {{$entity.Name.CamelCaseUF}}Row is the result of calling QueryRow to select a single row.
+type {{$entity.Name.CamelCaseUF}}Row interface {
+	Row
+	InjectTo(*entities.{{$entity.Name.CamelCaseUF}}) error
+	Get() (*entities.{{$entity.Name.CamelCaseUF}}, error)
+}
+
+// {{$entity.Name.CamelCaseUF}}FindAll is the DAO find all provider interface
+type {{$entity.Name.CamelCaseUF}}FindAll interface {
+	Find(scope app.Scope, fields *entities.{{$entity.Name.CamelCaseUF}}Fields) ({{$entity.Name.CamelCaseUF}}Rows, error)
+	SQL(fields *entities.{{$entity.Name.CamelCaseUF}}Fields) (string, error)
+}
+
+{{ range $i, $index := $entity.Indexes.Ordered }}
+{{template "dao/{{entity}}.go$index_def" (dict "Index" $index "Entity" $entity)}}
+{{- end }}
+
+// {{$entity.Name.CamelCaseUF}}Inserter is the DAO insert provider interface
+type {{$entity.Name.CamelCaseUF}}Inserter interface {
+	Insert(scope app.Scope, entity *entities.{{$entity.Name.CamelCaseUF}}) (id int64, err error)
+	SQL(entity *entities.{{$entity.Name.CamelCaseUF}}) (string, error)
+}
+
+// {{$entity.Name.CamelCaseUF}}Update is the DAO update provider interface
+type {{$entity.Name.CamelCaseUF}}Update interface {
+	Update(scope app.Scope, entity *entities.{{$entity.Name.CamelCaseUF}}, fields *entities.{{$entity.Name.CamelCaseUF}}Fields) (err error)
+	SQL(fields *entities.{{$entity.Name.CamelCaseUF}}Fields, entity *entities.{{$entity.Name.CamelCaseUF}}) (string, error)
+}
+
+{{- end -}}
+
+
+
+{{- define "dao/{{entity}}.go$structs_def" -}}
+{{- $ctx := . -}}
+{{- $struct := $ctx.Struct }}
+{{- $structureClassName := amStructClassName $struct }}
+
+// {{$structureClassName}} is a part of {{$struct.Entity.Name.CamelCaseUF}} entity
+type {{$structureClassName}} struct {
+  {{- template "entities/{{entity}}.go$struct_fields" (dict "Struct" $struct) -}}
+}
+{{- range $name, $childStruct := $struct.Structures.Ordered -}}
+{{- template "entities/{{entity}}.go$structs_def" (dict "Struct" $childStruct) -}}
+{{- end -}}
+{{- end -}}
+
+
+{{- define "dao/{{entity}}.go$struct_fields" -}}
+{{- $ctx := . -}}
+{{- $struct := $ctx.Struct -}}
+  {{- range $name, $field := $struct.Fields.Ordered }}
+    {{$field.Name.CamelCaseUF}} *{{template "gotype" $field.Type}} `json:"{{if eq $field.Name.CamelCaseUF "ID"}}id{{else}}{{$field.Name.CamelCaseLF}}{{end}}"`
+  {{- end -}}
+  {{- range $name, $relation := $struct.Relations.Ordered }}
+    {{$relation.Name.CamelCaseUF}}ID *{{template "gotype" "int"}}  `json:"{{$relation.Name.CamelCaseLF}}ID"`
+    {{$relation.Name.CamelCaseUF}}   *{{camelcaseuf $relation.To}} `json:"{{$relation.Name.CamelCaseLF}}"`
+  {{- end -}}
+  {{- range $name, $childStruct := $struct.Structures.Ordered }}
+    {{$childStruct.Name.CamelCaseUF}} {{amStructClassName $childStruct}} `json:"{{$childStruct.Name.CamelCaseLF}}"`
+  {{- end -}}
+{{- end -}}
+
+
+{{- define "dao/{{entity}}.go$index_def" -}}
+{{- $ctx := . -}}
+{{- $index := $ctx.Index -}}
+{{- $entity := $ctx.Entity }}
+// {{$entity.Name.CamelCaseUF}}FindBy{{$index.Name.CamelCaseUF}} find {{$entity.Name.CamelCaseUF}} by {{range $fi, $field := $index.Fields -}}
+{{- if ne $fi 0}}
+{{- if eq (sub (len $index.Fields) 1) $fi}} and {{else}}, {{end}}
+{{- end -}}
+{{$field.FullName.CamelCaseUF}}
+{{- end }}
+type {{$entity.Name.CamelCaseUF}}FindBy{{$index.Name.CamelCaseUF}} interface {
+	Find(scope app.Scope, fields *entities.{{$entity.Name.CamelCaseUF}}Fields{{range $fi, $field := $index.Fields}},  {{$field.FullName.CamelCaseLF}} {{template "gotype" $field.Type}}{{ end }}) (result *entities.{{$entity.Name.CamelCaseUF}}, err error)
+	SQL(fields *entities.{{$entity.Name.CamelCaseUF}}Fields{{range $fi, $field := $index.Fields}},  {{$field.FullName.CamelCaseLF}} {{template "gotype" $field.Type}}{{ end }}) (string, error)
+}
+{{- end -}}

@@ -1,0 +1,14 @@
+{{define "dao" -}}
+{{- $ctx := . -}}
+
+{{- template "dao/sqlitedao" $ctx -}}
+
+{{- $ctx.RenderOnce "dao/events.go" "" "" "dao/events.go" $ctx.DotData -}}
+{{- $ctx.RenderOnce "dao/interfaces.go" "" "" "dao/interfaces.go" $ctx.DotData -}}
+{{- range $index, $entity := $ctx.AM.Entities }}
+  {{- $path := (print "cmsapp/dao/" $entity.Name.Underscore ) -}}
+  {{- $ctx.RenderOnce (print $path  "_criteria.go") "" "" "dao/{{entity}}_criteria.go" $entity -}}
+  {{- $ctx.RenderOnce (print $path  ".go") "" "" "dao/{{entity}}.go" $entity -}}
+{{- end -}}
+
+{{- end -}}

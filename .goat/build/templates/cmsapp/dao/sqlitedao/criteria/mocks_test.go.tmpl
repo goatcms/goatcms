@@ -1,0 +1,133 @@
+{{define "sqlite.criteria.mocks_test_go" -}}
+{{- $ctx := . -}}
+{{- $firstDatetimeField := (findRow "model." "^.*$" ".type" "datetime" $ctx.Data) -}}
+
+package criteria
+
+import (
+	{{- if ne $firstDatetimeField ""}}
+	"time"
+	{{- end }}
+
+	maindef "{{index $ctx.Properties.Build "path"}}"
+	entities "{{index $ctx.Properties.Build "entities_path"}}"
+)
+
+{{- range $mi, $modelID := (keys $ctx.Data "model.") -}}
+	{{- $name := (index $ctx.Data (print "model." $modelID ".entity")) -}}
+	{{- $entityName := (camelcaseuf $name) -}}
+	{{- $fieldsBaseKey := (print "model." $modelID ".fields.") -}}
+	{{- $fields := (keys $ctx.Data $fieldsBaseKey) -}}
+	{{- $relationsBaseKey := (print "model." $modelID ".relations.") -}}
+	{{- $relations := (keys $ctx.Data $relationsBaseKey) }}
+
+	func Mock{{$entityName}}Criteria(entity *entities.{{$entityName}}) *maindef.{{$entityName}}Criteria {
+		return &maindef.{{$entityName}}Criteria {
+			Fields: entities.{{$entityName}}AllFieldsAndID,
+			Where: maindef.{{$entityName}}CriteriaWhere {
+				{{- range $index, $field := $fields -}}
+			    {{- $key := (print $fieldsBaseKey $field) -}}
+			    {{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) -}}
+			    {{- $fieldType := (lower (index $ctx.Data (print $key ".type"))) -}}
+
+					{{ if eq $fieldType "text" "string" "email" "password" "lang" }}
+					  {{$fieldName}}: &maindef.StringFieldCriteria{
+							Value: []string{*entity.{{$fieldName}}},
+							Type:  maindef.EQ,
+						},
+					{{- else if eq $fieldType "datetime" }}
+					  {{$fieldName}}: &maindef.DatetimeFieldCriteria{
+							Value: []time.Time{*entity.{{$fieldName}}},
+							Type:  maindef.EQ,
+						},
+					{{- else if eq $fieldType "int" }}
+					  {{$fieldName}}: &maindef.Int64FieldCriteria{
+							Value: []int64{*entity.{{$fieldName}}},
+							Type:  maindef.EQ,
+						},
+					{{- else -}}
+					  {{- error (print "bad SQL type" .) -}}
+					{{- end -}}
+			  {{- end }}
+			},
+			Related: maindef.{{$entityName}}CriteriaRelated {
+				{{- range $index, $relation := $relations -}}
+					{{- $key := (print $relationsBaseKey $relation) -}}
+					{{- $fieldName := (camelcaseuf (index $ctx.Data (print $key ".name"))) }}
+					{{- $relatedModel := (camelcaseuf (index $ctx.Data (print $key ".model"))) }}
+					{{$fieldName}}: &maindef.{{$relatedModel}}Criteria {
+						Fields: entities.{{$relatedModel}}AllFieldsAndID,
+					},
+				{{- end }}
+			},
+		}
+	}
+
+	func Mock{{$entityName}}Entity1() *entities.{{$entityName}} {
+		var (
+		{{- range $index, $field := $fields -}}
+	    {{- $key := (print $fieldsBaseKey $field) -}}
+		  {{- $fieldName := (index $ctx.Data (print $key ".name")) -}}
+	    {{- $fieldType := (index $ctx.Data (print $key ".type")) }}
+			{{- if eq $fieldType "datetime" }}
+			{{lower $fieldName}}, _ = time.Parse(time.RFC3339, {{template "mockvalue" $fieldType}})
+			{{- else }}
+			{{lower $fieldName}} {{template "gotype" $fieldType}} = {{template "mockvalue" $fieldType}}
+			{{- end }}
+		{{- end }}
+		{{- range $index, $relation := $relations -}}
+			{{- $key := (print $relationsBaseKey $relation) -}}
+			{{- $fieldName := (index $ctx.Data (print $key ".name")) }}
+			{{lower $fieldName}} {{template "gotype" "int"}} = 1
+		{{- end }}
+		)
+		return &entities.{{$entityName}} {
+			{{- range $index, $field := $fields -}}
+		    {{- $key := (print $fieldsBaseKey $field) -}}
+		    {{- $fieldName := (index $ctx.Data (print $key ".name")) -}}
+		    {{- $fieldType := (index $ctx.Data (print $key ".type")) }}
+				{{camelcaseuf $fieldName}}: &{{lower $fieldName}},
+		  {{- end }}
+			{{- range $index, $relation := $relations -}}
+				{{- $key := (print $relationsBaseKey $relation) -}}
+				{{- $fieldName := (index $ctx.Data (print $key ".name")) }}
+				{{camelcaseuf $fieldName}}ID: &{{lower $fieldName}},
+			{{- end }}
+		}
+	}
+
+	func Mock{{$entityName}}Entity2() *entities.{{$entityName}} {
+		var (
+		{{- range $index, $field := $fields -}}
+	    {{- $key := (print $fieldsBaseKey $field) -}}
+		  {{- $fieldName := (index $ctx.Data (print $key ".name")) -}}
+	    {{- $fieldType := (index $ctx.Data (print $key ".type")) }}
+			{{- if eq $fieldType "datetime" }}
+			{{lower $fieldName}}, _ = time.Parse(time.RFC3339, {{template "mockvalue" $fieldType}})
+			{{- else }}
+			{{lower $fieldName}} {{template "gotype" $fieldType}} = {{template "mockvalue" $fieldType}}
+			{{- end }}
+		{{- end }}
+		{{- range $index, $relation := $relations -}}
+			{{- $key := (print $relationsBaseKey $relation) -}}
+			{{- $fieldName := (index $ctx.Data (print $key ".name")) }}
+			{{lower $fieldName}} {{template "gotype" "int"}} = 1
+		{{- end }}
+		)
+		return &entities.{{$entityName}} {
+			{{- range $index, $field := $fields -}}
+		    {{- $key := (print $fieldsBaseKey $field) -}}
+		    {{- $fieldName := (index $ctx.Data (print $key ".name")) -}}
+		    {{- $fieldType := (index $ctx.Data (print $key ".type")) }}
+				{{camelcaseuf $fieldName}}: &{{lower $fieldName}},
+		  {{- end }}
+			{{- range $index, $relation := $relations -}}
+				{{- $key := (print $relationsBaseKey $relation) -}}
+				{{- $fieldName := (index $ctx.Data (print $key ".name")) }}
+				{{camelcaseuf $fieldName}}ID: &{{lower $fieldName}},
+			{{- end }}
+		}
+	}
+{{- end -}}
+
+{{- end -}}

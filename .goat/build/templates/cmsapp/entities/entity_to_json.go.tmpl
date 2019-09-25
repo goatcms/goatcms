@@ -1,0 +1,77 @@
+{{define "entities/{{entity}}_to_json.go" -}}
+{{- $ctx := . -}}
+{{- $entity := $ctx.DotData -}}
+{{- $fields := $entity.AllFields.Ordered -}}
+{{- $hasIntField := (gt (len (index $entity.AllFields.ByType "int")) 0) -}}
+{{- $hasDatetimeField := (gt (len (index $entity.AllFields.ByType "datetime")) 0) -}}
+
+package entities
+
+import (
+	"strings"
+	{{- if $hasDatetimeField}}
+	  "time"
+	{{- end }}
+	"github.com/goatcms/goatcore/varutil"
+)
+
+{{template "entities/{{entity}}_to_json.go$json_func" $entity.RootStructure}}
+
+// {{$entity.Plural.CamelCaseUF}}ToJSON convert entities to JSON
+func {{$entity.Plural.CamelCaseUF}}ToJSON(e []*{{$entity.Name.CamelCaseUF}}, fields {{$entity.Singular.CamelCaseUF}}Fields) (json string, err error) {
+	rows := make([]string, len(e))
+	for i, entity := range e {
+		if rows[i], err = {{$entity.Singular.CamelCaseUF}}ToJSON(*entity, fields); err != nil {
+			return "", err
+		}
+	}
+	return "[" + strings.Join(rows, ",") + "]", nil
+}
+
+{{- end -}}
+
+
+
+
+{{- define "entities/{{entity}}_to_json.go$json_func" -}}
+{{- $struct := . -}}
+{{- $fields := $struct.Fields.Ordered -}}
+{{- $relations := $struct.Relations.Ordered -}}
+{{- $structs := $struct.Structures.Ordered -}}
+{{- $structureClassName := amStructClassName $struct}}
+
+{{range $key, $childStruct := $structs}}
+{{template "entities/{{entity}}_to_json.go$json_func" $childStruct}}
+{{end}}
+
+// {{$structureClassName}}ToJSON convert {{$structureClassName}} to JSON
+func {{$structureClassName}}ToJSON(e {{$structureClassName}}, fields {{$structureClassName}}Fields) (json string, err error) {
+	var i = 0
+	rows := make([]string, {{sum (len $fields) (len $relations) (len $structs) 1}})
+{{- range $index, $field := $fields }}
+	if fields.{{$field.Name.CamelCaseUF}} {
+{{if eq $field.Name.CamelCaseUF "ID" }}
+		rows[i] = "\"{{$field.Name.Lower}}\":" + {{template "QuotedStringFromVar" (dict "FromVar" (print "e." $field.Name.CamelCaseUF) "FromType" $field.Type)}}
+{{- else }}
+		rows[i] = "\"{{$field.Name.CamelCaseLF}}\":" + {{template "QuotedStringFromVar" (dict "FromVar" (print "e." $field.Name.CamelCaseUF) "FromType" $field.Type)}}
+{{- end }}
+		i++
+	}
+{{- end -}}
+{{- range $index, $relation := $relations }}
+	if fields.{{$relation.Name.CamelCaseUF}}ID {
+		rows[i] = "\"{{$relation.Name.CamelCaseLF}}ID\":" + {{template "QuotedStringFromVar" (dict "FromVar" (print "e." $relation.Name.CamelCaseUF "ID") "FromType" "int" )}}
+		i++
+	}
+{{- end }}
+{{- range $index, $childStruct := $structs }}
+	if json, err = {{amStructClassName $childStruct}}ToJSON(e.{{$childStruct.Name.CamelCaseUF}}, fields.{{$childStruct.Name.CamelCaseUF}}); err != nil {
+		return "", err
+	}
+	rows[i] = "\"{{$childStruct.Name.CamelCaseLF}}\":" + json
+	i++
+{{- end }}
+	return "{" + strings.Join(rows[0:i], ",") + "}", nil
+}
+
+{{- end -}}

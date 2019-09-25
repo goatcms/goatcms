@@ -1,0 +1,10 @@
+{{- define "dao/sqlitedao/simple" -}}
+{{- $ctx := . -}}
+
+
+{{- range $index, $entity := $ctx.AM.Entities }}
+  {{- template "dao/sqlitedao/simple/{{entity}}" (dict "ctx" $ctx "entity" $entity) -}}
+{{- end -}}
+
+
+{{- end -}}

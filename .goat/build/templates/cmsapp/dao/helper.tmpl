@@ -1,0 +1,29 @@
+{{- define "entities$entity_fields_map" -}}
+{{- $ctx := . -}}
+{{- $entity := $ctx.Entity -}}
+{{- $withID := $ctx.WithID -}}
+{{- $system := $ctx.System -}}
+&{{camelcaseuf $entity.Name.CamelCaseUF}}Fields {
+  ID: {{if $withID}}true{{- else -}}false{{- end -}},
+  {{template "entities$entity_fields_struct_map" (dict "Entity" $entity "System" $system "Struct" $entity.Structure)}}
+}
+{{- end -}}
+
+
+{{- define "entities$entity_fields_struct_map" -}}
+{{- $ctx := . -}}
+{{- $entity := $ctx.Entity -}}
+{{- $system := $ctx.System -}}
+{{- $struct := $ctx.Struct -}}
+  {{- range $name, $field := $struct.Fields.ByName }}
+    {{$field.Name.CamelCaseUF}}: {{if or (eq $system "") (eq $field.Flags.System (eq $system "y"))}}true{{- else -}}false{{- end -}},
+  {{- end -}}
+  {{- range $name, $relation := $struct.Relations }}
+    {{$relation.Name.CamelCaseUF}}ID: {{if or (eq $system "") (eq $relation.Flags.System (eq $system "y"))}}true{{- else -}}false{{- end -}},
+  {{- end -}}
+  {{- range $name, $childStruct := $struct.Structures }}
+    {{camelcaseuf $name}}: {{amStructClassName $childStruct}} {
+      {{template "entities$entity_fields_struct_map" (dict "Entity" $entity "System" $system "Struct" $childStruct)}}
+    },
+  {{- end -}}
+{{- end -}}

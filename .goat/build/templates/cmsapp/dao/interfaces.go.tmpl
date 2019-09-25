@@ -1,0 +1,108 @@
+{{- define "dao/interfaces.go" -}}
+{{- $ctx := . -}}
+
+package dao
+
+import (
+	"time"
+
+	"github.com/goatcms/goatcore/app"
+)
+
+const (
+	// order DESC (descending)
+	DESC = iota
+	// order ASC (ascending)
+	ASC
+)
+
+const (
+	// EQ returns the boolean truth of  arg1 == arg2 // IN for multi values array
+	EQ = iota
+	// NE returns the boolean truth of arg1 != arg2  // NOT IN for multi values array
+	NE
+	// LT returns the boolean truth of arg1 < arg2   // Prevent len(value) != 1
+	LT
+	// LE returns the boolean truth of arg1 <= arg2  // Prevent len(value) != 1
+	LE
+	// GT returns the boolean truth of arg1 > arg2   // Prevent len(value) != 1
+	GT
+	// GE returns the boolean truth of arg1 >= arg2  // Prevent len(value) != 1
+	GE
+	// LIKE returns the boolean truth of SQL pattern   // create LIKE v1 OR LIKE v2 query
+	LIKE
+	//IN      // Returns the boolean truth of SQL IN(values...) - created automaticaly when len(Value) > 1
+)
+
+// StringFieldCriteria represent criteria for single string field
+type StringFieldCriteria struct {
+	Value []string
+	Type  int
+}
+
+// Int64FieldCriteria represent criteria for single int64 field
+type Int64FieldCriteria struct {
+	Value []int64
+	Type  int
+}
+
+// DatetimeFieldCriteria represent criteria for single datetime field
+type DatetimeFieldCriteria struct {
+	Value []time.Time
+	Type  int
+}
+
+type FieldOrder struct {
+	Priority int
+	Type  	 byte
+}
+
+// Pager represent position and size of query page
+type Pager struct {
+	Limit  int64
+	Offset int64
+}
+
+// Database provide database public plain api
+type Database interface {
+	Exec(scope app.Scope, query string) error
+	Query(scope app.Scope, query string) (Rows, error)
+	Commit(scope app.Scope) error
+	Rollback(scope app.Scope) error
+}
+
+// CreateTable describe create table action as DAO separated service
+type CreateTable interface {
+	CreateTable(scope app.Scope) error
+	SQL() string
+	AlterTable(scope app.Scope) error
+	AlterSQL() string
+}
+
+// Delete describe delete action as DAO separated service
+type Delete interface {
+	Delete(scope app.Scope, id int64) error
+	SQL(id int64) string
+}
+
+// DropTable describe drop action as DAO separated service
+type DropTable interface {
+	DropTable(scope app.Scope) error
+	SQL() string
+}
+
+// Rows represent a query response
+type Rows interface {
+	Close() error
+	Next() bool
+	Columns() ([]string, error)
+	GetValues() ([]interface{}, error)
+}
+
+// Row represent a single row query response
+type Row interface {
+	Columns() ([]string, error)
+	GetValues() ([]interface{}, error)
+}
+
+{{- end -}}

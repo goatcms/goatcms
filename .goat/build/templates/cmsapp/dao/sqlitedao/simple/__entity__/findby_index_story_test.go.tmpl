@@ -1,0 +1,52 @@
+{{define "dao/sqlitedao/simple/{{entity}}/findby{{index}}_story_test.go" -}}
+{{- $ctx := . -}}
+{{- $entity := $ctx.DotData.Entity -}}
+{{- $index := $ctx.DotData.Index -}}
+{{- $typeName := print $entity.Name.CamelCaseUF "FindBy" $index.Name.CamelCaseUF -}}
+
+package simple
+
+import (
+	"testing"
+	"database/sql"
+	"github.com/goatcms/goatcore/app/scope"
+	"github.com/goatcms/goatcms/cmsapp/entities"
+	_ "github.com/mattn/go-sqlite3"
+)
+
+
+func TestFindByIDStory(t *testing.T) {
+	t.Parallel()
+	doFindByIDStory(t)
+}
+
+func do{{$typeName}}Story(t *testing.T) (bool, *sql.DB) {
+	var (
+		ok             bool
+		db             *sql.DB
+		err            error
+		expectedEntity *entities.{{$entity.Name.CamelCaseUF}}
+		entity         *entities.{{$entity.Name.CamelCaseUF}}
+	)
+	if ok, db, expectedEntity = doInsertWithoutIDStory(t); !ok {
+		return false, nil
+	}
+	s := scope.NewScope("tag")
+	finder := {{$typeName}}{}
+	finder.deps.DB = db
+	if entity, err = finder.Find(s, entities.{{$entity.Name.CamelCaseUF}}AllFields{{range $i, $field := $index.Fields -}}
+		, *expectedEntity.{{$field.Name.CamelCaseUF}}
+{{- end -}}); err != nil {
+		t.Error(err)
+		return false, db
+	}
+{{- range $i, $field := $entity.AllFields.Ordered }}
+	if *{{amLinkFieldUF "expectedEntity" $field}} != *{{amLinkFieldUF "entity" $field}} {
+		t.Errorf("Returned field should contains inserted entity value for {{amLinkFieldUF "entity" $field}} field and it is %v (expeted %v)", {{amLinkFieldUF "entity" $field}}, {{amLinkFieldUF "expectedEntity" $field}})
+		return false, db
+	}
+{{- end }}
+	return true, db
+}
+
+{{- end -}}

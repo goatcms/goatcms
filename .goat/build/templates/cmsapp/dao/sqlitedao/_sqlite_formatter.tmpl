@@ -1,0 +1,15 @@
+{{- define "sqliteHelperPointerVarToQuotedString" -}}
+{{- $fromVar := .FromVar }}
+{{- $fromType := .FromType }}
+
+{{- if eq $fromType "text" "string" "email" "password" "lang" -}}
+  helpers.Quote(entity.{{$fieldName}})
+{{- else if eq $fromType "datetime" -}}
+  helpers.FormatDatetime(entity.{{$fieldName}})
+{{- else if eq $fromType "int" "id" -}}
+  helpers.FormatInt(entity.{{$fieldName}}, 10)
+{{- else -}}
+  {{- error (print "bad type" $fromType) -}}
+{{- end -}}
+
+{{- end -}}
